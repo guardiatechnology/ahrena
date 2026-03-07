@@ -18,12 +18,12 @@ Leis inquebráveis (Lexis), bases de conhecimento (Codex), procedimentos repetí
 O Ahrena organiza conhecimento em **três níveis**:
 
 ```
-Clade (disciplina) → Subclade (área) → Pilar (tipo de artefato) → artefato
+Clade (disciplina) → Subclade (área) → Pilar (tipo de capacidade) → Capability (capacidade)
 ```
 
 ### Pilares
 
-Pilares definem o **tipo** de cada artefato. São cinco:
+Pilares definem o **tipo** de cada capacidade. São cinco:
 
 #### Lexis — Leis Inquebráveis
 
@@ -33,11 +33,9 @@ Restrições absolutas de segurança, qualidade ou processo que **nenhum agente 
 |---------|---------|
 | **Natureza** | Restritiva e imperativa — define o que **nunca** pode acontecer ou que **sempre** deve acontecer |
 | **Prefixo** | `lex-` |
-| **Exceções** | Nenhuma |
-| **Validação** | Automatizada (SAST, pre-commit hooks, CI pipeline) |
+| **Quando usar** | Quando há risco de violação de segurança, qualidade ou processo crítico |
+| **Governança** | Sem exceções; validação automatizada sempre que possível |
 | **Template** | [`framework/lexis/lex-sample.md`](framework/lexis/lex-sample.md) |
-
-**Seções:** Propósito, Lei, Abrangência, Consequências de Violação, Exemplos, Validação Automatizada.
 
 #### Codex — Manuais de Referência
 
@@ -47,11 +45,9 @@ Base de conhecimento estruturada que a IA consulta para tomar decisões contextu
 |---------|---------|
 | **Natureza** | Informativa e orientadora — define **como** o sistema funciona |
 | **Prefixo** | `codex-` |
-| **Atualização** | A cada ADR aprovado ou mudança arquitetural |
-| **Público** | Desenvolvedores, Tech Lead e IA copiloto |
+| **Quando usar** | Quando uma decisão, padrão ou convenção relevante precisa ser documentada |
+| **Governança** | Atualizado a cada decisão relevante ou mudança estrutural; consultado por equipe e IA |
 | **Template** | [`framework/codex/codex-sample.md`](framework/codex/codex-sample.md) |
-
-**Seções:** Visão Geral, Contexto, Conteúdo (Princípios, Padrões e Convenções, Decisões Vigentes, Restrições Técnicas), Diagrama de Referência, Glossário, Referências.
 
 #### Katas — Skills Repetíveis
 
@@ -61,11 +57,9 @@ Procedimentos que definem como agentes executam tarefas recorrentes de forma pad
 |---------|---------|
 | **Natureza** | Procedimental — define **o que fazer** passo a passo |
 | **Prefixo** | `kata-` |
-| **Ativação** | Condições explícitas (ex: "quando o usuário pede um ADR") |
-| **Garantia** | Critérios de validação verificados antes da entrega |
+| **Quando usar** | Quando uma tarefa recorrente precisa ser executada de forma padronizada |
+| **Governança** | Critérios de validação verificados antes da entrega |
 | **Template** | [`framework/katas/kata-sample.md`](framework/katas/kata-sample.md) |
-
-**Seções:** Objetivo, Quando Usar, Inputs, Workflow, Outputs, Exemplo de Execução, Restrições.
 
 #### Warriors — Agentes Especializados
 
@@ -75,11 +69,9 @@ Agentes de IA com identidade, escopo e responsabilidades definidos. Cada Warrior
 |---------|---------|
 | **Natureza** | Persona — define **quem** o agente é e como se comporta |
 | **Prefixo** | `warrior-` |
-| **Composição** | Vincula Lexis (leis), Codex (conhecimento) e Katas (habilidades) |
-| **Escalação** | Critérios claros para delegar decisão a humano |
+| **Quando usar** | Quando um agente especializado com identidade e escopo definidos é necessário |
+| **Governança** | Vincula Lexis, Codex e Katas; critérios claros de escalação para humano |
 | **Template** | [`framework/warriors/warrior-sample.md`](framework/warriors/warrior-sample.md) |
-
-**Seções:** Identidade, Missão, Responsabilidades (faz/não faz), Consulta, Comportamento, Exemplo de Interação.
 
 #### Cries — Comandos Recorrentes
 
@@ -89,11 +81,9 @@ Atalhos de produtividade que automatizam tarefas repetitivas. Diferem dos Katas 
 |---------|---------|
 | **Natureza** | Invocação — define um **atalho** rápido e reutilizável |
 | **Prefixo** | `cry-` |
-| **Invocação** | Via `/cry-[nome]` no chat |
-| **Complexidade** | Baixa (1-2 passos), ao contrário dos Katas (multi-passo) |
+| **Quando usar** | Quando uma tarefa simples e repetitiva pode ser automatizada via comando rápido |
+| **Governança** | Baixa complexidade (1-2 passos); invocado via `/cry-[nome]` no chat |
 | **Template** | [`framework/cries/cry-sample.md`](framework/cries/cry-sample.md) |
-
-**Seções:** Descrição, Uso, Parâmetros, O que o Comando Faz, Prompt Template, Exemplo de Invocação, Restrições, Diferença de Kata.
 
 ---
 
@@ -128,13 +118,13 @@ Desenvolvimento, arquitetura e infraestrutura. Abrange todo o ciclo técnico —
 
 #### Finance
 
-Gestão financeira, contábil e regulatória. Estrutura processos que exigem precisão, rastreabilidade e conformidade com normas.
+Gestão financeira, contábil e controladoria. Estrutura processos que exigem precisão, rastreabilidade e conformidade com normas fiscais e contábeis.
 
 | Subclade | Foco |
 |----------|------|
 | Accounting | Lançamentos, conciliação e fechamento contábil |
-| Compliance | Regulamentação, auditoria e controles internos |
-| Reporting | Relatórios gerenciais, demonstrações e KPIs financeiros |
+| Treasury | Fluxo de caixa, pagamentos, recebimentos e gestão de liquidez |
+| Controllership | Planejamento financeiro, orçamento, relatórios gerenciais e KPIs |
 
 #### Operations
 
