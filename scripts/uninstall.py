@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ahrena Framework Uninstaller
+Ahrena: AI-First Capability Framework — Uninstaller
 
 Removes all Ahrena-installed files from the project.
 Asks for confirmation unless --force is passed.
@@ -62,7 +62,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(
         prog="uninstall.py",
-        description="Ahrena Framework Uninstaller",
+        description="Ahrena: AI-First Capability Framework — Uninstaller",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 examples:
@@ -84,8 +84,8 @@ examples:
     ahrena_dir = target / ".ahrena"
     cursor_dir = target / ".cursor"
 
-    print("Ahrena Framework Uninstaller")
-    print("=" * 40)
+    print("Ahrena: AI-First Capability Framework — Uninstaller")
+    print("=" * 54)
 
     if not ahrena_dir.exists():
         print("\nAhrena is not installed in this project.")

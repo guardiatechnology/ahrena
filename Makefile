@@ -24,7 +24,7 @@ endif
 .PHONY: install install-cursor update uninstall clean help
 
 help:
-	@echo "Ahrena Framework Installer"
+	@echo "Ahrena: AI-First Capability Framework"
 	@echo ""
 	@echo "Targets:"
 	@echo "  install          Install .ahrena/ only (framework + directives)"

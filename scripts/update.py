@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ahrena Framework Updater
+Ahrena: AI-First Capability Framework — Updater
 
 Updates an existing Ahrena installation to the latest (or specified) version.
 Automatically detects the installed platform and preserves .directives.
@@ -48,7 +48,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(
         prog="update.py",
-        description="Ahrena Framework Updater",
+        description="Ahrena: AI-First Capability Framework — Updater",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 examples:
@@ -86,15 +86,15 @@ examples:
 
     # Verify installation exists
     if not ahrena_dir.exists():
-        print("Ahrena Framework Updater")
-        print("=" * 40)
+        print("Ahrena: AI-First Capability Framework — Updater")
+        print("=" * 52)
         print("\nERROR: Ahrena is not installed in this project.")
         print("Run install.py first to set up the framework.")
         sys.exit(1)
 
     if not install_py.exists():
-        print("Ahrena Framework Updater")
-        print("=" * 40)
+        print("Ahrena: AI-First Capability Framework — Updater")
+        print("=" * 52)
         print("\nERROR: .ahrena/install.py not found.")
         print("Re-run the original installer to restore it.")
         sys.exit(1)
@@ -102,8 +102,8 @@ examples:
     platform = detect_platform(target)
     clades = args.clades or detect_clades(target)
 
-    print("Ahrena Framework Updater")
-    print("=" * 40)
+    print("Ahrena: AI-First Capability Framework — Updater")
+    print("=" * 52)
     print(f"\n  Target:   {target}")
     print(f"  Version:  {args.version}")
     print(f"  Platform: {platform or 'none (framework only)'}")

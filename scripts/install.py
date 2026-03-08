@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ahrena Framework Installer
+Ahrena: AI-First Capability Framework — Installer
 
 Downloads the Ahrena framework from GitHub and installs it locally.
 Optionally generates platform-specific files (e.g., Cursor IDE).
@@ -590,7 +590,7 @@ def clean(target_dir: Path) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="install.py",
-        description="Ahrena Framework Installer",
+        description="Ahrena: AI-First Capability Framework — Installer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 examples:
@@ -653,8 +653,8 @@ def main() -> None:
     args = parser.parse_args()
     target_dir = Path(args.target).resolve()
 
-    print("Ahrena Framework Installer")
-    print("=" * 40)
+    print("Ahrena: AI-First Capability Framework — Installer")
+    print("=" * 52)
 
     # ── Clean mode ──
     if args.clean:
