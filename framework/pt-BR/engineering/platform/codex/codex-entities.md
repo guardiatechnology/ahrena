@@ -4,37 +4,114 @@
 
 ## Visão Geral
 
-Este Codex descreve o modelo estrutural mínimo que todas as entidades da plataforma Guardia devem seguir. Objetiva consistência entre serviços, interoperabilidade entre domínios e aderência a requisitos de segurança, rastreabilidade e conformidade (Compliance by Design). Aplica-se a APIs, bases de dados, eventos de domínio e integrações externas.
+Esta especificação define o modelo estrutural mínimo que todas as entidades da plataforma Guardia DEVEM seguir. O objetivo é garantir consistência entre serviços, interoperabilidade entre domínios e aderência a requisitos de segurança, rastreabilidade e conformidade desde a concepção.
+
+Essa estrutura base se aplica a qualquer objeto persistente e rastreável da plataforma, abrangendo APIs, bases de dados, eventos de domínio, integrações externas e demais mecanismos de representação de entidades.
+
+Ao adotar esse padrão, toda entidade:
+
+- Possui um identificador único e global;
+- É versionada com controle explícito de alterações;
+- Mantém histórico completo e auditável;
+- Pode ser integrada e eventualmente descartada sem perda de rastreabilidade.
+
+A aplicação dessa estrutura reduz inconsistências, facilita integrações e elimina lacunas de auditoria que poderiam comprometer a conformidade com normas como **LGPD**, **SOC 2** e **ISO 27001**.
+
+Além disso, o modelo reforça os princípios do **Compliance by Design**, assegurando:
+
+- Identificação única (`entity_id`);
+- Rastreabilidade temporal (`created_at`, `updated_at`, `discarded_at`);
+- Integridade e controle de concorrência (`version`);
+- Preservação de histórico e reversibilidade (`history`);
+- Integração e interoperabilidade com sistemas externos (`external_entity_id`, `metadata`).
 
 ## Contexto
 
 - **Domínio:** modelo de entidades persistentes e rastreáveis da plataforma Guardia.
 - **Público-alvo:** implementadores, arquitetos e agentes de IA que modelam ou consomem entidades.
-- **Atualização:** quando a especificação de Entidades no Hub for alterada ou quando um PDR aprovar exceção.
+- **Atualização:** quando a especificação de Entidades for alterada ou quando um PDR aprovar exceção.
 
 ## Conteúdo
 
-### Estrutura base obrigatória
+### Estrutura base
+
+A estrutura base de uma entidade na Guardia DEVE conter as seguintes propriedades:
 
 | Propriedade | Tipo | Obrigatório | Descrição |
 |-------------|------|-------------|-----------|
-| entity_id | UUID v7 | Sim | Identificador único da entidade, imutável, gerado pelo sistema. RFC 9562 (ordenação temporal). |
-| entity_type | string | Sim | Tipo de entidade; deve pertencer a lista controlada conhecida pelo sistema. |
-| external_entity_id | string | Não | Identificador no sistema externo; máx. 36 caracteres; único por entity_type quando presente. |
-| created_at | datetime | Sim | Data e hora de criação em UTC (RFC 3339); gerado na criação; não alterável. |
-| updated_at | datetime | Sim | Data e hora da última atualização em UTC; atualizado a cada modificação; na criação = created_at; no descarte = discarded_at. |
-| discarded_at | datetime | Não | Soft delete; quando preenchido, entidade permanece para rastreabilidade. |
-| metadata | JSON Object | Não | Chaves e valores string; ideal ≤ 4KB, máx. 10KB; atualizações via JSON Merge Patch (RFC 7386); não conter dados sensíveis sem previsão legal. |
-| version | integer | Sim | Inicia em 1; incrementado com updated_at; nunca reiniciado (mesmo após restauração). Conflito de versão: última vence. |
-| history | array | Não | Snapshots de versões anteriores; últimas 10 versões, até 365 dias; auditoria e rollback. Omitido em respostas temporais e eventos; disponível em endpoint api/v1/<entity_type>/<entity_id>/history. |
+| entity_id | UUID v7 | Sim | Identificador único da entidade. |
+| entity_type | string | Sim | Tipo de entidade. |
+| external_entity_id | string | Não | Identificador único da entidade em um sistema externo. |
+| created_at | datetime | Sim | Data e hora de criação da entidade. |
+| updated_at | datetime | Sim | Data e hora da última atualização da entidade. |
+| discarded_at | datetime | Não | Data e hora de descarte da entidade. |
+| metadata | JSON Object | Não | Metadados da entidade. |
+| version | integer | Sim | Versão da entidade. |
+| history | array | Não | Histórico de versões da entidade. |
 
-### Princípios
+### Propriedades detalhadas
 
-1. **Identificação única:** entity_id UUID v7 garante unicidade global e ordenação temporal.
-2. **Rastreabilidade temporal:** created_at, updated_at e discarded_at permitem auditoria e sincronização.
-3. **Integridade e concorrência:** version permite controle de concorrência e detecção de conflitos.
-4. **Histórico e reversibilidade:** history preserva últimas versões para auditoria e rollback.
-5. **Interoperabilidade:** external_entity_id e metadata permitem integração com sistemas externos.
+#### entity_id
+
+- DEVE implementar o UUID v7 conforme a [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562#name-uuid-version-7) assegurando ordenação temporal.
+- DEVE ser único, imutável e gerado pelo sistema.
+
+#### entity_type
+
+- DEVE pertencer a uma lista controlada de entidades conhecidas pelo sistema.
+
+#### external_entity_id
+
+- PODE ser nulo.
+- DEVE ter no máximo 36 caracteres.
+- QUANDO presente, DEVE ser único dentro do `entity_type`.
+- Ideal para referências cruzadas com sistemas legados ou externos.
+
+#### created_at
+
+- DEVE ser um datetime em UTC formatado conforme a [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339).
+- DEVE ser gerado automaticamente na criação.
+- NÃO PODE ser alterado após a criação.
+
+#### updated_at
+
+- DEVE ser um datetime em UTC formatado conforme a [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339).
+- DEVE ser atualizado a cada modificação persistente.
+- Na criação, DEVE assumir o mesmo valor de `created_at`.
+- No descarte, DEVE assumir o mesmo valor de `discarded_at`.
+- Utilizado para controle de concorrência e sincronização.
+
+#### discarded_at
+
+- DEVE ser um datetime em UTC formatado conforme a [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339).
+- PODE ser nulo.
+- Quando preenchido, indica soft delete. A entidade permanece no sistema para fins de rastreabilidade.
+
+#### metadata
+
+- DEVE ser um JSON Object.
+- Chave e valor DEVEM ser strings.
+- DEVE seguir o tamanho ideal de 4KB sempre que possível e NÃO DEVE ultrapassar 10KB.
+- Atualizações DEVEM ser feitas via JSON Merge Patch [RFC 7386](https://datatracker.ietf.org/doc/html/rfc7386).
+- NÃO DEVE conter dados sensíveis ou pessoais sem previsão legal.
+- Valores PODEM ser armazenados criptografados, com impacto na performance.
+
+#### version
+
+- Inicializa em 1 e é incrementado automaticamente junto com o `updated_at`.
+- NUNCA é reiniciado, mesmo após restauração de entidade descartada.
+- Em caso de conflito de versão, a última versão é preservada, descartando a que conflitou.
+
+#### history
+
+- Armazena snapshots de versões anteriores.
+- Utilizado para auditoria, rollback e investigação.
+- Por padrão, armazena as últimas 10 versões mais recentes por até 365 dias.
+- O histórico DEVE ser omitido das respostas temporais (create, update, delete e get).
+- DEVE ser omitido dos eventos de domínio.
+- O histórico DEVE ser fornecido nas respostas de leitura (get) quando solicitado pelo cliente no endpoint `api/v1/<entity_type>/<entity_id>/history`.
+- O endpoint de histórico retorna uma lista de até 10 registros históricos da mesma entidade.
+- Valores PODEM ser armazenados criptografados, com impacto na performance.
 
 ### Quando aplicar
 
@@ -45,19 +122,12 @@ Este modelo DEVE ser adotado sempre que:
 - Eventos de domínio forem gerados;
 - Dados precisarem de unicidade, rastreabilidade, reversibilidade ou interoperabilidade.
 
-Exceções DEVEM ser justificadas e aprovadas pelo Comitê Diretivo e registradas em PDR.
-
-### Restrições técnicas
-
-- entity_id: UUID v7 (RFC 9562).
-- Timestamps: UTC, RFC 3339.
-- metadata: apenas chave e valor string; atualização via JSON Merge Patch (RFC 7386).
-- history: omitido de create/update/delete/get por padrão; fornecido somente no endpoint de histórico.
+**IMPORTANTE:** Exceções DEVEM ser justificadas e aprovadas pelo Comitê Diretivo e registradas em um Registro de Decisão de Produto (PDR).
 
 ## Glossário
 
 | Termo | Definição |
-|-------|------------|
+|-------|-----------|
 | entity_id | Identificador único global da entidade (UUID v7). |
 | entity_type | Tipo catalogado da entidade no sistema. |
 | soft delete | Descarte lógico via discarded_at; entidade mantida para rastreabilidade. |
@@ -65,7 +135,6 @@ Exceções DEVEM ser justificadas e aprovadas pelo Comitê Diretivo e registrada
 
 ## Referências
 
-- [Especificação de Entidades — Hub Guardia](https://hub.guardia.finance/docs/specifications/entities/)
-- RFC 9562: UUID Version 7
-- RFC 7386: JSON Merge Patch
-- RFC 3339: Date and Time on the Internet: Timestamps
+- [RFC 3339: Date and Time on the Internet: Timestamps](https://datatracker.ietf.org/doc/html/rfc3339)
+- [RFC 7386: JSON Merge Patch](https://datatracker.ietf.org/doc/html/rfc7386)
+- [RFC 9562: UUID Version 7](https://datatracker.ietf.org/doc/html/rfc9562)

@@ -24,11 +24,26 @@ All errors MUST be encapsulated in the `errors` field, which MUST be an array of
 | reason | string | Semantic category for programmatic handling; MUST be listed in Known Errors on the Hub. |
 | message | string | Developer-oriented description; MUST NEVER expose sensitive data or stack trace. |
 
+### Example payload
+
+```json
+{
+  "errors": [
+    {
+      "code": "ERR402_INSUFFICIENT_FUNDS",
+      "reason": "PAYMENT_IS_REQUIRED",
+      "message": "Insufficient balance for the requested operation."
+    }
+  ]
+}
+```
+
 ### General rules
 
 - **code:** unique, UPPER_SNAKE_CASE, consistent with HTTP status.
 - **reason:** indicates specific cause; multiple reason values may exist for the same code; MUST NOT contain sensitive data.
 - **message:** informative for the developer; may be internationalized via Accept-Language; MUST NEVER expose sensitive internal information.
+- **Documentation:** for each operation, document the possible code/reason pairs in the contract (OpenAPI) and in the project Known Errors catalog.
 
 ### Retry
 
@@ -40,9 +55,11 @@ All errors MUST be encapsulated in the `errors` field, which MUST be an array of
 
 ### Creating new errors
 
-- MUST follow the standardized structure.
-- MUST be registered in Known Errors on the Hub.
+- MUST follow the standardized structure (code, reason, message).
+- MUST be registered in the project Known Errors catalog.
 - New reason groups MUST be justified by new business contexts.
+- **Security considerations:** avoid messages that enable enumeration (e.g., user exists/does not exist); do not include internal data or stack trace.
+- **Monitoring:** ensure new errors are included in metrics and alerts per platform policy.
 
 ### Security
 
@@ -61,5 +78,4 @@ This specification MUST be applied to: public and internal REST APIs; inter-serv
 
 ## References
 
-- [Error Handling Specification — Guardia Hub](https://hub.guardia.finance/docs/specifications/error-handling/)
-- Known Errors (Hub)
+- codex-restful-payload (errors structure); OpenAPI (error catalog)

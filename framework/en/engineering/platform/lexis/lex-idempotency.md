@@ -40,6 +40,5 @@ Mutation endpoint without Idempotency-Key requirement; event without idempotency
 
 ## References
 
-- [Idempotency Specification — Guardia Hub](https://hub.guardia.finance/docs/specifications/idempotency/)
-- codex-idempotency (engineering/platform)
+- codex-idempotency (engineering/platform) (engineering/platform)
 - RFC 9562 (UUID); Draft RFC Idempotency-Key Header

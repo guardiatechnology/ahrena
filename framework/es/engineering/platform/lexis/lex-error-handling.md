@@ -40,5 +40,4 @@ Error sin array errors; code sin prefijo ERR + HTTP; reason no catalogado sin ju
 
 ## Referencias
 
-- [Especificación de Tratamiento de Errores — Hub Guardia](https://hub.guardia.finance/docs/specifications/error-handling/)
-- codex-error-handling (engineering/platform)
+- codex-error-handling (engineering/platform) (engineering/platform)

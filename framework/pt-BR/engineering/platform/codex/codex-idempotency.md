@@ -54,8 +54,33 @@ Este Codex descreve as regras de idempotência para operações que modificam es
 - Em fluxos que não geram efeitos colaterais.
 - Em chamadas que por definição devem sempre produzir resultado novo (ex.: geração de UUID aleatório, polling).
 
+### Comportamentos esperados
+
+#### APIs
+
+- **Primeira requisição (chave nova):** executar a operação; armazenar resultado, hash do payload, chave e timestamp; retornar resposta com status apropriado (ex.: 201); incluir header `Idempotency-Key` e `Content-Digest`.
+- **Requisição repetida (mesma chave e mesmo hash):** NÃO reexecutar; retornar o resultado original armazenado; incluir header `Last-Modified` com a data da primeira execução; status idêntico ao da primeira resposta.
+- **Requisição com mesma chave e hash diferente:** rejeitar com `409 CONFLICT`; código `ERR409_SERVER_STATE_CONFLICT`; motivo `CONFLICTING_IDEMPOTENT_REQUEST`; NÃO alterar estado nem sobrescrever o resultado anterior.
+
+#### Eventos
+
+- **Primeiro recebimento de um evento (idempotencykey nova):** processar normalmente; registrar chave e hash; enviar ACK ao broker.
+- **Evento duplicado (mesma idempotencykey já processada):** ignorar o processamento; retornar ACK ao broker; NÃO reexecutar a lógica; a execução original PODE ser registrada em logs para auditoria.
+
+### Dependências técnicas
+
+- **Cache distribuído:** sistema de cache resiliente para armazenar estado de idempotência (chave, hash, resultado, timestamp).
+- **Hash:** algoritmo SHA-256 para o hash do payload (requisição ou corpo do evento).
+- **Roteamento:** chave única por operação e escopo de rota; propagação da chave em todas as camadas (APIs, eventos, webhooks).
+
+### Segurança e compliance
+
+- Estado de idempotência armazenado de forma segura; acesso auditável.
+- Tentativas maliciosas de repetição (mesma chave, payloads distintos) monitoradas e mitigadas (ex.: rate limit, alertas).
+- Logs com identificadores rastreáveis (chave, correlation_id) para conformidade e investigação.
+- Retenção do estado entre 2 e 24 horas; não armazenar dados sensíveis no cache de idempotência além do estritamente necessário.
+
 ## Referências
 
-- [Especificação de Idempotência — Hub Guardia](https://hub.guardia.finance/docs/specifications/idempotency/)
 - Draft RFC The Idempotency-Key Header Field
 - RFC 9562 (UUID)

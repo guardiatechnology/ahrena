@@ -40,5 +40,4 @@ Uso de status fuera de la lista permitida; payload de éxito sin data o de error
 
 ## Referencias
 
-- [Especificación RESTful — Hub Guardia](https://hub.guardia.finance/docs/specifications/restful/)
-- codex-restful-apis (engineering/platform)
+- codex-restful-apis (índice), codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting (engineering/platform)

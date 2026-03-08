@@ -24,11 +24,26 @@ Todos los errores DEBEN encapsularse en el campo `errors`, que DEBE ser un array
 | reason | string | Categoría semántica para tratamiento programático; DEBE estar en Errores Conocidos en el Hub. |
 | message | string | Descripción orientada al desarrollador; NUNCA exponer datos sensibles ni stack trace. |
 
+### Ejemplo de payload
+
+```json
+{
+  "errors": [
+    {
+      "code": "ERR402_INSUFFICIENT_FUNDS",
+      "reason": "PAYMENT_IS_REQUIRED",
+      "message": "Saldo insuficiente para la operación solicitada."
+    }
+  ]
+}
+```
+
 ### Reglas generales
 
 - **code:** único, UPPER_SNAKE_CASE, coherente con el status HTTP.
 - **reason:** indica causa específica; puede haber varios reason para un mismo code; NO contener datos sensibles.
 - **message:** informativa para el desarrollador; puede ser internacionalizable vía Accept-Language; NUNCA exponer información interna sensible.
+- **Documentación:** para cada operación, documentar los pares code/reason posibles en el contrato (OpenAPI) y en el catálogo de Errores Conocidos del proyecto.
 
 ### Retentativa
 
@@ -40,9 +55,11 @@ Todos los errores DEBEN encapsularse en el campo `errors`, que DEBE ser un array
 
 ### Creación de nuevos errores
 
-- DEBEN seguir la estructura estandarizada.
-- DEBEN registrarse en Errores Conocidos en el Hub.
+- DEBEN seguir la estructura estandarizada (code, reason, message).
+- DEBEN registrarse en el catálogo de Errores Conocidos del proyecto.
 - Nuevos grupos de reason DEBEN justificarse por contextos de negocio inéditos.
+- **Consideraciones de seguridad:** evitar mensajes que permitan enumeración (ej.: usuario existe/no existe); no incluir datos internos ni stack trace.
+- **Monitorización:** garantizar que los nuevos errores se incluyan en métricas y alertas conforme a la política de la plataforma.
 
 ### Seguridad
 
@@ -61,5 +78,4 @@ Esta especificación DEBE aplicarse en: APIs REST públicas e internas; comunica
 
 ## Referencias
 
-- [Especificación de Tratamiento de Errores — Hub Guardia](https://hub.guardia.finance/docs/specifications/error-handling/)
-- Errores Conocidos (Hub)
+- codex-restful-payload (estructura de errors); OpenAPI (catálogo de errores)

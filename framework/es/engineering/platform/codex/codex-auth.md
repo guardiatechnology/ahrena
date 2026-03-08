@@ -28,20 +28,30 @@ Protocolo adoptado como estándar para autenticación y autorización entre sist
 
 ### APIs públicas
 
-- Flujo **Client Credentials** con extensiones de seguridad del **FAPI 2.0 Security Profile**.
+- **Definición:** APIs expuestas a sistemas externos (socios, integraciones, aplicaciones de terceros).
+- Flujo **Client Credentials** (RFC 6749) con extensiones de seguridad del **FAPI 2.0 Security Profile**.
 - Garantías: autorización granular (RBAC y ABAC), rastreabilidad de operaciones, protección contra fraudes, autenticación mutua entre cliente y servidor.
 
 ### APIs privadas
 
-- OAuth 2.0 con **tokens JWT emitidos por IdP confiable**.
-- Garantías: comunicación segura entre módulos internos, control de acceso por funciones (RBAC), aislamiento de red (ej.: Virtual Private Cloud — VPC).
+- **Definición:** APIs consumidas solo por componentes internos de la plataforma (microservicios, jobs, gateways).
+- OAuth 2.0 con **tokens JWT emitidos por un IdP (Identity Provider) confiable**.
+- Garantías: comunicación segura entre módulos internos, control de acceso por funciones (RBAC), aislamiento de red cuando aplique (ej.: **VPC — Virtual Private Cloud**).
 
 ### Interoperabilidad y conformidad
 
 - Enfoque unificado permite interoperabilidad entre componentes, compatibilidad con regulaciones (LGPD, PCI DSS) y adhesión a OpenID y FAPI.
 
+## Glosario
+
+| Término | Definición |
+|---------|------------|
+| API pública | API expuesta a sistemas externos; autenticación vía Client Credentials y FAPI 2.0. |
+| API privada | API consumida por componentes internos; JWT del IdP, RBAC, opcionalmente VPC. |
+| VPC | Virtual Private Cloud; aislamiento de red para tráfico interno. |
+| IdP | Identity Provider; emisor confiable de tokens de identidad. |
+
 ## Referencias
 
-- [Autenticación y Autorización — Hub Guardia](https://hub.guardia.finance/docs/specifications/auth/)
-- FAPI 2.0 Security Profile
+- [FAPI 2.0 Security Profile](https://openid.net/specs/openid-financial-api-part-2-1_0.html)
 - RFC 2906 (AAA Authorization Requirements); RFC 6749 (OAuth 2.0 Authorization Framework)

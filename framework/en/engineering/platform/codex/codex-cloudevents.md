@@ -27,7 +27,36 @@ This Codex describes the use of the CloudEvents specification to represent event
 | dataschema | URI | — | Optional | URI of JSON schema on the Hub. |
 | subject | string | — | Yes | Format {entity_type}/{entity_id}. |
 | idempotencykey | UUID | — | Yes | Idempotency key; per codex-idempotency. |
-| data | object | — | Yes | Entity data; common fields: entity_id, entity_type, external_entity_id, created_at, updated_at, discarded_at, version, metadata; history omitted. See codex-entities. |
+| data | object | — | Yes | Entity data; common fields: entity_id, entity_type, external_entity_id, created_at, updated_at, discarded_at, version, metadata. **Entity history MUST be omitted from events.** See codex-entities. |
+
+- **type:** MUST be a type cataloged in the project event catalog (schemas).
+- **dataschema:** when present, MUST point to the project JSON schema.
+
+### Example event (JSON)
+
+```json
+{
+  "id": "019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "source": "https://tenant.guardia.finance/platform/api/v1/transactions/019b9f12-0000-7000-8000-000000000001",
+  "specversion": "1.0",
+  "type": "event.guardia.platform.transaction.created",
+  "time": "2026-03-08T12:00:00Z",
+  "datacontenttype": "application/json",
+  "dataschema": "https://<schema-base>/schemas/transaction.v1.json",
+  "subject": "transaction/019b9f12-0000-7000-8000-000000000001",
+  "idempotencykey": "019b9f12-0000-7000-8000-000000000002",
+  "data": {
+    "entity_id": "019b9f12-0000-7000-8000-000000000001",
+    "entity_type": "transaction",
+    "external_entity_id": "ext-123",
+    "created_at": "2026-03-08T12:00:00Z",
+    "updated_at": "2026-03-08T12:00:00Z",
+    "discarded_at": null,
+    "version": 1,
+    "metadata": {}
+  }
+}
+```
 
 ### Format and serialization
 
@@ -66,6 +95,5 @@ This Codex describes the use of the CloudEvents specification to represent event
 
 ## References
 
-- [CloudEvents — Guardia Hub](https://hub.guardia.finance/docs/specifications/cloud-events/)
 - codex-entities, codex-idempotency
 - Cloud Events Specification; RFC 3339

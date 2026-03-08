@@ -40,5 +40,4 @@ Error without errors array; code without ERR + HTTP prefix; reason not cataloged
 
 ## References
 
-- [Error Handling Specification — Guardia Hub](https://hub.guardia.finance/docs/specifications/error-handling/)
-- codex-error-handling (engineering/platform)
+- codex-error-handling (engineering/platform) (engineering/platform)

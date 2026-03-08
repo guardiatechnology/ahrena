@@ -40,5 +40,4 @@ Erro sem array errors; code sem prefixo ERR + HTTP; reason não catalogado sem j
 
 ## Referências
 
-- [Especificação de Tratamento de Erros — Hub Guardia](https://hub.guardia.finance/docs/specifications/error-handling/)
-- codex-error-handling (engineering/platform)
+- codex-error-handling (engineering/platform) (engineering/platform)

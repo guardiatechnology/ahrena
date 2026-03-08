@@ -40,6 +40,5 @@ API sem mecanismo de autenticação; uso de API keys sem OAuth 2.0 quando a spec
 
 ## Referências
 
-- [Autenticação e Autorização — Hub Guardia](https://hub.guardia.finance/docs/specifications/auth/)
-- codex-auth (engineering/platform)
+- codex-auth (engineering/platform) (engineering/platform)
 - RFC 6749 (OAuth 2.0); FAPI 2.0 Security Profile

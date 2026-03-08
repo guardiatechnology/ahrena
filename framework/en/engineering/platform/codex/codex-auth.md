@@ -28,20 +28,30 @@ Protocol adopted as standard for authentication and authorization between system
 
 ### Public APIs
 
-- **Client Credentials** flow with **FAPI 2.0 Security Profile** extensions.
+- **Definition:** APIs exposed to external systems (partners, integrations, third-party applications).
+- **Client Credentials** flow (RFC 6749) with **FAPI 2.0 Security Profile** extensions.
 - Guarantees: granular authorization (RBAC and ABAC), operation traceability, fraud protection, mutual authentication between client and server.
 
 ### Private APIs
 
-- OAuth 2.0 with **JWT tokens from a trusted IdP**.
-- Guarantees: secure communication between internal modules, role-based access control (RBAC), network isolation (e.g. Virtual Private Cloud — VPC).
+- **Definition:** APIs consumed only by internal platform components (microservices, jobs, gateways).
+- OAuth 2.0 with **JWT tokens from a trusted IdP (Identity Provider)**.
+- Guarantees: secure communication between internal modules, role-based access control (RBAC), network isolation when applicable (e.g. **VPC — Virtual Private Cloud**).
 
 ### Interoperability and compliance
 
 - Unified approach enables interoperability across components, compatibility with regulations (LGPD, PCI DSS), and adherence to OpenID and FAPI.
 
+## Glossary
+
+| Term | Definition |
+|------|------------|
+| Public API | API exposed to external systems; authentication via Client Credentials and FAPI 2.0. |
+| Private API | API consumed by internal components; JWT from IdP, RBAC, optionally VPC. |
+| VPC | Virtual Private Cloud; network isolation for internal traffic. |
+| IdP | Identity Provider; trusted issuer of identity tokens. |
+
 ## References
 
-- [Authentication and Authorization — Guardia Hub](https://hub.guardia.finance/docs/specifications/auth/)
-- FAPI 2.0 Security Profile
+- [FAPI 2.0 Security Profile](https://openid.net/specs/openid-financial-api-part-2-1_0.html)
 - RFC 2906 (AAA Authorization Requirements); RFC 6749 (OAuth 2.0 Authorization Framework)

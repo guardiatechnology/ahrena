@@ -54,8 +54,33 @@ This Codex describes idempotency rules for state-modifying operations on the Gua
 - In flows that do not generate side effects.
 - In calls that by definition must always produce new results (e.g., random UUID generation, polling).
 
+### Expected behaviors
+
+#### APIs
+
+- **First request (new key):** execute the operation; store result, payload hash, key, and timestamp; return response with appropriate status (e.g., 201); include `Idempotency-Key` and `Content-Digest` headers.
+- **Repeated request (same key and same hash):** do NOT re-execute; return stored original result; include `Last-Modified` header with first execution date; status identical to first response.
+- **Request with same key and different hash:** reject with `409 CONFLICT`; code `ERR409_SERVER_STATE_CONFLICT`; reason `CONFLICTING_IDEMPOTENT_REQUEST`; do NOT change state or overwrite previous result.
+
+#### Events
+
+- **First receipt of an event (new idempotencykey):** process normally; record key and hash; send ACK to broker.
+- **Duplicate event (same idempotencykey already processed):** skip processing; return ACK to broker; do NOT re-execute logic; original execution MAY be logged for audit.
+
+### Technical dependencies
+
+- **Distributed cache:** resilient cache system to store idempotency state (key, hash, result, timestamp).
+- **Hash:** SHA-256 algorithm for payload hash (request or event body).
+- **Routing:** key unique per operation and route scope; key propagation across all layers (APIs, events, webhooks).
+
+### Security and compliance
+
+- Idempotency state stored securely; access auditable.
+- Malicious replay attempts (same key, different payloads) monitored and mitigated (e.g., rate limit, alerts).
+- Logs with traceable identifiers (key, correlation_id) for compliance and investigation.
+- State retention between 2 and 24 hours; do not store sensitive data in idempotency cache beyond what is strictly necessary.
+
 ## References
 
-- [Idempotency Specification — Guardia Hub](https://hub.guardia.finance/docs/specifications/idempotency/)
 - Draft RFC The Idempotency-Key Header Field
 - RFC 9562 (UUID)

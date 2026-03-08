@@ -40,6 +40,5 @@ Recurso de API o evento que represente entidad persistente sin entity_id, sin ve
 
 ## Referencias
 
-- [Especificación de Entidades — Hub Guardia](https://hub.guardia.finance/docs/specifications/entities/)
-- codex-entities (engineering/platform)
+- codex-entities (engineering/platform) (engineering/platform)
 - RFC 9562 (UUID v7), RFC 7386 (JSON Merge Patch), RFC 3339 (timestamps)

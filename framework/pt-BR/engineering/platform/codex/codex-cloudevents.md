@@ -27,7 +27,36 @@ Este Codex descreve o uso da especificação CloudEvents para representar evento
 | dataschema | URI | — | Opcional | URI do schema JSON no Hub. |
 | subject | string | — | Sim | Formato {entity_type}/{entity_id}. |
 | idempotencykey | UUID | — | Sim | Chave de idempotência; conforme codex-idempotency. |
-| data | object | — | Sim | Dados da entidade; campos comuns: entity_id, entity_type, external_entity_id, created_at, updated_at, discarded_at, version, metadata; history omitido. Ver codex-entities. |
+| data | object | — | Sim | Dados da entidade; campos comuns: entity_id, entity_type, external_entity_id, created_at, updated_at, discarded_at, version, metadata. **O histórico da entidade DEVE ser omitido dos eventos.** Ver codex-entities. |
+
+- **type:** DEVE ser um tipo catalogado no catálogo de eventos do projeto (schemas).
+- **dataschema:** quando presente, DEVE apontar para o schema JSON do projeto.
+
+### Exemplo de evento (JSON)
+
+```json
+{
+  "id": "019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "source": "https://tenant.guardia.finance/platform/api/v1/transactions/019b9f12-0000-7000-8000-000000000001",
+  "specversion": "1.0",
+  "type": "event.guardia.platform.transaction.created",
+  "time": "2026-03-08T12:00:00Z",
+  "datacontenttype": "application/json",
+  "dataschema": "https://<schema-base>/schemas/transaction.v1.json",
+  "subject": "transaction/019b9f12-0000-7000-8000-000000000001",
+  "idempotencykey": "019b9f12-0000-7000-8000-000000000002",
+  "data": {
+    "entity_id": "019b9f12-0000-7000-8000-000000000001",
+    "entity_type": "transaction",
+    "external_entity_id": "ext-123",
+    "created_at": "2026-03-08T12:00:00Z",
+    "updated_at": "2026-03-08T12:00:00Z",
+    "discarded_at": null,
+    "version": 1,
+    "metadata": {}
+  }
+}
+```
 
 ### Formato e serialização
 
@@ -66,6 +95,5 @@ Este Codex descreve o uso da especificação CloudEvents para representar evento
 
 ## Referências
 
-- [CloudEvents — Hub Guardia](https://hub.guardia.finance/docs/specifications/cloud-events/)
 - codex-entities, codex-idempotency
 - Cloud Events Specification; RFC 3339

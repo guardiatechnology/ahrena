@@ -40,6 +40,5 @@ Evento sem idempotencykey; sem type catalogado; data sem entity_id/entity_type q
 
 ## Referências
 
-- [Especificação CloudEvents — Hub Guardia](https://hub.guardia.finance/docs/specifications/cloud-events/)
-- codex-cloudevents, codex-entities, codex-idempotency
+- codex-cloudevents (engineering/platform), codex-entities, codex-idempotency
 - CloudEvents Specification; RFC 3339
