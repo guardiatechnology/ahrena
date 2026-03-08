@@ -28,6 +28,7 @@ jobs:
         with:
           generate_release_notes: true
           files: |
+            Makefile
             scripts/install.py
             scripts/update.py
             scripts/uninstall.py

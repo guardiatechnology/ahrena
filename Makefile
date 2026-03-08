@@ -1,57 +1,84 @@
 PYTHON ?= python3
-AHRENA_VERSION ?= main
-AHRENA_TARGET ?= .
-AHRENA_REPO ?= https://github.com/guardiafinance/ahrena
-AHRENA_LANGUAGE ?=
-AHRENA_DIRECTIVES ?=
-AHRENA_CLADES ?=
+VERSION ?= main
+TARGET ?= .
+REPO ?= https://github.com/guardiafinance/ahrena
+PLATFORM ?=
+LANGUAGE ?=
+DIRECTIVES ?=
+CLADES ?=
 
 ifeq ($(OS),Windows_NT)
     PYTHON := python
 endif
 
-INSTALL_CMD = $(PYTHON) .ahrena/install.py --target $(AHRENA_TARGET) --version $(AHRENA_VERSION) --repo $(AHRENA_REPO)
-ifdef AHRENA_LANGUAGE
-    INSTALL_CMD += --language $(AHRENA_LANGUAGE)
-endif
-ifdef AHRENA_DIRECTIVES
-    INSTALL_CMD += --directives $(AHRENA_DIRECTIVES)
-endif
-ifdef AHRENA_CLADES
-    INSTALL_CMD += --clades $(AHRENA_CLADES)
+# URL for downloading install.py from GitHub Releases
+ifeq ($(VERSION),main)
+    BOOTSTRAP_URL = $(REPO)/releases/latest/download/install.py
+else
+    BOOTSTRAP_URL = $(REPO)/releases/download/$(VERSION)/install.py
 endif
 
-.PHONY: install install-cursor update uninstall clean help
+# Cross-platform download and cleanup commands
+ifeq ($(OS),Windows_NT)
+    DOWNLOAD_INSTALLER = powershell -Command "Invoke-WebRequest '$(BOOTSTRAP_URL)' -OutFile '.ahrena-bootstrap.py'"
+    RM_BOOTSTRAP = powershell -Command "Remove-Item -Force '.ahrena-bootstrap.py' -ErrorAction SilentlyContinue"
+else
+    DOWNLOAD_INSTALLER = curl -sSL "$(BOOTSTRAP_URL)" -o .ahrena-bootstrap.py
+    RM_BOOTSTRAP = rm -f .ahrena-bootstrap.py
+endif
+
+# Shared flags
+SHARED_FLAGS = --target $(TARGET) --version $(VERSION) --repo $(REPO)
+ifdef PLATFORM
+    SHARED_FLAGS += --platform $(PLATFORM)
+endif
+ifdef LANGUAGE
+    SHARED_FLAGS += --language $(LANGUAGE)
+endif
+ifdef DIRECTIVES
+    SHARED_FLAGS += --directives $(DIRECTIVES)
+endif
+ifdef CLADES
+    SHARED_FLAGS += --clades $(CLADES)
+endif
+
+BOOTSTRAP_CMD = $(PYTHON) .ahrena-bootstrap.py $(SHARED_FLAGS)
+INSTALL_CMD   = $(PYTHON) .ahrena/install.py $(SHARED_FLAGS)
+
+.PHONY: bootstrap install update uninstall clean help
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
 	@echo ""
 	@echo "Targets:"
-	@echo "  install          Install .ahrena/ only (framework + directives)"
-	@echo "  install-cursor   Install .ahrena/ + generate .cursor/ files"
-	@echo "  update           Update to latest version (auto-detects platform)"
-	@echo "  uninstall        Remove Ahrena with confirmation"
-	@echo "  clean            Remove installed Ahrena files (no confirmation)"
+	@echo "  bootstrap   First install (downloads installer from GitHub Release)"
+	@echo "  install     Reinstall from local .ahrena/install.py"
+	@echo "  update      Update to latest version (auto-detects platform)"
+	@echo "  uninstall   Remove Ahrena with confirmation"
+	@echo "  clean       Remove installed Ahrena files (no confirmation)"
 	@echo ""
 	@echo "Variables:"
-	@echo "  AHRENA_VERSION      Tag or branch (default: main)"
-	@echo "  AHRENA_TARGET       Target project path (default: .)"
-	@echo "  AHRENA_REPO         GitHub repo URL"
-	@echo "  AHRENA_LANGUAGE     Override default language (e.g. pt-BR, en, es)"
-	@echo "  AHRENA_DIRECTIVES   Path or URL to custom .directives file"
-	@echo "  AHRENA_CLADES       Comma-separated clades to install (default: all)"
+	@echo "  PLATFORM     Target platform (e.g. cursor)"
+	@echo "  VERSION      Tag or branch (default: main)"
+	@echo "  TARGET       Target project path (default: .)"
+	@echo "  REPO         GitHub repo URL"
+	@echo "  LANGUAGE     Override default language (e.g. pt-BR, en, es)"
+	@echo "  DIRECTIVES   Path or URL to custom .directives file"
+	@echo "  CLADES       Comma-separated clades to install (default: all)"
+
+bootstrap:
+	$(DOWNLOAD_INSTALLER)
+	$(BOOTSTRAP_CMD)
+	$(RM_BOOTSTRAP)
 
 install:
 	$(INSTALL_CMD)
 
-install-cursor:
-	$(INSTALL_CMD) --platform cursor
-
 update:
-	$(PYTHON) .ahrena/update.py --target $(AHRENA_TARGET) --version $(AHRENA_VERSION) --repo $(AHRENA_REPO)
+	$(PYTHON) .ahrena/update.py --target $(TARGET) --version $(VERSION) --repo $(REPO)
 
 uninstall:
-	$(PYTHON) .ahrena/uninstall.py --target $(AHRENA_TARGET)
+	$(PYTHON) .ahrena/uninstall.py --target $(TARGET)
 
 clean:
-	$(PYTHON) .ahrena/install.py --target $(AHRENA_TARGET) --clean
+	$(PYTHON) .ahrena/install.py --target $(TARGET) --clean

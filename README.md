@@ -18,7 +18,7 @@ Leis inquebráveis (Lexis), bases de conhecimento (Codex), procedimentos repetí
 ### Pré-requisitos
 
 - **Python 3.8+** — necessário para executar o instalador
-- **Make** (opcional) — para atualizações via Makefile após a primeira instalação
+- **Make** (opcional) — para bootstrap e atualizações via Makefile
   - **Windows:** `choco install make` ou `winget install GnuWin32.Make`
   - **macOS:** incluído com Xcode Command Line Tools (`xcode-select --install`)
   - **Linux:** incluído na maioria das distros (`sudo apt install make`)
@@ -26,6 +26,34 @@ Leis inquebráveis (Lexis), bases de conhecimento (Codex), procedimentos repetí
 ### Primeira instalação
 
 O instalador baixa o framework do GitHub e configura o projeto. Não é necessário clonar o repositório.
+
+#### Via Makefile (recomendado)
+
+Baixe o `Makefile` para a raiz do projeto e use `make bootstrap`. O Makefile pode ser commitado no repositório para que todo o time use o mesmo fluxo.
+
+**macOS / Linux:**
+
+```bash
+curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -o Makefile
+make bootstrap PLATFORM=cursor
+```
+
+**Windows (PowerShell):**
+
+```powershell
+Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -OutFile Makefile
+make bootstrap PLATFORM=cursor
+```
+
+**Com opções:**
+
+```bash
+make bootstrap PLATFORM=cursor VERSION=v0.1.0 LANGUAGE=en
+make bootstrap PLATFORM=cursor CLADES=_foundation,documentation
+make bootstrap  # somente framework, sem plataforma
+```
+
+#### Via one-liner (sem Make)
 
 **macOS / Linux:**
 
@@ -55,13 +83,19 @@ Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/downl
 
 ### Atualização
 
-Após a primeira instalação, os scripts ficam disponíveis em `.ahrena/`. O update detecta automaticamente a plataforma instalada e preserva o `.directives`:
+O update detecta automaticamente a plataforma instalada e preserva o `.directives`:
 
-**Via Makefile:**
+**Via Makefile (raiz do projeto):**
+
+```bash
+make update
+make update VERSION=v0.2.0
+```
+
+**Via Makefile (.ahrena/):**
 
 ```bash
 make -f .ahrena/Makefile update
-make -f .ahrena/Makefile update AHRENA_VERSION=v0.2.0
 ```
 
 **Via script direto:**
@@ -83,7 +117,7 @@ Remove todos os arquivos instalados pelo Ahrena (`.ahrena/` e arquivos `.mdc` ge
 **Via Makefile:**
 
 ```bash
-make -f .ahrena/Makefile uninstall
+make uninstall
 ```
 
 **Via script direto:**
