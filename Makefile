@@ -42,20 +42,22 @@ ifdef CLADES
     SHARED_FLAGS += --clades $(CLADES)
 endif
 
-BOOTSTRAP_CMD = $(PYTHON) .ahrena-bootstrap.py $(SHARED_FLAGS)
-INSTALL_CMD   = $(PYTHON) .ahrena/install.py $(SHARED_FLAGS)
+BOOTSTRAP_CMD   = $(PYTHON) .ahrena-bootstrap.py $(SHARED_FLAGS)
+INSTALL_CMD     = $(PYTHON) .ahrena/install.py $(SHARED_FLAGS)
+DEV_INSTALL_CMD = $(PYTHON) scripts/install.py --local $(SHARED_FLAGS)
 
-.PHONY: bootstrap install update uninstall clean help
+.PHONY: bootstrap install dev-install update uninstall clean help
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
 	@echo ""
 	@echo "Targets:"
-	@echo "  bootstrap   First install (downloads installer from GitHub Release)"
-	@echo "  install     Reinstall from local .ahrena/install.py"
-	@echo "  update      Update to latest version (auto-detects platform)"
-	@echo "  uninstall   Remove Ahrena with confirmation"
-	@echo "  clean       Remove installed Ahrena files (no confirmation)"
+	@echo "  bootstrap     First install (downloads installer from GitHub Release)"
+	@echo "  install       Reinstall from local .ahrena/install.py"
+	@echo "  dev-install   Install from local source (for framework development)"
+	@echo "  update        Update to latest version (auto-detects platform)"
+	@echo "  uninstall     Remove Ahrena with confirmation"
+	@echo "  clean         Remove installed Ahrena files (no confirmation)"
 	@echo ""
 	@echo "Variables:"
 	@echo "  PLATFORM     Target platform (e.g. cursor)"
@@ -73,6 +75,9 @@ bootstrap:
 
 install:
 	$(INSTALL_CMD)
+
+dev-install:
+	$(DEV_INSTALL_CMD)
 
 update:
 	$(PYTHON) .ahrena/update.py --target $(TARGET) --version $(VERSION) --repo $(REPO)

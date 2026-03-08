@@ -679,6 +679,7 @@ def build_parser() -> argparse.ArgumentParser:
 examples:
   %(prog)s                                           Install .ahrena/ only
   %(prog)s --platform cursor                         Install .ahrena/ + .cursor/
+  %(prog)s --local --platform cursor                 Install from local source (dev)
   %(prog)s --clades _foundation,documentation        Install only specific clades
   %(prog)s --version v0.1.0                          Install specific version
   %(prog)s --language en                             Override default language
@@ -716,6 +717,10 @@ examples:
         help="path or URL to a custom .directives file",
     )
     parser.add_argument(
+        "--local", action="store_true",
+        help="use local source directory instead of downloading from GitHub",
+    )
+    parser.add_argument(
         "--dry-run", action="store_true",
         help="show what would be done without making changes",
     )
@@ -750,8 +755,9 @@ def main() -> None:
         return
 
     # ── Install mode ──
+    source_label = "LOCAL" if args.local else args.version
     print(f"\n  Target:   {target_dir}")
-    print(f"  Version:  {args.version}")
+    print(f"  Source:   {source_label}")
     print(f"  Platform: {args.platform or 'none (framework only)'}")
     if args.clades:
         print(f"  Clades:   {args.clades}")
@@ -766,6 +772,13 @@ def main() -> None:
     if args.dry_run:
         print("  [DRY-RUN] Would download and install framework to .ahrena/")
         ahrena_dir = target_dir / ".ahrena"
+    elif args.local:
+        source_dir = Path(".").resolve()
+        if not (source_dir / "framework").exists():
+            print(f"\nERROR: 'framework/' not found in {source_dir}")
+            print("--local requires running from the Ahrena source repository root.")
+            sys.exit(1)
+        ahrena_dir = install_ahrena(source_dir, target_dir, args)
     else:
         source_dir = download_and_extract(args.repo, args.version)
         try:
