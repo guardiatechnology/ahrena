@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Hook to enforce branch naming convention
+# Place this in .githooks/pre-commit or .githooks/pre-push
+
+# Get the current branch name
+BRANCH_NAME=$(git symbolic-ref --short HEAD)
+
+# Regex for valid branch names
+# Format: type/description-in-kebab-case
+# Types: feature, fix, hotfix, release, chore, docs, test
+VALID_BRANCH_REGEX="^(feature|fix|hotfix|release|chore|docs|test)/[a-z0-9][a-z0-9-]*[a-z0-9]$"
+
+# Check if branch name matches the pattern
+if ! [[ $BRANCH_NAME =~ $VALID_BRANCH_REGEX ]]; then
+    echo "🚨 Error: Invalid branch name format: $BRANCH_NAME"
+    echo ""
+    echo "Branch names must follow the pattern: type/description-in-kebab-case"
+    echo ""
+    echo "Valid types are:"
+    echo " - feature  : For new features"
+    echo " - fix      : For bug fixes"
+    echo " - hotfix   : For urgent fixes"
+    echo " - release  : For release branches"
+    echo " - chore    : For maintenance tasks"
+    echo " - docs     : For documentation updates"
+    echo " - test     : For test additions or modifications"
+    echo ""
+    echo "Examples:"
+    echo " - feature/add-user-authentication"
+    echo " - fix/resolve-transaction-bug"
+    echo " - hotfix/critical-security-patch"
+    echo " - release/v1.0.0"
+    echo " - chore/update-dependencies"
+    echo " - docs/update-api-docs"
+    echo " - test/add-integration-tests"
+    echo ""
+    exit 1
+fi
+
+# Special rules for release branches
+if [[ $BRANCH_NAME =~ ^release/ ]]; then
+    VERSION_REGEX="^release/v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.]+)?$"
+    if ! [[ $BRANCH_NAME =~ $VERSION_REGEX ]]; then
+        echo "🚨 Error: Invalid release branch name format: $BRANCH_NAME"
+        echo "Release branches must follow semantic versioning: release/vX.Y.Z"
+        echo ""
+        echo "Examples:"
+        echo " - release/v1.0.0"
+        echo " - release/v2.1.0"
+        echo " - release/v1.0.1-beta"
+        exit 1
+    fi
+fi
+
+echo "✅ Branch name is valid!"
+exit 0

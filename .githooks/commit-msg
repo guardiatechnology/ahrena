@@ -1,0 +1,37 @@
+#!/bin/bash
+
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+# Conventional Commit Pattern
+# Format: type(scope): description
+conventional_pattern="^(git|build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z \-]+\))?: .+"
+
+if ! [[ "$commit_msg" =~ $conventional_pattern ]]; then
+    echo "🚨 Error: Commit message does not follow conventional commit format!"
+    echo ""
+    echo "✨ Required format: type(scope): description"
+    echo ""
+    echo "Allowed types:"
+    echo " - git:      Changes to git processes and configuration"
+    echo " - build:    Changes that affect the build system or external dependencies"
+    echo " - chore:    Regular maintenance tasks"
+    echo " - ci:       Changes to CI configuration files and scripts"
+    echo " - docs:     Documentation only changes"
+    echo " - feat:     A new feature"
+    echo " - fix:      A bug fix"
+    echo " - perf:     A code change that improves performance"
+    echo " - refactor: A code change that neither fixes a bug nor adds a feature"
+    echo " - revert:   Revert a previous commit"
+    echo " - style:    Changes that do not affect the meaning of the code"
+    echo " - test:     Adding missing tests or correcting existing tests"
+    echo ""
+    echo "Examples:"
+    echo " - feat(auth): add login functionality"
+    echo " - fix(api): handle null response"
+    echo " - docs: update README installation steps"
+    exit 1
+fi
+
+echo "✅ Commit message is valid!"
+exit 0
