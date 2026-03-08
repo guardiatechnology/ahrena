@@ -132,5 +132,4 @@ Progreso:
 - `kata-commit` — Procedimiento para realizar commits conformes
 - `lex-template-usage` — Ley de uso obligatorio de templates
 - `lex-framework-language` — Ley de estructura de idiomas
-- `warrior-framework-curator` — Agente que ejecuta este Kata
 - `cry-contribute` — Atajo que invoca este Kata
