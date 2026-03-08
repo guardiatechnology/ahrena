@@ -86,6 +86,8 @@ flowchart TD
 | `cry-commit` | Shortcut to commit following the 4 commit Lexis |
 | `cry-contribute` | Shortcut to open PR or contribute to the framework |
 | `cry-tag` | Shortcut to create or list release tags (SemVer) |
+| `cry-sync` | Shortcut to sync repository (fetch, pull, push) |
+| `cry-rebase` | Shortcut to resolve conflicts via rebase |
 
 ## How to Use
 

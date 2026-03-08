@@ -86,6 +86,8 @@ flowchart TD
 | `cry-commit` | Atalho para commitar seguindo as 4 Lexis de commit |
 | `cry-contribute` | Atalho para abrir PR ou contribuir ao framework |
 | `cry-tag` | Atalho para criar ou listar tags de release (SemVer) |
+| `cry-sync` | Atalho para sincronizar repositório (fetch, pull, push) |
+| `cry-rebase` | Atalho para resolver conflitos via rebase |
 
 ## Como Usar
 
