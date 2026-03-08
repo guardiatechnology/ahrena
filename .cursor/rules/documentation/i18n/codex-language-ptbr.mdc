@@ -1,31 +1,48 @@
 ---
-description: "Guide for translating to Brazilian Portuguese (pt-BR). Technical terms table, formalization patterns, common pitfalls (deletar→excluir, setar→configurar)."
+description: "Guide for Translating to Brazilian Portuguese. Conventions and guidance for technical translation to pt-BR"
 alwaysApply: false
 ---
 
-# Codex: Guide for Translating to pt-BR
+# Codex: Guide for Translating to Brazilian Portuguese
 
-> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Translation to pt-BR
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Conventions and guidance for technical translation to pt-BR
 
-## Key Terms
+## Content
 
-| English | Action | pt-BR |
-|---------|--------|-------|
-| commit, merge, branch, PR | Keep | — |
+### Technical Writing Conventions in pt-BR
+
+1. **Active voice** is preferred over passive voice
+2. **Direct sentences** — avoid roundabout and ornate constructions
+3. **Short paragraphs** — facilitate on-screen reading
+4. **Terminological consistency** — use the same term for the same concept throughout
+
+### Technical Terms Table
+
+| English term | Action | pt-BR form |
+|-------------|--------|------------|
+| deploy | Keep or translate | deploy / implantar |
+| commit | Keep | commit |
+| merge | Keep | merge |
+| branch | Keep | branch |
 | workflow | Translate | fluxo de trabalho |
-| output/input | Translate | saída / entrada |
-| bug, feature | Translate | defeito / funcionalidade |
+| output | Translate | saída |
+| input | Translate | entrada |
+| bug | Translate | defeito / erro |
+| feature | Translate | funcionalidade / recurso |
 
-## Formalization
+### Formalization Patterns
 
-- Obligation: "O agente **DEVE**..." (not "tem que")
-- Necessity: "É necessário..." (not "Precisa")
-- Recommendation: "Recomenda-se..." (not "É bom que")
+| Context | Correct pattern | Incorrect pattern |
+|---------|-----------------|-------------------|
+| Obligation | "O agente **DEVE**..." | "O agente tem que..." |
+| Necessity | "É necessário..." | "Precisa..." |
+| Recommendation | "Recomenda-se..." | "É bom que..." |
+| Direct instruction | "Crie o arquivo..." | "Você poderia criar o arquivo..." |
 
-## Pitfalls
+### Common Pitfalls
 
-- "excluir" not "deletar"
-- "configurar" not "setar"
-- "executar" not "rodar"
-- "verificar" not "checar"
-- Avoid excessive gerund usage
+1. **"Deletar" vs "Excluir"** — Prefer "excluir" in formal context
+2. **"Setar" vs "Configurar"** — Prefer "configurar"
+3. **"Rodar" vs "Executar"** — Prefer "executar" in formal context
+4. **"Checar" vs "Verificar"** — Prefer "verificar"
+5. **Excessive gerund** — Avoid "Estando o agente configurando..." → "Ao configurar, o agente..."

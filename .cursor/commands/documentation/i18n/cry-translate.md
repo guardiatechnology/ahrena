@@ -1,11 +1,10 @@
 ---
-description: "Translate a document to one or more languages. Invokes warrior-translator (Hermes) with kata-translate, consulting per-language lex and codex."
-alwaysApply: false
+description: "Translate Document. Technical documentation translation"
 ---
 
 # Cry: Translate Document
 
-> **Prefix:** `cry-` | **Type:** Recurring Command | **Scope:** Documentation translation
+> **Prefix:** `cry-` | **Type:** Recurring Command | **Scope:** Technical documentation translation
 
 ## Usage
 
@@ -15,24 +14,46 @@ alwaysApply: false
 
 ## Parameters
 
-- `file` (required): Path to the document to translate
-- `language` (optional): BCP 47 code(s). Defaults to all `language.i18n` except source
-- `--order` (optional): Translation execution order. Defaults to `language.i18n` order
+| Parameter | Required | Description | Example |
+|-----------|:--------:|-------------|---------|
+| `file` | Yes | Path to the document to translate | `framework/pt-BR/_foundation/process/lexis/lex-directives.md` |
+| `language` | No | BCP 47 code(s) of the target language. If omitted, translates to all `language.i18n` languages except the source | `es`, `en`, `es,en` |
+| `--order` | No | Specifies translation order. If omitted, follows `language.i18n` order | `--order en,es` |
 
-## What It Does
+## What the Command Does
 
-1. Read `.ahrena/.directives` for languages and order
-2. Identify source language from path
-3. For each target language (in order):
-   - Consult `lex-language` + `lex-language-{lang}` + `codex-language` + `codex-language-{lang}`
-   - Execute `kata-translate`
-   - Save to correct path
-4. Report created files with per-language validation
+1. Reads `.ahrena/.directives` for languages and order
+2. Identifies the source language from the path or content
+3. Determines target language(s) and execution order
+4. Invokes `warrior-translator` with `kata-translate`
+5. For each language in order:
+   a. Consults `lex-language-{lang}` and `codex-language-{lang}`
+   b. Translates the document
+   c. Saves to the correct path
+6. Reports created files
 
 ## Prompt Template
 
 ```
-Assume the role of warrior-translator (Hermes). Consult .ahrena/.directives.
-For each target language in order: consult per-language rules, execute
-kata-translate, save translation, validate. Report results.
+Context:
+- Source file: {{file}}
+- Target language(s): {{language}} (or all from language.i18n except source)
+- Order: {{order}} (or as per language.i18n)
+
+Task:
+Assume the role of warrior-translator (Hermes). Consult .ahrena/.directives
+for required languages. For each target language in the defined order:
+1. Consult lex-language + lex-language-{lang} + codex-language + codex-language-{lang}
+2. Read the source file and execute kata-translate
+3. Save the translation to the correct path
+
+Output format:
+List of created files with per-language validation confirmation.
 ```
+
+## Restrictions
+
+- Does not modify the source file — only generates translations
+- Follows `lex-language` and `lex-language-{lang}` rules
+- Ahrena canonical terms are not translated
+- Translation order respects `language.i18n` or `--order`

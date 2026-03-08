@@ -1,5 +1,5 @@
 ---
-description: "Framework language structure. Language must be the first navigation level inside framework/. Every artifact must exist in all language.i18n languages."
+description: "Framework Language Structure. Folder structure and language-based navigation within framework/"
 alwaysApply: true
 ---
 
@@ -15,33 +15,38 @@ alwaysApply: true
 
 ### 1. Language as navigation root
 
-Within `framework/`, the first directory level is **always** the BCP 47 language code (e.g., `pt-BR`, `es`, `en`). The entire tree of clades, subclades, and pilares is replicated inside each language folder.
+Within `framework/`, the first directory level is **always** the BCP 47 language code (e.g., `pt-BR`, `es`, `en`). The entire tree of clades, subclades, and pilares is replicated inside each language folder:
+
+```
+framework/
+├── pt-BR/
+│   └── _foundation/process/lexis/lex-directives.md
+├── es/
+│   └── _foundation/process/lexis/lex-directives.md
+└── en/
+    └── _foundation/process/lexis/lex-directives.md
+```
 
 ### 2. Mandatory completeness
 
-Every artifact created in the default language (`language.default`) **MUST** have corresponding versions in all other languages listed in `language.i18n`.
+Every artifact created in the default language (`language.default`) **MUST** have corresponding versions in all other languages listed in `language.i18n`. An artifact is considered incomplete as long as it does not exist in all required languages.
 
 ### 3. Structural equivalence
 
-Versions across languages **MUST** maintain the same directory structure and relative paths.
+Versions across languages **MUST** maintain the same directory structure. If an artifact exists at `pt-BR/_foundation/process/lexis/lex-directives.md`, it **MUST** exist at the same relative path in every language.
 
 ### 4. Cursor in single language
 
-`.mdc` files in `.cursor/` **MUST** use exclusively `language.cursor`. No language folders in Cursor.
+`.mdc` files in the `.cursor/` directory **MUST** be written exclusively in the language defined in `language.cursor` in `.ahrena/.directives`. Cursor does **NOT** use language folders — only one language is maintained.
 
 ### 5. Change propagation
 
-When an artifact in the default language is modified, versions in other languages **MUST** be updated.
+When an artifact in the default language is modified, versions in other languages **MUST** be updated. The agent making the change **MUST** flag the need for translation updates.
 
 ### 6. Default language as source of truth
 
-The artifact in `language.default` is the **source of truth**. In case of divergence, the default language prevails.
+The artifact in the language defined in `language.default` is the **source of truth**. In case of divergence between versions, the content in the default language prevails.
 
 ### 7. No loose content at the root
 
-No `.md` artifact should exist directly in `framework/` outside of language folders, except `.directives.sample`.
-
-## References
-
-- `codex-framework-language` — Structural manual complementing this Lexis
-- `documentation/i18n/` — Translation artifacts (lex/codex per language, kata, warrior, cry)
+No `.md` artifact should exist directly in `framework/` outside of language folders, except meta-configuration files such as `.directives.sample`.

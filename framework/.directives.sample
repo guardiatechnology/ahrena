@@ -1,15 +1,15 @@
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Ahrena: AI-First Capability Framework — Directives
-# Instruções canônicas que governam o comportamento padrão do
-# framework. Este arquivo é a fonte da verdade para configurações
-# transversais consultadas por todos os agentes.
+# Canonical instructions that govern the framework's default
+# behavior. This file is the source of truth for cross-cutting
+# configurations consulted by all agents.
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
 # ─── Paths ───────────────────────────────────────────────────────
-# Caminhos canônicos do framework. Todos os caminhos são relativos
-# à raiz do repositório. O diretório .ahrena/ é o ponto de entrada
-# canônico do framework em qualquer projeto.
+# Canonical framework paths. All paths are relative to the
+# repository root. The .ahrena/ directory is the canonical entry
+# point for the framework in any project.
 
 paths:
   root: ".ahrena/"
@@ -24,10 +24,10 @@ paths:
     cries: "templates/cry-sample.md"
 
 
-# ─── Idioma ──────────────────────────────────────────────────────
-# Define o idioma padrão, os idiomas obrigatórios para o framework
-# e o idioma usado nos artefatos do Cursor.
-# O idioma é o primeiro nível de navegação dentro de framework/.
+# ─── Language ────────────────────────────────────────────────────
+# Defines the default language, the mandatory languages for the
+# framework, and the language used in Cursor artifacts.
+# Language is the first navigation level inside framework/.
 
 language:
   default: pt-BR
@@ -38,13 +38,13 @@ language:
   cursor: en
 
 
-# ─── Nomenclatura ───────────────────────────────────────────────
-# Convenções canônicas de nomeação para arquivos, diretórios e
-# artefatos do framework.
+# ─── Naming ─────────────────────────────────────────────────────
+# Canonical naming conventions for files, directories, and
+# framework artifacts.
 
 naming:
 
-  # Prefixos obrigatórios por Pilar
+  # Mandatory prefixes per Pilar
   prefixes:
     lexis: "lex-"
     codex: "codex-"
@@ -52,21 +52,27 @@ naming:
     warriors: "warrior-"
     cries: "cry-"
 
-  # Extensões canônicas por contexto
+  # Canonical extensions per context
   extensions:
     framework: ".md"
     cursor: ".mdc"
 
-  # Convenções de casing
+  # Casing conventions
   casing:
     files: kebab-case       # lex-no-secrets.md
     directories: kebab-case # engineering/backend/
 
-  # Endereçamento canônico de artefatos
-  # O idioma é sempre o primeiro segmento do caminho no framework.
-  # <lang>/<clade>/<subclade>/<pilar>/<prefixo>-<nome>.<ext>
+  # Canonical artifact addressing
+  # Language is always the first path segment in the framework.
+  # <lang>/<clade>/<subclade>/<pilar>/<prefix>-<name>.<ext>
   addressing: "{lang}/{clade}/{subclade}/{pilar}/{prefix}-{name}.{ext}"
 
-  # Clades especiais (prefixados com underscore)
+  # Special clades (prefixed with underscore)
   reserved_clades:
     - _foundation
+
+  tone_and_writing_style:
+    - "Adopt a direct and strategic style, driven by clarity, data, and purpose. Structure arguments with logic and precision, using frameworks such as Why, What, and How or Problem, Cause, and Solution to organize ideas objectively. Avoid embellishments or abstractions that stray from the essential. Whenever possible, support claims with numbers, evidence, or verifiable references (keeping the text accessible even for non-technical audiences). The tone should combine confidence, approachability, and practical vision. Ambition must come paired with feasibility. Big ideas only make sense when connected to concrete paths of execution. Avoid romanticizing technology or innovation, prioritizing real impact and purpose."
+    - "Do not use dashes or colons to contextualize concepts (unless explicitly requested). Use parentheses to explain nuances fluidly within the sentence. Reserve ellipses for marking interruption or continuity of thought, without overuse."
+    - "Eliminate buzzwords that carry no meaning. Use technical vocabulary only when necessary and always with a clear translation of the concept. Every response should help make decisions and move the discussion forward, avoiding text that informs without guiding."
+    - "Whenever I ask for writing or reviewing an email, post, or content to be shared with third parties, deliver exclusively the final text, without any commentary or introduction. Provide only the ready-to-use content, ensuring accuracy and avoiding unwanted passages."

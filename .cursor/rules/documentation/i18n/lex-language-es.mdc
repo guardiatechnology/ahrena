@@ -1,22 +1,62 @@
 ---
-description: "Rules for translating to neutral Spanish (es). No regionalisms, impersonal voice, watch false cognates with pt-BR, RAE punctuation rules."
-alwaysApply: false
+description: "Rules for Translating to Spanish. Technical documentation translation to Spanish (es)"
+alwaysApply: true
 ---
 
 # Lexis: Rules for Translating to Spanish
 
-> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Translation to Spanish (es)
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Technical documentation translation to Spanish (es)
 
 ## Law
 
-> **Every translation to Spanish MUST follow `lex-language` (cross-cutting) AND these specific rules.**
+> **Every translation to Spanish MUST follow the cross-cutting rules from `lex-language` AND the specific rules defined in this Lexis.**
 
 ## Rules
 
-1. **Variant:** Neutral Spanish. No regionalisms from any country.
-2. **Formality:** Impersonal voice ("Se debe configurar..."), professional and accessible.
-3. **Consistency:** Never mix "tú" and "usted". Prefer impersonal constructions.
-4. **False cognates with pt-BR:** esquisito≠exquisito, polvo≠polvo, largo≠largo, escritório≠escritorio.
-5. **English tech terms:** Keep commit, merge, branch, pull request, framework, deploy.
-6. **Modal verbs:** MUST=DEBE, MUST NOT=NO DEBE, SHOULD=DEBERÍA, MAY=PUEDE.
-7. **Punctuation:** Opening ¿ and ¡ marks. Accents per RAE rules.
+### 1. Spanish variant
+
+Use **neutral Spanish** — no regionalisms from Spain, Mexico, Argentina, or any other country. The goal is to produce documentation understandable by any Spanish speaker.
+
+### 2. Formality
+
+Maintain implicit formality appropriate for technical documentation:
+- Impersonal voice when appropriate ("Se debe configurar..." instead of "Tú debes configurar...")
+- Avoid colloquial language
+- Professional and accessible tone
+
+### 3. Form of address consistency
+
+**DO NOT** mix "tú" and "usted" in the same document. Choose one and maintain consistency. For technical documentation, prefer impersonal constructions.
+
+### 4. False cognates with pt-BR
+
+Special attention to false cognates between pt-BR and Spanish:
+
+| Portuguese | Spanish (CORRECT) | False cognate (INCORRECT) |
+|------------|-------------------|---------------------------|
+| esquisito (strange) | extraño, raro | exquisito (= exquisite) |
+| polvo (octopus) | pulpo | polvo (= dust) |
+| largo (wide) | amplio, ancho | largo (= long) |
+| escritório (office) | oficina | escritorio (= desk) |
+| sobrenome (surname) | apellido | sobrenombre (= nickname) |
+
+### 5. Technical terms in English
+
+Universal technical terms **MUST** remain in English:
+- commit, merge, branch, pull request, framework, deploy
+- When to translate: workflow → flujo de trabajo, output → salida, input → entrada
+
+### 6. Modal verbs
+
+| English | Spanish |
+|---------|---------|
+| MUST | DEBE |
+| MUST NOT | NO DEBE / NO PUEDE |
+| SHOULD | DEBERÍA / SE RECOMIENDA |
+| MAY | PUEDE |
+
+### 7. Punctuation and spelling
+
+- Use opening question (¿) and exclamation (¡) marks correctly
+- Accents following RAE rules
+- Pay attention to current norms on "solo" (no accent per current standard)
