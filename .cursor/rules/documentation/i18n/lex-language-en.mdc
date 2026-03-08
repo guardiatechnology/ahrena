@@ -1,0 +1,22 @@
+---
+description: "Rules for translating to English (en). American English, active voice, present tense, concise sentences, RFC 2119 modal verbs, no contractions in formal docs."
+alwaysApply: false
+---
+
+# Lexis: Rules for Translating to English
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Translation to English (en)
+
+## Law
+
+> **Every translation to English MUST follow `lex-language` (cross-cutting) AND these specific rules.**
+
+## Rules
+
+1. **Variant:** American English ("color", "organization", "analyze").
+2. **Voice/tense:** Active voice, present tense. "Run the command" not "The command should be run".
+3. **Conciseness:** Short, direct sentences. "to" not "in order to". One idea per sentence.
+4. **Terminology:** Industry-standard (execute, create, delete, configure, validate).
+5. **Tone:** Professional-neutral. No contractions ("do not" not "don't"), no slang.
+6. **Modal verbs (RFC 2119):** MUST=required, MUST NOT=prohibited, SHOULD=recommended, MAY=optional.
+7. **False friends:** "realize"≠realizar (use "perform"), "actually"≠atualmente (use "currently"), "pretend"≠pretender (use "intend").

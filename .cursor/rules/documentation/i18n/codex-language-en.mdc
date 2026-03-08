@@ -1,0 +1,23 @@
+---
+description: "Guide for translating to English (en). Imperative mood, active voice, present tense, vocabulary choices, false cognates from pt-BR and es."
+alwaysApply: false
+---
+
+# Codex: Guide for Translating to English
+
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Translation to English (en)
+
+## Conventions
+
+- Imperative mood: "Run the command" not "You should run the command"
+- Active voice: "The agent reads" not "The file is read"
+- Present tense: "The system validates" not "The system will validate"
+- No contractions: "do not" not "don't"
+
+## False Cognates (pt-BR → en)
+
+realize→perform, actually→currently, pretend→intend, resume→summarize, assist→attend/watch, fabric→factory.
+
+## False Cognates (es → en)
+
+sensible→sensitive, actual→current, eventual→possible/occasional.

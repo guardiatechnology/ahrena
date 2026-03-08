@@ -1,0 +1,38 @@
+---
+description: "Cross-language translation rules. Every translation must preserve structural and semantic equivalence. Consult lex-language-{lang} for target-language-specific rules."
+alwaysApply: true
+---
+
+# Lexis: Cross-Language Translation Rules
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All technical documentation translation
+
+## Law
+
+> **Every translation MUST preserve the structural and semantic equivalence of the original document, respecting these cross-cutting rules AND the target-language-specific rules in `lex-language-{lang}`.**
+
+## Rules
+
+### 1. Structural equivalence
+Same sections, headings, Markdown formatting, order, and hierarchy. Never omit, merge, or reorder.
+
+### 2. Semantic fidelity
+Preserve original meaning. Technical translation, not free paraphrasing. Imperative force ("MUST", "MUST NOT") must be preserved.
+
+### 3. Preserve technical elements
+Never translate: code blocks, file paths, URLs, variable/function/command names, file names.
+
+### 4. Ahrena canonical terms
+Never translate: Lexis, Codex, Katas, Warriors, Cries, Ahrena, Clade, Subclade, Pilar, Warrior names.
+
+### 5. Rule hierarchy
+1. `lex-language` (this — cross-cutting, always applies)
+2. `lex-language-{lang}` (target-language-specific, complements)
+3. `codex-language` (cross-cutting guide)
+4. `codex-language-{lang}` (target-language guide)
+
+### 6. Source-language agnostic
+The translator does NOT assume the source language. It comes from `language.default` in `.ahrena/.directives`.
+
+### 7. Completeness
+Every translation must be complete. No source-language fragments, no "TODO" placeholders, no omitted sections.

@@ -15,6 +15,7 @@ paths:
   root: ".ahrena/"
   directives: ".ahrena/.directives"
   templates: "templates/"
+  framework: "framework/"
   samples:
     lexis: "templates/lex-sample.md"
     codex: "templates/codex-sample.md"
@@ -24,8 +25,9 @@ paths:
 
 
 # ─── Idioma ──────────────────────────────────────────────────────
-# Define o idioma padrão e os idiomas obrigatórios para
-# documentação e comunicação de artefatos.
+# Define o idioma padrão, os idiomas obrigatórios para o framework
+# e o idioma usado nos artefatos do Cursor.
+# O idioma é o primeiro nível de navegação dentro de framework/.
 
 language:
   default: pt-BR
@@ -33,6 +35,8 @@ language:
     - pt-BR
     - es
     - en
+  cursor: en
+
 
 # ─── Nomenclatura ───────────────────────────────────────────────
 # Convenções canônicas de nomeação para arquivos, diretórios e
@@ -59,8 +63,9 @@ naming:
     directories: kebab-case # engineering/backend/
 
   # Endereçamento canônico de artefatos
-  # <clade>/<subclade>/<pilar>/<prefixo>-<nome>.<ext>
-  addressing: "{clade}/{subclade}/{pilar}/{prefix}-{name}.{ext}"
+  # O idioma é sempre o primeiro segmento do caminho no framework.
+  # <lang>/<clade>/<subclade>/<pilar>/<prefixo>-<nome>.<ext>
+  addressing: "{lang}/{clade}/{subclade}/{pilar}/{prefix}-{name}.{ext}"
 
   # Clades especiais (prefixados com underscore)
   reserved_clades:

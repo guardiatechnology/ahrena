@@ -1,0 +1,22 @@
+---
+description: "Rules for translating to neutral Spanish (es). No regionalisms, impersonal voice, watch false cognates with pt-BR, RAE punctuation rules."
+alwaysApply: false
+---
+
+# Lexis: Rules for Translating to Spanish
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Translation to Spanish (es)
+
+## Law
+
+> **Every translation to Spanish MUST follow `lex-language` (cross-cutting) AND these specific rules.**
+
+## Rules
+
+1. **Variant:** Neutral Spanish. No regionalisms from any country.
+2. **Formality:** Impersonal voice ("Se debe configurar..."), professional and accessible.
+3. **Consistency:** Never mix "tú" and "usted". Prefer impersonal constructions.
+4. **False cognates with pt-BR:** esquisito≠exquisito, polvo≠polvo, largo≠largo, escritório≠escritorio.
+5. **English tech terms:** Keep commit, merge, branch, pull request, framework, deploy.
+6. **Modal verbs:** MUST=DEBE, MUST NOT=NO DEBE, SHOULD=DEBERÍA, MAY=PUEDE.
+7. **Punctuation:** Opening ¿ and ¡ marks. Accents per RAE rules.

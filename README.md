@@ -136,6 +136,16 @@ Processos operacionais e suporte. Garante que sistemas e equipes funcionem de fo
 | Infrastructure | Servidores, redes, capacidade e disaster recovery |
 | Monitoring | Alertas, dashboards e resposta a incidentes |
 
+#### Documentation
+
+Tradução, internacionalização e gestão de documentação técnica. Contém artefatos genéricos que se aplicam a qualquer tipo de documentação — do framework, de projetos ou de qualquer outro conteúdo técnico.
+
+| Subclade | Foco |
+|----------|------|
+| i18n | Tradução multilíngue — regras por idioma, procedimentos, agente tradutor e comando |
+
+> O Clade `documentation/i18n/` inclui o **Warrior Hermes** — um agente tradutor especialista que consulta regras e guias específicos de cada idioma-alvo (pt-BR, en, es) para garantir traduções precisas e consistentes. Para detalhes completos, veja o [README do Sistema de Tradução](framework/pt-BR/documentation/i18n/README.md).
+
 #### _Foundation — Clade Transversal
 
 _Foundation é um **Clade especial** que não pertence a uma disciplina específica. Seus artefatos atuam de forma **transversal**, aplicando-se a todos os demais Clades simultaneamente.
@@ -147,6 +157,7 @@ Enquanto Clades como Product ou Engineering contêm conhecimento específico de 
 | Process | SDLC, fluxos de trabalho e convenções comuns a todas as disciplinas |
 | Quality | Padrões mínimos de qualidade válidos para qualquer artefato |
 | Security | Políticas de segurança aplicáveis a todo o sistema |
+| i18n | Estrutura de pastas por idioma dentro de `framework/` — regras de navegação e espelhamento |
 
 > Na prática: uma Lexis em `_foundation/security/` aplica-se a **todos** os Clades — não apenas a Engineering. Ao criar um artefato em qualquer Clade, o agente deve consultar _Foundation primeiro para garantir conformidade com as regras transversais.
 
@@ -154,20 +165,29 @@ Enquanto Clades como Product ou Engineering contêm conhecimento específico de 
 
 > Clades e Subclades são **extensíveis**: cada organização cria os que fizerem sentido para o seu contexto.
 
+### Warriors Disponíveis
+
+Warriors são agentes especializados prontos para uso. O Ahrena inclui os seguintes Warriors built-in:
+
+| Warrior | Nome | Clade | Descrição |
+|---------|------|-------|-----------|
+| `warrior-translator` | **Hermes** | `documentation/i18n` | Tradutor de documentação técnica. Consulta regras e guias específicos por idioma-alvo (pt-BR, en, es) para garantir traduções precisas. Invocável via `/cry-translate`. [Documentação completa](framework/pt-BR/documentation/i18n/README.md) |
+
 #### Endereçamento
 
+O idioma é sempre o primeiro segmento do caminho no framework:
+
 ```
-<clade>/<subclade>/<pilar>/<prefixo>-<nome>.md
+{lang}/{clade}/{subclade}/{pilar}/{prefixo}-{nome}.md
 ```
 
 | Caminho | Leitura |
 |---------|---------|
-| `_foundation/security/lexis/lex-security.md` | Lei de segurança transversal, aplicável a todos os Clades |
-| `product/discovery/codex/codex-prioritization.md` | Manual sobre priorização, na área Discovery da disciplina Product |
-| `engineering/security/lexis/lex-no-secrets.md` | Lei sobre secrets, na área Security da disciplina Engineering |
-| `product/delivery/katas/kata-release-notes.md` | Procedimento de release notes, na área Delivery de Product |
-| `engineering/quality/warriors/warrior-spartacus.md` | Agente Spartacus, na área Quality de Engineering |
-| `finance/compliance/cries/cry-audit-check.md` | Comando de audit check, na área Compliance de Finance |
+| `pt-BR/_foundation/security/lexis/lex-security.md` | Lei de segurança transversal em pt-BR |
+| `en/product/discovery/codex/codex-prioritization.md` | Manual sobre priorização em inglês |
+| `es/engineering/security/lexis/lex-no-secrets.md` | Lei sobre secrets em espanhol |
+| `pt-BR/documentation/i18n/warriors/warrior-translator.md` | Agente Hermes (tradutor) em pt-BR |
+| `en/engineering/quality/warriors/warrior-spartacus.md` | Agente Spartacus em inglês |
 
 #### Visualização
 
@@ -198,10 +218,13 @@ Enquanto Clades como Product ou Engineering contêm conhecimento específico de 
 │                 ├── infrastructure/                               │
 │                 └── monitoring/                                   │
 │                                                                   │
+│  documentation/ ──── i18n/           Hermes (tradutor)            │
+│                                                                   │
 │  ═══════════════════════════════════════════════════════          │
 │  _foundation/ ──┬── process/        ← aplica-se a TODOS           │
 │   (transversal) ├── quality/          os Clades acima             │
-│                 └── security/                                     │
+│                 ├── security/                                     │
+│                 └── i18n/                                         │
 │                                                                   │
 └───────────────────────────────────────────────────────────────────┘
 ```
@@ -221,53 +244,52 @@ Ponto de entrada canônico do framework. Todo projeto que adota o Ahrena **DEVE*
 
 ### `framework/`
 
-Templates e artefatos em `.md` puro, agnóstico de plataforma:
+Templates e artefatos em `.md` puro, agnóstico de plataforma. O **idioma é o primeiro nível de navegação** — cada pasta de idioma contém a árvore completa de Clades, Subclades e Pilares:
 
 ```
 framework/
+├── .directives.sample
 │
-│   # Templates (modelos base de cada Pilar)
-├── lexis/lex-sample.md
-├── codex/codex-sample.md
-├── katas/kata-sample.md
-├── warriors/warrior-sample.md
-├── cries/cry-sample.md
+├── pt-BR/                              # Idioma padrão (fonte da verdade)
+│   │
+│   │   # Templates (modelos base de cada Pilar)
+│   ├── lexis/lex-sample.md
+│   ├── codex/codex-sample.md
+│   ├── katas/kata-sample.md
+│   ├── warriors/warrior-sample.md
+│   ├── cries/cry-sample.md
+│   │
+│   │   # Artefatos por Clade → Subclade → Pilar
+│   ├── _foundation/
+│   │   ├── process/lexis/lex-*.md
+│   │   ├── quality/lexis/lex-*.md
+│   │   └── i18n/
+│   │       ├── lexis/lex-framework-language.md
+│   │       └── codex/codex-framework-language.md
+│   │
+│   └── documentation/i18n/             # Sistema de tradução
+│       ├── README.md                   # Documentação completa
+│       ├── lexis/
+│       │   ├── lex-language.md         # Regras transversais
+│       │   ├── lex-language-ptbr.md    # Regras para pt-BR
+│       │   ├── lex-language-en.md      # Regras para en
+│       │   └── lex-language-es.md      # Regras para es
+│       ├── codex/
+│       │   ├── codex-language.md       # Guia transversal
+│       │   ├── codex-language-ptbr.md
+│       │   ├── codex-language-en.md
+│       │   └── codex-language-es.md
+│       ├── katas/kata-translate.md     # Procedimento (6 passos)
+│       ├── warriors/warrior-translator.md  # Hermes
+│       └── cries/cry-translate.md      # Comando rápido
 │
-│   # Artefatos por Clade → Subclade → Pilar
-├── product/
-│   ├── discovery/
-│   │   ├── codex/.../codex-*.md
-│   │   ├── katas/.../kata-*.md
-│   │   └── warriors/.../warrior-*.md
-│   └── delivery/
-│       └── katas/.../kata-*.md
-│       └── cries/.../cry-*.md
-│
-├── engineering/
-│   ├── architecture/
-│   │   ├── codex/.../codex-*.md
-│   │   └── katas/.../kata-*.md
-│   ├── quality/
-│   │   ├── katas/.../kata-*.md
-│   │   └── warriors/.../warrior-*.md
-│   └── security/
-│       ├── lexis/.../lex-*.md
-│       └── warriors/.../warrior-*.md
-│
-└── _foundation/                        
-    ├── governance/
-    │   ├── codex/.../codex-*.md
-    │   ├── lexis/.../lex-*.md
-    ├── quality/
-    │   ├── codex/.../codex-*.md
-    │   ├── lexis/.../lex-*.md
-    │   ├── katas/.../kata-*.md
-    └── security/
-       ├── codex/.../codex-*.md
-       ├── lexis/.../lex-*.md
+├── es/                                 # Espanhol (mesma estrutura)
+│   └── ...
+└── en/                                 # Inglês (mesma estrutura)
+    └── ...
 ```
 
-Para criar um novo artefato: copie o `*-sample.md` do Pilar correspondente, coloque-o no Clade/Subclade adequado e preencha os campos `[]`.
+Para criar um novo artefato: copie o `*-sample.md` do Pilar correspondente, coloque-o no Clade/Subclade adequado e preencha os campos `[]`. O artefato **DEVE** existir em todos os idiomas de `language.i18n` — use `/cry-translate` para gerar as traduções.
 
 ### De-Para: `framework/` → `.cursor/`
 
@@ -304,24 +326,31 @@ Ao implementar no Cursor, os `.md` são copiados como `.mdc` com frontmatter YAM
 │   │   └── security/
 │   │       ├── lexis/.../lex-*.mdc
 │   │       └── warriors/.../warrior-*.mdc
-│   └── _foundation/
-│       ├── governance/
-│       │   ├── codex/.../codex-*.mdc
-│       │   └── lexis/.../lex-*.mdc
-│       ├── quality/
-│       │   ├── codex/.../codex-*.mdc
-│       │   ├── lexis/.../lex-*.mdc
-│       │   └── katas/.../kata-*.mdc
-│       └── security/
-│           ├── codex/.../codex-*.mdc
-│           └── lexis/.../lex-*.mdc
+│   ├── _foundation/
+│   │   ├── process/lex-*.mdc
+│   │   ├── quality/lex-*.mdc
+│   │   └── i18n/
+│   │       ├── lex-framework-language.mdc
+│   │       └── codex-framework-language.mdc
+│   └── documentation/i18n/
+│       ├── lex-language.mdc
+│       ├── lex-language-ptbr.mdc
+│       ├── lex-language-en.mdc
+│       ├── lex-language-es.mdc
+│       ├── codex-language.mdc
+│       ├── codex-language-ptbr.mdc
+│       ├── codex-language-en.mdc
+│       └── codex-language-es.mdc
 ├── skills/
-│   └── samples/
-│       ├── kata-sample.mdc
-│       └── warrior-sample.mdc
+│   ├── samples/
+│   │   ├── kata-sample.mdc
+│   │   └── warrior-sample.mdc
+│   └── documentation/i18n/
+│       ├── kata-translate.mdc
+│       └── warrior-translator.mdc
 └── commands/
     ├── samples/
     │   └── cry-sample.mdc
-    └── product/
-        └── delivery/.../cry-*.mdc
+    └── documentation/i18n/
+        └── cry-translate.mdc
 ```

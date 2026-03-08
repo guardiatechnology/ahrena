@@ -1,0 +1,28 @@
+---
+description: "Guide for translating to neutral Spanish (es). Impersonal voice, opening punctuation marks, false cognates pt-BR↔es and en↔es, formalization patterns."
+alwaysApply: false
+---
+
+# Codex: Guide for Translating to Spanish
+
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Translation to Spanish (es)
+
+## Conventions
+
+- Impersonal voice: "Se debe configurar..." not "Debes configurar..."
+- Always use opening ¿ and ¡ marks
+- Neutral Spanish, no regionalisms
+
+## False Cognates (pt-BR ↔ es)
+
+esquisito≠exquisito, polvo≠polvo, largo≠largo, escritório≠escritorio, sobrenome≠sobrenombre.
+
+## False Cognates (en ↔ es)
+
+actual≠actual (use "current"), sensible≠sensible (use "sensitive"), eventually≠eventualmente (use "finally").
+
+## Formalization
+
+- Obligation: "Se **DEBE** configurar..." (not "Tienes que")
+- Necessity: "Es necesario..." (not "Hace falta")
+- Recommendation: "Se recomienda..." (not "Estaría bien que")

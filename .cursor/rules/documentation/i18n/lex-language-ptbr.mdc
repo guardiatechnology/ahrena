@@ -1,0 +1,22 @@
+---
+description: "Rules for translating to Brazilian Portuguese (pt-BR). Use 'voce', standard grammar, keep established English tech terms, avoid anglicisms, formal-accessible tone."
+alwaysApply: false
+---
+
+# Lexis: Rules for Translating to Brazilian Portuguese
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Translation to pt-BR
+
+## Law
+
+> **Every translation to pt-BR MUST follow `lex-language` (cross-cutting) AND these specific rules.**
+
+## Rules
+
+1. **Form of address:** Use "você". Never "tu" or "vós".
+2. **Standard grammar:** Rigorous accents, punctuation, verbal/nominal agreement.
+3. **English tech terms:** Keep commit, merge, branch, pull request, framework, deploy. Translate workflow (fluxo de trabalho), output (saída), input (entrada).
+4. **Avoid anglicisms:** "excluir" not "deletar", "configurar" not "setar".
+5. **Tone:** Formal-accessible. Technical without ornate, direct without colloquial.
+6. **Modal verbs:** MUST=DEVE, MUST NOT=NÃO DEVE, SHOULD=DEVERIA, MAY=PODE.
+7. **Formal patterns:** "O agente DEVE..." not "O agente tem que...".

@@ -1,0 +1,30 @@
+---
+description: "Documentation translation procedure. 6-step workflow: read directives, identify context, consult target language rules (lex-language-{lang} + codex-language-{lang}), translate, save, validate."
+alwaysApply: false
+---
+
+# Kata: Documentation Translation
+
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Any technical documentation translation
+
+## Workflow
+
+1. **Read directives:** `.ahrena/.directives` for `language.default`, `language.i18n`, `naming.addressing`
+2. **Identify context:** source language, framework vs generic, destination paths
+3. **Consult target rules:** `lex-language` → `lex-language-{lang}` → `codex-language` → `codex-language-{lang}`
+4. **Translate:** apply target language rules, preserve Markdown structure, Ahrena terms, code blocks, paths
+5. **Save:** to correct path, create directories if needed, keep file name unchanged
+6. **Validate:** all sections present, hierarchy preserved, canonical terms untouched, no source fragments
+
+## Mandatory Preservation
+
+- Markdown structure (headings, tables, lists, code blocks)
+- Ahrena terms: Lexis, Codex, Katas, Warriors, Cries, Clade, Subclade, Pilar
+- File paths, URLs, code block contents
+
+## Restrictions
+
+- Never alter the source file
+- Never translate canonical terms
+- Never omit or merge sections
+- Always consult target language lex/codex before translating

@@ -1,0 +1,37 @@
+---
+description: "Cross-language translation guide. How to identify source/target languages, preserve Markdown structure, untranslatable terms glossary, consultation flow."
+alwaysApply: false
+---
+
+# Codex: Cross-Language Translation Guide
+
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** General translation guidance
+
+## Identifying Languages
+
+- **Source:** first segment after `framework/` in the file path
+- **Target:** from request parameter or `language.i18n`
+- **Default:** `language.default` is the source of truth
+
+## Markdown Preservation
+
+| Element | Action |
+|---------|--------|
+| Headings | Translate text, keep hierarchy |
+| Tables | Translate cells, keep structure |
+| Code blocks | NEVER translate |
+| URLs/links | NEVER alter URLs |
+| YAML frontmatter | NEVER translate keys, translate `description` values |
+
+## Untranslatable Terms
+
+**Ahrena:** Lexis, Codex, Katas, Warriors, Cries, Ahrena, Clade, Subclade, Pilar, Warrior names.
+
+**Technical:** commit, merge, branch, pull request, deploy, framework, API, SDK, CLI, Markdown, YAML, JSON.
+
+## Consultation Order
+
+1. `lex-language` (cross-cutting rules)
+2. `lex-language-{lang}` (target language rules)
+3. `codex-language` (this guide)
+4. `codex-language-{lang}` (target language guide)

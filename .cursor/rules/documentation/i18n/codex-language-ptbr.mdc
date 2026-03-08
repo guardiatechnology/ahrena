@@ -1,0 +1,31 @@
+---
+description: "Guide for translating to Brazilian Portuguese (pt-BR). Technical terms table, formalization patterns, common pitfalls (deletar→excluir, setar→configurar)."
+alwaysApply: false
+---
+
+# Codex: Guide for Translating to pt-BR
+
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Translation to pt-BR
+
+## Key Terms
+
+| English | Action | pt-BR |
+|---------|--------|-------|
+| commit, merge, branch, PR | Keep | — |
+| workflow | Translate | fluxo de trabalho |
+| output/input | Translate | saída / entrada |
+| bug, feature | Translate | defeito / funcionalidade |
+
+## Formalization
+
+- Obligation: "O agente **DEVE**..." (not "tem que")
+- Necessity: "É necessário..." (not "Precisa")
+- Recommendation: "Recomenda-se..." (not "É bom que")
+
+## Pitfalls
+
+- "excluir" not "deletar"
+- "configurar" not "setar"
+- "executar" not "rodar"
+- "verificar" not "checar"
+- Avoid excessive gerund usage

@@ -1,0 +1,47 @@
+---
+description: "Framework language structure. Language must be the first navigation level inside framework/. Every artifact must exist in all language.i18n languages."
+alwaysApply: true
+---
+
+# Lexis: Framework Language Structure
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Folder structure and language-based navigation within `framework/`
+
+## Law
+
+> **The language MUST be the first level of navigation within `framework/`, following the addressing pattern `{lang}/{clade}/{subclade}/{pilar}/{prefix}-{name}.{ext}`. Every artifact MUST exist in all languages defined in `language.i18n`.**
+
+## Rules
+
+### 1. Language as navigation root
+
+Within `framework/`, the first directory level is **always** the BCP 47 language code (e.g., `pt-BR`, `es`, `en`). The entire tree of clades, subclades, and pilares is replicated inside each language folder.
+
+### 2. Mandatory completeness
+
+Every artifact created in the default language (`language.default`) **MUST** have corresponding versions in all other languages listed in `language.i18n`.
+
+### 3. Structural equivalence
+
+Versions across languages **MUST** maintain the same directory structure and relative paths.
+
+### 4. Cursor in single language
+
+`.mdc` files in `.cursor/` **MUST** use exclusively `language.cursor`. No language folders in Cursor.
+
+### 5. Change propagation
+
+When an artifact in the default language is modified, versions in other languages **MUST** be updated.
+
+### 6. Default language as source of truth
+
+The artifact in `language.default` is the **source of truth**. In case of divergence, the default language prevails.
+
+### 7. No loose content at the root
+
+No `.md` artifact should exist directly in `framework/` outside of language folders, except `.directives.sample`.
+
+## References
+
+- `codex-framework-language` — Structural manual complementing this Lexis
+- `documentation/i18n/` — Translation artifacts (lex/codex per language, kata, warrior, cry)
