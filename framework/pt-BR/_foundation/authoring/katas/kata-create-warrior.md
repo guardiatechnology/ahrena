@@ -1,0 +1,130 @@
+# Kata: Criar Novo Warrior
+
+> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Criação de Warriors (agentes especializados)
+
+## Objetivo
+
+Este Kata define o procedimento padronizado para criar um novo Warrior no Ahrena — desde o design de identidade e persona até a criação do artefato nos três idiomas obrigatórios.
+
+## Quando Usar
+
+- Quando é necessário criar um agente especializado com identidade, escopo e responsabilidades definidos
+- Quando o usuário solicita explicitamente a criação de um novo Warrior
+- Quando invocado pelo `cry-new-warrior`
+
+## Inputs
+
+| Input | Obrigatório | Descrição |
+|-------|:-----------:|-----------|
+| Papel | Sim | Função que o Warrior desempenha (ex: "Arquiteto de Software", "Revisor de Código") |
+| Domínio | Não | Área de atuação. Se omitido, o agente deve inferir do papel |
+| Nome | Não | Nome próprio do Warrior. Se omitido, o agente deve sugerir um nome temático |
+| Clade/Subclade | Não | Onde salvar na taxonomia. Se omitido, o agente deve inferir do domínio |
+
+## Workflow
+
+```
+Progresso:
+- [ ] 1. Leitura das diretivas e referências
+- [ ] 2. Design da identidade
+- [ ] 3. Definição de responsabilidades e consulta
+- [ ] 4. Redação do artefato
+- [ ] 5. Salvamento no caminho correto
+- [ ] 6. Criação nos demais idiomas
+- [ ] 7. Validação final
+```
+
+### Passo 1: Leitura das Diretivas e Referências
+
+1. Ler `.ahrena/.directives` para obter:
+   - `language.default` — idioma padrão
+   - `language.i18n` — idiomas obrigatórios
+   - `naming.addressing` — padrão de endereçamento
+   - `naming.prefixes.warriors` — prefixo (`warrior-`)
+2. Ler `codex-warriors` para internalizar os critérios de qualidade
+3. Ler `templates/warrior-sample.md` para ter a estrutura base
+4. Verificar Warriors existentes para evitar sobreposição de responsabilidades
+
+### Passo 2: Design da Identidade
+
+1. **Nome:** Escolher um nome memorável que evoque o papel (mitológico, histórico ou simbólico)
+2. **Papel:** Título profissional claro (ex: "Tradutor Especialista de Documentação Técnica")
+3. **Domínio:** Área específica de atuação com delimitação clara
+4. **Persona:** 2-3 adjetivos que definem o tom (ex: "metódico, criterioso, focado em trade-offs")
+5. **Missão:** 1-2 frases em blockquote que resumem o propósito central
+
+### Passo 3: Definição de Responsabilidades e Consulta
+
+1. Listar responsabilidades positivas ("Faz") — ações concretas e específicas
+2. Listar exclusões ("Não Faz") — limites claros para evitar escopo infinito
+3. Mapear a cadeia de consulta:
+   - **Lexis:** quais leis o Warrior segue (sempre incluir `lex-directives`)
+   - **Codex:** quais manuais consulta para tomar decisões
+   - **Katas:** quais procedimentos executa
+4. Definir critérios de escalação — quando o Warrior para e pede ajuda humana
+5. Definir o fluxo de atuação: Recebe → Consulta → Analisa → Produz → Valida
+
+### Passo 4: Redação do Artefato
+
+Usar o `templates/warrior-sample.md` como base e preencher todas as seções:
+
+1. **Título:** `# Warrior: [Nome] — [Descrição Breve]`
+2. **Blockquote:** Prefixo, tipo e escopo
+3. **Identidade:** Nome, papel, domínio e persona
+4. **Missão:** Citação em blockquote
+5. **Responsabilidades:** Listas "Faz" e "Não Faz"
+6. **Consulta:** Tabelas de Lexis, Codex e Katas
+7. **Comportamento:** Tom, fluxo de atuação e critérios de escalação
+8. **Exemplo de Interação:** Input do usuário + resposta estruturada do Warrior
+
+### Passo 5: Salvamento no Caminho Correto
+
+1. Determinar o Clade e Subclade adequados
+2. Compor o caminho: `framework/{lang}/{clade}/{subclade}/warriors/warrior-{nome}.md`
+3. Usar kebab-case para o nome do arquivo (nome do warrior)
+4. Criar diretórios intermediários se necessário
+5. Salvar o artefato no idioma padrão (`language.default`)
+
+### Passo 6: Criação nos Demais Idiomas
+
+1. Para cada idioma em `language.i18n` (exceto o padrão):
+   - Executar `kata-translate` com o arquivo criado no Passo 5
+   - Ou traduzir diretamente consultando `lex-language-{lang}` e `codex-language-{lang}`
+2. Salvar cada tradução no caminho equivalente sob `framework/{lang}/`
+
+### Passo 7: Validação Final
+
+- [ ] O arquivo segue a estrutura completa do `templates/warrior-sample.md`
+- [ ] A identidade tem nome, papel, domínio e persona
+- [ ] A missão está em blockquote com 1-2 frases
+- [ ] "Faz" e "Não Faz" são listas equilibradas e sem ambiguidade
+- [ ] A cadeia de consulta inclui pelo menos `lex-directives`
+- [ ] Os critérios de escalação são concretos
+- [ ] O exemplo de interação tem input e output completos
+- [ ] O arquivo está salvo no caminho correto da taxonomia
+- [ ] Existem versões em todos os idiomas de `language.i18n`
+- [ ] O nome do arquivo usa o prefixo `warrior-` e kebab-case
+
+## Outputs
+
+| Output | Formato | Destino |
+|--------|---------|---------|
+| Warrior no idioma padrão | Markdown (`.md`) | `framework/{lang}/{clade}/{subclade}/warriors/warrior-{nome}.md` |
+| Traduções | Markdown (`.md`) | Mesmo caminho em cada `framework/{lang}/` |
+
+## Restrições
+
+- Nunca criar um Warrior genérico sem escopo delimitado
+- Nunca criar um Warrior sem cadeia de consulta explícita
+- Nunca criar um Warrior sem critérios de escalação
+- Sempre consultar `codex-warriors` antes de redigir
+- Sempre verificar Warriors existentes para evitar sobreposição de responsabilidades
+
+## Referências
+
+- `codex-warriors` — Critérios de qualidade para Warriors
+- `codex-pilars` — Visão geral do sistema de Pilares
+- `lex-template-usage` — Lei de uso obrigatório de templates
+- `lex-framework-language` — Lei de estrutura de idiomas
+- `kata-translate` — Procedimento de tradução
+- `templates/warrior-sample.md` — Template oficial

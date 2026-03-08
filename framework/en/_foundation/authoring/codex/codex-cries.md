@@ -1,0 +1,134 @@
+# Codex: How to Write Good Cries
+
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Creation of Cries (recurring commands)
+
+## Overview
+
+This Codex documents how to design effective recurring commands in Ahrena. It covers when to create a Cry vs using a Kata directly, prompt template design, parameters, and the Cry → Kata chain. It is consulted by `kata-create-cry` during the creation of new Cries.
+
+## Context
+
+- **Domain:** Design of productivity commands for AI agents
+- **Audience:** AI agents executing `kata-create-cry` and framework maintainers
+- **Update:** When new quality standards are identified for Cries
+
+## Content
+
+### Principles
+
+1. **Speed:** A Cry exists to save time. If the invocation is as complex as executing the Kata directly, the Cry has no value.
+2. **Delegation:** The Cry does not contain its own logic — it delegates to a Kata (optionally via a Warrior). The Cry is the entry point, not the procedure.
+3. **Minimal parameters:** The Cry MUST require the minimum information from the user, using smart defaults from `.directives` for the rest.
+4. **Predictability:** The same Cry with the same parameters MUST produce the same result.
+
+### Anatomy of a Good Cry
+
+| Section | Purpose | Quality Criteria |
+|---------|---------|-----------------|
+| **Description** | What the command does in one sentence | Clear and direct |
+| **Usage** | Invocation syntax | Format: `/cry-name <required> [optional]` |
+| **Parameters** | Argument table | Name, requirement status, description, and example |
+| **What the Command Does** | Numbered list of actions | 3-6 high-level steps |
+| **Prompt Template** | Instructions sent to the agent | Context + Task + Output format |
+| **Invocation Example** | Concrete input and output | Demonstrates real usage |
+| **Difference from Kata** | Comparative table | Cry vs Kata for this case |
+
+### Parameter Design
+
+| Practice | Example |
+|----------|---------|
+| Minimum required parameters | Only the essentials that cannot have a default |
+| Smart defaults | Languages come from `.directives`, not from the user |
+| Explicit format | "BCP 47 code" is clearer than "language" |
+| Consistency with other Cries | Same naming pattern and order |
+
+### Prompt Template Design
+
+The prompt template is the functional core of the Cry. Recommended structure:
+
+```
+Context:
+- {{parameter1}}
+- {{parameter2}}
+
+Task:
+[Clear instruction of what to do, referencing Kata and/or Warrior]
+
+Output format:
+[How the result should be presented]
+```
+
+Best practices:
+- Reference the Kata to execute by name
+- If there is a Warrior, instruct the agent to assume the role
+- Define the output format explicitly
+- Use variables with `{{double braces}}` for parameters
+
+### Invocation Chain
+
+A Cry can follow two patterns:
+
+**Pattern 1: Cry → Kata (direct)**
+```
+/cry-new-lex "code review" → kata-create-lexis
+```
+Use when there is no dedicated Warrior for the domain.
+
+**Pattern 2: Cry → Warrior → Kata**
+```
+/cry-translate file.md → warrior-translator → kata-translate
+```
+Use when a Warrior exists that adds persona and context.
+
+### Standards and Conventions
+
+| Aspect | Standard | Example |
+|--------|----------|---------|
+| Naming | `cry-{verb}-{noun}` or `cry-new-{pilar}` | `cry-translate`, `cry-new-lex` |
+| Syntax | `/cry-name <required> [optional]` | `/cry-translate <file> [language]` |
+| Positional parameters | Required first, optional after | `<file> [language] [--flag]` |
+| Flags | Prefixed with `--` | `--order en,es` |
+
+### Common Pitfalls
+
+| Pitfall | Problem | Solution |
+|---------|---------|----------|
+| Complex Cry | Too many required parameters | Reduce to 1-2 required, use defaults |
+| Cry without Kata | All logic in the prompt template | Extract procedure into a Kata |
+| Redundant Cry | Duplicates another existing Cry | Check existing Cries before creating |
+| Vague prompt | "Do something with the file" | Reference specific Kata and output format |
+| No example | User does not know how to use it | Always include an example with input and output |
+
+### Cry vs Kata — When to Create Each
+
+| Characteristic | Cry | Kata |
+|---------------|-----|------|
+| Entry point | User invokes directly | Agent executes internally |
+| Complexity | Simple invocation (1 command) | Multi-step procedure |
+| Parameters | From user (CLI-like) | Validated and processed |
+| Contains logic? | No — delegates to Kata | Yes — defines the steps |
+| Analogy | Shell command | Script called by the command |
+
+### Technical Constraints
+
+- Every Cry MUST reference at least one Kata that it executes
+- The "Prompt Template" section MUST use `{{variables}}` for parameters
+- The file name MUST follow the pattern `cry-{descriptive-name}.md`
+- The "Difference from Kata" section MUST contain a comparative table
+
+## Glossary
+
+| Term | Definition |
+|------|------------|
+| Prompt template | Parameterized text sent to the agent when the Cry is invoked |
+| Smart default | Default value derived from `.directives` or context |
+| Invocation chain | Cry → (Warrior) → Kata sequence that defines the execution flow |
+| Positional parameter | Argument identified by position, not by name |
+
+## References
+
+- `codex-pilars` — Overview of the Pilar system
+- `codex-katas` — Manual on Katas (to understand the Cry vs Kata difference)
+- `lex-template-usage` — Mandatory template usage law
+- `kata-create-cry` — Procedure for creating new Cries
+- `templates/cry-sample.md` — Official Cries template
