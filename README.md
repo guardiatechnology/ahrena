@@ -132,11 +132,22 @@ python .ahrena/uninstall.py
 python .ahrena/uninstall.py --force
 ```
 
+### Desenvolvimento local (para contribuidores do Ahrena)
+
+Se você está trabalhando no repositório do Ahrena e quer testar mudanças no framework localmente:
+
+```bash
+make dev-install PLATFORM=cursor
+```
+
+Isso usa os fontes locais de `framework/` em vez de baixar do GitHub. O `.ahrena/` e `.cursor/` são regenerados a partir do estado atual do repositório.
+
 ### Opções
 
 | Flag | Descrição |
 |------|-----------|
 | `--platform cursor` | Gerar `.cursor/` (rules, skills, commands, agents) |
+| `--local` | Usar fontes locais (para desenvolvimento do framework) |
 | `--clades X,Y` | Instalar apenas os clades especificados (ex: `_foundation,documentation`) |
 | `--version v0.1.0` | Versão específica (tag ou branch) |
 | `--language en` | Sobrescrever idioma padrão no `.directives` |
@@ -297,9 +308,12 @@ Enquanto Clades como Product ou Engineering contêm conhecimento específico de 
 
 | Subclade | Foco |
 |----------|------|
+| Authoring | Guias de criação de artefatos (como criar Lexis, Codex, Katas, Warriors e Cries) |
+| Contributing | Fluxo unificado de contribuição, padrões de commit e criação de PRs |
 | Process | SDLC, fluxos de trabalho e convenções comuns a todas as disciplinas |
 | Quality | Padrões mínimos de qualidade válidos para qualquer artefato |
 | Security | Políticas de segurança aplicáveis a todo o sistema |
+| Tooling | Automação e ferramentas de desenvolvimento (Makefile, instalador) |
 | i18n | Estrutura de pastas por idioma dentro de `framework/` — regras de navegação e espelhamento |
 
 > Na prática: uma Lexis em `_foundation/security/` aplica-se a **todos** os Clades — não apenas a Engineering. Ao criar um artefato em qualquer Clade, o agente deve consultar _Foundation primeiro para garantir conformidade com as regras transversais.
@@ -364,9 +378,12 @@ O idioma é sempre o primeiro segmento do caminho no framework:
 │  documentation/ ──── i18n/           Hermes (tradutor)            │
 │                                                                   │
 │  ═══════════════════════════════════════════════════════          │
-│  _foundation/ ──┬── process/        ← aplica-se a TODOS           │
-│   (transversal) ├── quality/          os Clades acima             │
+│  _foundation/ ──┬── authoring/      ← aplica-se a TODOS           │
+│   (transversal) ├── contributing/     os Clades acima             │
+│                 ├── process/                                      │
+│                 ├── quality/                                      │
 │                 ├── security/                                     │
+│                 ├── tooling/                                      │
 │                 └── i18n/                                         │
 │                                                                   │
 └───────────────────────────────────────────────────────────────────┘
@@ -404,8 +421,18 @@ framework/
 │   │
 │   │   # Artefatos por Clade → Subclade → Pilar
 │   ├── _foundation/
+│   │   ├── authoring/                 # Guias de criação de artefatos
+│   │   │   ├── codex/codex-*.md
+│   │   │   ├── katas/kata-create-*.md
+│   │   │   └── cries/cry-new-*.md
+│   │   ├── contributing/              # Fluxo de contribuição
+│   │   │   ├── codex/codex-contributing.md, codex-commit-standards.md
+│   │   │   ├── lexis/lex-conventional-commits.md, ...
+│   │   │   ├── katas/kata-commit.md, kata-contribute.md
+│   │   │   └── cries/cry-commit.md, cry-contribute.md
 │   │   ├── process/lexis/lex-*.md
 │   │   ├── quality/lexis/lex-*.md
+│   │   ├── tooling/cries/cry-make.md
 │   │   └── i18n/
 │   │       ├── lexis/lex-framework-language.md
 │   │       └── codex/codex-framework-language.md
@@ -464,31 +491,36 @@ Ao implementar no Cursor, cada Pilar é mapeado para o recurso nativo correspond
 │   │   ├── lex-sample.mdc
 │   │   └── codex-sample.mdc
 │   ├── _foundation/
+│   │   ├── authoring/codex-*.mdc
+│   │   ├── contributing/
+│   │   │   ├── codex-contributing.mdc
+│   │   │   ├── codex-commit-standards.mdc
+│   │   │   └── lex-*.mdc
 │   │   ├── process/lex-*.mdc
 │   │   ├── quality/lex-*.mdc
 │   │   └── i18n/
 │   │       ├── lex-framework-language.mdc
 │   │       └── codex-framework-language.mdc
 │   └── documentation/i18n/
-│       ├── lex-language.mdc
-│       ├── lex-language-ptbr.mdc
-│       ├── lex-language-en.mdc
-│       ├── lex-language-es.mdc
-│       ├── codex-language.mdc
-│       ├── codex-language-ptbr.mdc
-│       ├── codex-language-en.mdc
-│       └── codex-language-es.mdc
+│       ├── lex-language.mdc, lex-language-{ptbr,en,es}.mdc
+│       └── codex-language.mdc, codex-language-{ptbr,en,es}.mdc
 │
 ├── skills/                             # SKILL.md — Katas + Warriors
 │   ├── kata-sample/SKILL.md
 │   ├── warrior-sample/SKILL.md
+│   ├── kata-commit/SKILL.md
+│   ├── kata-contribute/SKILL.md
+│   ├── kata-create-*/SKILL.md
 │   ├── kata-translate/SKILL.md
 │   └── warrior-translator/SKILL.md
 │
 ├── commands/                           # .md — Cries
 │   ├── samples/cry-sample.md
-│   └── documentation/i18n/
-│       └── cry-translate.md
+│   ├── _foundation/
+│   │   ├── authoring/cry-new-*.md
+│   │   ├── contributing/cry-commit.md, cry-contribute.md
+│   │   └── tooling/cry-make.md
+│   └── documentation/i18n/cry-translate.md
 │
 └── agents/                             # .md — Warriors (subagentes)
     └── warrior-translator.md
