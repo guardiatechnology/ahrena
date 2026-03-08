@@ -144,7 +144,7 @@ Restrições absolutas de segurança, qualidade ou processo que **nenhum agente 
 | **Prefixo** | `lex-` |
 | **Quando usar** | Quando há risco de violação de segurança, qualidade ou processo crítico |
 | **Governança** | Sem exceções; validação automatizada sempre que possível |
-| **Template** | [`framework/lexis/lex-sample.md`](framework/lexis/lex-sample.md) |
+| **Template** | [`framework/templates/lex-sample.md`](framework/templates/lex-sample.md) |
 
 #### Codex — Manuais de Referência
 
@@ -156,7 +156,7 @@ Base de conhecimento estruturada que a IA consulta para tomar decisões contextu
 | **Prefixo** | `codex-` |
 | **Quando usar** | Quando uma decisão, padrão ou convenção relevante precisa ser documentada |
 | **Governança** | Atualizado a cada decisão relevante ou mudança estrutural; consultado por equipe e IA |
-| **Template** | [`framework/codex/codex-sample.md`](framework/codex/codex-sample.md) |
+| **Template** | [`framework/templates/codex-sample.md`](framework/templates/codex-sample.md) |
 
 #### Katas — Skills Repetíveis
 
@@ -168,7 +168,7 @@ Procedimentos que definem como agentes executam tarefas recorrentes de forma pad
 | **Prefixo** | `kata-` |
 | **Quando usar** | Quando uma tarefa recorrente precisa ser executada de forma padronizada |
 | **Governança** | Critérios de validação verificados antes da entrega |
-| **Template** | [`framework/katas/kata-sample.md`](framework/katas/kata-sample.md) |
+| **Template** | [`framework/templates/kata-sample.md`](framework/templates/kata-sample.md) |
 
 #### Warriors — Agentes Especializados
 
@@ -180,7 +180,7 @@ Agentes de IA com identidade, escopo e responsabilidades definidos. Cada Warrior
 | **Prefixo** | `warrior-` |
 | **Quando usar** | Quando um agente especializado com identidade e escopo definidos é necessário |
 | **Governança** | Vincula Lexis, Codex e Katas; critérios claros de escalação para humano |
-| **Template** | [`framework/warriors/warrior-sample.md`](framework/warriors/warrior-sample.md) |
+| **Template** | [`framework/templates/warrior-sample.md`](framework/templates/warrior-sample.md) |
 
 #### Cries — Comandos Recorrentes
 
@@ -192,7 +192,7 @@ Atalhos de produtividade que automatizam tarefas repetitivas. Diferem dos Katas 
 | **Prefixo** | `cry-` |
 | **Quando usar** | Quando uma tarefa simples e repetitiva pode ser automatizada via comando rápido |
 | **Governança** | Baixa complexidade (1-2 passos); invocado via `/cry-[nome]` no chat |
-| **Template** | [`framework/cries/cry-sample.md`](framework/cries/cry-sample.md) |
+| **Template** | [`framework/templates/cry-sample.md`](framework/templates/cry-sample.md) |
 
 ---
 
@@ -359,14 +359,14 @@ Templates e artefatos em `.md` puro, agnóstico de plataforma. O **idioma é o p
 framework/
 ├── .directives.sample
 │
+├── templates/                          # Templates (modelos base de cada Pilar)
+│   ├── lex-sample.md
+│   ├── codex-sample.md
+│   ├── kata-sample.md
+│   ├── warrior-sample.md
+│   └── cry-sample.md
+│
 ├── pt-BR/                              # Idioma padrão (fonte da verdade)
-│   │
-│   │   # Templates (modelos base de cada Pilar)
-│   ├── lexis/lex-sample.md
-│   ├── codex/codex-sample.md
-│   ├── katas/kata-sample.md
-│   ├── warriors/warrior-sample.md
-│   ├── cries/cry-sample.md
 │   │
 │   │   # Artefatos por Clade → Subclade → Pilar
 │   ├── _foundation/
@@ -398,7 +398,7 @@ framework/
     └── ...
 ```
 
-Para criar um novo artefato: copie o `*-sample.md` do Pilar correspondente, coloque-o no Clade/Subclade adequado e preencha os campos `[]`. O artefato **DEVE** existir em todos os idiomas de `language.i18n` — use `/cry-translate` para gerar as traduções.
+Para criar um novo artefato: copie o template correspondente de `framework/templates/` (ex: `lex-sample.md`), coloque-o no Clade/Subclade adequado e preencha os campos `[]`. O artefato **DEVE** existir em todos os idiomas de `language.i18n` — use `/cry-translate` para gerar as traduções.
 
 ### De-Para: `framework/` → `.cursor/`
 
