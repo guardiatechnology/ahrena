@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex documents the complete Guardia contribution flow — from initial proposal to merge — including the two possible paths: external contributor (via PR) and codeowner (direct commit). It is consulted by `kata-contribute-pilar` during the submission flow.
+This Codex documents the Guardia contribution flow, from the initial proposal to merge. The process is the same for all contributors (internal and external), ensuring transparency and traceability. It is consulted by `kata-contribute` during the submission flow.
 
 ## Context
 
@@ -16,71 +16,36 @@ This Codex documents the complete Guardia contribution flow — from initial pro
 
 ### Principles
 
-1. **Discussion first:** Significant changes start with a discussion, not with code. Aligning expectations prevents rework.
-2. **Traceability:** Every change must be connected to an issue. The only exception is trivial fixes (typos).
+1. **Discussion first:** Significant changes start with discussion, not code. Aligning expectations avoids rework.
+2. **Traceability:** Every change MUST be linked to an issue. The only exception is trivial fixes (typos).
 3. **Verifiable quality:** CI is mandatory. Code that does not pass tests is not accepted.
-4. **Transparency:** The process is the same for everyone. Codeowners have a shorter path, not a different one.
+4. **Transparency:** The process is the same for everyone. No shortcuts, no exceptions.
 
-### Flow for External Contributors
+### Contribution Flow
 
 ```
 1. Open discussion in GitHub Discussions (category: Ideas)
    → Explain: WHAT, WHY, HOW (Golden Circle)
 2. If approved, the discussion is converted to an issue
-3. Fork the repository
-4. Create branch from main
-5. Implement the change (following commit Lexis)
-6. Sign the CLA (Contributor License Agreement)
-7. Open PR answering the standard questions
-8. Keep CI green and respond to review
-9. After approval, merge is performed by the maintainer
+3. Create branch from main
+   → Convention: feat/name, fix/name, docs/name
+4. Implement the change (following commit Lexis)
+5. Open PR filling the template .github/pull_request_template.md
+6. Keep CI green and respond to review
+7. After approval, merge is done by the maintainer
 ```
 
-### Flow for Codeowners
-
-Codeowners registered in `.github/CODEOWNERS` can:
-
-```
-1. Create branch directly (no fork)
-2. Implement the change (following commit Lexis)
-3. Push directly to the branch
-4. For significant changes: open PR for visibility
-5. For trivial or framework changes: direct commit on branch
-```
-
-The choice between PR and direct commit depends on impact:
-
-| Change type | Path |
-|-------------|------|
-| New Pilar in the framework | Direct commit (if codeowner) or PR |
-| Change affecting multiple Clades | PR (even for codeowner) |
-| Trivial fix (typo) | Direct commit |
-| New code feature | PR (always) |
-
-### Codeowner Detection
-
-To determine whether the contributor is a codeowner, check `.github/CODEOWNERS`:
-
-```
-# CODEOWNERS example
-* @guardia/guardians
-```
-
-The agent can verify by running:
-```
-gh api repos/{owner}/{repo}/collaborators/{username}/permission
-```
+For trivial fixes (typos, formatting), steps 1 and 2 MAY be omitted (open PR directly with reference to the problem).
 
 ### Standards and Conventions
 
 | Aspect | Standard |
 |--------|----------|
-| Discussions | GitHub Discussions, "Ideas" category |
+| Discussions | GitHub Discussions, category "Ideas" |
 | Issues | Created from approved discussions |
 | Branches | `feat/name`, `fix/name`, `docs/name` |
-| PRs | Title in Conventional Commits, body with context |
-| CLA | Mandatory for external contributors |
-| CI | Must pass before merge |
+| PRs | Title in Conventional Commits, body with template filled |
+| CI | MUST pass before merge |
 
 ### PR Requirements
 
@@ -90,7 +55,7 @@ gh api repos/{owner}/{repo}/collaborators/{username}/permission
 | Commit format | Conventional Commits (`lex-conventional-commits`) |
 | Atomic commits | One change per commit (`lex-small-commits`) |
 | Language | Subject in English (`lex-commit-language`) |
-| No conflicts | Branch up to date with main |
+| No conflicts | Branch updated with main |
 | Green CI | All checks passing |
 | Review | At least one approver |
 
@@ -98,31 +63,27 @@ gh api repos/{owner}/{repo}/collaborators/{username}/permission
 
 | Decision | Status |
 |----------|--------|
-| Mandatory CLA for external contributors | Active |
 | Official communication in English | Active |
-| Issues may be in any language | Active |
+| Issues MAY be in any language | Active |
 | Open Core model with Apache 2.0 for Core Modules | Active |
 
-### Technical Constraints
+### Technical Restrictions
 
 - PRs with unsigned commits are automatically rejected
-- The `main` branch is protected — merge only via PR or by codeowners
+- The `main` branch is protected — merge only via approved PR
 - CI is mandatory — PRs with failing checks cannot be merged
 
 ## Glossary
 
 | Term | Definition |
-|------|-----------|
-| Codeowner | Member of the `@guardia/guardians` team listed in `.github/CODEOWNERS` |
-| CLA | Contributor License Agreement — legal agreement for contributors |
+|------|------------|
 | Golden Circle | Communication framework: WHAT, WHY, HOW |
 | Branch protection | GitHub rules that protect branches from direct changes |
 
 ## References
 
 - [Guardia CONTRIBUTING](https://hub.guardia.finance/docs/community/CONTRIBUTING/)
-- [Guardia CLA](https://hub.guardia.finance/docs/community/governance/CLA/)
 - `.github/CODEOWNERS` — Repository codeowners file
 - `lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language` — Commit Lexis
 - `codex-commit-standards` — Commit message standards
-- `kata-contribute-pilar` — Procedure for contributing Pilars
+- `kata-contribute` — Procedure for contributing via PR

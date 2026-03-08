@@ -11,7 +11,7 @@ Este Kata define el procedimiento estandarizado para crear un commit que respete
 - Cuando es necesario realizar un commit de cambios siguiendo los estándares de Guardia
 - Cuando el usuario solicita ayuda para hacer commit de cambios
 - Cuando es invocado por el `cry-commit`
-- Cuando es invocado internamente por el `kata-contribute-pilar`
+- Cuando es invocado internamente por el `kata-contribute`
 
 ## Inputs
 

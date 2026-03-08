@@ -11,7 +11,7 @@ This Kata defines the standardized procedure for creating a commit that respects
 - When committing changes following Guardia standards
 - When the user requests help committing changes
 - When invoked by `cry-commit`
-- When invoked internally by `kata-contribute-pilar`
+- When invoked internally by `kata-contribute`
 
 ## Inputs
 

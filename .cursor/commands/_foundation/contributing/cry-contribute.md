@@ -109,4 +109,4 @@ Behavior:
 
 ## Associated Kata
 
-`kata-contribute-pilar` — Complete procedure for contributing Pilars to the framework (invoked when the contribution is a framework artifact)
+`kata-contribute` — Complete procedure for contributing via Pull Request

@@ -105,13 +105,13 @@ Comportamento:
 
 ## Kata Associado
 
-`kata-contribute-pilar` — Procedimento completo para contribuir Pilares ao framework (invocado quando a contribuição é um artefato do framework)
+`kata-contribute` — Procedimento completo para contribuir via Pull Request
 
 ## Referências
 
 - `codex-contributing` — Fluxo de contribuição Guardia
 - `kata-commit` — Procedimento de commit (invocado por `pr`)
-- `kata-contribute-pilar` — Procedimento para contribuir Pilares
+- `kata-contribute` — Procedimento para contribuir via PR
 - `lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language` — Lexis de commit
 - `.github/ISSUE_TEMPLATE/` — Templates de issue do repositório
 - `.github/pull_request_template.md` — Template de PR do repositório

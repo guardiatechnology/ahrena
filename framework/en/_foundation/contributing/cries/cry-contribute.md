@@ -105,13 +105,13 @@ Behavior:
 
 ## Associated Kata
 
-`kata-contribute-pilar` — Complete procedure for contributing Pilars to the framework (invoked when the contribution is a framework artifact)
+`kata-contribute` — Complete procedure for contributing via Pull Request
 
 ## References
 
 - `codex-contributing` — Guardia contribution flow
 - `kata-commit` — Commit procedure (invoked by `pr`)
-- `kata-contribute-pilar` — Procedure for contributing Pilars
+- `kata-contribute` — Procedure for contributing via PR
 - `lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language` — Commit Lexis
 - `.github/ISSUE_TEMPLATE/` — Repository issue templates
 - `.github/pull_request_template.md` — Repository PR template
