@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""
+Ahrena Framework Updater
+
+Updates an existing Ahrena installation to the latest (or specified) version.
+Automatically detects the installed platform and preserves .directives.
+
+Usage:
+  python .ahrena/update.py
+  python .ahrena/update.py --version v0.2.0
+  make -f .ahrena/Makefile update
+"""
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+from pathlib import Path
+
+DEFAULT_REPO = "https://github.com/guardiafinance/ahrena"
+DEFAULT_VERSION = "main"
+MIN_PYTHON = (3, 8)
+
+CURSOR_DIRS = ("rules", "skills", "commands")
+
+
+def detect_platform(target: Path) -> str | None:
+    """Detect which platform was previously installed."""
+    cursor_dir = target / ".cursor"
+    if any((cursor_dir / d).exists() for d in CURSOR_DIRS):
+        return "cursor"
+    return None
+
+
+def detect_clades(target: Path) -> str | None:
+    """Read saved clade selection from a previous install, if any."""
+    clades_file = target / ".ahrena" / ".installed-clades"
+    if not clades_file.exists():
+        return None
+    content = clades_file.read_text(encoding="utf-8").strip()
+    return content.replace("\n", ",") if content else None
+
+
+def main() -> None:
+    if sys.version_info < MIN_PYTHON:
+        print(f"ERROR: Python {MIN_PYTHON[0]}.{MIN_PYTHON[1]}+ required")
+        sys.exit(1)
+
+    parser = argparse.ArgumentParser(
+        prog="update.py",
+        description="Ahrena Framework Updater",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+examples:
+  %(prog)s                                  Update to latest version
+  %(prog)s --version v0.2.0                 Update to specific version
+  %(prog)s --clades _foundation,docs        Override saved clade selection
+  %(prog)s --dry-run                        Preview without changes
+        """,
+    )
+    parser.add_argument(
+        "--target", default=".",
+        help="target project directory (default: current directory)",
+    )
+    parser.add_argument(
+        "--version", default=DEFAULT_VERSION,
+        help=f"version to update to (default: {DEFAULT_VERSION})",
+    )
+    parser.add_argument(
+        "--repo", default=DEFAULT_REPO,
+        help=f"GitHub repository URL (default: {DEFAULT_REPO})",
+    )
+    parser.add_argument(
+        "--clades",
+        help="comma-separated list of clades (overrides saved selection)",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="show what would be done without making changes",
+    )
+    args = parser.parse_args()
+
+    target = Path(args.target).resolve()
+    ahrena_dir = target / ".ahrena"
+    install_py = ahrena_dir / "install.py"
+
+    # Verify installation exists
+    if not ahrena_dir.exists():
+        print("Ahrena Framework Updater")
+        print("=" * 40)
+        print("\nERROR: Ahrena is not installed in this project.")
+        print("Run install.py first to set up the framework.")
+        sys.exit(1)
+
+    if not install_py.exists():
+        print("Ahrena Framework Updater")
+        print("=" * 40)
+        print("\nERROR: .ahrena/install.py not found.")
+        print("Re-run the original installer to restore it.")
+        sys.exit(1)
+
+    platform = detect_platform(target)
+    clades = args.clades or detect_clades(target)
+
+    print("Ahrena Framework Updater")
+    print("=" * 40)
+    print(f"\n  Target:   {target}")
+    print(f"  Version:  {args.version}")
+    print(f"  Platform: {platform or 'none (framework only)'}")
+    if clades:
+        print(f"  Clades:   {clades}")
+    print()
+
+    cmd = [
+        sys.executable, str(install_py),
+        "--target", str(target),
+        "--version", args.version,
+        "--repo", args.repo,
+    ]
+    if platform:
+        cmd.extend(["--platform", platform])
+    if clades:
+        cmd.extend(["--clades", clades])
+    if args.dry_run:
+        cmd.append("--dry-run")
+
+    sys.exit(subprocess.call(cmd))
+
+
+if __name__ == "__main__":
+    main()

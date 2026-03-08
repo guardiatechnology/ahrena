@@ -13,6 +13,115 @@ Leis inquebráveis (Lexis), bases de conhecimento (Codex), procedimentos repetí
 
 ---
 
+## Instalação
+
+### Pré-requisitos
+
+- **Python 3.8+** — necessário para executar o instalador
+- **Make** (opcional) — para atualizações via Makefile após a primeira instalação
+  - **Windows:** `choco install make` ou `winget install GnuWin32.Make`
+  - **macOS:** incluído com Xcode Command Line Tools (`xcode-select --install`)
+  - **Linux:** incluído na maioria das distros (`sudo apt install make`)
+
+### Primeira instalação
+
+O instalador baixa o framework do GitHub e configura o projeto. Não é necessário clonar o repositório.
+
+**macOS / Linux:**
+
+```bash
+# Somente framework (.ahrena/)
+curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 -
+
+# Framework + Cursor IDE
+curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform cursor
+
+# Versão específica + idioma padrão
+curl -sSL https://github.com/guardiafinance/ahrena/releases/download/v0.1.0/install.py | python3 - --version v0.1.0 --language en --platform cursor
+
+# Apenas clades específicos
+curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --clades _foundation,documentation --platform cursor
+```
+
+**Windows (PowerShell):**
+
+```powershell
+# Somente framework (.ahrena/)
+Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py; Remove-Item install.py
+
+# Framework + Cursor IDE
+Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
+```
+
+### Atualização
+
+Após a primeira instalação, os scripts ficam disponíveis em `.ahrena/`. O update detecta automaticamente a plataforma instalada e preserva o `.directives`:
+
+**Via Makefile:**
+
+```bash
+make -f .ahrena/Makefile update
+make -f .ahrena/Makefile update AHRENA_VERSION=v0.2.0
+```
+
+**Via script direto:**
+
+```bash
+# macOS / Linux
+python3 .ahrena/update.py
+python3 .ahrena/update.py --version v0.2.0
+
+# Windows (PowerShell)
+python .ahrena/update.py
+python .ahrena/update.py --version v0.2.0
+```
+
+### Desinstalação
+
+Remove todos os arquivos instalados pelo Ahrena (`.ahrena/` e arquivos `.mdc` gerados no `.cursor/`). Pede confirmação antes de remover.
+
+**Via Makefile:**
+
+```bash
+make -f .ahrena/Makefile uninstall
+```
+
+**Via script direto:**
+
+```bash
+# macOS / Linux
+python3 .ahrena/uninstall.py
+python3 .ahrena/uninstall.py --force    # sem confirmação
+
+# Windows (PowerShell)
+python .ahrena/uninstall.py
+python .ahrena/uninstall.py --force
+```
+
+### Opções
+
+| Flag | Descrição |
+|------|-----------|
+| `--platform cursor` | Gerar `.cursor/` (rules, skills, commands) |
+| `--clades X,Y` | Instalar apenas os clades especificados (ex: `_foundation,documentation`) |
+| `--version v0.1.0` | Versão específica (tag ou branch) |
+| `--language en` | Sobrescrever idioma padrão no `.directives` |
+| `--directives PATH` | Usar `.directives` customizado (caminho local ou URL) |
+| `--target PATH` | Instalar em outro diretório |
+| `--dry-run` | Mostrar o que seria feito sem alterar nada |
+| `--clean` | Remover arquivos instalados pelo Ahrena |
+
+> **Nota:** quando `--clades` é usado, a seleção é salva em `.ahrena/.installed-clades` e respeitada automaticamente pelo `update.py`. Para alterar os clades em um update, passe `--clades` novamente.
+
+### O que é instalado
+
+| Comando | `.ahrena/` | `.cursor/` |
+|---------|------------|------------|
+| Sem `--platform` | framework + directives + scripts + Makefile | — |
+| `--platform cursor` | framework + directives + scripts + Makefile | rules, skills, commands |
+
+---
+
 ## Taxonomia
 
 O Ahrena organiza conhecimento em **três níveis**:
