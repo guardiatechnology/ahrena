@@ -112,7 +112,7 @@ python .ahrena/update.py --version v0.2.0
 
 ### Desinstalação
 
-Remove todos os arquivos instalados pelo Ahrena (`.ahrena/` e arquivos `.mdc` gerados no `.cursor/`). Pede confirmação antes de remover.
+Remove todos os arquivos instalados pelo Ahrena (`.ahrena/` e arquivos gerados no `.cursor/` — rules, skills, commands e agents). Pede confirmação antes de remover.
 
 **Via Makefile:**
 
@@ -136,7 +136,7 @@ python .ahrena/uninstall.py --force
 
 | Flag | Descrição |
 |------|-----------|
-| `--platform cursor` | Gerar `.cursor/` (rules, skills, commands) |
+| `--platform cursor` | Gerar `.cursor/` (rules, skills, commands, agents) |
 | `--clades X,Y` | Instalar apenas os clades especificados (ex: `_foundation,documentation`) |
 | `--version v0.1.0` | Versão específica (tag ou branch) |
 | `--language en` | Sobrescrever idioma padrão no `.directives` |
@@ -152,7 +152,7 @@ python .ahrena/uninstall.py --force
 | Comando | `.ahrena/` | `.cursor/` |
 |---------|------------|------------|
 | Sem `--platform` | framework + directives + scripts + Makefile | — |
-| `--platform cursor` | framework + directives + scripts + Makefile | rules, skills, commands |
+| `--platform cursor` | framework + directives + scripts + Makefile | rules, skills, commands, agents |
 
 ---
 
@@ -436,39 +436,33 @@ Para criar um novo artefato: copie o template correspondente de `framework/templ
 
 ### De-Para: `framework/` → `.cursor/`
 
-Ao implementar no Cursor, os `.md` são copiados como `.mdc` com frontmatter YAML. A hierarquia Clade → Subclade é preservada:
+Ao implementar no Cursor, cada Pilar é mapeado para o recurso nativo correspondente. Cada recurso Cursor tem seu próprio formato:
 
-| Pilar | Recurso Cursor | Prefixo | Destino |
+| Pilar | Recurso Cursor | Formato | Destino |
 |-------|----------------|---------|---------|
-| **Lexis** | Rules | `lex-` | `.cursor/rules/<clade>/<subclade>/lex-*.mdc` |
-| **Codex** | Rules | `codex-` | `.cursor/rules/<clade>/<subclade>/codex-*.mdc` |
-| **Katas** | Skills | `kata-` | `.cursor/skills/<clade>/<subclade>/kata-*.mdc` |
-| **Warriors** | Skills | `warrior-` | `.cursor/skills/<clade>/<subclade>/warrior-*.mdc` |
-| **Cries** | Commands | `cry-` | `.cursor/commands/<clade>/<subclade>/.../cry-*.mdc` |
+| **Lexis** | Rules | `.mdc` | `.cursor/rules/<clade>/<subclade>/lex-*.mdc` |
+| **Codex** | Rules | `.mdc` | `.cursor/rules/<clade>/<subclade>/codex-*.mdc` |
+| **Katas** | Skills | `SKILL.md` | `.cursor/skills/kata-*/SKILL.md` |
+| **Warriors** | Skills + Agents | `SKILL.md` + `.md` | `.cursor/skills/warrior-*/SKILL.md` + `.cursor/agents/warrior-*.md` |
+| **Cries** | Commands | `.md` | `.cursor/commands/<clade>/<subclade>/cry-*.md` |
+
+**Formatos nativos do Cursor:**
+
+| Recurso | Extensão | Frontmatter | Descrição |
+|---------|----------|-------------|-----------|
+| Rules | `.mdc` | `description` + `alwaysApply` | Contexto injetado no agente principal |
+| Skills | `SKILL.md` | `name` + `description` | Capacidades que o agente adota sob demanda |
+| Commands | `.md` | `description` | Slash commands invocáveis via `/nome` |
+| Agents | `.md` | `name` + `description` | Subagentes isolados com system prompt próprio |
+
+> Warriors geram **dois artefatos**: um Skill (o agente principal adota a persona) e um Agent (subagente isolado delegado via Task). Isso permite tanto uso inline quanto delegação.
 
 ```
 .cursor/
-├── rules/
+├── rules/                              # .mdc — Lexis + Codex
 │   ├── samples/
 │   │   ├── lex-sample.mdc
 │   │   └── codex-sample.mdc
-│   ├── product/
-│   │   ├── discovery/
-│   │   │   ├── codex/.../codex-*.mdc
-│   │   │   ├── katas/.../kata-*.mdc
-│   │   │   └── warriors/.../warrior-*.mdc
-│   │   └── delivery/
-│   │       └── katas/.../kata-*.mdc
-│   ├── engineering/
-│   │   ├── architecture/
-│   │   │   ├── codex/.../codex-*.mdc
-│   │   │   └── katas/.../kata-*.mdc
-│   │   ├── quality/
-│   │   │   ├── katas/.../kata-*.mdc
-│   │   │   └── warriors/.../warrior-*.mdc
-│   │   └── security/
-│   │       ├── lexis/.../lex-*.mdc
-│   │       └── warriors/.../warrior-*.mdc
 │   ├── _foundation/
 │   │   ├── process/lex-*.mdc
 │   │   ├── quality/lex-*.mdc
@@ -484,16 +478,18 @@ Ao implementar no Cursor, os `.md` são copiados como `.mdc` com frontmatter YAM
 │       ├── codex-language-ptbr.mdc
 │       ├── codex-language-en.mdc
 │       └── codex-language-es.mdc
-├── skills/
-│   ├── samples/
-│   │   ├── kata-sample.mdc
-│   │   └── warrior-sample.mdc
+│
+├── skills/                             # SKILL.md — Katas + Warriors
+│   ├── kata-sample/SKILL.md
+│   ├── warrior-sample/SKILL.md
+│   ├── kata-translate/SKILL.md
+│   └── warrior-translator/SKILL.md
+│
+├── commands/                           # .md — Cries
+│   ├── samples/cry-sample.md
 │   └── documentation/i18n/
-│       ├── kata-translate.mdc
-│       └── warrior-translator.mdc
-└── commands/
-    ├── samples/
-    │   └── cry-sample.mdc
-    └── documentation/i18n/
-        └── cry-translate.mdc
+│       └── cry-translate.md
+│
+└── agents/                             # .md — Warriors (subagentes)
+    └── warrior-translator.md
 ```

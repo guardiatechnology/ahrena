@@ -51,6 +51,8 @@ PILAR_FOLDER_NAME: dict[str, str] = {
     "cry": "cries",
 }
 
+PILAR_GENERATES_AGENT: set[str] = {"warrior"}
+
 SECTIONS_TO_REMOVE: dict[str, set[str]] = {
     "lex": {
         "purpose", "scope", "consequences of violation",
@@ -230,7 +232,7 @@ def download_and_extract(repo_url: str, version: str) -> Path:
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Markdown → MDC transformer
+# Markdown → Cursor transformer
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def detect_pilar(filename: str) -> str | None:
@@ -271,25 +273,31 @@ def extract_description(content: str) -> str:
 
 def build_frontmatter(pilar: str, filename: str, description: str,
                       is_sample: bool = False) -> str:
-    """Generate the YAML frontmatter block for an .mdc file."""
+    """Generate the YAML frontmatter block for a Cursor .mdc file.
+
+    Frontmatter varies by Cursor resource type:
+      - rules  (lex/codex):  description + alwaysApply
+      - skills (kata/warrior): name + description
+      - commands (cry):        description only
+    """
+    resource = PILAR_TO_CURSOR_RESOURCE[pilar]
     safe_desc = description.replace('"', '\\"')
     lines = ["---"]
 
-    if is_sample:
-        if pilar in ("kata", "warrior"):
-            name = Path(filename).stem
-            lines.append(f"name: {name}")
-            lines.append(f'description: "{safe_desc}"')
-        elif pilar in ("lex", "codex"):
-            lines.append(f'description: "{safe_desc}"')
+    if resource == "rules":
+        lines.append(f'description: "{safe_desc}"')
+        if is_sample:
             lines.append("globs: ")
             lines.append("alwaysApply: false")
         else:
-            lines.append(f'description: "{safe_desc}"')
-    else:
+            always_apply = "true" if pilar == "lex" else "false"
+            lines.append(f"alwaysApply: {always_apply}")
+    elif resource == "skills":
+        name = Path(filename).stem
+        lines.append(f"name: {name}")
         lines.append(f'description: "{safe_desc}"')
-        always_apply = "true" if pilar == "lex" else "false"
-        lines.append(f"alwaysApply: {always_apply}")
+    elif resource == "commands":
+        lines.append(f'description: "{safe_desc}"')
 
     lines.append("---")
     return "\n".join(lines)
@@ -343,27 +351,45 @@ def transform_md_to_mdc(content: str, pilar: str, filename: str,
     return frontmatter + "\n\n" + body
 
 
+def transform_md_to_agent(content: str, pilar: str, filename: str) -> str:
+    """Transform a framework warrior .md into a Cursor agent .md file.
+
+    Agents use plain .md with name + description frontmatter.
+    The body becomes the agent's system prompt.
+    """
+    description = extract_description(content)
+    body = filter_sections(content, pilar)
+    safe_desc = description.replace('"', '\\"')
+    name = Path(filename).stem
+    frontmatter = f'---\nname: {name}\ndescription: "{safe_desc}"\n---'
+    return frontmatter + "\n\n" + body
+
+
 def build_cursor_path(framework_rel_path: Path, pilar: str) -> Path:
     """
     Map a framework-relative path to a .cursor/ path.
 
-    framework: {lang}/{clade}/{subclade}/{pilar_folder}/{file}.md
-    cursor:    .cursor/{resource}/{clade}/{subclade}/{file}.mdc
+    Each Cursor resource type has its own native format:
+      rules:    .cursor/rules/{clade}/{subclade}/{file}.mdc
+      skills:   .cursor/skills/{skill-name}/SKILL.md
+      commands:  .cursor/commands/{clade}/{subclade}/{file}.md
     """
+    resource = PILAR_TO_CURSOR_RESOURCE[pilar]
     parts = list(framework_rel_path.parts)
 
-    # Drop the language folder (first segment)
     parts = parts[1:]
 
-    # Drop the pilar folder (e.g., lexis/, codex/, katas/, warriors/, cries/)
     pilar_folder = PILAR_FOLDER_NAME.get(pilar, "")
     parts = [p for p in parts if p != pilar_folder]
 
-    # Change extension
-    parts[-1] = re.sub(r"\.md$", ".mdc", parts[-1])
-
-    resource = PILAR_TO_CURSOR_RESOURCE[pilar]
-    return Path(".cursor") / resource / Path(*parts)
+    if resource == "skills":
+        skill_name = Path(parts[-1]).stem
+        return Path(".cursor") / "skills" / skill_name / "SKILL.md"
+    elif resource == "commands":
+        return Path(".cursor") / "commands" / Path(*parts)
+    else:
+        parts[-1] = re.sub(r"\.md$", ".mdc", parts[-1])
+        return Path(".cursor") / "rules" / Path(*parts)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -539,8 +565,13 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
                 continue
 
             resource = PILAR_TO_CURSOR_RESOURCE[pilar]
-            mdc_name = md_file.name.replace(".md", ".mdc")
-            cursor_path = Path(".cursor") / resource / "samples" / mdc_name
+            if resource == "skills":
+                cursor_path = Path(".cursor") / "skills" / md_file.stem / "SKILL.md"
+            elif resource == "commands":
+                cursor_path = Path(".cursor") / "commands" / "samples" / md_file.name
+            else:
+                mdc_name = md_file.name.replace(".md", ".mdc")
+                cursor_path = Path(".cursor") / resource / "samples" / mdc_name
             full_path = target_dir / cursor_path
 
             content = md_file.read_text(encoding="utf-8")
@@ -553,7 +584,28 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
                 full_path.write_text(mdc_content, encoding="utf-8")
             file_count += 1
 
-    print(f"  Generated {file_count} .mdc files")
+    # Generate .cursor/agents/ for warriors (isolated subagents)
+    agent_count = 0
+    for md_file in sorted(lang_dir.rglob("*.md")):
+        pilar = detect_pilar(md_file.name)
+        if pilar not in PILAR_GENERATES_AGENT:
+            continue
+
+        agent_name = md_file.stem + ".md"
+        agent_path = Path(".cursor") / "agents" / agent_name
+        full_path = target_dir / agent_path
+
+        content = md_file.read_text(encoding="utf-8")
+        agent_content = transform_md_to_agent(content, pilar, md_file.name)
+
+        if dry_run:
+            print(f"    [DRY-RUN] {agent_path}")
+        else:
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.write_text(agent_content, encoding="utf-8")
+        agent_count += 1
+
+    print(f"  Generated {file_count} .mdc files + {agent_count} agent files")
 
 
 def clean(target_dir: Path) -> None:
@@ -568,19 +620,50 @@ def clean(target_dir: Path) -> None:
     if cursor_dir.exists():
         prefixes = tuple(f"{p}-" for p in PILAR_TO_CURSOR_RESOURCE)
         removed = 0
+
+        # Clean .mdc rules
         for mdc_file in list(cursor_dir.rglob("*.mdc")):
             if mdc_file.name.startswith(prefixes):
                 mdc_file.unlink()
                 removed += 1
 
+        # Clean .md commands
+        commands_dir = cursor_dir / "commands"
+        if commands_dir.exists():
+            for md_file in list(commands_dir.rglob("*.md")):
+                if md_file.name.startswith(prefixes):
+                    md_file.unlink()
+                    removed += 1
+
+        # Clean skill directories (native SKILL.md format)
+        skills_dir = cursor_dir / "skills"
+        if skills_dir.exists():
+            for skill_dir in list(skills_dir.iterdir()):
+                if skill_dir.is_dir() and skill_dir.name.startswith(prefixes):
+                    shutil.rmtree(skill_dir)
+                    removed += 1
+
+        # Clean warrior agents
+        agent_prefixes = tuple(f"{p}-" for p in PILAR_GENERATES_AGENT)
+        agent_removed = 0
+        agents_dir = cursor_dir / "agents"
+        if agents_dir.exists():
+            for md_file in list(agents_dir.glob("*.md")):
+                if md_file.name.startswith(agent_prefixes):
+                    md_file.unlink()
+                    agent_removed += 1
+
+        # Remove empty directories left behind
         for dirpath in sorted(cursor_dir.rglob("*"), reverse=True):
             if dirpath.is_dir() and not any(dirpath.iterdir()):
                 dirpath.rmdir()
 
         if removed:
-            print(f"  Removed {removed} Ahrena .mdc files from .cursor/")
+            print(f"  Removed {removed} Ahrena files from .cursor/")
         else:
-            print(f"  No Ahrena .mdc files found in .cursor/")
+            print(f"  No Ahrena files found in .cursor/")
+        if agent_removed:
+            print(f"  Removed {agent_removed} Ahrena agent files from .cursor/agents/")
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
