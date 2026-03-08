@@ -210,6 +210,15 @@ Enquanto Clades como Product ou Engineering contêm conhecimento específico de 
 
 ## Estrutura do Repositório
 
+### `.ahrena/`
+
+Ponto de entrada canônico do framework. Todo projeto que adota o Ahrena **DEVE** ter este diretório na raiz do repositório. Contém as diretivas globais que governam o comportamento de todos os agentes.
+
+```
+.ahrena/
+├── .directives          # Configurações canônicas (idioma, nomenclatura, paths)
+```
+
 ### `framework/`
 
 Templates e artefatos em `.md` puro, agnóstico de plataforma:

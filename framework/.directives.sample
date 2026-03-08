@@ -1,0 +1,67 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Ahrena Framework — Directives
+# Instruções canônicas que governam o comportamento padrão do
+# framework. Este arquivo é a fonte da verdade para configurações
+# transversais consultadas por todos os agentes.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+# ─── Paths ───────────────────────────────────────────────────────
+# Caminhos canônicos do framework. Todos os caminhos são relativos
+# à raiz do repositório. O diretório .ahrena/ é o ponto de entrada
+# canônico do framework em qualquer projeto.
+
+paths:
+  root: ".ahrena/"
+  directives: ".ahrena/.directives"
+  templates: "templates/"
+  samples:
+    lexis: "templates/lex-sample.md"
+    codex: "templates/codex-sample.md"
+    katas: "templates/kata-sample.md"
+    warriors: "templates/warrior-sample.md"
+    cries: "templates/cry-sample.md"
+
+
+# ─── Idioma ──────────────────────────────────────────────────────
+# Define o idioma padrão e os idiomas obrigatórios para
+# documentação e comunicação de artefatos.
+
+language:
+  default: pt-BR
+  i18n:
+    - pt-BR
+    - es
+    - en
+
+# ─── Nomenclatura ───────────────────────────────────────────────
+# Convenções canônicas de nomeação para arquivos, diretórios e
+# artefatos do framework.
+
+naming:
+
+  # Prefixos obrigatórios por Pilar
+  prefixes:
+    lexis: "lex-"
+    codex: "codex-"
+    katas: "kata-"
+    warriors: "warrior-"
+    cries: "cry-"
+
+  # Extensões canônicas por contexto
+  extensions:
+    framework: ".md"
+    cursor: ".mdc"
+
+  # Convenções de casing
+  casing:
+    files: kebab-case       # lex-no-secrets.md
+    directories: kebab-case # engineering/backend/
+
+  # Endereçamento canônico de artefatos
+  # <clade>/<subclade>/<pilar>/<prefixo>-<nome>.<ext>
+  addressing: "{clade}/{subclade}/{pilar}/{prefix}-{name}.{ext}"
+
+  # Clades especiais (prefixados com underscore)
+  reserved_clades:
+    - _foundation
