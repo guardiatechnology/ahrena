@@ -13,27 +13,32 @@ flowchart TD
     subgraph invocation ["Invocation"]
         CryCommit["/cry-commit"]
         CryContribute["/cry-contribute"]
+        CryTag["/cry-tag"]
     end
 
     subgraph procedures ["Procedures"]
         KataCommit["kata-commit"]
         KataContribute["kata-contribute"]
+        KataTag["kata-tag"]
     end
 
     subgraph knowledge ["Knowledge"]
         CdxContributing["codex-contributing"]
         CdxCommitStd["codex-commit-standards"]
+        CdxSemVer["codex-semantic-version"]
     end
 
-    subgraph laws ["Commit Lexis"]
+    subgraph laws ["Laws"]
         LexConventional["lex-conventional-commits"]
         LexSmall["lex-small-commits"]
         LexLanguage["lex-commit-language"]
         LexSigned["lex-signed-commits"]
+        LexSemVer["lex-semantic-version"]
     end
 
     CryCommit -->|"invokes"| KataCommit
     CryContribute -->|"invokes"| KataContribute
+    CryTag -->|"invokes"| KataTag
     KataContribute -->|"uses internally"| KataCommit
     KataContribute -->|"consults"| CdxContributing
     KataCommit -->|"consults"| CdxCommitStd
@@ -41,11 +46,14 @@ flowchart TD
     KataCommit -->|"obeys"| LexSmall
     KataCommit -->|"obeys"| LexLanguage
     KataCommit -->|"obeys"| LexSigned
+    KataTag -->|"consults"| CdxSemVer
+    KataTag -->|"obeys"| LexSemVer
+    KataTag -->|"obeys"| LexSigned
 ```
 
 ## Artifact Inventory
 
-### Lexis (commit laws)
+### Lexis (laws)
 
 | Artifact | Description |
 |----------|-------------|
@@ -53,6 +61,7 @@ flowchart TD
 | `lex-small-commits` | One purpose per commit, atomic changes |
 | `lex-commit-language` | Subject in English |
 | `lex-signed-commits` | Mandatory GPG signature |
+| `lex-semantic-version` | Mandatory SemVer 2.0 for releases and tags |
 
 ### Codex (knowledge)
 
@@ -60,6 +69,7 @@ flowchart TD
 |----------|-------------|
 | `codex-contributing` | Full contribution flow (from discussion to merge) |
 | `codex-commit-standards` | Detailed structure of commit messages |
+| `codex-semantic-version` | Reference for SemVer and git tags in releases |
 
 ### Katas (procedures)
 
@@ -67,13 +77,15 @@ flowchart TD
 |----------|-------------|
 | `kata-commit` | Procedure to create compliant commits |
 | `kata-contribute` | Procedure to open Pull Requests via MCP |
+| `kata-tag` | Procedure to apply semantic versioning with git tags |
 
 ### Cries (shortcuts)
 
 | Artifact | Description |
 |----------|-------------|
-| `cry-commit` | Shortcut to commit following the 4 Lexis |
+| `cry-commit` | Shortcut to commit following the 4 commit Lexis |
 | `cry-contribute` | Shortcut to open PR or contribute to the framework |
+| `cry-tag` | Shortcut to create or list release tags (SemVer) |
 
 ## How to Use
 
@@ -92,6 +104,15 @@ The agent analyzes changes, creates atomic commits following Conventional Commit
 ```
 
 The agent executes `kata-contribute`, which creates the PR in the origin repository via GitKraken MCP tools.
+
+### Version a release (tags)
+
+```
+/cry-tag [version] [message] [commit]
+/cry-tag --list
+```
+
+The agent runs `kata-tag`: creates an annotated, signed tag in SemVer format or lists existing tags. Optionally provide the commit (ID or message) to point the tag at.
 
 ### Full contribution flow
 

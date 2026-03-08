@@ -426,10 +426,10 @@ framework/
 │   │   │   ├── katas/kata-create-*.md
 │   │   │   └── cries/cry-new-*.md
 │   │   ├── contributing/              # Flujo de contribución
-│   │   │   ├── codex/codex-contributing.md, codex-commit-standards.md
-│   │   │   ├── lexis/lex-conventional-commits.md, ...
-│   │   │   ├── katas/kata-commit.md, kata-contribute.md
-│   │   │   └── cries/cry-commit.md, cry-contribute.md
+│   │   │   ├── codex/codex-contributing.md, codex-commit-standards.md, codex-semantic-version.md
+│   │   │   ├── lexis/lex-conventional-commits.md, lex-semantic-version.md, ...
+│   │   │   ├── katas/kata-commit.md, kata-contribute.md, kata-tag.md
+│   │   │   └── cries/cry-commit.md, cry-contribute.md, cry-tag.md
 │   │   ├── process/lexis/lex-*.md
 │   │   ├── quality/lexis/lex-*.md
 │   │   ├── tooling/cries/cry-make.md
@@ -495,6 +495,7 @@ Al implementar en Cursor, cada Pilar se mapea al recurso nativo correspondiente.
 │   │   ├── contributing/
 │   │   │   ├── codex-contributing.mdc
 │   │   │   ├── codex-commit-standards.mdc
+│   │   │   ├── codex-semantic-version.mdc
 │   │   │   └── lex-*.mdc
 │   │   ├── process/lex-*.mdc
 │   │   ├── quality/lex-*.mdc
@@ -510,6 +511,7 @@ Al implementar en Cursor, cada Pilar se mapea al recurso nativo correspondiente.
 │   ├── warrior-sample/SKILL.md
 │   ├── kata-commit/SKILL.md
 │   ├── kata-contribute/SKILL.md
+│   ├── kata-tag/SKILL.md
 │   ├── kata-create-*/SKILL.md
 │   ├── kata-translate/SKILL.md
 │   └── warrior-translator/SKILL.md
@@ -518,7 +520,7 @@ Al implementar en Cursor, cada Pilar se mapea al recurso nativo correspondiente.
 │   ├── samples/cry-sample.md
 │   ├── _foundation/
 │   │   ├── authoring/cry-new-*.md
-│   │   ├── contributing/cry-commit.md, cry-contribute.md
+│   │   ├── contributing/cry-commit.md, cry-contribute.md, cry-tag.md
 │   │   └── tooling/cry-make.md
 │   └── documentation/i18n/cry-translate.md
 │

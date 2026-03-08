@@ -76,7 +76,11 @@ Use `/cry-commit` para crear commits conformes. Las 4 Lexis de commit son:
 - `lex-commit-language` — subject en inglés
 - `lex-signed-commits` — firma GPG obligatoria
 
-### 5. Contribuir
+### 5. Versionar release (tags)
+
+Use `/cry-tag` para crear o listar tags de release en formato SemVer. El `kata-tag` aplica `lex-semantic-version` y `lex-signed-commits`. Ver `_foundation/contributing/README.md` para el inventario completo de artefactos.
+
+### 6. Contribuir
 
 Use `/cry-contribute pr` para abrir el Pull Request. El `kata-contribute` guía todo el flujo vía MCP.
 
