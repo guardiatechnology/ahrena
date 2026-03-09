@@ -42,6 +42,15 @@ language:
   cursor: en
 
 
+# ─── Terminal ───────────────────────────────────────────────────
+# Shell used for commands. Values: bash | powershell
+# Agents use this when executing or proposing shell commands (see lex-terminal-type).
+# If omitted, the agent infers from OS (e.g. Windows → powershell) or asks the user.
+
+# terminal: powershell   # Native Windows
+# terminal: bash         # Linux, macOS, WSL
+
+
 # ─── Naming ─────────────────────────────────────────────────────
 # Canonical naming conventions for files, directories, and
 # framework artifacts.
