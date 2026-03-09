@@ -1,8 +1,8 @@
 # engineering/platform — Guardia Platform Specifications
 
-This subclade contains Guardia platform specifications as Lexis (unbreakable laws) and Codex (reference manuals), for use by AI agents and implementers. These artifacts are the canonical reference in the Ahrena framework.
+This subclade contains Guardia platform specifications as Lexis (unbreakable laws), Codex (reference manuals), Katas (procedures), Warriors (specialized agents), and Cries (recurring commands), for use by AI agents and implementers. These artifacts are the canonical reference in the Ahrena framework.
 
-## Specifications
+## Specifications (Lexis and Codex)
 
 | Topic | Lexis | Codex |
 |-------|--------|--------|
@@ -13,9 +13,44 @@ This subclade contains Guardia platform specifications as Lexis (unbreakable law
 | CloudEvents | [lex-cloudevents](lexis/lex-cloudevents.md) | [codex-cloudevents](codex/codex-cloudevents.md) |
 | Authentication and Authorization | [lex-auth](lexis/lex-auth.md) | [codex-auth](codex/codex-auth.md) |
 
+## Katas
+
+| Kata | Description | Destination |
+|------|-------------|-------------|
+| [kata-api-design-oas](katas/kata-api-design-oas.md) | API design and OpenAPI 3.x specification | **paths.oas** (e.g. `docs/oas`) |
+| [kata-api-design-doc](katas/kata-api-design-doc.md) | API design and API Markdown document | **paths.oas** |
+| [kata-events-doc](katas/kata-events-doc.md) | CloudEvents documentation | **paths.events** (e.g. `docs/events`) |
+
+## Warriors
+
+| Warrior | Role | Katas executed |
+|---------|------|----------------|
+| [warrior-daedalus](warriors/warrior-daedalus.md) | API Design specialist | kata-api-design-oas, kata-api-design-doc |
+| [warrior-kronos](warriors/warrior-kronos.md) | Event Storm specialist | kata-events-doc |
+
+## Cries
+
+| Cry | Description | Usage |
+|-----|-------------|-------|
+| [cry-api-design](cries/cry-api-design.md) | API design (OAS + doc) | `/cry-api-design <description> [base path]` |
+| [cry-event-storm](cries/cry-event-storm.md) | CloudEvents documentation | `/cry-event-storm <context> [source base]` |
+| [cry-full-design](cries/cry-full-design.md) | Full design (API + events) in sequence | `/cry-full-design <description> [base path] [events context]` |
+
+## Destinations (paths)
+
+Canonical paths are defined in `.ahrena/.directives`:
+
+| Path | Default | Content |
+|------|---------|---------|
+| **paths.oas** | `docs/oas` | OpenAPI specification and API Markdown document |
+| **paths.events** | `docs/events` | CloudEvents documentation (e.g. events.md) |
+
 ## Structure
 
 - **lexis/** — Unbreakable laws (one per specification).
-- **codex/** — Reference manuals (one per specification; RESTful split across files: codex-restful-apis index + codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting).
+- **codex/** — Reference manuals (one per specification; RESTful split across files).
+- **katas/** — Repeatable procedures (API design OAS, API design doc, events documentation).
+- **warriors/** — Specialized agents (Daedalus for API, Kronos for Event Storm).
+- **cries/** — Recurring commands (api-design, event-storm, full-design).
 
 Artifacts exist in pt-BR, es, and en per `language.i18n` in `.ahrena/.directives`.

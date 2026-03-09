@@ -24,6 +24,8 @@ framework/
 │   │   ├── quality/             # Minimum quality standards
 │   │   ├── tooling/             # Automation (Makefile)
 │   │   └── i18n/                # Framework language structure
+│   ├── engineering/
+│   │   └── platform/            # Guardia platform specifications (API, events, Lexis, Codex, Katas, Warriors, Cries)
 │   └── documentation/
 │       └── i18n/                # Translation system (Hermes)
 │

@@ -264,6 +264,7 @@ Development, architecture, and infrastructure. Spans the entire technical cycle 
 
 | Subclade | Focus |
 |----------|-------|
+| **Platform** | Guardia platform specifications: Lexis/Codex (RESTful, CloudEvents, entities, auth), Katas (API design OAS/doc, events documentation), Warriors (Daedalus — API, Kronos — Event Storm), and Cries (api-design, event-storm, full-design). Destinations: `docs/oas`, `docs/events`. [Details](framework/pt-BR/engineering/platform/README.md) |
 | Backend | APIs, services, business logic, and integrations |
 | Frontend | Interfaces, components, and developer experience |
 | DevOps | CI/CD, infrastructure as code, and observability |
@@ -329,6 +330,8 @@ Warriors are specialized agents ready for use. Ahrena includes the following bui
 | Warrior | Name | Clade | Description |
 |---------|------|-------|-------------|
 | `warrior-translator` | **Hermes** | `documentation/i18n` | Technical documentation translator. Consults target-language-specific rules and guides (pt-BR, en, es) to ensure precise translations. Invocable via `/cry-translate`. [Complete documentation](framework/pt-BR/documentation/i18n/README.md) |
+| `warrior-daedalus` | **Daedalus** | `engineering/platform` | RESTful API design specialist. Produces OpenAPI specification and API document in `docs/oas`. Invocable via `/cry-api-design` or `/cry-full-design`. |
+| `warrior-kronos` | **Kronos** | `engineering/platform` | Event Storm and CloudEvents documentation specialist. Produces events documentation in `docs/events`. Invocable via `/cry-event-storm` or `/cry-full-design`. |
 
 #### Addressing
 
@@ -344,6 +347,8 @@ The language is always the first path segment in the framework:
 | `en/product/discovery/codex/codex-prioritization.md` | Prioritization manual in English |
 | `es/engineering/security/lexis/lex-no-secrets.md` | Secrets law in Spanish |
 | `pt-BR/documentation/i18n/warriors/warrior-translator.md` | Hermes agent (translator) in pt-BR |
+| `pt-BR/engineering/platform/warriors/warrior-daedalus.md` | Daedalus agent (API design) in pt-BR |
+| `pt-BR/engineering/platform/warriors/warrior-kronos.md` | Kronos agent (event storm) in pt-BR |
 | `en/engineering/quality/warriors/warrior-spartacus.md` | Spartacus agent in English |
 
 #### Visualization
@@ -361,7 +366,8 @@ The language is always the first path segment in the framework:
 │                 ├── analytics/           ├── katas/               │
 │                 └── delivery/            ├── warriors/            │
 │                                          └── cries/               │
-│  engineering/ ──┬── backend/                                      │
+│  engineering/ ──┬── platform/     Daedalus, Kronos (API + events) │
+│                 ├── backend/                                      │
 │                 ├── frontend/                                     │
 │                 ├── devops/                                       │
 │                 ├── security/                                     │
@@ -437,6 +443,13 @@ framework/
 │   │       ├── lexis/lex-framework-language.md
 │   │       └── codex/codex-framework-language.md
 │   │
+│   ├── engineering/platform/           # Guardia platform specifications
+│   │   ├── lexis/lex-*.md               # RESTful, CloudEvents, entities, auth, errors
+│   │   ├── codex/codex-*.md             # RESTful, CloudEvents manuals, etc.
+│   │   ├── katas/kata-api-design-oas.md, kata-api-design-doc.md, kata-events-doc.md
+│   │   ├── warriors/warrior-daedalus.md, warrior-kronos.md
+│   │   └── cries/cry-api-design.md, cry-event-storm.md, cry-full-design.md
+│   │
 │   └── documentation/i18n/             # Translation system
 │       ├── README.md                   # Complete documentation
 │       ├── lexis/
@@ -505,6 +518,9 @@ When implementing in Cursor, each Pilar maps to the corresponding native resourc
 │   └── documentation/i18n/
 │       ├── lex-language.mdc, lex-language-{ptbr,en,es}.mdc
 │       └── codex-language.mdc, codex-language-{ptbr,en,es}.mdc
+│   └── engineering/platform/
+│       ├── lex-*.mdc, codex-*.mdc
+│       └── (API, events, entities, auth rules)
 │
 ├── skills/                             # SKILL.md — Katas + Warriors
 │   ├── kata-sample/SKILL.md
@@ -514,7 +530,9 @@ When implementing in Cursor, each Pilar maps to the corresponding native resourc
 │   ├── kata-tag/SKILL.md
 │   ├── kata-create-*/SKILL.md
 │   ├── kata-translate/SKILL.md
-│   └── warrior-translator/SKILL.md
+│   ├── warrior-translator/SKILL.md
+│   ├── kata-api-design-oas/SKILL.md, kata-api-design-doc/SKILL.md, kata-events-doc/SKILL.md
+│   └── warrior-daedalus/SKILL.md, warrior-kronos/SKILL.md
 │
 ├── commands/                           # .md — Cries
 │   ├── samples/cry-sample.md
@@ -522,8 +540,12 @@ When implementing in Cursor, each Pilar maps to the corresponding native resourc
 │   │   ├── authoring/cry-new-*.md
 │   │   ├── contributing/cry-commit.md, cry-contribute.md, cry-tag.md
 │   │   └── tooling/cry-make.md
-│   └── documentation/i18n/cry-translate.md
+│   ├── documentation/i18n/cry-translate.md
+│   └── engineering/platform/
+│       └── cry-api-design.md, cry-event-storm.md, cry-full-design.md
 │
 └── agents/                             # .md — Warriors (subagents)
-    └── warrior-translator.md
+    ├── warrior-translator.md
+    ├── warrior-daedalus.md
+    └── warrior-kronos.md
 ```
