@@ -1,15 +1,8 @@
 # Ahrena: AI-First Capability Framework
 
-O **Ahrena** é um Capability Framework AI-first que estrutura conhecimento, processos e comportamento de agentes de IA através de uma **taxonomia unificada** aplicável a qualquer disciplina de negócio.
+O **Ahrena** é um Capability Framework AI-first que estrutura conhecimento, processos e comportamento de agentes de IA através de uma **taxonomia unificada** (Clade → Subclade → Pilar). Lexis, Codex, Katas, Warriors e Cries são organizados por disciplina e área, orientando como humanos e IA colaboram em qualquer domínio.
 
-Leis inquebráveis (Lexis), bases de conhecimento (Codex), procedimentos repetíveis (Katas), agentes especializados (Warriors) e comandos recorrentes (Cries) são organizados por disciplina (Clade) e área de conhecimento (Subclade), criando um sistema extensível que orienta como humanos e IA colaboram em qualquer domínio.
-
-### Princípios
-
-1. **IA como Copiloto, não Piloto:** Humanos mantêm controle final sobre decisões críticas
-2. **Processo sobre Ferramenta:** Padronização de processos tem prioridade sobre padronização de ferramentas
-3. **Artefatos como Código:** Leis, manuais, procedimentos e comandos são versionados, auditáveis e portáveis
-4. **Agnóstico de Plataforma:** `framework/` é a fonte da verdade; `.cursor/` e outras IDEs são derivações
+**Princípios:** IA como copiloto (não piloto); processo sobre ferramenta; artefatos versionados como código; `framework/` como fonte da verdade, agnóstico de plataforma.
 
 ---
 
@@ -17,535 +10,132 @@ Leis inquebráveis (Lexis), bases de conhecimento (Codex), procedimentos repetí
 
 ### Pré-requisitos
 
-- **Python 3.8+** — necessário para executar o instalador
-- **Make** (opcional) — para bootstrap e atualizações via Makefile
+- **Python 3.8+** — necessário para o instalador
+- **Make** (opcional) — para bootstrap e atualizações
   - **Windows:** `choco install make` ou `winget install GnuWin32.Make`
-  - **macOS:** incluído com Xcode Command Line Tools (`xcode-select --install`)
-  - **Linux:** incluído na maioria das distros (`sudo apt install make`)
+  - **macOS:** Xcode Command Line Tools (`xcode-select --install`)
+  - **Linux:** na maioria das distros já incluso (`sudo apt install make`)
+
+### Plataformas
+
+| Nome | Descrição |
+|------|------------|
+| **Cursor** | IDE com suporte integrado: o instalador gera `.cursor/` (rules, skills, commands, agents) a partir do framework. [Suporte ao Cursor](#suporte-ao-cursor) |
 
 ### Primeira instalação
 
-O instalador baixa o framework do GitHub e configura o projeto. Não é necessário clonar o repositório.
+O instalador baixa o framework do GitHub e configura o projeto (não é necessário clonar o repositório).
 
-#### Via Makefile (recomendado)
-
-Baixe o `Makefile` para a raiz do projeto e use `make bootstrap`. O Makefile pode ser commitado no repositório para que todo o time use o mesmo fluxo.
-
-**macOS / Linux:**
-
-```bash
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -o Makefile
-make bootstrap PLATFORM=cursor
-```
-
-**Windows (PowerShell):**
+**Via Makefile (recomendado):**
 
 ```powershell
+# Windows (PowerShell)
 Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -OutFile Makefile
 make bootstrap PLATFORM=cursor
 ```
 
-**Com opções:**
-
 ```bash
-make bootstrap PLATFORM=cursor VERSION=v0.1.0 LANGUAGE=en
-make bootstrap PLATFORM=cursor CLADES=_foundation,documentation
-make bootstrap  # somente framework, sem plataforma
+# macOS / Linux
+curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -o Makefile
+make bootstrap PLATFORM=cursor
 ```
 
-#### Via one-liner (sem Make)
-
-**macOS / Linux:**
-
-```bash
-# Somente framework (.ahrena/)
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 -
-
-# Framework + Cursor IDE
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform cursor
-
-# Versão específica + idioma padrão
-curl -sSL https://github.com/guardiafinance/ahrena/releases/download/v0.1.0/install.py | python3 - --version v0.1.0 --language en --platform cursor
-
-# Apenas clades específicos
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --clades _foundation,documentation --platform cursor
-```
-
-**Windows (PowerShell):**
+**Via one-liner (sem Make):**
 
 ```powershell
-# Somente framework (.ahrena/)
+# Windows — somente framework
 Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py; Remove-Item install.py
 
-# Framework + Cursor IDE
+# Windows — framework + Cursor IDE
 Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
 ```
 
-### Atualização
-
-O update detecta automaticamente a plataforma instalada e preserva o `.directives`:
-
-**Via Makefile (raiz do projeto):**
-
 ```bash
-make update
-make update VERSION=v0.2.0
+# macOS / Linux — framework + Cursor
+curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform cursor
 ```
 
-**Via Makefile (.ahrena/):**
-
-```bash
-make -f .ahrena/Makefile update
-```
-
-**Via script direto:**
-
-```bash
-# macOS / Linux
-python3 .ahrena/update.py
-python3 .ahrena/update.py --version v0.2.0
-
-# Windows (PowerShell)
-python .ahrena/update.py
-python .ahrena/update.py --version v0.2.0
-```
-
-### Desinstalação
-
-Remove todos os arquivos instalados pelo Ahrena (`.ahrena/` e arquivos gerados no `.cursor/` — rules, skills, commands e agents). Pede confirmação antes de remover.
-
-**Via Makefile:**
-
-```bash
-make uninstall
-```
-
-**Via script direto:**
-
-```bash
-# macOS / Linux
-python3 .ahrena/uninstall.py
-python3 .ahrena/uninstall.py --force    # sem confirmação
-
-# Windows (PowerShell)
-python .ahrena/uninstall.py
-python .ahrena/uninstall.py --force
-```
-
-### Desenvolvimento local (para contribuidores do Ahrena)
-
-Se você está trabalhando no repositório do Ahrena e quer testar mudanças no framework localmente:
-
-```bash
-make dev-install PLATFORM=cursor
-```
-
-Isso usa os fontes locais de `framework/` em vez de baixar do GitHub. O `.ahrena/` e `.cursor/` são regenerados a partir do estado atual do repositório.
-
-### Opções
+**Opções do instalador:**
 
 | Flag | Descrição |
-|------|-----------|
+|------|------------|
 | `--platform cursor` | Gerar `.cursor/` (rules, skills, commands, agents) |
-| `--local` | Usar fontes locais (para desenvolvimento do framework) |
-| `--clades X,Y` | Instalar apenas os clades especificados (ex: `_foundation,documentation`) |
+| `--clades X,Y` | Instalar apenas clades especificados (ex.: `_foundation,documentation`) |
 | `--version v0.1.0` | Versão específica (tag ou branch) |
 | `--language en` | Sobrescrever idioma padrão no `.directives` |
 | `--directives PATH` | Usar `.directives` customizado (caminho local ou URL) |
 | `--target PATH` | Instalar em outro diretório |
-| `--dry-run` | Mostrar o que seria feito sem alterar nada |
+| `--dry-run` | Simular sem alterar nada |
 | `--clean` | Remover arquivos instalados pelo Ahrena |
 
-> **Nota:** quando `--clades` é usado, a seleção é salva em `.ahrena/.installed-clades` e respeitada automaticamente pelo `update.py`. Para alterar os clades em um update, passe `--clades` novamente.
+Quando `--clades` é usado, a seleção é salva em `.ahrena/.installed-clades` e respeitada pelo `update.py`.
+
+### Atualização e desinstalação
+
+| Ação | Makefile | Script direto |
+|------|----------|----------------|
+| **Atualizar** | `make update` ou `make update VERSION=v0.2.0` | `python .ahrena/update.py` |
+| **Desinstalar** | `make uninstall` | `python .ahrena/uninstall.py` (ou `--force` sem confirmação) |
+
+**Desenvolvimento local (contribuidores):** `make dev-install PLATFORM=cursor` — usa os fontes locais de `framework/` em vez de baixar do GitHub.
 
 ### O que é instalado
 
 | Comando | `.ahrena/` | `.cursor/` |
 |---------|------------|------------|
-| Sem `--platform` | framework + directives + scripts + Makefile | — |
-| `--platform cursor` | framework + directives + scripts + Makefile | rules, skills, commands, agents |
+| Sem `--platform` | framework, directives, scripts, Makefile | — |
+| `--platform cursor` | idem | rules, skills, commands, agents |
 
 ---
 
-## Taxonomia
+## Pilares (tipos de capacidade)
 
-O Ahrena organiza conhecimento em **três níveis**:
+| Pilar | Função | Prefixo | Detalhes |
+|-------|--------|---------|----------|
+| **Lexis** | Leis inquebráveis (segurança, qualidade, processo) | `lex-` | [Templates e convenções](./framework/pt-BR/README.md#estrutura) |
+| **Codex** | Manuais de referência para decisões contextualizadas | `codex-` | [Templates e convenções](./framework/pt-BR/README.md#estrutura) |
+| **Katas** | Procedimentos repetíveis (skills) | `kata-` | [Templates e convenções](./framework/pt-BR/README.md#estrutura) |
+| **Warriors** | Agentes especializados (persona + escopo) | `warrior-` | [Templates e convenções](./framework/pt-BR/README.md#estrutura) |
+| **Cries** | Comandos recorrentes (atalhos) | `cry-` | [Templates e convenções](./framework/pt-BR/README.md#estrutura) |
 
-```
-Clade (disciplina) → Subclade (área) → Pilar (tipo de capacidade) → Capability (capacidade)
-```
-
-### Pilares
-
-Pilares definem o **tipo** de cada capacidade. São cinco:
-
-#### Lexis — Leis Inquebráveis
-
-Restrições absolutas de segurança, qualidade ou processo que **nenhum agente — humano ou IA — pode violar**.
-
-| Aspecto | Detalhe |
-|---------|---------|
-| **Natureza** | Restritiva e imperativa — define o que **nunca** pode acontecer ou que **sempre** deve acontecer |
-| **Prefixo** | `lex-` |
-| **Quando usar** | Quando há risco de violação de segurança, qualidade ou processo crítico |
-| **Governança** | Sem exceções; validação automatizada sempre que possível |
-| **Template** | [`framework/templates/lex-sample.md`](framework/templates/lex-sample.md) |
-
-#### Codex — Manuais de Referência
-
-Base de conhecimento estruturada que a IA consulta para tomar decisões contextualizadas.
-
-| Aspecto | Detalhe |
-|---------|---------|
-| **Natureza** | Informativa e orientadora — define **como** o sistema funciona |
-| **Prefixo** | `codex-` |
-| **Quando usar** | Quando uma decisão, padrão ou convenção relevante precisa ser documentada |
-| **Governança** | Atualizado a cada decisão relevante ou mudança estrutural; consultado por equipe e IA |
-| **Template** | [`framework/templates/codex-sample.md`](framework/templates/codex-sample.md) |
-
-#### Katas — Skills Repetíveis
-
-Procedimentos que definem como agentes executam tarefas recorrentes de forma padronizada, com inputs, outputs e critérios de validação.
-
-| Aspecto | Detalhe |
-|---------|---------|
-| **Natureza** | Procedimental — define **o que fazer** passo a passo |
-| **Prefixo** | `kata-` |
-| **Quando usar** | Quando uma tarefa recorrente precisa ser executada de forma padronizada |
-| **Governança** | Critérios de validação verificados antes da entrega |
-| **Template** | [`framework/templates/kata-sample.md`](framework/templates/kata-sample.md) |
-
-#### Warriors — Agentes Especializados
-
-Agentes de IA com identidade, escopo e responsabilidades definidos. Cada Warrior consulta Lexis, Codex e Katas relevantes.
-
-| Aspecto | Detalhe |
-|---------|---------|
-| **Natureza** | Persona — define **quem** o agente é e como se comporta |
-| **Prefixo** | `warrior-` |
-| **Quando usar** | Quando um agente especializado com identidade e escopo definidos é necessário |
-| **Governança** | Vincula Lexis, Codex e Katas; critérios claros de escalação para humano |
-| **Template** | [`framework/templates/warrior-sample.md`](framework/templates/warrior-sample.md) |
-
-#### Cries — Comandos Recorrentes
-
-Atalhos de produtividade que automatizam tarefas repetitivas. Diferem dos Katas por serem invocações rápidas, não procedimentos completos.
-
-| Aspecto | Detalhe |
-|---------|---------|
-| **Natureza** | Invocação — define um **atalho** rápido e reutilizável |
-| **Prefixo** | `cry-` |
-| **Quando usar** | Quando uma tarefa simples e repetitiva pode ser automatizada via comando rápido |
-| **Governança** | Baixa complexidade (1-2 passos); invocado via `/cry-[nome]` no chat |
-| **Template** | [`framework/templates/cry-sample.md`](framework/templates/cry-sample.md) |
-
----
+Descrição completa de cada Pilar e quando usar: [Framework — Guia do Desenvolvedor](./framework/pt-BR/README.md).
 
 ### Clades e Subclades
 
-**Clade** — Disciplina de negócio. Agrupa todo o conhecimento relevante a uma mesma disciplina.
+**Clade** = disciplina de negócio. **Subclade** = área de conhecimento dentro da disciplina. Detalhamento de cada Clade e links para READMEs:
 
-**Subclade** — Área de conhecimento dentro da disciplina. Refina o escopo do Clade por especialidade.
+| Clade | Subclades | Documentação |
+|-------|-----------|----------------|
+| **product** | discovery, strategy, analytics, delivery | Extensível por organização |
+| **engineering** | platform, backend, frontend, devops, security, quality | [Platform (Guardia)](framework/pt-BR/engineering/platform/README.md) |
+| **finance** | accounting, treasury, controllership | Extensível por organização |
+| **operations** | support, infrastructure, monitoring | Extensível por organização |
+| **documentation** | i18n (tradução) | [Sistema de tradução / Hermes](framework/pt-BR/documentation/i18n/README.md) |
+| **_foundation** | authoring, contributing, process, quality, security, tooling, i18n | Transversal a todos os Clades; [Contributing](framework/pt-BR/_foundation/contributing/README.md), [Authoring](framework/pt-BR/_foundation/authoring/README.md), [Tooling](framework/pt-BR/_foundation/tooling/README.md) |
 
-#### Product
+Clades e Subclades são **extensíveis**: cada organização define os que fizerem sentido.
 
-Gestão de produto, ciclo de vida e estratégia. Cobre desde a descoberta de oportunidades até a entrega contínua de valor ao usuário.
+### Warriors disponíveis
 
-| Subclade | Foco |
-|----------|------|
-| Discovery | Pesquisa, validação de hipóteses e priorização |
-| Strategy | Visão de produto, roadmap e métricas de sucesso |
-| Analytics | Dados de uso, experimentação e insights |
-| Delivery | Planejamento de releases, rollout e comunicação |
+| Warrior | Nome | Clade | Uso |
+|---------|------|-------|-----|
+| `warrior-translator` | Hermes | documentation/i18n | Tradução de documentação; [detalhes](framework/pt-BR/documentation/i18n/README.md) |
+| `warrior-daedalus` | Daedalus | engineering/platform | Design de API RESTful (OAS); `/cry-api-design`, `/cry-full-design` |
+| `warrior-kronos` | Kronos | engineering/platform | Event Storm e CloudEvents; `/cry-event-storm`, `/cry-full-design` |
 
-#### Engineering
-
-Desenvolvimento, arquitetura e infraestrutura. Abrange todo o ciclo técnico — do código ao deploy — incluindo qualidade e segurança.
-
-| Subclade | Foco |
-|----------|------|
-| **Platform** | Especificações da plataforma Guardia: Lexis/Codex (RESTful, CloudEvents, entidades, auth), Katas (design de API OAS/doc, documentação de eventos), Warriors (Daedalus — API, Kronos — Event Storm) e Cries (api-design, event-storm, full-design). Destinos: `docs/oas`, `docs/events`. [Detalhes](framework/pt-BR/engineering/platform/README.md) |
-| Backend | APIs, serviços, lógica de negócio e integrações |
-| Frontend | Interfaces, componentes e experiência do desenvolvedor |
-| DevOps | CI/CD, infraestrutura como código e observabilidade |
-| Security | Proteção de dados, autenticação e conformidade técnica |
-| Quality | Testes, revisão de código e padrões de qualidade |
-
-#### Finance
-
-Gestão financeira, contábil e controladoria. Estrutura processos que exigem precisão, rastreabilidade e conformidade com normas fiscais e contábeis.
-
-| Subclade | Foco |
-|----------|------|
-| Accounting | Lançamentos, conciliação e fechamento contábil |
-| Treasury | Fluxo de caixa, pagamentos, recebimentos e gestão de liquidez |
-| Controllership | Planejamento financeiro, orçamento, relatórios gerenciais e KPIs |
-
-#### Operations
-
-Processos operacionais e suporte. Garante que sistemas e equipes funcionem de forma estável e eficiente no dia a dia.
-
-| Subclade | Foco |
-|----------|------|
-| Support | Atendimento, escalonamento e base de conhecimento |
-| Infrastructure | Servidores, redes, capacidade e disaster recovery |
-| Monitoring | Alertas, dashboards e resposta a incidentes |
-
-#### Documentation
-
-Tradução, internacionalização e gestão de documentação técnica. Contém artefatos genéricos que se aplicam a qualquer tipo de documentação — do framework, de projetos ou de qualquer outro conteúdo técnico.
-
-| Subclade | Foco |
-|----------|------|
-| i18n | Tradução multilíngue — regras por idioma, procedimentos, agente tradutor e comando |
-
-> O Clade `documentation/i18n/` inclui o **Warrior Hermes** — um agente tradutor especialista que consulta regras e guias específicos de cada idioma-alvo (pt-BR, en, es) para garantir traduções precisas e consistentes. Para detalhes completos, veja o [README do Sistema de Tradução](framework/pt-BR/documentation/i18n/README.md).
-
-#### _Foundation — Clade Transversal
-
-_Foundation é um **Clade especial** que não pertence a uma disciplina específica. Seus artefatos atuam de forma **transversal**, aplicando-se a todos os demais Clades simultaneamente.
-
-Enquanto Clades como Product ou Engineering contêm conhecimento específico de suas disciplinas, _Foundation define as **regras, processos e padrões que atravessam todas elas** — segurança global, qualidade mínima e processos comuns que todo agente e todo artefato devem respeitar, independentemente do domínio.
-
-| Subclade | Foco |
-|----------|------|
-| Authoring | Guias de criação de artefatos (como criar Lexis, Codex, Katas, Warriors e Cries) |
-| Contributing | Fluxo unificado de contribuição, padrões de commit e criação de PRs |
-| Process | SDLC, fluxos de trabalho e convenções comuns a todas as disciplinas |
-| Quality | Padrões mínimos de qualidade válidos para qualquer artefato |
-| Security | Políticas de segurança aplicáveis a todo o sistema |
-| Tooling | Automação e ferramentas de desenvolvimento (Makefile, instalador) |
-| i18n | Estrutura de pastas por idioma dentro de `framework/` — regras de navegação e espelhamento |
-
-> Na prática: uma Lexis em `_foundation/security/` aplica-se a **todos** os Clades — não apenas a Engineering. Ao criar um artefato em qualquer Clade, o agente deve consultar _Foundation primeiro para garantir conformidade com as regras transversais.
+Para a arquitetura do framework (paths, diagramas, de-para com `.cursor/`), consulte o [Guia do Desenvolvedor](./framework/pt-BR/README.md#arquitetura-do-framework).
 
 ---
 
-> Clades e Subclades são **extensíveis**: cada organização cria os que fizerem sentido para o seu contexto.
+## Suporte ao Cursor
 
-### Warriors Disponíveis
+O Ahrena oferece **suporte integrado ao Cursor IDE**. Com `--platform cursor` (ou `PLATFORM=cursor` no Makefile), o instalador gera o diretório `.cursor/` a partir do `framework/`, permitindo que as Lexis, Codex, Katas, Warriors e Cries sejam usadas diretamente no editor:
 
-Warriors são agentes especializados prontos para uso. O Ahrena inclui os seguintes Warriors built-in:
+| Recurso Cursor | Origem no framework |
+|----------------|---------------------|
+| **Rules** (`.mdc`) | Lexis e Codex — contexto injetado no agente |
+| **Skills** (`SKILL.md`) | Katas e Warriors — capacidades sob demanda |
+| **Commands** (`.md`) | Cries — comandos rápidos via `/cry-nome` |
+| **Agents** (`.md`) | Warriors — subagentes especializados |
 
-| Warrior | Nome | Clade | Descrição |
-|---------|------|-------|-----------|
-| `warrior-translator` | **Hermes** | `documentation/i18n` | Tradutor de documentação técnica. Consulta regras e guias específicos por idioma-alvo (pt-BR, en, es) para garantir traduções precisas. Invocável via `/cry-translate`. [Documentação completa](framework/pt-BR/documentation/i18n/README.md) |
-| `warrior-daedalus` | **Daedalus** | `engineering/platform` | Especialista em design de API RESTful. Produz especificação OpenAPI e documento da API em `docs/oas`. Invocável via `/cry-api-design` ou `/cry-full-design`. |
-| `warrior-kronos` | **Kronos** | `engineering/platform` | Especialista em Event Storm e documentação CloudEvents. Produz documentação de eventos em `docs/events`. Invocável via `/cry-event-storm` ou `/cry-full-design`. |
-
-#### Endereçamento
-
-O idioma é sempre o primeiro segmento do caminho no framework:
-
-```
-{lang}/{clade}/{subclade}/{pilar}/{prefixo}-{nome}.md
-```
-
-| Caminho | Leitura |
-|---------|---------|
-| `pt-BR/_foundation/security/lexis/lex-security.md` | Lei de segurança transversal em pt-BR |
-| `en/product/discovery/codex/codex-prioritization.md` | Manual sobre priorização em inglês |
-| `es/engineering/security/lexis/lex-no-secrets.md` | Lei sobre secrets em espanhol |
-| `pt-BR/documentation/i18n/warriors/warrior-translator.md` | Agente Hermes (tradutor) em pt-BR |
-| `pt-BR/engineering/platform/warriors/warrior-daedalus.md` | Agente Daedalus (design de API) em pt-BR |
-| `pt-BR/engineering/platform/warriors/warrior-kronos.md` | Agente Kronos (event storm) em pt-BR |
-| `en/engineering/quality/warriors/warrior-spartacus.md` | Agente Spartacus em inglês |
-
-#### Visualização
-
-```
-┌───────────────────────────────────────────────────────────────────┐
-│                        TAXONOMIA AHRENA                           │
-├───────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  Clade               Subclade              Pilar                  │
-│  ─────               ────────              ─────                  │
-│                                                                   │
-│  product/ ──────┬── discovery/ ──────────┬── lexis/               │
-│                 ├── strategy/            ├── codex/               │
-│                 ├── analytics/           ├── katas/               │
-│                 └── delivery/            ├── warriors/            │
-│                                          └── cries/               │
-│  engineering/ ──┬── platform/     Daedalus, Kronos (API + eventos) │
-│                 ├── backend/                                      │
-│                 ├── frontend/                                     │
-│                 ├── devops/                                       │
-│                 ├── security/                                     │
-│                 └── quality/                                      │
-│                                                                   │
-│  finance/ ──────┬── accounting/                                   │
-│                 ├── compliance/                                   │
-│                 └── reporting/                                    │
-│                                                                   │
-│  operations/ ───┬── support/                                      │
-│                 ├── infrastructure/                               │
-│                 └── monitoring/                                   │
-│                                                                   │
-│  documentation/ ──── i18n/           Hermes (tradutor)            │
-│                                                                   │
-│  ═══════════════════════════════════════════════════════          │
-│  _foundation/ ──┬── authoring/      ← aplica-se a TODOS           │
-│   (transversal) ├── contributing/     os Clades acima             │
-│                 ├── process/                                      │
-│                 ├── quality/                                      │
-│                 ├── security/                                     │
-│                 ├── tooling/                                      │
-│                 └── i18n/                                         │
-│                                                                   │
-└───────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Estrutura do Repositório
-
-### `.ahrena/`
-
-Ponto de entrada canônico do framework. Todo projeto que adota o Ahrena **DEVE** ter este diretório na raiz do repositório. Contém as diretivas globais que governam o comportamento de todos os agentes.
-
-```
-.ahrena/
-├── .directives          # Configurações canônicas (idioma, nomenclatura, paths)
-```
-
-### `framework/`
-
-Templates e artefatos em `.md` puro, agnóstico de plataforma. O **idioma é o primeiro nível de navegação** — cada pasta de idioma contém a árvore completa de Clades, Subclades e Pilares:
-
-```
-framework/
-├── .directives.sample
-│
-├── templates/                          # Templates (modelos base de cada Pilar)
-│   ├── lex-sample.md
-│   ├── codex-sample.md
-│   ├── kata-sample.md
-│   ├── warrior-sample.md
-│   └── cry-sample.md
-│
-├── pt-BR/                              # Idioma padrão (fonte da verdade)
-│   │
-│   │   # Artefatos por Clade → Subclade → Pilar
-│   ├── _foundation/
-│   │   ├── authoring/                 # Guias de criação de artefatos
-│   │   │   ├── codex/codex-*.md
-│   │   │   ├── katas/kata-create-*.md
-│   │   │   └── cries/cry-new-*.md
-│   │   ├── contributing/              # Fluxo de contribuição
-│   │   │   ├── codex/codex-contributing.md, codex-commit-standards.md, codex-semantic-version.md
-│   │   │   ├── lexis/lex-conventional-commits.md, lex-semantic-version.md, ...
-│   │   │   ├── katas/kata-commit.md, kata-contribute.md, kata-tag.md
-│   │   │   └── cries/cry-commit.md, cry-contribute.md, cry-tag.md
-│   │   ├── process/lexis/lex-*.md
-│   │   ├── quality/lexis/lex-*.md
-│   │   ├── tooling/cries/cry-make.md
-│   │   └── i18n/
-│   │       ├── lexis/lex-framework-language.md
-│   │       └── codex/codex-framework-language.md
-│   │
-│   ├── engineering/platform/           # Especificações da plataforma Guardia
-│   │   ├── lexis/lex-*.md               # RESTful, CloudEvents, entidades, auth, erros
-│   │   ├── codex/codex-*.md             # Manuais RESTful, CloudEvents, etc.
-│   │   ├── katas/kata-api-design-oas.md, kata-api-design-doc.md, kata-events-doc.md
-│   │   ├── warriors/warrior-daedalus.md, warrior-kronos.md
-│   │   └── cries/cry-api-design.md, cry-event-storm.md, cry-full-design.md
-│   │
-│   └── documentation/i18n/             # Sistema de tradução
-│       ├── README.md                   # Documentação completa
-│       ├── lexis/
-│       │   ├── lex-language.md         # Regras transversais
-│       │   ├── lex-language-ptbr.md    # Regras para pt-BR
-│       │   ├── lex-language-en.md      # Regras para en
-│       │   └── lex-language-es.md      # Regras para es
-│       ├── codex/
-│       │   ├── codex-language.md       # Guia transversal
-│       │   ├── codex-language-ptbr.md
-│       │   ├── codex-language-en.md
-│       │   └── codex-language-es.md
-│       ├── katas/kata-translate.md     # Procedimento (6 passos)
-│       ├── warriors/warrior-translator.md  # Hermes
-│       └── cries/cry-translate.md      # Comando rápido
-│
-├── es/                                 # Espanhol (mesma estrutura)
-│   └── ...
-└── en/                                 # Inglês (mesma estrutura)
-    └── ...
-```
-
-Para criar um novo artefato: copie o template correspondente de `framework/templates/` (ex: `lex-sample.md`), coloque-o no Clade/Subclade adequado e preencha os campos `[]`. O artefato **DEVE** existir em todos os idiomas de `language.i18n` — use `/cry-translate` para gerar as traduções.
-
-### De-Para: `framework/` → `.cursor/`
-
-Ao implementar no Cursor, cada Pilar é mapeado para o recurso nativo correspondente. Cada recurso Cursor tem seu próprio formato:
-
-| Pilar | Recurso Cursor | Formato | Destino |
-|-------|----------------|---------|---------|
-| **Lexis** | Rules | `.mdc` | `.cursor/rules/<clade>/<subclade>/lex-*.mdc` |
-| **Codex** | Rules | `.mdc` | `.cursor/rules/<clade>/<subclade>/codex-*.mdc` |
-| **Katas** | Skills | `SKILL.md` | `.cursor/skills/kata-*/SKILL.md` |
-| **Warriors** | Skills + Agents | `SKILL.md` + `.md` | `.cursor/skills/warrior-*/SKILL.md` + `.cursor/agents/warrior-*.md` |
-| **Cries** | Commands | `.md` | `.cursor/commands/<clade>/<subclade>/cry-*.md` |
-
-**Formatos nativos do Cursor:**
-
-| Recurso | Extensão | Frontmatter | Descrição |
-|---------|----------|-------------|-----------|
-| Rules | `.mdc` | `description` + `alwaysApply` | Contexto injetado no agente principal |
-| Skills | `SKILL.md` | `name` + `description` | Capacidades que o agente adota sob demanda |
-| Commands | `.md` | `description` | Slash commands invocáveis via `/nome` |
-| Agents | `.md` | `name` + `description` | Subagentes isolados com system prompt próprio |
-
-> Warriors geram **dois artefatos**: um Skill (o agente principal adota a persona) e um Agent (subagente isolado delegado via Task). Isso permite tanto uso inline quanto delegação.
-
-```
-.cursor/
-├── rules/                              # .mdc — Lexis + Codex
-│   ├── samples/
-│   │   ├── lex-sample.mdc
-│   │   └── codex-sample.mdc
-│   ├── _foundation/
-│   │   ├── authoring/codex-*.mdc
-│   │   ├── contributing/
-│   │   │   ├── codex-contributing.mdc
-│   │   │   ├── codex-commit-standards.mdc
-│   │   │   ├── codex-semantic-version.mdc
-│   │   │   └── lex-*.mdc
-│   │   ├── process/lex-*.mdc
-│   │   ├── quality/lex-*.mdc
-│   │   └── i18n/
-│   │       ├── lex-framework-language.mdc
-│   │       └── codex-framework-language.mdc
-│   └── documentation/i18n/
-│       ├── lex-language.mdc, lex-language-{ptbr,en,es}.mdc
-│       └── codex-language.mdc, codex-language-{ptbr,en,es}.mdc
-│   └── engineering/platform/
-│       ├── lex-*.mdc, codex-*.mdc
-│       └── (regras de API, eventos, entidades, auth)
-│
-├── skills/                             # SKILL.md — Katas + Warriors
-│   ├── kata-sample/SKILL.md
-│   ├── warrior-sample/SKILL.md
-│   ├── kata-commit/SKILL.md
-│   ├── kata-contribute/SKILL.md
-│   ├── kata-tag/SKILL.md
-│   ├── kata-create-*/SKILL.md
-│   ├── kata-translate/SKILL.md
-│   ├── warrior-translator/SKILL.md
-│   ├── kata-api-design-oas/SKILL.md, kata-api-design-doc/SKILL.md, kata-events-doc/SKILL.md
-│   └── warrior-daedalus/SKILL.md, warrior-kronos/SKILL.md
-│
-├── commands/                           # .md — Cries
-│   ├── samples/cry-sample.md
-│   ├── _foundation/
-│   │   ├── authoring/cry-new-*.md
-│   │   ├── contributing/cry-commit.md, cry-contribute.md, cry-tag.md
-│   │   └── tooling/cry-make.md
-│   ├── documentation/i18n/cry-translate.md
-│   └── engineering/platform/
-│       └── cry-api-design.md, cry-event-storm.md, cry-full-design.md
-│
-└── agents/                             # .md — Warriors (subagentes)
-    ├── warrior-translator.md
-    ├── warrior-daedalus.md
-    └── warrior-kronos.md
-```
+As regras são aplicadas automaticamente conforme o escopo do projeto; skills e commands ficam disponíveis no chat. Para instalar com Cursor, use `make bootstrap PLATFORM=cursor` ou `python install.py --platform cursor`.
