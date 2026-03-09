@@ -19,6 +19,7 @@ Este Kata define o procedimento padronizado para criar um novo Kata no Ahrena �
 | Tarefa | Sim | Descrição da tarefa a ser padronizada (ex: "criar ADR", "fazer code review") |
 | Contexto | Não | Informações adicionais sobre o domínio ou restrições da tarefa |
 | Clade/Subclade | Não | Onde salvar na taxonomia. Se omitido, o agente deve inferir da tarefa |
+| Destino | Não | "framework" (padrão) ou "projeto". Se "projeto", o artefato é salvo em `.ahrena/artifacts/`; depois pode ser incorporado com `kata-push-to-framework` |
 
 ## Workflow
 
@@ -39,6 +40,8 @@ Progresso:
    - `language.i18n` — idiomas obrigatórios
    - `naming.addressing` — padrão de endereçamento
    - `naming.prefixes.katas` — prefixo (`kata-`)
+   - `paths.project_artifacts` — se Destino for "projeto"
+   - `paths.framework` — se Destino for "framework"
 2. Ler `codex-katas` para internalizar os critérios de qualidade
 3. Ler `templates/kata-sample.md` para ter a estrutura base
 4. Verificar Katas existentes para evitar duplicidade
@@ -81,17 +84,15 @@ Usar o `templates/kata-sample.md` como base e preencher todas as seções:
 ### Passo 4: Salvamento no Caminho Correto
 
 1. Determinar o Clade e Subclade adequados para a tarefa
-2. Compor o caminho: `framework/{lang}/{clade}/{subclade}/katas/kata-{nome}.md`
+2. Se **Destino** for "framework": compor `{paths.framework}/{lang}/{clade}/{subclade}/katas/kata-{nome}.md`. Se for "projeto": compor `{paths.project_artifacts}/{lang}/{clade}/{subclade}/katas/kata-{nome}.md`
 3. Usar kebab-case para o nome do arquivo
 4. Criar diretórios intermediários se necessário
 5. Salvar o artefato no idioma padrão (`language.default`)
 
 ### Passo 5: Criação nos Demais Idiomas
 
-1. Para cada idioma em `language.i18n` (exceto o padrão):
-   - Executar `kata-translate` com o arquivo criado no Passo 4
-   - Ou traduzir diretamente consultando `lex-language-{lang}` e `codex-language-{lang}`
-2. Salvar cada tradução no caminho equivalente sob `framework/{lang}/`
+1. Se **Destino** for "projeto", pode criar apenas no idioma padrão; os demais podem ser gerados ao executar `kata-push-to-framework`.
+2. Se **Destino** for "framework" (ou se optar por todos os idiomas no projeto): para cada idioma em `language.i18n` (exceto o padrão), executar `kata-translate` ou traduzir consultando `lex-language-{lang}` e `codex-language-{lang}`; salvar no caminho equivalente sob `paths.framework/{lang}/` ou `paths.project_artifacts/{lang}/`.
 
 ### Passo 6: Validação Final
 
@@ -111,8 +112,8 @@ Usar o `templates/kata-sample.md` como base e preencher todas as seções:
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Kata no idioma padrão | Markdown (`.md`) | `framework/{lang}/{clade}/{subclade}/katas/kata-{nome}.md` |
-| Traduções | Markdown (`.md`) | Mesmo caminho em cada `framework/{lang}/` |
+| Kata no idioma padrão | Markdown (`.md`) | `framework/` ou `.ahrena/artifacts/` conforme Destino |
+| Traduções | Markdown (`.md`) | Mesmo caminho em cada `{lang}/` (obrigatório se framework; opcional se projeto) |
 
 ## Restrições
 

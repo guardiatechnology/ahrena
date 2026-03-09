@@ -107,6 +107,26 @@ Refinement questions:
 - File names use the Pilar prefix and kebab-case
 - Canonical terms (Lexis, Codex, Katas, Warriors, Cries, Clade, Subclade, Pilar) are never translated
 
+### Project Artifacts (.ahrena)
+
+Artifacts can be created first in the **project space** (`.ahrena/artifacts/`), specific to that repository. This allows iteration and validation before incorporating them into the canonical framework.
+
+| Aspect | Project (`.ahrena/artifacts/`) | Framework (`framework/`) |
+|--------|--------------------------------|---------------------------|
+| **Use** | Project-specific; local validation | Part of the Ahrena repository; shared |
+| **Structure** | Same as framework: `{lang}/{clade}/{subclade}/{pilar}/{prefix}-{name}.md` | `framework/{lang}/{clade}/{subclade}/{pilar}/` |
+| **Languages** | May exist only in the default language; on Push, others are generated if missing | **MUST** exist in all languages in `language.i18n` |
+| **When to create here** | Rules or procedures still under validation; artifacts that may never go to the framework | Stable, approved artifacts for the framework |
+
+**Recommended flow:**
+
+1. **Create in project:** use the creation Katas (`kata-create-lexis`, `kata-create-codex`, etc.) with destination **project** — the artifact is saved under `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/`.
+2. **Sync with .cursor:** so the IDE (Cursor) picks up the artifact, run `python .ahrena/update.py --sync-cursor` or `make sync-cursor`. The update regenerates `.cursor/` from `.ahrena/framework/` and `.ahrena/artifacts/`.
+3. **Validate:** use and adjust the artifact in the project context.
+4. **Push to framework:** when ready to incorporate into the framework, run `kata-push-to-framework` (or the Cry `cry-push-to-framework`). The procedure copies artifacts from `.ahrena/artifacts/` to `framework/`, ensures translations in the required languages, and optionally removes or keeps the copy in the project.
+
+The canonical path for the project space is defined in `paths.project_artifacts` in `.ahrena/.directives` (default value: `.ahrena/artifacts/`).
+
 ## Glossary
 
 | Term | Definition |
@@ -117,6 +137,8 @@ Refinement questions:
 | Creation Kit | The Codex + Kata + Cry set that enables creating new artifacts for a Pilar |
 | Dual creation | Pattern of creating the canonical artifact (`.md`) and the derived version for the IDE |
 | Addressing | Full path of an artifact within the framework taxonomy |
+| Project artifacts | Artifacts created in `.ahrena/artifacts/`, repository-specific, before being incorporated into the framework |
+| Push to framework | Procedure (kata-push-to-framework) that incorporates artifacts from `.ahrena/artifacts/` into `framework/`, with full i18n |
 
 ## References
 

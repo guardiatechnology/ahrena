@@ -19,6 +19,7 @@ Este Kata define o procedimento padronizado para criar uma nova Lexis no Ahrena 
 | Assunto | Sim | Tema da lei (ex: "code review obrigatório", "no secrets em repositório") |
 | Escopo | Não | Onde a lei se aplica (ex: "todos os repositórios", "pipeline CI/CD"). Se omitido, o agente deve inferir do assunto |
 | Clade/Subclade | Não | Onde salvar o artefato na taxonomia. Se omitido, o agente deve inferir do assunto |
+| Destino | Não | "framework" (padrão) ou "projeto". Se "projeto", o artefato é salvo em `.ahrena/artifacts/` (específico do repositório); depois pode ser incorporado ao framework com `kata-push-to-framework` |
 
 ## Workflow
 
@@ -39,6 +40,8 @@ Progresso:
    - `language.i18n` — idiomas obrigatórios
    - `naming.addressing` — padrão de endereçamento
    - `naming.prefixes.lexis` — prefixo (`lex-`)
+   - `paths.project_artifacts` — se Destino for "projeto" (ex: `.ahrena/artifacts/`)
+   - `paths.framework` — se Destino for "framework" (ex: `framework/`)
 2. Ler `codex-lexis` para internalizar os critérios de qualidade
 3. Ler `templates/lex-sample.md` para ter a estrutura base
 4. Verificar Lexis existentes no Clade/Subclade alvo para evitar duplicidade
@@ -77,17 +80,18 @@ Usar o `templates/lex-sample.md` como base e preencher todas as seções:
 ### Passo 4: Salvamento no Caminho Correto
 
 1. Determinar o Clade e Subclade adequados para o assunto
-2. Compor o caminho: `framework/{lang}/{clade}/{subclade}/lexis/lex-{nome}.md`
+2. Se **Destino** for "framework": compor o caminho `{paths.framework}/{lang}/{clade}/{subclade}/lexis/lex-{nome}.md`. Se for "projeto": compor `{paths.project_artifacts}/{lang}/{clade}/{subclade}/lexis/lex-{nome}.md`
 3. Usar kebab-case para o nome do arquivo
 4. Criar diretórios intermediários se necessário
 5. Salvar o artefato no idioma padrão (`language.default`)
 
 ### Passo 5: Criação nos Demais Idiomas
 
-1. Para cada idioma em `language.i18n` (exceto o padrão):
+1. Se **Destino** for "projeto", pode criar apenas no idioma padrão; os demais idiomas podem ser gerados depois ao executar `kata-push-to-framework`.
+2. Se **Destino** for "framework" (ou se optar por criar todos os idiomas no projeto): para cada idioma em `language.i18n` (exceto o padrão):
    - Executar `kata-translate` com o arquivo criado no Passo 4
    - Ou, se o agente domina o idioma, traduzir diretamente consultando `lex-language-{lang}` e `codex-language-{lang}`
-2. Salvar cada tradução no caminho equivalente sob `framework/{lang}/`
+3. Salvar cada tradução no caminho equivalente (sob `paths.framework/{lang}/` ou `paths.project_artifacts/{lang}/` conforme o Destino)
 
 ### Passo 6: Validação Final
 
@@ -104,8 +108,8 @@ Usar o `templates/lex-sample.md` como base e preencher todas as seções:
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Lexis no idioma padrão | Markdown (`.md`) | `framework/{lang}/{clade}/{subclade}/lexis/lex-{nome}.md` |
-| Traduções | Markdown (`.md`) | Mesmo caminho em cada `framework/{lang}/` |
+| Lexis no idioma padrão | Markdown (`.md`) | `framework/` ou `.ahrena/artifacts/` conforme Destino |
+| Traduções | Markdown (`.md`) | Mesmo caminho em cada `{lang}/` (obrigatório se Destino for framework; opcional se projeto) |
 
 ## Restrições
 

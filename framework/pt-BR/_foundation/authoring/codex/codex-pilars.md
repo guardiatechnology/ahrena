@@ -107,6 +107,26 @@ Perguntas de refinamento:
 - Nomes de arquivo usam o prefixo do Pilar e kebab-case
 - Termos canônicos (Lexis, Codex, Katas, Warriors, Cries, Clade, Subclade, Pilar) nunca são traduzidos
 
+### Artefatos no projeto (.ahrena)
+
+Artefatos podem ser criados primeiro no **espaço do projeto** (`.ahrena/artifacts/`), específicos para aquele repositório. Isso permite iterar e validar antes de incorporar ao framework canônico.
+
+| Aspecto | Projeto (`.ahrena/artifacts/`) | Framework (`framework/`) |
+|---------|-------------------------------|--------------------------|
+| **Uso** | Específico do projeto; validação local | Parte do repositório Ahrena; compartilhado |
+| **Estrutura** | Mesma do framework: `{lang}/{clade}/{subclade}/{pilar}/{prefixo}-{nome}.md` | `framework/{lang}/{clade}/{subclade}/{pilar}/` |
+| **Idiomas** | Pode existir só no idioma padrão; ao fazer Push, os demais são gerados se faltarem | **DEVE** existir em todos os idiomas de `language.i18n` |
+| **Quando criar aqui** | Regras ou procedimentos ainda em validação; artefatos que podem nunca ir para o framework | Artefatos estáveis e aprovados para o framework |
+
+**Fluxo recomendado:**
+
+1. **Criar no projeto:** use os Katas de criação (`kata-create-lexis`, `kata-create-codex`, etc.) com destino **projeto** — o artefato é salvo em `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/`.
+2. **Sincronizar com o .cursor:** para que a IDE (Cursor) passe a usar o artefato, execute `python .ahrena/update.py --sync-cursor` ou `make sync-cursor`. O update regera `.cursor/` a partir de `.ahrena/framework/` e `.ahrena/artifacts/`.
+3. **Validar:** use e ajuste o artefato no contexto do projeto.
+4. **Push para o framework:** quando estiver pronto para incorporar ao framework, execute `kata-push-to-framework` (ou o Cry `cry-push-to-framework`). O procedimento copia os artefatos de `.ahrena/artifacts/` para `framework/`, garante traduções nos idiomas obrigatórios e opcionalmente remove ou mantém a cópia no projeto.
+
+O path canônico do espaço de projeto é definido em `paths.project_artifacts` em `.ahrena/.directives` (valor padrão: `.ahrena/artifacts/`).
+
 ## Glossário
 
 | Termo | Definição |
@@ -117,6 +137,8 @@ Perguntas de refinamento:
 | Kit de Criação | Conjunto Codex + Kata + Cry que permite criar novos artefatos de um Pilar |
 | Criação dual | Padrão de criar o artefato canônico (`.md`) e a versão derivada para a IDE |
 | Endereçamento | Caminho completo de um artefato na taxonomia do framework |
+| Artefatos de projeto | Artefatos criados em `.ahrena/artifacts/`, específicos do repositório, antes de serem incorporados ao framework |
+| Push para o framework | Procedimento (kata-push-to-framework) que incorpora artefatos de `.ahrena/artifacts/` ao `framework/`, com i18n completo |
 
 ## Referências
 

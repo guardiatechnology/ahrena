@@ -16,6 +16,8 @@ paths:
   directives: ".ahrena/.directives"
   templates: "templates/"
   framework: "framework/"
+  # Project-specific artifacts (create here first; push to framework when ready)
+  project_artifacts: ".ahrena/artifacts/"
   # Destination for OpenAPI/API specifications (create directory if missing)
   oas: "docs/oas"
   # Destination for CloudEvents documentation (create directory if missing)

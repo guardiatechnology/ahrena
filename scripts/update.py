@@ -56,6 +56,8 @@ examples:
   %(prog)s --version v0.2.0                 Update to specific version
   %(prog)s --clades _foundation,docs        Override saved clade selection
   %(prog)s --dry-run                        Preview without changes
+  %(prog)s --sync-cursor                    Only regenerate .cursor/ from .ahrena/framework/ and .ahrena/artifacts/
+  %(prog)s --sync-cursor --dry-run          Preview .cursor sync without writing
         """,
     )
     parser.add_argument(
@@ -78,11 +80,16 @@ examples:
         "--dry-run", action="store_true",
         help="show what would be done without making changes",
     )
+    parser.add_argument(
+        "--sync-cursor", action="store_true",
+        help="only regenerate .cursor/ from .ahrena/framework/ and .ahrena/artifacts/ (no download)",
+    )
     args = parser.parse_args()
 
     target = Path(args.target).resolve()
     ahrena_dir = target / ".ahrena"
     install_py = ahrena_dir / "install.py"
+    directives_path = ahrena_dir / ".directives"
 
     # Verify installation exists
     if not ahrena_dir.exists():
@@ -98,6 +105,25 @@ examples:
         print("\nERROR: .ahrena/install.py not found.")
         print("Re-run the original installer to restore it.")
         sys.exit(1)
+
+    if args.sync_cursor:
+        if not directives_path.exists():
+            print("Ahrena: AI-First Capability Framework — Updater")
+            print("=" * 52)
+            print("\nERROR: .ahrena/.directives not found.")
+            print("Re-run the installer or restore .directives.")
+            sys.exit(1)
+        print("Ahrena: AI-First Capability Framework — Updater")
+        print("=" * 52)
+        print(f"\n  Target:       {target}")
+        print("  Mode:         sync .cursor only (no download)")
+        if args.dry_run:
+            print("  Dry-run:      yes")
+        print()
+        sys.path.insert(0, str(ahrena_dir))
+        import install as install_mod
+        install_mod.install_cursor(ahrena_dir, target, dry_run=args.dry_run)
+        sys.exit(0)
 
     platform = detect_platform(target)
     clades = args.clades or detect_clades(target)

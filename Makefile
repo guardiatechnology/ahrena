@@ -46,7 +46,7 @@ BOOTSTRAP_CMD   = $(PYTHON) .ahrena-bootstrap.py $(SHARED_FLAGS)
 INSTALL_CMD     = $(PYTHON) .ahrena/install.py $(SHARED_FLAGS)
 DEV_INSTALL_CMD = $(PYTHON) scripts/install.py --local $(SHARED_FLAGS)
 
-.PHONY: bootstrap install dev-install update uninstall clean help
+.PHONY: bootstrap install dev-install update sync-cursor uninstall clean help
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
@@ -56,6 +56,7 @@ help:
 	@echo "  install       Reinstall from local .ahrena/install.py"
 	@echo "  dev-install   Install from local source (for framework development)"
 	@echo "  update        Update to latest version (auto-detects platform)"
+	@echo "  sync-cursor   Regenerate .cursor/ from .ahrena/framework/ and .ahrena/artifacts/ (no download)"
 	@echo "  uninstall     Remove Ahrena with confirmation"
 	@echo "  clean         Remove installed Ahrena files (no confirmation)"
 	@echo ""
@@ -81,6 +82,9 @@ dev-install:
 
 update:
 	$(PYTHON) .ahrena/update.py --target $(TARGET) --version $(VERSION) --repo $(REPO)
+
+sync-cursor:
+	$(PYTHON) .ahrena/update.py --target $(TARGET) --sync-cursor
 
 uninstall:
 	$(PYTHON) .ahrena/uninstall.py --target $(TARGET)

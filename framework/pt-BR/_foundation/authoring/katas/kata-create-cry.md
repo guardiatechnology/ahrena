@@ -21,6 +21,7 @@ Este Kata define o procedimento padronizado para criar um novo Cry no Ahrena —
 | Kata associado | Não | Kata que o Cry invoca. Se omitido, o agente deve identificar ou sugerir a criação de um Kata |
 | Warrior associado | Não | Warrior que executa o Kata, se existir |
 | Clade/Subclade | Não | Onde salvar na taxonomia. Se omitido, o agente deve inferir da ação |
+| Destino | Não | "framework" (padrão) ou "projeto". Se "projeto", o artefato é salvo em `.ahrena/artifacts/`; depois pode ser incorporado com `kata-push-to-framework` |
 
 ## Workflow
 
@@ -41,6 +42,8 @@ Progresso:
    - `language.i18n` — idiomas obrigatórios
    - `naming.addressing` — padrão de endereçamento
    - `naming.prefixes.cries` — prefixo (`cry-`)
+   - `paths.project_artifacts` — se Destino for "projeto"
+   - `paths.framework` — se Destino for "framework"
 2. Ler `codex-cries` para internalizar os critérios de qualidade
 3. Ler `templates/cry-sample.md` para ter a estrutura base
 4. Verificar Cries existentes para evitar duplicidade
@@ -80,17 +83,15 @@ Usar o `templates/cry-sample.md` como base e preencher todas as seções:
 ### Passo 4: Salvamento no Caminho Correto
 
 1. Determinar o Clade e Subclade adequados
-2. Compor o caminho: `framework/{lang}/{clade}/{subclade}/cries/cry-{nome}.md`
+2. Se **Destino** for "framework": compor `{paths.framework}/{lang}/{clade}/{subclade}/cries/cry-{nome}.md`. Se for "projeto": compor `{paths.project_artifacts}/{lang}/{clade}/{subclade}/cries/cry-{nome}.md`
 3. Usar kebab-case para o nome do arquivo
 4. Criar diretórios intermediários se necessário
 5. Salvar o artefato no idioma padrão (`language.default`)
 
 ### Passo 5: Criação nos Demais Idiomas
 
-1. Para cada idioma em `language.i18n` (exceto o padrão):
-   - Executar `kata-translate` com o arquivo criado no Passo 4
-   - Ou traduzir diretamente consultando `lex-language-{lang}` e `codex-language-{lang}`
-2. Salvar cada tradução no caminho equivalente sob `framework/{lang}/`
+1. Se **Destino** for "projeto", pode criar apenas no idioma padrão; os demais podem ser gerados ao executar `kata-push-to-framework`.
+2. Se **Destino** for "framework" (ou se optar por todos os idiomas no projeto): para cada idioma em `language.i18n` (exceto o padrão), executar `kata-translate` ou traduzir consultando `lex-language-{lang}` e `codex-language-{lang}`; salvar no caminho equivalente sob `paths.framework/{lang}/` ou `paths.project_artifacts/{lang}/`.
 
 ### Passo 6: Validação Final
 
@@ -109,8 +110,8 @@ Usar o `templates/cry-sample.md` como base e preencher todas as seções:
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Cry no idioma padrão | Markdown (`.md`) | `framework/{lang}/{clade}/{subclade}/cries/cry-{nome}.md` |
-| Traduções | Markdown (`.md`) | Mesmo caminho em cada `framework/{lang}/` |
+| Cry no idioma padrão | Markdown (`.md`) | `framework/` ou `.ahrena/artifacts/` conforme Destino |
+| Traduções | Markdown (`.md`) | Mesmo caminho em cada `{lang}/` (obrigatório se framework; opcional se projeto) |
 
 ## Restrições
 

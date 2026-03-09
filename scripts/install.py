@@ -515,35 +515,22 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     return ahrena_dir
 
 
-def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) -> None:
-    """Phase 2: generate .cursor/ files from .ahrena/framework/."""
-    directives_path = ahrena_dir / ".directives"
-    if not directives_path.exists():
-        print(f"\nERROR: .directives not found at {directives_path}")
-        sys.exit(1)
-
-    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
-    cursor_lang = str(get_directive(directives, "language", "cursor", default="en"))
-
-    framework_dir = ahrena_dir / "framework"
-    lang_dir = framework_dir / cursor_lang
-    templates_dir = framework_dir / "templates"
-
-    if not lang_dir.exists():
-        print(f"\nERROR: Language directory not found: {lang_dir}")
-        print(f"Available: {[d.name for d in framework_dir.iterdir() if d.is_dir() and not d.name.startswith('.')]}")
-        sys.exit(1)
-
-    print(f"  Source language for Cursor: '{cursor_lang}'")
+def _process_lang_dir_to_cursor(
+    lang_dir: Path,
+    base_dir: Path,
+    target_dir: Path,
+    dry_run: bool,
+) -> tuple[int, int]:
+    """Process a language dir (framework or artifacts) and write .cursor files. Returns (file_count, agent_count)."""
     file_count = 0
+    agent_count = 0
 
-    # Process language-specific artifacts
     for md_file in sorted(lang_dir.rglob("*.md")):
         pilar = detect_pilar(md_file.name)
         if pilar is None:
             continue
 
-        rel_path = md_file.relative_to(framework_dir)
+        rel_path = md_file.relative_to(base_dir)
         cursor_path = build_cursor_path(rel_path, pilar)
         full_path = target_dir / cursor_path
 
@@ -557,7 +544,56 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
             full_path.write_text(mdc_content, encoding="utf-8")
         file_count += 1
 
-    # Process templates (samples) — full body, only frontmatter added
+    for md_file in sorted(lang_dir.rglob("*.md")):
+        pilar = detect_pilar(md_file.name)
+        if pilar not in PILAR_GENERATES_AGENT:
+            continue
+
+        agent_name = md_file.stem + ".md"
+        agent_path = Path(".cursor") / "agents" / agent_name
+        full_path = target_dir / agent_path
+
+        content = md_file.read_text(encoding="utf-8")
+        agent_content = transform_md_to_agent(content, pilar, md_file.name)
+
+        if dry_run:
+            print(f"    [DRY-RUN] {agent_path}")
+        else:
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.write_text(agent_content, encoding="utf-8")
+        agent_count += 1
+
+    return file_count, agent_count
+
+
+def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) -> None:
+    """Phase 2: generate .cursor/ files from .ahrena/framework/ and .ahrena/artifacts/."""
+    directives_path = ahrena_dir / ".directives"
+    if not directives_path.exists():
+        print(f"\nERROR: .directives not found at {directives_path}")
+        sys.exit(1)
+
+    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
+    cursor_lang = str(get_directive(directives, "language", "cursor", default="en"))
+
+    framework_dir = ahrena_dir / "framework"
+    lang_dir = framework_dir / cursor_lang
+    templates_dir = framework_dir / "templates"
+    artifacts_dir = ahrena_dir / "artifacts"
+
+    if not lang_dir.exists():
+        print(f"\nERROR: Language directory not found: {lang_dir}")
+        print(f"Available: {[d.name for d in framework_dir.iterdir() if d.is_dir() and not d.name.startswith('.')]}")
+        sys.exit(1)
+
+    print(f"  Source language for Cursor: '{cursor_lang}'")
+
+    # 1. Process framework (so artifacts can overwrite later)
+    file_count_fw, agent_count_fw = _process_lang_dir_to_cursor(
+        lang_dir, framework_dir, target_dir, dry_run
+    )
+
+    # 2. Process templates (samples) — framework only
     if templates_dir.exists():
         for md_file in sorted(templates_dir.glob("*-sample.md")):
             pilar = detect_pilar(md_file.name)
@@ -582,30 +618,24 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
             else:
                 full_path.parent.mkdir(parents=True, exist_ok=True)
                 full_path.write_text(mdc_content, encoding="utf-8")
-            file_count += 1
+            file_count_fw += 1
 
-    # Generate .cursor/agents/ for warriors (isolated subagents)
-    agent_count = 0
-    for md_file in sorted(lang_dir.rglob("*.md")):
-        pilar = detect_pilar(md_file.name)
-        if pilar not in PILAR_GENERATES_AGENT:
-            continue
+    # 3. Process project artifacts (same paths overwrite framework)
+    file_count_art = 0
+    agent_count_art = 0
+    if artifacts_dir.exists():
+        artifacts_lang_dir = artifacts_dir / cursor_lang
+        if artifacts_lang_dir.exists():
+            file_count_art, agent_count_art = _process_lang_dir_to_cursor(
+                artifacts_lang_dir, artifacts_dir, target_dir, dry_run
+            )
 
-        agent_name = md_file.stem + ".md"
-        agent_path = Path(".cursor") / "agents" / agent_name
-        full_path = target_dir / agent_path
-
-        content = md_file.read_text(encoding="utf-8")
-        agent_content = transform_md_to_agent(content, pilar, md_file.name)
-
-        if dry_run:
-            print(f"    [DRY-RUN] {agent_path}")
-        else:
-            full_path.parent.mkdir(parents=True, exist_ok=True)
-            full_path.write_text(agent_content, encoding="utf-8")
-        agent_count += 1
-
-    print(f"  Generated {file_count} .mdc files + {agent_count} agent files")
+    total_files = file_count_fw + file_count_art
+    total_agents = agent_count_fw + agent_count_art
+    if file_count_art > 0 or agent_count_art > 0:
+        print(f"  Generated {file_count_fw} files from framework, {file_count_art} from project artifacts; {total_agents} agent files")
+    else:
+        print(f"  Generated {total_files} files from framework; {total_agents} agent files")
 
 
 def clean(target_dir: Path) -> None:

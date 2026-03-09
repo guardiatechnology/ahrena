@@ -20,6 +20,7 @@ Este Kata define o procedimento padronizado para criar um novo Warrior no Ahrena
 | Domínio | Não | Área de atuação. Se omitido, o agente deve inferir do papel |
 | Nome | Não | Nome próprio do Warrior. Se omitido, o agente deve sugerir um nome temático |
 | Clade/Subclade | Não | Onde salvar na taxonomia. Se omitido, o agente deve inferir do domínio |
+| Destino | Não | "framework" (padrão) ou "projeto". Se "projeto", o artefato é salvo em `.ahrena/artifacts/`; depois pode ser incorporado com `kata-push-to-framework` |
 
 ## Workflow
 
@@ -41,6 +42,8 @@ Progresso:
    - `language.i18n` — idiomas obrigatórios
    - `naming.addressing` — padrão de endereçamento
    - `naming.prefixes.warriors` — prefixo (`warrior-`)
+   - `paths.project_artifacts` — se Destino for "projeto"
+   - `paths.framework` — se Destino for "framework"
 2. Ler `codex-warriors` para internalizar os critérios de qualidade
 3. Ler `templates/warrior-sample.md` para ter a estrutura base
 4. Verificar Warriors existentes para evitar sobreposição de responsabilidades
@@ -80,17 +83,15 @@ Usar o `templates/warrior-sample.md` como base e preencher todas as seções:
 ### Passo 5: Salvamento no Caminho Correto
 
 1. Determinar o Clade e Subclade adequados
-2. Compor o caminho: `framework/{lang}/{clade}/{subclade}/warriors/warrior-{nome}.md`
+2. Se **Destino** for "framework": compor `{paths.framework}/{lang}/{clade}/{subclade}/warriors/warrior-{nome}.md`. Se for "projeto": compor `{paths.project_artifacts}/{lang}/{clade}/{subclade}/warriors/warrior-{nome}.md`
 3. Usar kebab-case para o nome do arquivo (nome do warrior)
 4. Criar diretórios intermediários se necessário
 5. Salvar o artefato no idioma padrão (`language.default`)
 
 ### Passo 6: Criação nos Demais Idiomas
 
-1. Para cada idioma em `language.i18n` (exceto o padrão):
-   - Executar `kata-translate` com o arquivo criado no Passo 5
-   - Ou traduzir diretamente consultando `lex-language-{lang}` e `codex-language-{lang}`
-2. Salvar cada tradução no caminho equivalente sob `framework/{lang}/`
+1. Se **Destino** for "projeto", pode criar apenas no idioma padrão; os demais podem ser gerados ao executar `kata-push-to-framework`.
+2. Se **Destino** for "framework" (ou se optar por todos os idiomas no projeto): para cada idioma em `language.i18n` (exceto o padrão), executar `kata-translate` ou traduzir consultando `lex-language-{lang}` e `codex-language-{lang}`; salvar no caminho equivalente sob `paths.framework/{lang}/` ou `paths.project_artifacts/{lang}/`.
 
 ### Passo 7: Validação Final
 
@@ -109,8 +110,8 @@ Usar o `templates/warrior-sample.md` como base e preencher todas as seções:
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Warrior no idioma padrão | Markdown (`.md`) | `framework/{lang}/{clade}/{subclade}/warriors/warrior-{nome}.md` |
-| Traduções | Markdown (`.md`) | Mesmo caminho em cada `framework/{lang}/` |
+| Warrior no idioma padrão | Markdown (`.md`) | `framework/` ou `.ahrena/artifacts/` conforme Destino |
+| Traduções | Markdown (`.md`) | Mesmo caminho em cada `{lang}/` (obrigatório se framework; opcional se projeto) |
 
 ## Restrições
 

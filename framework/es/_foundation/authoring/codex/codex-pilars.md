@@ -107,6 +107,26 @@ Preguntas de refinamiento:
 - Los nombres de archivo usan el prefijo del Pilar y kebab-case
 - Los términos canónicos (Lexis, Codex, Katas, Warriors, Cries, Clade, Subclade, Pilar) nunca se traducen
 
+### Artefactos en el proyecto (.ahrena)
+
+Los artefactos pueden crearse primero en el **espacio del proyecto** (`.ahrena/artifacts/`), específicos de ese repositorio. Así se puede iterar y validar antes de incorporarlos al framework canónico.
+
+| Aspecto | Proyecto (`.ahrena/artifacts/`) | Framework (`framework/`) |
+|---------|--------------------------------|--------------------------|
+| **Uso** | Específico del proyecto; validación local | Parte del repositorio Ahrena; compartido |
+| **Estructura** | Igual que el framework: `{lang}/{clade}/{subclade}/{pilar}/{prefijo}-{nombre}.md` | `framework/{lang}/{clade}/{subclade}/{pilar}/` |
+| **Idiomas** | Puede existir solo en el idioma por defecto; al hacer Push, se generan los demás si faltan | **DEBE** existir en todos los idiomas de `language.i18n` |
+| **Cuándo crear aquí** | Reglas o procedimientos aún en validación; artefactos que quizá no pasen al framework | Artefactos estables y aprobados para el framework |
+
+**Flujo recomendado:**
+
+1. **Crear en el proyecto:** use los Katas de creación (`kata-create-lexis`, `kata-create-codex`, etc.) con destino **proyecto** — el artefacto se guarda en `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/`.
+2. **Sincronizar con .cursor:** para que la IDE (Cursor) use el artefacto, ejecute `python .ahrena/update.py --sync-cursor` o `make sync-cursor`. El update regenera `.cursor/` a partir de `.ahrena/framework/` y `.ahrena/artifacts/`.
+3. **Validar:** use y ajuste el artefacto en el contexto del proyecto.
+4. **Push al framework:** cuando esté listo para incorporarlo al framework, ejecute `kata-push-to-framework` (o el Cry `cry-push-to-framework`). El procedimiento copia los artefactos de `.ahrena/artifacts/` a `framework/`, garantiza traducciones en los idiomas obligatorios y opcionalmente elimina o mantiene la copia en el proyecto.
+
+La ruta canónica del espacio de proyecto se define en `paths.project_artifacts` en `.ahrena/.directives` (valor por defecto: `.ahrena/artifacts/`).
+
 ## Glosario
 
 | Término | Definición |
@@ -117,6 +137,8 @@ Preguntas de refinamiento:
 | Kit de Creación | Conjunto Codex + Kata + Cry que permite crear nuevos artefactos de un Pilar |
 | Creación dual | Patrón de crear el artefacto canónico (`.md`) y la versión derivada para la IDE |
 | Direccionamiento | Ruta completa de un artefacto en la taxonomía del framework |
+| Artefactos de proyecto | Artefactos creados en `.ahrena/artifacts/`, específicos del repositorio, antes de incorporarse al framework |
+| Push al framework | Procedimiento (kata-push-to-framework) que incorpora artefactos de `.ahrena/artifacts/` a `framework/`, con i18n completo |
 
 ## Referencias
 

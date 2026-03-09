@@ -68,6 +68,35 @@ flowchart TD
     KataCry -->|"usa"| TplCry
 ```
 
+## Criação no projeto (.ahrena) e Push para o framework
+
+Artefatos podem ser criados primeiro no espaço do projeto (`.ahrena/artifacts/`), específicos do repositório. Os Katas de criação aceitam o input **Destino** ("framework" ou "projeto"). Se "projeto", o artefato é salvo em `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/` e pode existir só no idioma padrão. Para que o Cursor use esses artefatos (rules, skills, commands), execute `python .ahrena/update.py --sync-cursor` ou `make sync-cursor` após criar ou editar em `.ahrena/artifacts/`. Depois de validar, o usuário pode incorporar ao framework com `/cry-push-to-framework` ou executando `kata-push-to-framework` (skill disponível em `.cursor/skills/kata-push-to-framework`).
+
+### Fluxo do Push para o Framework
+
+Quando os artefatos são criados no projeto (Destino: projeto), eles ficam em `.ahrena/artifacts/` e podem existir apenas no idioma padrão. O **Push para o framework** é o procedimento que os incorpora ao repositório canônico: o `kata-push-to-framework` (ou o Cry `/cry-push-to-framework`) lê as diretivas, lista os artefatos em `paths.project_artifacts`, copia cada um para `framework/` na mesma estrutura, completa os idiomas obrigatórios (copiando do projeto ou gerando com `kata-translate`) e opcionalmente remove as cópias em `.ahrena/artifacts/`. O diagrama abaixo resume esse fluxo.
+
+```mermaid
+flowchart TD
+    subgraph origem [Espaço do projeto]
+        Art[".ahrena/artifacts/"]
+    end
+
+    Inv["/cry-push-to-framework ou kata-push-to-framework"]
+    P1["1. Ler .directives"]
+    P2["2. Listar artefatos em project_artifacts"]
+    P3["3. Copiar cada artefato para framework/"]
+    P4["4. Completar i18n: copiar do projeto ou kata-translate"]
+    P5["5. Opcional: remover de .ahrena/artifacts/"]
+
+    subgraph destino [Resultado]
+        FW["framework/ com todos os idiomas de language.i18n"]
+    end
+
+    Art --> Inv
+    Inv --> P1 --> P2 --> P3 --> P4 --> P5 --> FW
+```
+
 ## Inventário de Artefatos
 
 ### Codex (conhecimento por Pilar)
@@ -85,11 +114,12 @@ flowchart TD
 
 | Artefato | Descrição |
 |----------|-----------|
-| `kata-create-lexis` | Procedimento para criar uma nova Lexis |
-| `kata-create-codex` | Procedimento para criar um novo Codex |
-| `kata-create-kata` | Procedimento para criar um novo Kata |
-| `kata-create-warrior` | Procedimento para criar um novo Warrior |
-| `kata-create-cry` | Procedimento para criar um novo Cry |
+| `kata-create-lexis` | Procedimento para criar uma nova Lexis (destino: framework ou projeto) |
+| `kata-create-codex` | Procedimento para criar um novo Codex (destino: framework ou projeto) |
+| `kata-create-kata` | Procedimento para criar um novo Kata (destino: framework ou projeto) |
+| `kata-create-warrior` | Procedimento para criar um novo Warrior (destino: framework ou projeto) |
+| `kata-create-cry` | Procedimento para criar um novo Cry (destino: framework ou projeto) |
+| `kata-push-to-framework` | Procedimento para incorporar artefatos de `.ahrena/artifacts/` ao `framework/` (com i18n) |
 
 ### Cries (atalhos de criação)
 
@@ -100,24 +130,31 @@ flowchart TD
 | `cry-new-kata` | Atalho rápido para criar um novo Kata |
 | `cry-new-warrior` | Atalho rápido para criar um novo Warrior |
 | `cry-new-cry` | Atalho rápido para criar um novo Cry |
+| `cry-push-to-framework` | Atalho para incorporar artefatos do projeto ao framework |
 
 ## Como Usar
 
-Criar um novo artefato com um único comando:
+**Criar no framework (padrão):**
 
 ```
 /cry-new-lex
 ```
 
-O agente irá:
-1. Ler o `codex-lexis` para entender a estrutura e boas práticas
-2. Executar o `kata-create-lexis` passo a passo
-3. Usar o template `lex-sample.md` como base
-4. Posicionar o artefato no Clade/Subclade correto
-5. Criar versões em todos os idiomas obrigatórios
+O agente irá: ler o codex do Pilar, executar o kata de criação, usar o template, posicionar no Clade/Subclade correto e criar versões em todos os idiomas obrigatórios.
+
+**Criar no projeto (específico do repositório):**
+
+Ao invocar um kata de criação (ou cry), informe **Destino: projeto**. O artefato será salvo em `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/` e pode existir só no idioma padrão. Depois de validar, incorpore ao framework com:
+
+```
+/cry-push-to-framework
+```
+
+(ou `cry-push-to-framework todos --remove` para incorporar todos e remover do projeto).
 
 ## Referências
 
-- `codex-pilars` — Referência central sobre os Pilares
+- `codex-pilars` — Referência central sobre os Pilares e fluxo de artefatos no projeto (.ahrena) e Push
 - `lex-template-usage` — Lei de uso obrigatório de templates
 - `framework/templates/` — Templates oficiais de cada Pilar
+- `kata-push-to-framework` — Incorporação de artefatos de `.ahrena/artifacts/` ao framework
