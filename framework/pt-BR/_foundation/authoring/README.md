@@ -70,11 +70,17 @@ flowchart TD
 
 ## Criação no projeto (.ahrena) e Push para o framework
 
-Artefatos podem ser criados primeiro no espaço do projeto (`.ahrena/artifacts/`), específicos do repositório. Os Katas de criação aceitam o input **Destino** ("framework" ou "projeto"). Se "projeto", o artefato é salvo em `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/` e pode existir só no idioma padrão. Para que o Cursor use esses artefatos (rules, skills, commands), execute `python .ahrena/update.py --sync-cursor` ou `make sync-cursor` após criar ou editar em `.ahrena/artifacts/`. Depois de validar, o usuário pode incorporar ao framework com `/cry-push-to-framework` ou executando `kata-push-to-framework` (skill disponível em `.cursor/skills/kata-push-to-framework`).
+Artefatos podem ser criados primeiro no espaço do projeto (`.ahrena/artifacts/`), específicos do repositório. Os Katas de criação aceitam o input **Destino** ("framework" ou "projeto"). O fluxo canônico em cinco passos:
 
-### Fluxo do Push para o Framework
+1. **Criar no projeto:** use os Katas de criação com Destino **projeto** — o artefato é salvo em `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/`.
+2. **Sincronizar .cursor local:** execute `python .ahrena/update.py --sync-cursor` (ou `make sync-cursor`) para regerar `.cursor/` a partir de `.ahrena/framework/` e `.ahrena/artifacts/`.
+3. **Validar e comparar (opcional):** use `cry-diff-artifacts --local` para ver diferenças entre `.ahrena/artifacts` e `framework/` local; use `cry-diff-artifacts --remote` para comparar com a versão mais recente do framework no remoto (via MCP do GitHub).
+4. **Push para o framework:** execute `cry-push-to-framework` ou `kata-push-to-framework` com **--local** (cópia para `framework/` no repo atual) ou **--remote** (sincronização com o repositório do framework no GitHub via MCP do GitHub).
+5. **Atualizar instalação:** execute `python .ahrena/update.py` (e opcionalmente `--sync-cursor`) para trazer a versão mais recente do framework.
 
-Quando os artefatos são criados no projeto (Destino: projeto), eles ficam em `.ahrena/artifacts/` e podem existir apenas no idioma padrão. O **Push para o framework** é o procedimento que os incorpora ao repositório canônico: o `kata-push-to-framework` (ou o Cry `/cry-push-to-framework`) lê as diretivas, lista os artefatos em `paths.project_artifacts`, copia cada um para `framework/` na mesma estrutura, completa os idiomas obrigatórios (copiando do projeto ou gerando com `kata-translate`) e opcionalmente remove as cópias em `.ahrena/artifacts/`. O diagrama abaixo resume esse fluxo.
+### Fluxo do Push e do Diff
+
+O **Push** pode ser **--local** (cópia para `framework/` no disco) ou **--remote** (envio ao repositório do framework no GitHub, obrigatoriamente via MCP do GitHub). O **Diff** (`kata-diff-artifacts` / `cry-diff-artifacts`) compara artefatos em modo **--local** (vs framework local) ou **--remote** (vs versão mais recente no remoto, via MCP do GitHub).
 
 ```mermaid
 flowchart TD
@@ -82,19 +88,19 @@ flowchart TD
         Art[".ahrena/artifacts/"]
     end
 
-    Inv["/cry-push-to-framework ou kata-push-to-framework"]
-    P1["1. Ler .directives"]
-    P2["2. Listar artefatos em project_artifacts"]
-    P3["3. Copiar cada artefato para framework/"]
-    P4["4. Completar i18n: copiar do projeto ou kata-translate"]
-    P5["5. Opcional: remover de .ahrena/artifacts/"]
+    Sync["sync-cursor"]
+    Diff["cry-diff-artifacts --local ou --remote"]
+    Push["cry-push-to-framework ou kata-push-to-framework"]
+    Local["Push --local: copiar para framework/"]
+    Remote["Push --remote: MCP GitHub branch push PR"]
+    Update["update.py"]
 
-    subgraph destino [Resultado]
-        FW["framework/ com todos os idiomas de language.i18n"]
-    end
-
-    Art --> Inv
-    Inv --> P1 --> P2 --> P3 --> P4 --> P5 --> FW
+    Art --> Sync --> Diff
+    Diff --> Push
+    Push --> Local
+    Push --> Remote
+    Local --> Update
+    Remote --> Update
 ```
 
 ## Inventário de Artefatos
@@ -119,7 +125,8 @@ flowchart TD
 | `kata-create-kata` | Procedimento para criar um novo Kata (destino: framework ou projeto) |
 | `kata-create-warrior` | Procedimento para criar um novo Warrior (destino: framework ou projeto) |
 | `kata-create-cry` | Procedimento para criar um novo Cry (destino: framework ou projeto) |
-| `kata-push-to-framework` | Procedimento para incorporar artefatos de `.ahrena/artifacts/` ao `framework/` (com i18n) |
+| `kata-push-to-framework` | Procedimento para incorporar artefatos de `.ahrena/artifacts/` ao framework (modo local ou remoto; remoto via MCP do GitHub) |
+| `kata-diff-artifacts` | Procedimento para comparar artefatos do projeto com o framework (modos local e remoto; remoto via MCP do GitHub) |
 
 ### Cries (atalhos de criação)
 
@@ -130,7 +137,8 @@ flowchart TD
 | `cry-new-kata` | Atalho rápido para criar um novo Kata |
 | `cry-new-warrior` | Atalho rápido para criar um novo Warrior |
 | `cry-new-cry` | Atalho rápido para criar um novo Cry |
-| `cry-push-to-framework` | Atalho para incorporar artefatos do projeto ao framework |
+| `cry-push-to-framework` | Atalho para incorporar artefatos do projeto ao framework (--local ou --remote) |
+| `cry-diff-artifacts` | Atalho para comparar artefatos do projeto com o framework (--local ou --remote) |
 
 ## Como Usar
 
@@ -144,13 +152,13 @@ O agente irá: ler o codex do Pilar, executar o kata de criação, usar o templa
 
 **Criar no projeto (específico do repositório):**
 
-Ao invocar um kata de criação (ou cry), informe **Destino: projeto**. O artefato será salvo em `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/` e pode existir só no idioma padrão. Depois de validar, incorpore ao framework com:
+Ao invocar um kata de criação (ou cry), informe **Destino: projeto**. O artefato será salvo em `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/`. Execute `python .ahrena/update.py --sync-cursor` para o Cursor usar o artefato. Opcionalmente, use `cry-diff-artifacts --local` para ver diferenças antes do push. Incorpore ao framework com:
 
 ```
-/cry-push-to-framework
+/cry-push-to-framework --local
 ```
 
-(ou `cry-push-to-framework todos --remove` para incorporar todos e remover do projeto).
+(ou `cry-push-to-framework --remote todos` para enviar ao repositório do framework no GitHub via MCP; ou `--local todos --remove` para incorporar todos no framework local e remover do projeto).
 
 ## Referências
 

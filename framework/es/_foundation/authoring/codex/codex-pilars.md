@@ -121,9 +121,15 @@ Los artefactos pueden crearse primero en el **espacio del proyecto** (`.ahrena/a
 **Flujo recomendado:**
 
 1. **Crear en el proyecto:** use los Katas de creación (`kata-create-lexis`, `kata-create-codex`, etc.) con destino **proyecto** — el artefacto se guarda en `.ahrena/artifacts/{lang}/{clade}/{subclade}/{pilar}/`.
-2. **Sincronizar con .cursor:** para que la IDE (Cursor) use el artefacto, ejecute `python .ahrena/update.py --sync-cursor` o `make sync-cursor`. El update regenera `.cursor/` a partir de `.ahrena/framework/` y `.ahrena/artifacts/`.
-3. **Validar:** use y ajuste el artefacto en el contexto del proyecto.
-4. **Push al framework:** cuando esté listo para incorporarlo al framework, ejecute `kata-push-to-framework` (o el Cry `cry-push-to-framework`). El procedimiento copia los artefactos de `.ahrena/artifacts/` a `framework/`, garantiza traducciones en los idiomas obligatorios y opcionalmente elimina o mantiene la copia en el proyecto.
+2. **Sincronizar .cursor local:** ejecute `python .ahrena/update.py --sync-cursor` (o `make sync-cursor`). El update regenera `.cursor/` a partir de `.ahrena/framework/` y `.ahrena/artifacts/`.
+3. **Validar y comparar (opcional):** use `kata-diff-artifacts --local` para ver diferencias entre `.ahrena/artifacts` y `framework/` local; use `kata-diff-artifacts --remote` para comparar con la versión más reciente del framework en el remoto.
+4. **Push al framework:** ejecute `kata-push-to-framework` (o `cry-push-to-framework`) con **--local** (copia a `framework/` en el repo actual) o **--remote** (sincronización con el repositorio del framework en GitHub).
+5. **Actualizar instalación:** ejecute `python .ahrena/update.py` (y opcionalmente `--sync-cursor`) para traer la versión más reciente del framework.
+
+**Push: modo local y modo remoto**
+
+- **Local:** el repo actual contiene (o tiene acceso a) la carpeta `framework/`. Push = copiar `.ahrena/artifacts/` a `paths.framework`, completar i18n y opcionalmente eliminar del proyecto. No usa red.
+- **Remoto:** en proyecto consumidor, el framework está en GitHub. Push = enviar cambios al repositorio del framework usando **obligatoriamente el MCP de GitHub** (branch, push, apertura de PR). El agente **DEBE** usar las herramientas MCP de GitHub para todas las operaciones remotas.
 
 La ruta canónica del espacio de proyecto se define en `paths.project_artifacts` en `.ahrena/.directives` (valor por defecto: `.ahrena/artifacts/`).
 
@@ -138,7 +144,8 @@ La ruta canónica del espacio de proyecto se define en `paths.project_artifacts`
 | Creación dual | Patrón de crear el artefacto canónico (`.md`) y la versión derivada para la IDE |
 | Direccionamiento | Ruta completa de un artefacto en la taxonomía del framework |
 | Artefactos de proyecto | Artefactos creados en `.ahrena/artifacts/`, específicos del repositorio, antes de incorporarse al framework |
-| Push al framework | Procedimiento (kata-push-to-framework) que incorpora artefactos de `.ahrena/artifacts/` a `framework/`, con i18n completo |
+| Push al framework | Procedimiento (kata-push-to-framework) que incorpora artefactos de `.ahrena/artifacts/` al framework, en modo **local** (copia a `framework/` en el repo) o **remoto** (sincronización con el repositorio del framework en GitHub). |
+| Diff de artefactos | Procedimiento (kata-diff-artifacts) que compara `.ahrena/artifacts` y framework en modo **local** (vs framework local) o **remoto** (vs versión más reciente del framework en el remoto). |
 
 ## Referencias
 

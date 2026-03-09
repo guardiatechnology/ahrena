@@ -18,6 +18,8 @@ paths:
   framework: "framework/"
   # Project-specific artifacts (create here first; push to framework when ready)
   project_artifacts: ".ahrena/artifacts/"
+  # Optional: URL or slug of the framework repo on GitHub (used by kata-push-to-framework and kata-diff-artifacts in --remote mode)
+  # framework_repo: "https://github.com/guardiafinance/ahrena"
   # Destination for OpenAPI/API specifications (create directory if missing)
   oas: "docs/oas"
   # Destination for CloudEvents documentation (create directory if missing)
