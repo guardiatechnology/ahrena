@@ -497,6 +497,16 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     else:
         print(f"  .directives already exists — preserved")
 
+    # 2.5. Copy contributing_templates to .ahrena/contributing_templates/ (preserve if exists)
+    ct_src = ahrena_framework / "templates" / "contributing_templates"
+    ct_dst = ahrena_dir / "contributing_templates"
+    if ct_src.exists():
+        if not ct_dst.exists():
+            shutil.copytree(ct_src, ct_dst)
+            print(f"  Installed contributing_templates to .ahrena/contributing_templates/")
+        else:
+            print(f"  contributing_templates already exist — preserved")
+
     # 3. Copy scripts for future use (install, update, uninstall)
     scripts_src = source_dir / "scripts"
     for script_name in ("install.py", "update.py", "uninstall.py"):
@@ -707,11 +717,12 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 examples:
-  %(prog)s                                           Install .ahrena/ only
-  %(prog)s --platform cursor                         Install .ahrena/ + .cursor/
-  %(prog)s --local --platform cursor                 Install from local source (dev)
+  %(prog)s                                           Install .ahrena/ only (from remote)
+  %(prog)s --platform cursor                         Install .ahrena/ + .cursor/ (remote)
+  %(prog)s --local --platform cursor                 Install from current dir (Ahrena repo root)
+  %(prog)s --source /path/to/ahrena --platform cursor  Install from local clone
   %(prog)s --clades _foundation,documentation        Install only specific clades
-  %(prog)s --version v0.1.0                          Install specific version
+  %(prog)s --version v0.1.0                          Install specific version (remote)
   %(prog)s --language en                             Override default language
   %(prog)s --directives ./my-directives              Use custom directives
   %(prog)s --clean                                   Remove installed files
@@ -748,7 +759,11 @@ examples:
     )
     parser.add_argument(
         "--local", action="store_true",
-        help="use local source directory instead of downloading from GitHub",
+        help="use current directory as source (Ahrena repo root)",
+    )
+    parser.add_argument(
+        "--source", type=Path, metavar="PATH",
+        help="path to local Ahrena repo (use instead of downloading from GitHub)",
     )
     parser.add_argument(
         "--dry-run", action="store_true",
@@ -785,7 +800,12 @@ def main() -> None:
         return
 
     # ── Install mode ──
-    source_label = "LOCAL" if args.local else args.version
+    if args.source is not None:
+        source_label = str(args.source.resolve())
+    elif args.local:
+        source_label = "LOCAL (CWD)"
+    else:
+        source_label = args.version
     print(f"\n  Target:   {target_dir}")
     print(f"  Source:   {source_label}")
     print(f"  Platform: {args.platform or 'none (framework only)'}")
@@ -802,6 +822,17 @@ def main() -> None:
     if args.dry_run:
         print("  [DRY-RUN] Would download and install framework to .ahrena/")
         ahrena_dir = target_dir / ".ahrena"
+    elif args.source is not None:
+        source_dir = Path(args.source).resolve()
+        if not (source_dir / "framework").exists():
+            print(f"\nERROR: 'framework/' not found in {source_dir}")
+            print("--source must point to the Ahrena repository root (containing framework/ and scripts/).")
+            sys.exit(1)
+        if not (source_dir / "scripts").exists():
+            print(f"\nERROR: 'scripts/' not found in {source_dir}")
+            print("--source must point to the Ahrena repository root (containing framework/ and scripts/).")
+            sys.exit(1)
+        ahrena_dir = install_ahrena(source_dir, target_dir, args)
     elif args.local:
         source_dir = Path(".").resolve()
         if not (source_dir / "framework").exists():
