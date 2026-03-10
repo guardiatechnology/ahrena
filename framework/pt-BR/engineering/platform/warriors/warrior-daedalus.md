@@ -60,6 +60,7 @@
 | `codex-idempotency` | Idempotência em APIs e eventos |
 | `codex-error-handling` | Tratamento de erros |
 | `codex-auth` | Autenticação e autorização |
+| `codex-oas-structure` | Ordem das operações em paths OAS (POST, GET, PUT, PATCH, DELETE) |
 
 ### Katas (Procedimentos que executa)
 

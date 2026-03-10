@@ -51,6 +51,7 @@ Progreso:
 5. Consultar **lex-idempotency** y **codex-idempotency** — Idempotency-Key en mutaciones
 6. Consultar **lex-error-handling** y **codex-error-handling** — estructura de errores (code, reason, message)
 7. Consultar **lex-auth** y **codex-auth** — autenticación y autorización (OAuth 2.0, JWT, RBAC)
+8. Consultar **codex-oas-structure** — orden de las operaciones en paths (POST, GET, PUT, PATCH, DELETE)
 
 ### Paso 3: Identificar Recursos y Operaciones
 
@@ -63,7 +64,7 @@ Progreso:
 ### Paso 4: Diseñar Endpoints (paths, métodos, status, headers, payloads)
 
 1. Definir **paths** en formato RESTful: recurso en plural o singular conforme convención del proyecto; identificador por path (ej.: `/v1/transactions/{entity_id}`)
-2. Atribuir **métodos HTTP**: GET (lectura), POST (creación), PATCH o PUT (actualización), DELETE (exclusión lógica cuando aplique)
+2. Atribuir **métodos HTTP**: GET (lectura), POST (creación), PATCH o PUT (actualización), DELETE (exclusión lógica cuando aplique). Ordenar métodos HTTP por path conforme **codex-oas-structure**: POST, GET, PUT, PATCH, DELETE (omitir los no utilizados en el path, manteniendo el orden)
 3. Para cada endpoint, definir **códigos de status** conforme codex-restful-status-codes (ej.: 200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
 4. Definir **headers** obligatorios: Idempotency-Key en mutaciones; X-Grd-Trace-Id cuando aplique; Content-Type, Accept
 5. Definir **payload de request**: cuerpo para POST/PATCH/PUT; parámetros de query para listado (page_size, page_token, order_by, sort)
@@ -82,7 +83,7 @@ Progreso:
 1. Obtener el path canónico **paths.oas** en `.ahrena/.directives`. Garantizar que el directorio exista en la raíz del proyecto; si no existe, crearlo
 2. Generar **fragmento o documento OpenAPI 3.x** en YAML o JSON (conforme input o predeterminado YAML), conteniendo:
    - `openapi: 3.x`
-   - `paths` con cada endpoint, `get`/`post`/`patch`/`put`/`delete`, `parameters` (path, query, header), `requestBody` cuando aplique, `responses` (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
+   - `paths` con cada endpoint; en cada path, listar las operaciones en el orden **codex-oas-structure**: post, get, put, patch, delete; en cada operación: `parameters` (path, query, header), `requestBody` cuando aplique, `responses` (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
    - Componentes de headers globales (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization) conforme codex-restful-headers
    - Schemas de request/response alineados a codex-restful-payload y codex-entities
 3. Nombrar el archivo de forma consistente (ej.: `openapi.yaml`, `api-spec.yaml` o nombre del recurso principal). Guardar en **paths.oas** (crear o actualizar). Si el usuario solicita entrega inline además del archivo, entregar también en el chat
@@ -98,6 +99,7 @@ Antes de entregar el output, verificar:
 - [ ] Autenticación/autorización documentadas conforme lex-auth cuando la API sea protegida
 - [ ] Listados paginados tienen page_size, page_token y estructura pagination en la respuesta
 - [ ] Archivo OpenAPI 3.x está completo (paths, methods, parameters, responses) y sin contradicción con las Lexis
+- [ ] Orden de las operaciones en cada path sigue codex-oas-structure (POST, GET, PUT, PATCH, DELETE)
 - [ ] Archivo fue guardado en el path **paths.oas** (directorio creado si no existía)
 
 ## Outputs
@@ -137,5 +139,5 @@ Payloads y errores conforme codex-restful-payload y codex-entities.
 ## Referencias
 
 - lex-directives, lex-restful-apis, lex-entities, lex-idempotency, lex-error-handling, lex-auth
-- codex-restful-apis, codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting, codex-entities, codex-idempotency, codex-error-handling, codex-auth
+- codex-restful-apis, codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting, codex-entities, codex-idempotency, codex-error-handling, codex-auth, codex-oas-structure
 - [OpenAPI Specification 3.x](https://spec.openapis.org/oas/v3.0.3)

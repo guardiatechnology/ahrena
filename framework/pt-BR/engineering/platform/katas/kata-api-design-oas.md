@@ -51,6 +51,7 @@ Progresso:
 5. Consultar **lex-idempotency** e **codex-idempotency** — Idempotency-Key em mutações
 6. Consultar **lex-error-handling** e **codex-error-handling** — estrutura de erros (code, reason, message)
 7. Consultar **lex-auth** e **codex-auth** — autenticação e autorização (OAuth 2.0, JWT, RBAC)
+8. Consultar **codex-oas-structure** — ordem das operações em paths (POST, GET, PUT, PATCH, DELETE)
 
 ### Passo 3: Identificar Recursos e Operações
 
@@ -63,7 +64,7 @@ Progresso:
 ### Passo 4: Desenhar Endpoints (paths, métodos, status, headers, payloads)
 
 1. Definir **paths** no formato RESTful: recurso em plural ou singular conforme convenção do projeto; identificador por path (ex.: `/v1/transactions/{entity_id}`)
-2. Atribuir **métodos HTTP**: GET (leitura), POST (criação), PATCH ou PUT (atualização), DELETE (exclusão lógica quando aplicável)
+2. Atribuir **métodos HTTP**: GET (leitura), POST (criação), PATCH ou PUT (atualização), DELETE (exclusão lógica quando aplicável). Ordenar métodos HTTP por path conforme **codex-oas-structure**: POST, GET, PUT, PATCH, DELETE (omitir os não utilizados no path, mantendo a ordem)
 3. Para cada endpoint, definir **códigos de status** conforme codex-restful-status-codes (ex.: 200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
 4. Definir **headers** obrigatórios: Idempotency-Key em mutações; X-Grd-Trace-Id quando aplicável; Content-Type, Accept
 5. Definir **payload de request**: corpo para POST/PATCH/PUT; parâmetros de query para listagem (page_size, page_token, order_by, sort)
@@ -82,7 +83,7 @@ Progresso:
 1. Obter o path canônico **paths.oas** em `.ahrena/.directives`. Garantir que o diretório exista na raiz do projeto; se não existir, criá-lo
 2. Gerar **fragmento ou documento OpenAPI 3.x** em YAML ou JSON (conforme input ou padrão YAML), contendo:
    - `openapi: 3.x`
-   - `paths` com cada endpoint, `get`/`post`/`patch`/`put`/`delete`, `parameters` (path, query, header), `requestBody` quando aplicável, `responses` (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
+   - `paths` com cada endpoint; em cada path, listar as operações na ordem **codex-oas-structure**: post, get, put, patch, delete; em cada operação: `parameters` (path, query, header), `requestBody` quando aplicável, `responses` (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
    - Componentes de headers globais (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization) conforme codex-restful-headers
    - Schemas de request/response alinhados a codex-restful-payload e codex-entities
 3. Nomear o arquivo de forma consistente (ex.: `openapi.yaml`, `api-spec.yaml` ou nome do recurso principal). Salvar em **paths.oas** (criar ou atualizar). Se o usuário solicitar entrega inline além do arquivo, entregar também no chat
@@ -98,6 +99,7 @@ Antes de entregar o output, verificar:
 - [ ] Autenticação/autorização documentadas conforme lex-auth quando a API for protegida
 - [ ] Listagens paginadas têm page_size, page_token e estrutura pagination na resposta
 - [ ] Arquivo OpenAPI 3.x está completo (paths, methods, parameters, responses) e sem contradição com as Lexis
+- [ ] Ordem das operações em cada path segue codex-oas-structure (POST, GET, PUT, PATCH, DELETE)
 - [ ] Arquivo foi salvo no path **paths.oas** (diretório criado se não existia)
 
 ## Outputs
@@ -137,5 +139,5 @@ Payloads e erros conforme codex-restful-payload e codex-entities.
 ## Referências
 
 - lex-directives, lex-restful-apis, lex-entities, lex-idempotency, lex-error-handling, lex-auth
-- codex-restful-apis, codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting, codex-entities, codex-idempotency, codex-error-handling, codex-auth
+- codex-restful-apis, codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting, codex-entities, codex-idempotency, codex-error-handling, codex-auth, codex-oas-structure
 - [OpenAPI Specification 3.x](https://spec.openapis.org/oas/v3.0.3)
