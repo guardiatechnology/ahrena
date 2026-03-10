@@ -52,8 +52,10 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 examples:
-  %(prog)s                                  Update to latest version
-  %(prog)s --version v0.2.0                 Update to specific version
+  %(prog)s                                  Update from remote (default)
+  %(prog)s --version v0.2.0                 Update to specific version (remote)
+  %(prog)s --local                          Update from current directory (local repo)
+  %(prog)s --source /path/to/ahrena         Update from local clone
   %(prog)s --clades _foundation,docs        Override saved clade selection
   %(prog)s --dry-run                        Preview without changes
   %(prog)s --sync-cursor                    Only regenerate .cursor/ from .ahrena/framework/ and .ahrena/artifacts/
@@ -71,6 +73,14 @@ examples:
     parser.add_argument(
         "--repo", default=DEFAULT_REPO,
         help=f"GitHub repository URL (default: {DEFAULT_REPO})",
+    )
+    parser.add_argument(
+        "--local", action="store_true",
+        help="update from current directory (Ahrena repo root)",
+    )
+    parser.add_argument(
+        "--source", type=Path, metavar="PATH",
+        help="update from local Ahrena repo at PATH",
     )
     parser.add_argument(
         "--clades",
@@ -128,21 +138,31 @@ examples:
     platform = detect_platform(target)
     clades = args.clades or detect_clades(target)
 
+    use_local = args.local or args.source is not None
+
     print("Ahrena: AI-First Capability Framework — Updater")
     print("=" * 52)
     print(f"\n  Target:   {target}")
-    print(f"  Version:  {args.version}")
+    if use_local:
+        if args.source is not None:
+            print(f"  Source:   {Path(args.source).resolve()}")
+        else:
+            print(f"  Source:   local (CWD)")
+    else:
+        print(f"  Version:  {args.version}")
     print(f"  Platform: {platform or 'none (framework only)'}")
     if clades:
         print(f"  Clades:   {clades}")
     print()
 
-    cmd = [
-        sys.executable, str(install_py),
-        "--target", str(target),
-        "--version", args.version,
-        "--repo", args.repo,
-    ]
+    cmd = [sys.executable, str(install_py), "--target", str(target)]
+    if use_local:
+        if args.source is not None:
+            cmd.extend(["--source", str(Path(args.source).resolve())])
+        else:
+            cmd.append("--local")
+    else:
+        cmd.extend(["--version", args.version, "--repo", args.repo])
     if platform:
         cmd.extend(["--platform", platform])
     if clades:

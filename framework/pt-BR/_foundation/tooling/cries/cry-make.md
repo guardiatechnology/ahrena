@@ -2,7 +2,11 @@
 
 > **Prefixo:** `cry-` | **Tipo:** Comando Recorrente | **Escopo:** Execução de targets do Makefile do repositório Ahrena
 
-## Invocação
+## Descrição
+
+Comando rápido para executar um target do Makefile na raiz do repositório Ahrena. O Cry **escolhe o Kata** com base no target informado pelo usuário e delega a execução. Consulta `codex-make` para variáveis e equivalência sem Make.
+
+## Uso
 
 ```
 /cry-make <target> [variáveis]
@@ -12,48 +16,92 @@
 
 | Parâmetro | Obrigatório | Descrição | Exemplo |
 |-----------|:-----------:|-----------|---------|
-| `target` | Sim | Target do Makefile a executar | `install`, `bootstrap`, `clean` |
-| `variáveis` | Não | Variáveis de ambiente para o make | `PLATFORM=cursor VERSION=1.0.0` |
+| `target` | Sim | Target do Makefile a executar | `install`, `update`, `dev-install`, `bootstrap` |
+| `variáveis` | Não | Variáveis para o make (formato `NOME=valor`) | `PLATFORM=cursor`, `SOURCE=../ahrena`, `LOCAL=1` |
 
-## Targets Disponíveis
+Para a lista completa de targets e variáveis, consulte `codex-make`.
 
-| Target | Descrição |
-|--------|-----------|
-| `bootstrap` | Configura o ambiente de desenvolvimento |
-| `install` | Instala o framework na plataforma especificada |
-| `update` | Atualiza uma instalação existente |
-| `uninstall` | Remove a instalação do framework |
-| `clean` | Limpa artefatos temporários |
+## Despacho por target
 
-## Exemplos de Uso
+| Target | Kata executado |
+|--------|----------------|
+| `install` | `kata-make-install-framework` |
+| `update` | `kata-make-update-framework` |
+| `dev-install` | `kata-make-dev-install-framework` |
+| `bootstrap` | `kata-make-bootstrap-framework` |
+| `sync-cursor` | `kata-make-sync-cursor` |
+| `uninstall` | `kata-make-uninstall-framework` |
+| `clean` | `kata-make-clean-framework` |
+
+Targets não listados acima são inválidos para este Cry; informe o usuário e liste os targets válidos.
+
+## O que o Comando Faz
+
+1. Valida o target com base na tabela acima (targets do `codex-make`)
+2. Se o target for inválido: informe o usuário e liste os targets válidos; não execute kata
+3. Com base no target válido, escolhe o Kata correspondente (tabela acima)
+4. Executa o Kata escolhido com as variáveis fornecidas
+5. O Kata verifica o ambiente, executa `make` ou o equivalente (conforme codex-make) e reporta o resultado
+6. Apresenta a saída ao usuário ou o erro com sugestão de correção
+
+## Prompt Template
 
 ```
-# Instalar para Cursor
+Contexto:
+- Target: {{target}}
+- Variáveis: {{variáveis}} (opcional)
+
+Tarefa:
+Com base no target solicitado, execute o Kata correspondente:
+- install → kata-make-install-framework
+- update → kata-make-update-framework
+- dev-install → kata-make-dev-install-framework
+- bootstrap → kata-make-bootstrap-framework
+- sync-cursor → kata-make-sync-cursor
+- uninstall → kata-make-uninstall-framework
+- clean → kata-make-clean-framework
+- target não listado acima → informe target inválido e liste os targets válidos (não execute kata)
+
+Consulte codex-make para variáveis válidas e equivalência sem Make quando
+make não estiver disponível. Reporte a saída do comando ou o erro com
+sugestão de correção.
+
+Formato de saída:
+Saída do comando executado ou mensagem de erro com indicação de como corrigir.
+```
+
+## Exemplo de Invocação
+
+**Instalar para Cursor:**
+
+```
 /cry-make install PLATFORM=cursor
-
-# Bootstrap do ambiente
-/cry-make bootstrap
-
-# Limpar artefatos
-/cry-make clean
-
-# Instalar versão específica
-/cry-make install PLATFORM=cursor VERSION=1.0.0
 ```
 
-## Comportamento
+**Output esperado:** saída do `make install PLATFORM=cursor` (ou do comando equivalente em PowerShell, se make não estiver disponível).
 
-1. Verifica que o `Makefile` existe na raiz do repositório
-2. Valida que o target solicitado existe
-3. Executa `make <target> [variáveis]`
-4. Reporta a saída do comando ao usuário
-5. Se o comando falhar, apresenta o erro e sugere correção
+**Atualizar a partir de local:**
 
-## Nota
+```
+/cry-make update LOCAL=1
+```
 
-Este Cry é **específico do repositório Ahrena** — ele não é um artefato genérico do framework. Ele existe para facilitar a execução de tarefas de desenvolvimento e manutenção dentro do próprio projeto do Ahrena.
+## Diferença de Kata
+
+| Aspecto | Cry | Kata |
+|---------|-----|------|
+| **Natureza** | Ponto de entrada; decide qual Kata executar conforme o target; targets inválidos → mensagem e lista | Procedimento específico por target (install, update, dev-install, bootstrap, sync-cursor, uninstall, clean) |
+| **Parâmetros** | Mínimos (target + variáveis opcionais) | Variáveis processadas; consulta ao codex-make |
+| **Conteúdo** | Não contém tabelas de referência; apenas a tabela de despacho | Não duplica tabelas; remete ao codex-make |
 
 ## Referências
 
-- `Makefile` — Arquivo de automação na raiz do repositório
-- [GNU Make Manual](https://www.gnu.org/software/make/manual/)
+- `kata-make-install-framework` — Instalação do framework (target `install`)
+- `kata-make-update-framework` — Atualização (target `update`)
+- `kata-make-dev-install-framework` — Instalação a partir do desenvolvimento (target `dev-install`)
+- `kata-make-bootstrap-framework` — Primeira instalação (target `bootstrap`)
+- `kata-make-sync-cursor` — Regenerar .cursor/ (target `sync-cursor`)
+- `kata-make-uninstall-framework` — Desinstalar (target `uninstall`)
+- `kata-make-clean-framework` — Limpar sem confirmação (target `clean`)
+- `codex-make` — Variáveis, targets e equivalência sem Make
+- `Makefile` — Arquivo na raiz do repositório

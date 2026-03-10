@@ -61,7 +61,9 @@ curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/inst
 |------|------------|
 | `--platform cursor` | Gerar `.cursor/` (rules, skills, commands, agents) |
 | `--clades X,Y` | Instalar apenas clades especificados (ex.: `_foundation,documentation`) |
-| `--version v0.1.0` | Versão específica (tag ou branch) |
+| `--version v0.1.0` | Versão específica (tag ou branch) — instalação remota |
+| `--local` | Usar o diretório atual como fonte (executar na raiz do repo Ahrena) |
+| `--source PATH` | Usar clone local do Ahrena em PATH em vez de baixar do GitHub |
 | `--language en` | Sobrescrever idioma padrão no `.directives` |
 | `--directives PATH` | Usar `.directives` customizado (caminho local ou URL) |
 | `--target PATH` | Instalar em outro diretório |
@@ -74,10 +76,25 @@ Quando `--clades` é usado, a seleção é salva em `.ahrena/.installed-clades` 
 
 | Ação | Makefile | Script direto |
 |------|----------|----------------|
-| **Atualizar** | `make update` ou `make update VERSION=v0.2.0` | `python .ahrena/update.py` |
+| **Atualizar (remoto)** | `make update` ou `make update VERSION=v0.2.0` | `python .ahrena/update.py` |
+| **Atualizar (local)** | `make update LOCAL=1` ou `make update SOURCE=../ahrena` | `python .ahrena/update.py --local` ou `--source C:\path\to\ahrena` |
 | **Desinstalar** | `make uninstall` | `python .ahrena/uninstall.py` (ou `--force` sem confirmação) |
 
-**Desenvolvimento local (contribuidores):** `make dev-install PLATFORM=cursor` — usa os fontes locais de `framework/` em vez de baixar do GitHub.
+**Padrão:** instalação e atualização são do **remoto** (GitHub). Para fonte local use `--local` / `--source` ou no Makefile `LOCAL=1` / `SOURCE=...`.
+
+**Desenvolvimento local (contribuidores):** `make dev-install PLATFORM=cursor` — instala a partir do diretório atual (raiz do repo Ahrena). Para trazer o mais recente do ambiente de desenvolvimento, use `make update LOCAL=1` ou `make update SOURCE=...` no projeto instalado.
+
+### Equivalência sem Make (Windows)
+
+Se `make` não estiver disponível, use os scripts em PowerShell:
+
+| Ação | Comando |
+|------|---------|
+| Instalação remota + Cursor | `python .ahrena/install.py --target . --version main --repo https://github.com/guardiafinance/ahrena --platform cursor` |
+| Instalação local (no repo Ahrena) | `python scripts/install.py --local --target . --platform cursor` |
+| Instalação local (path) | `python .ahrena/install.py --target . --source C:\path\to\ahrena --platform cursor` |
+| Atualização remota | `python .ahrena/update.py --target .` |
+| Atualização local | `python .ahrena/update.py --target . --local` ou `--source C:\path\to\ahrena` |
 
 ### O que é instalado
 
