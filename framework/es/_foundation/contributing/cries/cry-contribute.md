@@ -96,6 +96,10 @@ Comportamiento:
 /cry-contribute discuss
 ```
 
+## Delegación a los cries por tipo
+
+Para flujo guiado por tipo, el usuario puede invocar directamente el cry correspondiente: **cry-new-feature-request**, **cry-new-epic**, **cry-new-user-story-api**, **cry-new-user-story-frontend** (issues), **cry-new-pr** (PR), **cry-new-discuss** (discusión). El `cry-contribute` puede delegar en esos cries cuando el usuario elija una acción/tipo concreta (p. ej. `cry-contribute issue` → preguntar el tipo y delegar en el cry-new-* correspondiente, o invocar `kata-contributing-issue` con el tipo).
+
 ## Reglas
 
 - Las blank issues están deshabilitadas — toda issue DEBE utilizar un template
@@ -103,15 +107,19 @@ Comportamiento:
 - Los PRs DEBEN seguir todas las 4 Lexis de commit
 - El título del PR DEBE seguir Conventional Commits en inglés
 
-## Kata Asociado
+## Katas Asociados
 
-`kata-contribute` — Procedimiento completo para contribuir mediante Pull Request
+- `kata-contribute` — Procedimiento completo para contribuir vía Pull Request (acción `pr`)
+- `kata-contributing-issue` — Procedimiento para abrir issue (acciones de issue; invocado por los cries cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend)
+- `kata-contributing-pr` — Procedimiento para PR (invocado por cry-new-pr)
+- `kata-contributing-discuss` — Procedimiento para discusión (acción `discuss`; invocado por cry-new-discuss)
 
 ## Referencias
 
 - `codex-contributing` — Flujo de contribución Guardia
 - `kata-commit` — Procedimiento de commit (invocado por `pr`)
-- `kata-contribute` — Procedimiento para contribuir vía PR
+- `kata-contribute`, `kata-contributing-pr`, `kata-contributing-issue`, `kata-contributing-discuss` — Katas de contribución
+- Cries por tipo: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-pr, cry-new-discuss
 - `lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language` — Lexis de commit
-- `.github/ISSUE_TEMPLATE/` — Templates de issue del repositorio
-- `.github/pull_request_template.md` — Template de PR del repositorio
+- `.ahrena/contributing_templates/` — Plantillas de issue y PR (tras el install)
+- `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` — Respaldo cuando .ahrena no exista

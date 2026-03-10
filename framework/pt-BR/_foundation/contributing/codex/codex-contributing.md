@@ -4,7 +4,7 @@
 
 ## Visão Geral
 
-Este Codex documenta o fluxo de contribuição da Guardia, desde a proposta inicial até o merge. O processo é único para todos os contribuidores (internos e externos), garantindo transparência e rastreabilidade. É consultado pelo `kata-contribute` durante o fluxo de submissão.
+Este Codex documenta o fluxo de contribuição da Guardia, desde a proposta inicial até o merge. O processo é único para todos os contribuidores (internos e externos), garantindo transparência e rastreabilidade. É consultado pelos katas de contribuição (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) e pelo `kata-contribute` durante o fluxo de submissão.
 
 ## Contexto
 
@@ -36,6 +36,22 @@ Este Codex documenta o fluxo de contribuição da Guardia, desde a proposta inic
 ```
 
 Para correções triviais (typos, formatação), os passos 1 e 2 podem ser omitidos (abrir PR direto com referência ao problema).
+
+### Contribuição por tipo
+
+Os templates de contribuição (issue e PR) ficam em **`.ahrena/contributing_templates/`** (5 arquivos .md), instalados pelo setup do Ahrena a partir de `framework/templates/contributing_templates/` e preservados se já existirem. Os **3 katas** (issue, PR, discussão) orientam o uso do **MCP do GitHub** (ou servidor equivalente) para criar issues, PRs e discussões; fallback para `gh` CLI quando o MCP não estiver disponível.
+
+| Tipo                  | Kata                          | Cry (um por tipo)           | Template (em .ahrena/contributing_templates/)     |
+| --------------------- | ----------------------------- | --------------------------- | ------------------------------------------------- |
+| Feature Request       | kata-contributing-issue       | cry-new-feature-request     | `feature-request.md`                              |
+| Epic                  | kata-contributing-issue       | cry-new-epic                | `epic.md`                                         |
+| User Story (API)      | kata-contributing-issue       | cry-new-user-story-api      | `user-story-for-api.md`                           |
+| User Story (Frontend) | kata-contributing-issue       | cry-new-user-story-frontend | `user-story-for-frontend.md`                      |
+| Pull Request          | kata-contributing-pr          | cry-new-pr                  | `pull_request_template.md`                        |
+| Discussão             | kata-contributing-discuss     | cry-new-discuss             | (Golden Circle; sem .md)                          |
+
+- **Cry genérico:** `cry-contribute` — para contribuições genéricas; pode delegar aos cries por tipo ou perguntar qual tipo.
+- **Referências:** os 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) e os 6 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-pr`, `cry-new-discuss`).
 
 ### Padrões e Convenções
 
@@ -87,3 +103,5 @@ Para correções triviais (typos, formatação), os passos 1 e 2 podem ser omiti
 - `lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language` — Lexis de commit
 - `codex-commit-standards` — Standards de mensagem de commit
 - `kata-contribute` — Procedimento para contribuir via PR
+- `kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss` — Katas por tipo de contribuição
+- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-pr, cry-new-discuss
