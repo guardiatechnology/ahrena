@@ -4,7 +4,7 @@
 
 ## Visão Geral
 
-Este Codex documenta como projetar procedimentos estruturados eficazes no Ahrena. Aborda decomposição de tarefas, design de inputs e outputs, critérios de validação e quando usar Kata vs Cry. É consultado pelo `kata-create-kata` durante a criação de novos Katas.
+Este Codex documenta como projetar procedimentos estruturados eficazes no Ahrena. Aborda decomposição de tarefas, design de inputs e outputs, critérios de validação e quando usar Kata vs Cry. É consultado pelo `kata-create-kata` durante a criação de novos Katas. O kata usa este Codex no **Passo 1** (leitura dos critérios) e no **Passo 3** (redação das seções); a **Validação Final** do Kata verifica as Restrições Técnicas e a Anatomia descritas abaixo.
 
 ## Contexto
 
@@ -20,6 +20,7 @@ Este Codex documenta como projetar procedimentos estruturados eficazes no Ahrena
 2. **Progressividade:** Cada passo deve ser verificável antes de avançar para o próximo. Se um passo falha, deve ser possível corrigir sem recomeçar do zero.
 3. **Completude:** O Kata deve cobrir o fluxo inteiro — do input ao output validado. Não deve depender de conhecimento implícito.
 4. **Atomicidade dos passos:** Cada passo executa uma única ação bem definida. Se um passo faz duas coisas, divida-o.
+5. **Aplicação de Lexis e Codex:** Um Kata aplica Lexis (obedece às leis) e consulta Codex (usa o conhecimento de domínio). O Kata não contém lógica que contradiga Lexis nem ignora Codex aplicável ao seu escopo.
 
 ### Anatomia de um Bom Kata
 
@@ -99,9 +100,10 @@ A validação final é o último passo de todo Kata. Deve incluir:
 
 ### Restrições Técnicas
 
-- Todo Kata deve ter um checklist de progresso no início do Workflow
-- A seção "Validação Final" deve ser o último passo e conter checkboxes
-- O nome do arquivo deve seguir o padrão `kata-{nome-descritivo}.md`
+- Todo Kata deve ter um **checklist de progresso** no início do Workflow (checkboxes `- [ ]` por passo)
+- O **último passo** do Workflow deve ser "Validação Final" (ou equivalente) e conter checkboxes verificáveis
+- O nome do arquivo deve usar o prefixo definido em `naming.prefixes.katas` (consultar `.ahrena/.directives`) e kebab-case: `{prefixo}-{nome-descritivo}.md`
+- A estrutura deve seguir o template oficial: consultar `paths.samples.katas` em `.directives` (ex.: `templates/kata-sample.md`)
 - Inputs obrigatórios devem ser validados no primeiro passo
 
 ## Glossário
@@ -115,8 +117,10 @@ A validação final é o último passo de todo Kata. Deve incluir:
 
 ## Referências
 
-- `codex-pilars` — Visão geral do sistema de Pilares
+- `lex-pilars` — Lei que define canonicamente os Pilares; Kata aplica Lexis e consulta Codex
+- `codex-pilars` — Visão do sistema de Pilares e checklists de validação (seção Validação de artefatos)
+- `lex-directives` — Consulta obrigatória ao `.ahrena/.directives` (paths, naming.prefixes)
 - `codex-cries` — Manual sobre Cries (para entender a diferença Kata vs Cry)
 - `lex-template-usage` — Lei de uso obrigatório de templates
-- `kata-create-kata` — Procedimento para criar novos Katas
-- `templates/kata-sample.md` — Template oficial de Katas
+- `kata-create-kata` — Procedimento para criar novos Katas (consulta este Codex nos passos 1 e 3)
+- `paths.samples.katas` em `.directives` — Caminho do template oficial (ex.: `templates/kata-sample.md`)

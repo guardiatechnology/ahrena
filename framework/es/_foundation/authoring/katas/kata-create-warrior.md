@@ -103,7 +103,7 @@ Usar `templates/warrior-sample.md` como base y completar todas las secciones:
 - [ ] El ejemplo de interacción tiene input y output completos
 - [ ] El archivo está guardado en la ruta correcta de la taxonomía
 - [ ] Existen versiones en todos los idiomas de `language.i18n`
-- [ ] El nombre del archivo usa el prefijo `warrior-` y kebab-case
+- [ ] El nombre del archivo usa el prefijo del Pilar definido en `naming.prefixes.warriors` (consultar `.directives`) y kebab-case
 
 ## Outputs
 
@@ -122,6 +122,8 @@ Usar `templates/warrior-sample.md` como base y completar todas las secciones:
 
 ## Referencias
 
+- `lex-pilars` — Definición canónica de los Pilares; validar artefacto producido
+- `codex-pilars` — Lista de validación para Warriors (sección Validación de artefatos)
 - `codex-warriors` — Criterios de calidad para Warriors
 - `codex-pilars` — Visión general del sistema de Pilares
 - `lex-template-usage` — Ley de uso obligatorio de templates

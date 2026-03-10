@@ -94,7 +94,7 @@ Use `templates/codex-sample.md` as a base and fill in all sections:
 - [ ] The Glossary defines terms in the context of this Codex
 - [ ] The file is saved in the correct taxonomy path
 - [ ] Versions exist in all languages from `language.i18n`
-- [ ] The file name uses the `codex-` prefix and kebab-case
+- [ ] The file name uses the Pilar prefix defined in `naming.prefixes.codex` (consult `.directives`) and kebab-case
 
 ## Outputs
 
@@ -112,6 +112,8 @@ Use `templates/codex-sample.md` as a base and fill in all sections:
 
 ## References
 
+- `lex-pilars` — Canonical definition of the Pilars; validate produced artifact
+- `codex-pilars` — Validation checklist for Codex (Artifact validation section)
 - `codex-codex` — Quality criteria for Codex
 - `codex-pilars` — Overview of the Pilar system
 - `lex-template-usage` — Mandatory template usage law

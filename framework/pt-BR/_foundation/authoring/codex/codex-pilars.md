@@ -1,30 +1,30 @@
 # Codex: Sistema de Pilares do Ahrena
 
-> **Prefixo:** `codex-` | **Tipo:** Manual de Referência | **Escopo:** Criação e evolução de artefatos do framework
+> **Prefixo:** `codex-` | **Tipo:** Manual de Referência | **Escopo:** Criação, validação e evolução de artefatos do framework
 
 ## Visão Geral
 
-Este Codex é a referência central sobre o sistema de Pilares do Ahrena. Descreve a natureza de cada Pilar, como se relacionam entre si, e como o framework utiliza seus próprios artefatos para evoluir — o conceito de autossuficiência.
+Este Codex é a referência central sobre o sistema de Pilares do Ahrena. Descreve a natureza de cada Pilar, como se relacionam entre si, como validar artefatos e como o framework utiliza seus próprios artefatos para evoluir — o conceito de autossuficiência. Operacionaliza a `lex-pilars` com critérios verificáveis e checklists de validação por Pilar. Para documentação detalhada de cada Pilar (como escrever bem, critérios de qualidade), consulte os Codex específicos: `codex-lexis`, `codex-codex`, `codex-katas`, `codex-warriors`, `codex-cries`.
 
 ## Contexto
 
-- **Domínio:** Taxonomia e arquitetura do framework Ahrena
-- **Público-alvo:** Agentes de IA e mantenedores do framework
-- **Atualização:** Sempre que um novo Pilar for criado ou as relações entre Pilares mudarem
+- **Domínio:** Taxonomia, arquitetura e validação do framework Ahrena
+- **Público-alvo:** Agentes de IA que criam ou validam artefatos; mantenedores do framework; revisores de PR
+- **Atualização:** Sempre que um novo Pilar for criado, as relações entre Pilares mudarem ou a `lex-pilars` for alterada
 
 ## Conteúdo
 
 ### Os Cinco Pilares
 
-O Ahrena organiza todo conhecimento em cinco Pilares, cada um com um papel distinto:
+O Ahrena organiza todo conhecimento em cinco Pilares, cada um com um papel distinto. O prefixo de cada Pilar é o valor definido em `naming.prefixes` em `.ahrena/.directives` (chaves: `lexis`, `codex`, `katas`, `warriors`, `cries`); quem define é o usuário ou o projeto.
 
-| Pilar | Prefixo | Natureza | Pergunta que responde |
-|-------|---------|----------|----------------------|
-| **Lexis** | `lex-` | Lei inquebável | "O que é proibido ou obrigatório?" |
-| **Codex** | `codex-` | Manual de referência | "O que preciso saber sobre este domínio?" |
-| **Katas** | `kata-` | Procedimento repetível | "Como executo esta tarefa passo a passo?" |
-| **Warriors** | `warrior-` | Agente especializado | "Quem é responsável por este domínio?" |
-| **Cries** | `cry-` | Comando recorrente | "Como invoco esta ação rapidamente?" |
+| Pilar | Chave em naming.prefixes | Natureza | Pergunta que responde |
+|-------|--------------------------|----------|----------------------|
+| **Lexis** | `lexis` | Lei inquebrável | "O que é proibido ou obrigatório?" |
+| **Codex** | `codex` | Manual de referência | "O que preciso saber sobre este domínio?" |
+| **Katas** | `katas` | Procedimento repetível | "Como executo esta tarefa passo a passo?" |
+| **Warriors** | `warriors` | Agente especializado | "Quem é responsável por este domínio?" |
+| **Cries** | `cries` | Comando recorrente | "Como invoco esta ação rapidamente?" |
 
 ### Hierarquia de Autoridade
 
@@ -55,6 +55,14 @@ Cada Pilar pode referenciar artefatos de outros Pilares:
 | Katas | Lexis, Codex | Warriors, Cries |
 | Warriors | Lexis, Codex, Katas | Cries |
 | Cries | Katas, Warriors | — |
+
+**Regras de invocação (resumo):**
+
+| De (quem invoca) | Pode invocar / acessar |
+|------------------|-------------------------|
+| Cry | Apenas Kata(s) e/ou Warrior(s) |
+| Warrior | Kata(s); pode consultar Lexis e Codex |
+| Kata | Nenhum artefato como "invocação"; aplica Lexis e consulta Codex |
 
 ### Kit de Criação
 
@@ -94,18 +102,114 @@ Perguntas de refinamento:
 
 | Aspecto | Padrão | Exemplo |
 |---------|--------|---------|
-| Nomenclatura de arquivo | `{prefixo}-{nome}.md` | `lex-no-secrets.md` |
+| Nomenclatura de arquivo | `{prefixo}-{nome}.md` (prefixo em `naming.prefixes`) | Conforme `.directives` |
 | Casing | kebab-case | `codex-framework-language.md` |
 | Endereçamento | `{lang}/{clade}/{subclade}/{pilar}/{arquivo}` | `pt-BR/engineering/quality/lexis/lex-code-review.md` |
 | Criação dual | framework (`.md`) + IDE (formato da plataforma) | `.md` + `.mdc` (Cursor) |
 
 ### Restrições Técnicas
 
-- Todo artefato **DEVE** seguir o template oficial do seu Pilar (`templates/{pilar}-sample.md`)
+- Todo artefato **DEVE** seguir o template oficial do seu Pilar (`paths.samples` em `.directives`)
 - Todo artefato **DEVE** existir nos idiomas definidos em `language.i18n`
 - O idioma padrão (`language.default`) é a fonte da verdade
-- Nomes de arquivo usam o prefixo do Pilar e kebab-case
+- Nomes de arquivo usam o prefixo do Pilar definido em `naming.prefixes` e kebab-case
 - Termos canônicos (Lexis, Codex, Katas, Warriors, Cries, Clade, Subclade, Pilar) nunca são traduzidos
+
+---
+
+### Validação de artefatos
+
+Consulte sempre a `lex-pilars` como Lei; os critérios abaixo operacionalizam a validação.
+
+**Como validar:**
+
+1. **Identificar o Pilar pretendido** do artefato (pelo nome, diretório ou declaração do autor).
+2. **Consultar a `lex-pilars`** para as regras inquebráveis daquele Pilar.
+3. **Aplicar o checklist** abaixo para o Pilar correspondente.
+4. **Verificar relações de invocação:** se o artefato for um Cry, confirmar que ele só invoca Kata(s) e/ou Warrior(s); se for um Kata, confirmar que aplica Lexis e Codex; se for um Warrior, confirmar que orquestra Katas.
+
+#### Lexis
+
+**Definição em uma frase:** Lexis é lei inquebrável que governa o framework; não admite exceção.
+
+| Critério | Obrigatório |
+|----------|-------------|
+| Nome do arquivo usa o prefixo definido em `naming.prefixes.lexis` (consultar `.directives`) e kebab-case | Sim |
+| Contém seção **Lei** com declaração imperativa (DEVE/NÃO PODE) | Sim |
+| Contém seção **Abrangência** e **Exceções: Nenhuma** (ou equivalente) | Sim |
+| Estrutura segue o template oficial (paths.samples.lexis) | Sim |
+| Não é invocada por Cry como "ação" — Cry invoca Kata/Warrior que consultam Lexis | Sim |
+
+**Não-conformidade:** Arquivo de Lexis que descreve recomendação em vez de obrigação; Lexis com cláusula de exceção; Cry cujo fluxo inclui "invocar" ou "executar" uma Lexis diretamente.
+
+**Exemplo válido:** `lex-directives` — declara que todo agente DEVE ler `.ahrena/.directives`; sem exceções; consultada por outros artefatos, não invocada por Cry.
+
+#### Codex
+
+**Definição em uma frase:** Codex é manual de referência que organiza conhecimento para orientar decisões; é consultado, não executado.
+
+| Critério | Obrigatório |
+|----------|-------------|
+| Nome do arquivo usa o prefixo definido em `naming.prefixes.codex` (consultar `.directives`) e kebab-case | Sim |
+| Contém **Visão Geral**, **Contexto** e **Conteúdo** (ou equivalente ao template) | Sim |
+| Natureza é referência/consulta; não descreve procedimento de execução passo a passo como foco principal | Sim |
+| Estrutura segue o template oficial (paths.samples.codex) | Sim |
+| Não é invocado por Cry como "ação" — Cry invoca Kata/Warrior que consultam Codex | Sim |
+
+**Não-conformidade:** Artefato de Codex que é na prática um procedimento numerado (deveria ser Kata); Cry que "lê" ou "aplica" um Codex diretamente como única ação, em vez de invocar um Kata/Warrior.
+
+**Exemplo válido:** `codex-lexis` — manual de como escrever boas Lexis; consultado por `kata-create-lexis`; não é invocado por Cry.
+
+#### Katas
+
+**Definição em uma frase:** Kata é procedimento repetível que aplica Lexis e consulta Codex para executar uma tarefa com entradas, passos e saídas definidos.
+
+| Critério | Obrigatório |
+|----------|-------------|
+| Nome do arquivo usa o prefixo definido em `naming.prefixes.katas` (consultar `.directives`) e kebab-case | Sim |
+| Contém objetivo, contexto de aplicação, entradas, processo (passos) e saídas (ou equivalente ao template) | Sim |
+| Referencia Lexis e/ou Codex aplicáveis na seção de Referências ou no corpo | Sim |
+| É invocado por Cries e/ou Warriors; não invoca outro Kata diretamente como "comando" (Warrior orquestra múltiplos Katas) | Sim |
+| Estrutura segue o template oficial (paths.samples.katas) | Sim |
+
+**Não-conformidade:** Artefato de Kata sem passos claros ou sem referência a Lex/Codex; Cry que executa lógica detalhada sem delegar a um Kata.
+
+**Exemplo válido:** `kata-create-lexis` — passos numerados; consulta `codex-lexis` e template; invocado por `cry-new-lex`.
+
+#### Warriors
+
+**Definição em uma frase:** Warrior é agente especializado que orquestra um ou mais Katas e pode consultar Lexis e Codex; tem identidade (persona) e escopo definidos.
+
+| Critério | Obrigatório |
+|----------|-------------|
+| Nome do arquivo usa o prefixo definido em `naming.prefixes.warriors` (consultar `.directives`) e kebab-case | Sim |
+| Contém identidade (nome, domínio), responsabilidades e Katas que orquestra (ou equivalente ao template) | Sim |
+| Referencia pelo menos uma Lexis (em geral `lex-directives`) e Codex/Katas aplicáveis | Sim |
+| É invocado por Cries ou usuários; orquestra Katas (não substitui a definição de um Kata) | Sim |
+| Estrutura segue o template oficial (paths.samples.warriors) | Sim |
+
+**Não-conformidade:** Artefato de Warrior que não orquestra nenhum Kata; Cry que invoca um Warrior inexistente ou que descreve lógica que deveria estar em um Kata.
+
+**Exemplo válido:** `warrior-translator` — orquestra `kata-translate`; consulta Lexis e Codex de i18n; invocado por `cry-translate`.
+
+#### Cries
+
+**Definição em uma frase:** Cry é comando de execução de alto nível que invoca somente Katas e/ou Warriors; nunca invoca Lexis nem acessa Codex diretamente.
+
+| Critério | Obrigatório |
+|----------|-------------|
+| Nome do arquivo usa o prefixo definido em `naming.prefixes.cries` (consultar `.directives`) e kebab-case | Sim |
+| Documenta claramente qual Kata e/ou qual(is) Warrior é(são) invocado(s) | Sim |
+| Não contém instrução para "invocar" ou "executar" uma Lexis | Sim |
+| Não contém instrução para "aplicar" ou "ler" um Codex como ação única do comando (o Codex é consultado pelo Kata/Warrior invocado) | Sim |
+| Se invoca múltiplos Katas, há um Warrior que orquestra esses Katas ou o Cry descreve a ordem e delega a um Warrior | Sim |
+| Estrutura segue o template oficial (paths.samples.cries) | Sim |
+
+**Não-conformidade:** Cry cujo prompt diz "leia a lex-X e aplique"; Cry que "consulte o codex-Y e faça X" sem invocar um Kata ou Warrior que encapsule essa consulta e ação.
+
+**Exemplo válido:** `cry-new-lex` — invoca `kata-create-lexis`; o Kata, por sua vez, consulta `codex-lexis` e Lexis. O Cry não acessa Codex nem Lexis diretamente.
+
+---
 
 ### Artefatos no projeto (.ahrena)
 
@@ -146,10 +250,14 @@ O path canônico do espaço de projeto é definido em `paths.project_artifacts` 
 | Artefatos de projeto | Artefatos criados em `.ahrena/artifacts/`, específicos do repositório, antes de serem incorporados ao framework |
 | Push para o framework | Procedimento (kata-push-to-framework) que incorpora artefatos de `.ahrena/artifacts/` ao framework, em modo **local** (cópia para `framework/` no repo) ou **remoto** (sincronização com o repositório do framework no GitHub). |
 | Diff de artefatos | Procedimento (kata-diff-artifacts) que compara `.ahrena/artifacts` e framework em modo **local** (vs framework local) ou **remoto** (vs versão mais recente do framework no remoto). |
+| Validação de Pilar | Verificação de que um artefato satisfaz a definição e os critérios do Pilar a que pertence |
+| Cadeia de invocação | Sequência Cry → (Warrior) → Kata; Lexis e Codex são consultados, não invocados pelo Cry |
+| Definição canônica | Definição estabelecida na `lex-pilars` e operacionalizada neste Codex |
 
 ## Referências
 
-- `.ahrena/.directives` — Diretivas canônicas do framework
+- `lex-pilars` — Lei que define canonicamente os cinco Pilares e as regras de invocação (fonte da verdade para validação)
+- `.ahrena/.directives` — Diretivas canônicas do framework (paths, naming.prefixes)
 - `lex-template-usage` — Lei de uso obrigatório de templates
 - `lex-framework-language` — Lei de estrutura de idiomas
-- `codex-lexis`, `codex-codex`, `codex-katas`, `codex-warriors`, `codex-cries` — Codex individuais de cada Pilar
+- `codex-lexis`, `codex-codex`, `codex-katas`, `codex-warriors`, `codex-cries` — Documentação detalhada de cada Pilar (como escrever bem, critérios de qualidade)

@@ -18,15 +18,17 @@ Esta Lexis existe para garantir que **todo novo artefato seja criado a partir do
 
 ### 1. Template obrigatório por Pilar
 
-Antes de criar um novo artefato, o agente **DEVE** consultar o template (sample) correspondente ao Pilar:
+Antes de criar um novo artefato, o agente **DEVE** consultar o template (sample) correspondente ao Pilar. Os caminhos canônicos estão em `.ahrena/.directives` na seção `paths.samples` (ex.: `paths.samples.lexis`, `paths.samples.codex`, etc.). Valores típicos no repositório Ahrena:
 
-| Pilar | Template (framework/) | Template (.cursor/) |
-|-------|----------------------|---------------------|
-| **Lexis** | `framework/lexis/lex-sample.md` | `.cursor/rules/samples/lex-sample.mdc` |
-| **Codex** | `framework/codex/codex-sample.md` | `.cursor/rules/samples/codex-sample.mdc` |
-| **Katas** | `framework/katas/kata-sample.md` | `.cursor/skills/samples/kata-sample.mdc` |
-| **Warriors** | `framework/warriors/warrior-sample.md` | `.cursor/skills/samples/warrior-sample.mdc` |
-| **Cries** | `framework/cries/cry-sample.md` | `.cursor/commands/samples/cry-sample.mdc` |
+| Pilar | Template (paths.samples em .directives) | Template (.cursor/) |
+|-------|----------------------------------------|---------------------|
+| **Lexis** | `templates/lex-sample.md` | `.cursor/rules/samples/lex-sample.mdc` |
+| **Codex** | `templates/codex-sample.md` | `.cursor/rules/samples/codex-sample.mdc` |
+| **Katas** | `templates/kata-sample.md` | `.cursor/skills/samples/kata-sample.mdc` |
+| **Warriors** | `templates/warrior-sample.md` | `.cursor/skills/samples/warrior-sample.mdc` |
+| **Cries** | `templates/cry-sample.md` | `.cursor/commands/samples/cry-sample.mdc` |
+
+O agente **DEVE** usar os valores de `paths.samples` do `.directives` quando disponíveis; a tabela acima reflete a convenção padrão.
 
 ### 2. Processo de criação
 

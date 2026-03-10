@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex documents what makes a Lexis effective: how to write a clear law, how to define testable scope, and how to ensure the law is enforceable in practice. It is consulted by `kata-create-lexis` during the creation of new Lexis.
+This Codex documents what makes a Lexis effective: how to write a clear law, how to define testable scope, and how to ensure the law is enforceable in practice. It is consulted by `kata-create-lexis` during the creation of new Lexis. The kata uses this Codex in **Step 1** (reading quality criteria) and **Step 3** (drafting sections); the kata's **Final Validation** checks the Technical Constraints and Anatomy described below.
 
 ## Context
 
@@ -81,10 +81,11 @@ The law statement is the heart of a Lexis. It MUST be:
 
 ### Technical Constraints
 
-- The "Law" section MUST contain exactly one imperative statement in a blockquote
-- The "Exceptions" section MUST always state "None"
-- The "Automated Validation" section MUST specify tool, timing, and metric
-- The file name MUST follow the pattern `lex-{descriptive-name}.md`
+- The **Law** section MUST contain exactly one imperative statement in a blockquote (`> **[statement]**`)
+- The **Scope** section MUST include "Exceptions: None" (or equivalent) — Lexis do not admit exceptions
+- The **Automated Validation** section MUST specify tool, timing, and metric
+- The file name MUST use the prefix defined in `naming.prefixes.lexis` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{descriptive-name}.md`
+- The structure MUST follow the official template: consult `paths.samples.lexis` in `.directives` (e.g. `templates/lex-sample.md`)
 
 ## Glossary
 
@@ -97,7 +98,9 @@ The law statement is the heart of a Lexis. It MUST be:
 
 ## References
 
-- `codex-pilars` — Overview of the Pilar system
+- `lex-pilars` — Law that canonically defines the Pilars; Lexis as unbreakable law
+- `codex-pilars` — Pilar system overview and validation checklists (Artifact validation section)
+- `lex-directives` — Mandatory consultation of `.ahrena/.directives` (paths, naming.prefixes)
 - `lex-template-usage` — Mandatory template usage law
-- `kata-create-lexis` — Procedure for creating new Lexis
-- `templates/lex-sample.md` — Official Lexis template
+- `kata-create-lexis` — Procedure for creating new Lexis (consults this Codex in steps 1 and 3)
+- `paths.samples.lexis` in `.directives` — Path to the official template (e.g. `templates/lex-sample.md`)

@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex documents how to design effective specialized agents in Ahrena. It covers identity and persona design, scope of responsibilities, consultation chain, and escalation criteria. It is consulted by `kata-create-warrior` during the creation of new Warriors.
+This Codex documents how to design effective specialized agents in Ahrena. It covers identity and persona design, scope of responsibilities, consultation chain, and escalation criteria. It is consulted by `kata-create-warrior` during the creation of new Warriors. The kata uses this Codex in **Step 1** (reading criteria) and **Steps 2–4** (design and drafting); the kata's **Final Validation** checks the Technical Constraints and Anatomy described below.
 
 ## Context
 
@@ -113,10 +113,11 @@ Escalation criteria define when the Warrior stops and requests help:
 
 ### Technical Constraints
 
-- Every Warrior MUST include at least one Lexis in the consultation chain (`lex-directives` at minimum)
-- The "Interaction Example" section MUST contain a complete scenario (input + output)
-- The file name MUST follow the pattern `warrior-{name}.md`
-- The mission MUST be a blockquote citation
+- Every Warrior MUST include **at least one Lexis** in the consultation chain (`lex-directives` at minimum)
+- The **Interaction Example** section MUST contain a complete scenario (user input + structured Warrior response)
+- The file name MUST use the prefix defined in `naming.prefixes.warriors` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{name}.md`
+- The structure MUST follow the official template: consult `paths.samples.warriors` in `.directives` (e.g. `templates/warrior-sample.md`)
+- The **Mission** MUST be a blockquote citation (1–2 sentences)
 
 ## Glossary
 
@@ -129,7 +130,9 @@ Escalation criteria define when the Warrior stops and requests help:
 
 ## References
 
-- `codex-pilars` — Overview of the Pilar system
+- `lex-pilars` — Law that canonically defines the Pilars; Warrior orchestrates Katas and may consult Lexis and Codex
+- `codex-pilars` — Pilar system overview and validation checklists (Artifact validation section)
+- `lex-directives` — Mandatory consultation of `.ahrena/.directives` (paths, naming.prefixes)
 - `lex-template-usage` — Mandatory template usage law
-- `kata-create-warrior` — Procedure for creating new Warriors
-- `templates/warrior-sample.md` — Official Warriors template
+- `kata-create-warrior` — Procedure for creating new Warriors (consults this Codex in steps 1–4)
+- `paths.samples.warriors` in `.directives` — Path to the official template (e.g. `templates/warrior-sample.md`)

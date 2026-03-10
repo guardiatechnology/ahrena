@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex documents how to structure effective knowledge bases in Ahrena. It covers how to organize domain information, what to include and exclude, and how to keep a Codex up to date over time. It is consulted by `kata-create-codex` during the creation of new Codex.
+This Codex documents how to structure effective knowledge bases in Ahrena. It covers how to organize domain information, what to include and exclude, and how to keep a Codex up to date over time. It is consulted by `kata-create-codex` during the creation of new Codex. The kata uses this Codex in **Step 1** (reading criteria) and **Step 3** (drafting sections); the kata's **Final Validation** checks the Technical Constraints and Anatomy described below.
 
 ## Context
 
@@ -64,10 +64,12 @@ This Codex documents how to structure effective knowledge bases in Ahrena. It co
 
 ### Technical Constraints
 
-- The "Overview" section MUST describe the scope in at most two paragraphs
-- The "Context" section MUST include "Update" with a concrete trigger
+- The **Overview** section MUST describe the scope in at most two paragraphs
+- The **Context** section MUST include **Update** with a concrete trigger (when the Codex needs review)
+- **Content** MUST include: Principles, Standards and Conventions, Active Decisions (if applicable), Technical Constraints
 - Tables are preferable to long paragraphs for structured information
-- The file name MUST follow the pattern `codex-{descriptive-name}.md`
+- The file name MUST use the prefix defined in `naming.prefixes.codex` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{descriptive-name}.md`
+- The structure MUST follow the official template: consult `paths.samples.codex` in `.directives` (e.g. `templates/codex-sample.md`)
 
 ## Glossary
 
@@ -80,7 +82,9 @@ This Codex documents how to structure effective knowledge bases in Ahrena. It co
 
 ## References
 
-- `codex-pilars` — Overview of the Pilar system
+- `lex-pilars` — Law that canonically defines the Pilars; Codex as manual consulted, not invoked by Cry
+- `codex-pilars` — Pilar system overview and validation checklists (Artifact validation section)
+- `lex-directives` — Mandatory consultation of `.ahrena/.directives` (paths, naming.prefixes)
 - `lex-template-usage` — Mandatory template usage law
-- `kata-create-codex` — Procedure for creating new Codex
-- `templates/codex-sample.md` — Official Codex template
+- `kata-create-codex` — Procedure for creating new Codex (consults this Codex in steps 1 and 3)
+- `paths.samples.codex` in `.directives` — Path to the official template (e.g. `templates/codex-sample.md`)

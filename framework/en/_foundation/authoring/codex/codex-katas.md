@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex documents how to design effective structured procedures in Ahrena. It covers task decomposition, input and output design, validation criteria, and when to use a Kata vs a Cry. It is consulted by `kata-create-kata` during the creation of new Katas.
+This Codex documents how to design effective structured procedures in Ahrena. It covers task decomposition, input and output design, validation criteria, and when to use a Kata vs a Cry. It is consulted by `kata-create-kata` during the creation of new Katas. The kata uses this Codex in **Step 1** (reading criteria) and **Step 3** (drafting sections); the kata's **Final Validation** checks the Technical Constraints and Anatomy described below.
 
 ## Context
 
@@ -99,9 +99,10 @@ Final validation is the last step of every Kata. It MUST include:
 
 ### Technical Constraints
 
-- Every Kata MUST have a progress checklist at the beginning of the Workflow
-- The "Final Validation" section MUST be the last step and contain checkboxes
-- The file name MUST follow the pattern `kata-{descriptive-name}.md`
+- Every Kata MUST have a **progress checklist** at the beginning of the Workflow (checkboxes `- [ ]` per step)
+- The **last step** of the Workflow MUST be "Final Validation" (or equivalent) and contain verifiable checkboxes
+- The file name MUST use the prefix defined in `naming.prefixes.katas` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{descriptive-name}.md`
+- The structure MUST follow the official template: consult `paths.samples.katas` in `.directives` (e.g. `templates/kata-sample.md`)
 - Required inputs MUST be validated in the first step
 
 ## Glossary
@@ -115,8 +116,10 @@ Final validation is the last step of every Kata. It MUST include:
 
 ## References
 
-- `codex-pilars` — Overview of the Pilar system
+- `lex-pilars` — Law that canonically defines the Pilars; Kata applies Lexis and consults Codex
+- `codex-pilars` — Pilar system overview and validation checklists (Artifact validation section)
+- `lex-directives` — Mandatory consultation of `.ahrena/.directives` (paths, naming.prefixes)
 - `codex-cries` — Manual on Cries (to understand the Kata vs Cry difference)
 - `lex-template-usage` — Mandatory template usage law
-- `kata-create-kata` — Procedure for creating new Katas
-- `templates/kata-sample.md` — Official Katas template
+- `kata-create-kata` — Procedure for creating new Katas (consults this Codex in steps 1 and 3)
+- `paths.samples.katas` in `.directives` — Path to the official template (e.g. `templates/kata-sample.md`)

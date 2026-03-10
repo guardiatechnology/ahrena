@@ -4,7 +4,7 @@
 
 ## Visión General
 
-Este Codex documenta cómo estructurar bases de conocimiento eficaces en Ahrena. Aborda cómo organizar información de dominio, qué incluir y excluir, y cómo mantener un Codex actualizado a lo largo del tiempo. Es consultado por `kata-create-codex` durante la creación de nuevos Codex.
+Este Codex documenta cómo estructurar bases de conocimiento eficaces en Ahrena. Aborda cómo organizar información de dominio, qué incluir y excluir, y cómo mantener un Codex actualizado a lo largo del tiempo. Es consultado por `kata-create-codex` durante la creación de nuevos Codex. El kata usa este Codex en el **Paso 1** (lectura de criterios) y en el **Paso 3** (redacción de secciones); la **Validación Final** del Kata verifica las Restricciones Técnicas y la Anatomía descritas abajo.
 
 ## Contexto
 
@@ -64,10 +64,12 @@ Este Codex documenta cómo estructurar bases de conocimiento eficaces en Ahrena.
 
 ### Restricciones Técnicas
 
-- La sección "Visión General" debe describir el alcance en máximo dos párrafos
-- La sección "Contexto" debe incluir "Actualización" con un disparador concreto
+- La sección **Visión General** debe describir el alcance en máximo dos párrafos
+- La sección **Contexto** debe incluir **Actualización** con un disparador concreto (cuándo el Codex debe ser revisado)
+- El **Contenido** debe incluir: Principios, Estándares y Convenciones, Decisiones Vigentes (si aplica), Restricciones Técnicas
 - Las tablas son preferibles a párrafos extensos para información estructurada
-- El nombre del archivo debe seguir el patrón `codex-{nombre-descriptivo}.md`
+- El nombre del archivo debe usar el prefijo definido en `naming.prefixes.codex` (consultar `.ahrena/.directives`) y kebab-case: `{prefijo}-{nombre-descriptivo}.md`
+- La estructura debe seguir el template oficial: consultar `paths.samples.codex` en `.directives` (ej.: `templates/codex-sample.md`)
 
 ## Glosario
 
@@ -80,7 +82,9 @@ Este Codex documenta cómo estructurar bases de conocimiento eficaces en Ahrena.
 
 ## Referencias
 
-- `codex-pilars` — Visión general del sistema de Pilares
+- `lex-pilars` — Ley que define canónicamente los Pilares; Codex como manual consultado, no invocado por Cry
+- `codex-pilars` — Visión del sistema de Pilares y listas de validación (sección Validación de artefatos)
+- `lex-directives` — Consulta obligatoria a `.ahrena/.directives` (paths, naming.prefixes)
 - `lex-template-usage` — Ley de uso obligatorio de templates
-- `kata-create-codex` — Procedimiento para crear nuevos Codex
-- `templates/codex-sample.md` — Template oficial de Codex
+- `kata-create-codex` — Procedimiento para crear nuevos Codex (consulta este Codex en los pasos 1 y 3)
+- `paths.samples.codex` en `.directives` — Ruta del template oficial (ej.: `templates/codex-sample.md`)

@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex documents how to design effective recurring commands in Ahrena. It covers when to create a Cry vs using a Kata directly, prompt template design, parameters, and the Cry → Kata chain. It is consulted by `kata-create-cry` during the creation of new Cries.
+This Codex documents how to design effective recurring commands in Ahrena. It covers when to create a Cry vs using a Kata directly, prompt template design, parameters, and the Cry → Kata/Warrior chain. It is consulted by `kata-create-cry` during the creation of new Cries. The kata uses this Codex in **Step 1** (reading criteria) and **Step 3** (drafting sections); the kata's **Final Validation** checks the Technical Constraints and Anatomy described below.
 
 ## Context
 
@@ -111,10 +111,11 @@ Use when a Warrior exists that adds persona and context.
 
 ### Technical Constraints
 
-- Every Cry MUST reference at least one Kata that it executes
-- The "Prompt Template" section MUST use `{{variables}}` for parameters
-- The file name MUST follow the pattern `cry-{descriptive-name}.md`
-- The "Difference from Kata" section MUST contain a comparative table
+- Every Cry MUST **reference at least one Kata** (or Warrior that orchestrates a Kata) that it executes — Cry has no logic of its own
+- The **Prompt Template** section MUST use `{{variables}}` for parameters and explicitly reference the Kata (and Warrior, if any)
+- The file name MUST use the prefix defined in `naming.prefixes.cries` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{descriptive-name}.md`
+- The structure MUST follow the official template: consult `paths.samples.cries` in `.directives` (e.g. `templates/cry-sample.md`)
+- The **Difference from Kata** section (or equivalent) MUST contain a comparative Cry vs Kata table for this command
 
 ## Glossary
 
@@ -127,8 +128,10 @@ Use when a Warrior exists that adds persona and context.
 
 ## References
 
-- `codex-pilars` — Overview of the Pilar system
+- `lex-pilars` — Law that canonically defines the Pilars; Cry invokes only Kata(s) and/or Warrior(s), never Lexis nor Codex
+- `codex-pilars` — Pilar system overview and validation checklists (Artifact validation section)
+- `lex-directives` — Mandatory consultation of `.ahrena/.directives` (paths, naming.prefixes)
 - `codex-katas` — Manual on Katas (to understand the Cry vs Kata difference)
 - `lex-template-usage` — Mandatory template usage law
-- `kata-create-cry` — Procedure for creating new Cries
-- `templates/cry-sample.md` — Official Cries template
+- `kata-create-cry` — Procedure for creating new Cries (consults this Codex in steps 1 and 3)
+- `paths.samples.cries` in `.directives` — Path to the official template (e.g. `templates/cry-sample.md`)

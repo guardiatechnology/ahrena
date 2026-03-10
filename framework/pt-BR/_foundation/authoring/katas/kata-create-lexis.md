@@ -102,7 +102,7 @@ Usar o `templates/lex-sample.md` como base e preencher todas as seções:
 - [ ] Os exemplos (Correto/Incorreto) são concretos
 - [ ] O arquivo está salvo no caminho correto da taxonomia
 - [ ] Existem versões em todos os idiomas de `language.i18n`
-- [ ] O nome do arquivo usa o prefixo `lex-` e kebab-case
+- [ ] O nome do arquivo usa o prefixo do Pilar definido em `naming.prefixes.lexis` (consultar `.directives`) e kebab-case
 
 ## Outputs
 
@@ -120,6 +120,8 @@ Usar o `templates/lex-sample.md` como base e preencher todas as seções:
 
 ## Referências
 
+- `lex-pilars` — Definição canônica dos Pilares; validar artefato produzido
+- `codex-pilars` — Checklist de validação para Lexis (seção Validação de artefatos)
 - `codex-lexis` — Critérios de qualidade para Lexis
 - `codex-pilars` — Visão geral do sistema de Pilares
 - `lex-template-usage` — Lei de uso obrigatório de templates

@@ -103,7 +103,7 @@ Use `templates/cry-sample.md` as a base and fill in all sections:
 - [ ] The associated Kata exists or is marked as pending
 - [ ] The file is saved in the correct taxonomy path
 - [ ] Versions exist in all languages from `language.i18n`
-- [ ] The file name uses the `cry-` prefix and kebab-case
+- [ ] The file name uses the Pilar prefix defined in `naming.prefixes.cries` (consult `.directives`) and kebab-case
 
 ## Outputs
 
@@ -121,6 +121,8 @@ Use `templates/cry-sample.md` as a base and fill in all sections:
 
 ## References
 
+- `lex-pilars` — Canonical definition of the Pilars; validate produced artifact (Cry invokes only Kata/Warrior)
+- `codex-pilars` — Validation checklist for Cries (Artifact validation section)
 - `codex-cries` — Quality criteria for Cries
 - `codex-pilars` — Overview of the Pilar system
 - `lex-template-usage` — Mandatory template usage law

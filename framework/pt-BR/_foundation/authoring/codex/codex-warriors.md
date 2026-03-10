@@ -4,7 +4,7 @@
 
 ## Visão Geral
 
-Este Codex documenta como projetar agentes especializados eficazes no Ahrena. Aborda design de identidade e persona, escopo de responsabilidades, cadeia de consulta e critérios de escalação. É consultado pelo `kata-create-warrior` durante a criação de novos Warriors.
+Este Codex documenta como projetar agentes especializados eficazes no Ahrena. Aborda design de identidade e persona, escopo de responsabilidades, cadeia de consulta e critérios de escalação. É consultado pelo `kata-create-warrior` durante a criação de novos Warriors. O kata usa este Codex no **Passo 1** (leitura dos critérios) e nos **Passos 2–4** (design e redação); a **Validação Final** do Kata verifica as Restrições Técnicas e a Anatomia descritas abaixo.
 
 ## Contexto
 
@@ -20,6 +20,7 @@ Este Codex documenta como projetar agentes especializados eficazes no Ahrena. Ab
 2. **Escopo delimitado:** O que um Warrior "Faz" é tão importante quanto o que "Não Faz". Responsabilidades vagas levam a sobreposição e conflito entre Warriors.
 3. **Consulta explícita:** Todo Warrior deve declarar quais Lexis segue, quais Codex consulta e quais Katas executa. Sem isso, o comportamento é imprevisível.
 4. **Escalação definida:** Um Warrior deve saber quando parar e pedir ajuda humana. Autonomia sem limites é risco.
+5. **Orquestração de Katas:** Um Warrior orquestra um ou mais Katas (seleciona, ordena, combina resultados). Pode consultar Lexis e Codex; não substitui a definição de um Kata — a lógica procedimental fica no Kata.
 
 ### Anatomia de um Bom Warrior
 
@@ -113,10 +114,11 @@ Critérios de escalação definem quando o Warrior para e pede ajuda:
 
 ### Restrições Técnicas
 
-- Todo Warrior deve incluir pelo menos uma Lexis na cadeia de consulta (`lex-directives` no mínimo)
-- A seção "Exemplo de Interação" deve conter um cenário completo (input + output)
-- O nome do arquivo deve seguir o padrão `warrior-{nome}.md`
-- A missão deve ser uma citação em blockquote
+- Todo Warrior deve incluir **pelo menos uma Lexis** na cadeia de consulta (`lex-directives` no mínimo)
+- A seção **Exemplo de Interação** deve conter um cenário completo (input do usuário + resposta estruturada do Warrior)
+- O nome do arquivo deve usar o prefixo definido em `naming.prefixes.warriors` (consultar `.ahrena/.directives`) e kebab-case: `{prefixo}-{nome}.md`
+- A estrutura deve seguir o template oficial: consultar `paths.samples.warriors` em `.directives` (ex.: `templates/warrior-sample.md`)
+- A **Missão** deve ser uma citação em blockquote (1–2 frases)
 
 ## Glossário
 
@@ -129,7 +131,9 @@ Critérios de escalação definem quando o Warrior para e pede ajuda:
 
 ## Referências
 
-- `codex-pilars` — Visão geral do sistema de Pilares
+- `lex-pilars` — Lei que define canonicamente os Pilares; Warrior orquestra Katas e pode consultar Lexis e Codex
+- `codex-pilars` — Visão do sistema de Pilares e checklists de validação (seção Validação de artefatos)
+- `lex-directives` — Consulta obrigatória ao `.ahrena/.directives` (paths, naming.prefixes)
 - `lex-template-usage` — Lei de uso obrigatório de templates
-- `kata-create-warrior` — Procedimento para criar novos Warriors
-- `templates/warrior-sample.md` — Template oficial de Warriors
+- `kata-create-warrior` — Procedimento para criar novos Warriors (consulta este Codex nos passos 1–4)
+- `paths.samples.warriors` em `.directives` — Caminho do template oficial (ex.: `templates/warrior-sample.md`)

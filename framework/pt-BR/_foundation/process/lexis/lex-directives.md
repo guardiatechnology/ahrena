@@ -58,6 +58,10 @@ O agente **DEVE** aplicar cada seção da diretiva ao comportamento corresponden
 | `naming.casing` | Seguir a convenção de casing definida para arquivos e diretórios |
 | `naming.addressing` | Seguir o padrão de endereçamento ao posicionar artefatos na taxonomia |
 | `naming.reserved_clades` | Reconhecer Clades especiais e respeitar suas regras de uso |
+| `terminal` | Consultar para comandos de shell; usar o tipo definido (bash ou PowerShell). Ver `lex-terminal-type`. |
+| `naming.tone_and_writing_style` | Aplicar o tom e o estilo ao produzir artefatos e comunicação. Ver `lex-tone`. |
+
+Manuais complementares para interpretação das seções: `codex-directives` (visão geral do arquivo), `codex-paths` (caminhos canônicos), `codex-naming` (convenções de nomenclatura).
 
 ### 5. Extensibilidade
 

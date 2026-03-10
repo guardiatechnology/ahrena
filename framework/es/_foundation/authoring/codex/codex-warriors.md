@@ -4,7 +4,7 @@
 
 ## Visión General
 
-Este Codex documenta cómo diseñar agentes especializados eficaces en Ahrena. Aborda el diseño de identidad y persona, el alcance de responsabilidades, la cadena de consulta y los criterios de escalamiento. Es consultado por `kata-create-warrior` durante la creación de nuevos Warriors.
+Este Codex documenta cómo diseñar agentes especializados eficaces en Ahrena. Aborda el diseño de identidad y persona, el alcance de responsabilidades, la cadena de consulta y los criterios de escalamiento. Es consultado por `kata-create-warrior` durante la creación de nuevos Warriors. El kata usa este Codex en el **Paso 1** (lectura de criterios) y en los **Pasos 2–4** (diseño y redacción); la **Validación Final** del Kata verifica las Restricciones Técnicas y la Anatomía descritas abajo.
 
 ## Contexto
 
@@ -113,10 +113,11 @@ Los criterios de escalamiento definen cuándo el Warrior se detiene y solicita a
 
 ### Restricciones Técnicas
 
-- Todo Warrior debe incluir al menos una Lexis en la cadena de consulta (`lex-directives` como mínimo)
-- La sección "Ejemplo de Interacción" debe contener un escenario completo (input + output)
-- El nombre del archivo debe seguir el patrón `warrior-{nombre}.md`
-- La misión debe ser una cita en blockquote
+- Todo Warrior debe incluir **al menos una Lexis** en la cadena de consulta (`lex-directives` como mínimo)
+- La sección **Ejemplo de Interacción** debe contener un escenario completo (input del usuario + respuesta estructurada del Warrior)
+- El nombre del archivo debe usar el prefijo definido en `naming.prefixes.warriors` (consultar `.ahrena/.directives`) y kebab-case: `{prefijo}-{nombre}.md`
+- La estructura debe seguir el template oficial: consultar `paths.samples.warriors` en `.directives` (ej.: `templates/warrior-sample.md`)
+- La **Misión** debe ser una cita en blockquote (1–2 frases)
 
 ## Glosario
 
@@ -129,7 +130,9 @@ Los criterios de escalamiento definen cuándo el Warrior se detiene y solicita a
 
 ## Referencias
 
-- `codex-pilars` — Visión general del sistema de Pilares
+- `lex-pilars` — Ley que define canónicamente los Pilares; Warrior orquesta Katas y puede consultar Lexis y Codex
+- `codex-pilars` — Visión del sistema de Pilares y listas de validación (sección Validación de artefatos)
+- `lex-directives` — Consulta obligatoria a `.ahrena/.directives` (paths, naming.prefixes)
 - `lex-template-usage` — Ley de uso obligatorio de templates
-- `kata-create-warrior` — Procedimiento para crear nuevos Warriors
-- `templates/warrior-sample.md` — Template oficial de Warriors
+- `kata-create-warrior` — Procedimiento para crear nuevos Warriors (consulta este Codex en los pasos 1–4)
+- `paths.samples.warriors` en `.directives` — Ruta del template oficial (ej.: `templates/warrior-sample.md`)

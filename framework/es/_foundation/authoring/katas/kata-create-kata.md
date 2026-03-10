@@ -105,7 +105,7 @@ Usar `templates/kata-sample.md` como base y completar todas las secciones:
 - [ ] Los Outputs especifican formato y destino
 - [ ] El archivo está guardado en la ruta correcta de la taxonomía
 - [ ] Existen versiones en todos los idiomas de `language.i18n`
-- [ ] El nombre del archivo usa el prefijo `kata-` y kebab-case
+- [ ] El nombre del archivo usa el prefijo del Pilar definido en `naming.prefixes.katas` (consultar `.directives`) y kebab-case
 
 ## Outputs
 
@@ -124,6 +124,8 @@ Usar `templates/kata-sample.md` como base y completar todas las secciones:
 
 ## Referencias
 
+- `lex-pilars` — Definición canónica de los Pilares; validar artefacto producido
+- `codex-pilars` — Lista de validación para Katas (sección Validación de artefatos)
 - `codex-katas` — Criterios de calidad para Katas
 - `codex-pilars` — Visión general del sistema de Pilares
 - `lex-template-usage` — Ley de uso obligatorio de templates

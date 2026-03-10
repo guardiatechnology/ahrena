@@ -94,7 +94,7 @@ Usar `templates/codex-sample.md` como base y completar todas las secciones:
 - [ ] El Glosario define términos en el contexto de este Codex
 - [ ] El archivo está guardado en la ruta correcta de la taxonomía
 - [ ] Existen versiones en todos los idiomas de `language.i18n`
-- [ ] El nombre del archivo usa el prefijo `codex-` y kebab-case
+- [ ] El nombre del archivo usa el prefijo del Pilar definido en `naming.prefixes.codex` (consultar `.directives`) y kebab-case
 
 ## Outputs
 
@@ -112,6 +112,8 @@ Usar `templates/codex-sample.md` como base y completar todas las secciones:
 
 ## Referencias
 
+- `lex-pilars` — Definición canónica de los Pilares; validar artefacto producido
+- `codex-pilars` — Lista de validación para Codex (sección Validación de artefatos)
 - `codex-codex` — Criterios de calidad para Codex
 - `codex-pilars` — Visión general del sistema de Pilares
 - `lex-template-usage` — Ley de uso obligatorio de templates

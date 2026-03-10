@@ -4,7 +4,7 @@
 
 ## Visão Geral
 
-Este Codex documenta como projetar comandos recorrentes eficazes no Ahrena. Aborda quando criar um Cry vs usar um Kata diretamente, design de prompt templates, parâmetros e a cadeia Cry → Kata. É consultado pelo `kata-create-cry` durante a criação de novos Cries.
+Este Codex documenta como projetar comandos recorrentes eficazes no Ahrena. Aborda quando criar um Cry vs usar um Kata diretamente, design de prompt templates, parâmetros e a cadeia Cry → Kata/Warrior. É consultado pelo `kata-create-cry` durante a criação de novos Cries. O kata usa este Codex no **Passo 1** (leitura dos critérios) e no **Passo 3** (redação das seções); a **Validação Final** do Kata verifica as Restrições Técnicas e a Anatomia descritas abaixo.
 
 ## Contexto
 
@@ -20,6 +20,7 @@ Este Codex documenta como projetar comandos recorrentes eficazes no Ahrena. Abor
 2. **Delegação:** O Cry não contém lógica própria — ele delega para um Kata (opcionalmente via um Warrior). O Cry é o ponto de entrada, não o procedimento.
 3. **Parâmetros mínimos:** O Cry deve exigir o mínimo de informação do usuário, usando defaults inteligentes do `.directives` para o restante.
 4. **Previsibilidade:** O mesmo Cry com os mesmos parâmetros deve produzir o mesmo resultado.
+5. **Regra de invocação (inquebrável):** O Cry **NÃO PODE** invocar Lexis. O Cry **NÃO PODE** acessar Codex diretamente. O Cry invoca **SOMENTE** Katas e/ou Warriors. A consulta a Lexis e Codex é feita pelo Kata ou Warrior invocado, nunca pelo Cry como ação direta.
 
 ### Anatomia de um Bom Cry
 
@@ -111,10 +112,11 @@ Usado quando existe um Warrior que adiciona persona e contexto.
 
 ### Restrições Técnicas
 
-- Todo Cry deve referenciar pelo menos um Kata que executa
-- A seção "Prompt Template" deve usar `{{variáveis}}` para parâmetros
-- O nome do arquivo deve seguir o padrão `cry-{nome-descritivo}.md`
-- A seção "Diferença de Kata" deve conter tabela comparativa
+- Todo Cry deve **referenciar pelo menos um Kata** (ou Warrior que orquestra Kata) que executa — Cry não contém lógica própria
+- A seção **Prompt Template** deve usar `{{variáveis}}` para parâmetros e referenciar explicitamente o Kata (e Warrior, se houver)
+- O nome do arquivo deve usar o prefixo definido em `naming.prefixes.cries` (consultar `.ahrena/.directives`) e kebab-case: `{prefixo}-{nome-descritivo}.md`
+- A estrutura deve seguir o template oficial: consultar `paths.samples.cries` em `.directives` (ex.: `templates/cry-sample.md`)
+- A seção **Diferença de Kata** (ou equivalente) deve conter tabela comparativa Cry vs Kata para este comando
 
 ## Glossário
 
@@ -127,8 +129,10 @@ Usado quando existe um Warrior que adiciona persona e contexto.
 
 ## Referências
 
-- `codex-pilars` — Visão geral do sistema de Pilares
+- `lex-pilars` — Lei que define canonicamente os Pilares; Cry invoca somente Kata(s) e/ou Warrior(s), nunca Lexis nem Codex
+- `codex-pilars` — Visão do sistema de Pilares e checklists de validação (seção Validação de artefatos)
+- `lex-directives` — Consulta obrigatória ao `.ahrena/.directives` (paths, naming.prefixes)
 - `codex-katas` — Manual sobre Katas (para entender a diferença Cry vs Kata)
 - `lex-template-usage` — Lei de uso obrigatório de templates
-- `kata-create-cry` — Procedimento para criar novos Cries
-- `templates/cry-sample.md` — Template oficial de Cries
+- `kata-create-cry` — Procedimento para criar novos Cries (consulta este Codex nos passos 1 e 3)
+- `paths.samples.cries` em `.directives` — Caminho do template oficial (ex.: `templates/cry-sample.md`)
