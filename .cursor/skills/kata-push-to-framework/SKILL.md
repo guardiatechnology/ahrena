@@ -1,16 +1,11 @@
 ---
 name: kata-push-to-framework
-description: "Push Project Artifacts to Framework. Incorporate artifacts from .ahrena/artifacts/ into the canonical framework with full i18n"
+description: "Push to Framework. Incorporating project artifacts into the framework"
 ---
 
 # Kata: Push to Framework
 
 > **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Incorporating project artifacts into the framework
-
-## When to Use
-
-- When the user wants to incorporate artifacts from `.ahrena/artifacts/` into the canonical `framework/`
-- When invoked by `cry-push-to-framework` or when the user asks to "push to framework" or "incorporate project artifacts"
 
 ## Workflow
 
@@ -30,61 +25,71 @@ Progress:
    - `paths.framework` — framework root (e.g. `framework/`)
    - `language.default` — default language
    - `language.i18n` — required languages
-2. Confirm that `paths.project_artifacts` exists; if not, report that there are no artifacts to incorporate and exit
+   - In **remote** mode: `paths.framework_repo` or `repo.framework` (URL or slug of the framework repository on GitHub), if present
+2. Confirm that the `paths.project_artifacts` directory exists; if it does not, report that there are no artifacts to incorporate and exit
 
 ### Step 2: Identify Artifacts to Incorporate
 
-1. If **Target** was provided: if "all", list all `.md` files under `paths.project_artifacts`; if specific path(s), validate they exist and add to the list
-2. If **Target** was not provided: list all `.md` files under `paths.project_artifacts`; if none, report and exit; otherwise process all (or ask the user)
-3. For each artifact, extract the relative path: `{lang}/{clade}/{subclade}/{pilar}/{file}`
-4. Validate structure (lang/clade/subclade/pilar); ignore or warn about invalid paths
+1. If **Target** input was provided:
+   - If "all", list recursively all `.md` files under `paths.project_artifacts`
+   - If one or more relative paths, validate that each exists under `paths.project_artifacts` and add to the list
+2. If **Target** input was not provided:
+   - List all `.md` files under `paths.project_artifacts`
+   - If there are none, report and exit
+   - If there are any, process all (or ask the user which to incorporate)
+3. For each artifact, extract: `{lang}/{clade}/{subclade}/{pilar}/{file}` (the path relative to project_artifacts)
+4. Validate that the structure follows the addressing pattern (lang/clade/subclade/pilar); ignore or warn about files that do not
 
-### Step 3: Copy to Framework and i18n
+### Step 3: Copy to Framework and i18n (local mode) or Send to Remote (remote mode)
 
-For each artifact:
+**If --local:**
 
-1. Source: `{paths.project_artifacts}/{lang}/{clade}/{subclade}/{pilar}/{file}`
-2. Destination: `{paths.framework}/{lang}/{clade}/{subclade}/{pilar}/{file}`
-3. Create destination directories if needed; copy file (overwrite if exists)
-4. For each language in `language.i18n` missing in the framework: copy from project if present, or run `kata-translate` from the default-language file and save to `framework/{lang}/...`
-5. Record copied files and created translations
+For each artifact in the list:
+
+1. Source path: `{paths.project_artifacts}/{lang}/{clade}/{subclade}/{pilar}/{file}`
+2. Destination path in framework: `{paths.framework}/{lang}/{clade}/{subclade}/{pilar}/{file}`
+3. Create destination directories in the framework if they do not exist
+4. Copy the file from the project to the framework (overwrite if it already exists)
+5. Check languages: for each language in `language.i18n` that does not yet have the file in the framework:
+   - If it exists in the project in another language, copy it
+   - If it does not exist, run `kata-translate` from the file in the default language and save to `framework/{lang}/...`
+6. Record which files were copied and which translations were created
+
+**If --remote:**
+
+1. Do not write to `paths.framework` on local disk.
+2. Prepare the set of files to incorporate in the same layout as `framework/{lang}/{clade}/{subclade}/{pilar}/` (including missing translations via `kata-translate` in memory or a temporary area).
+3. **Required:** run the sync flow with the framework repository **using the GitHub MCP only**. The agent **MUST** use the available GitHub MCP tools (e.g. server `project-0-ahrena-github` or equivalent) to: create a branch for the changes, apply the prepared files (commit), push, open a PR. All operations on the remote framework repository must be done via the GitHub MCP.
+4. Record prepared files, branch created, and PR link returned by the GitHub MCP.
 
 ### Step 4: Optional Removal from Project
 
-- If **Remove from project** is "yes": delete the artifact file(s) from `paths.project_artifacts` (all languages for that artifact); remove empty directories
-- If "no": leave project files unchanged
+1. If **Remove from project** input is "yes":
+   - In **local** mode: after copying to `framework/`; in **remote** mode: after successful send (e.g. after the PR is opened via the MCP).
+   - For each processed artifact, remove the file(s) in `paths.project_artifacts` (all languages of the same artifact)
+   - Remove empty directories under `paths.project_artifacts` if applicable
+2. If "no", leave the files in the project unchanged
 
 ### Step 5: Final Validation
 
 - [ ] All target artifacts were copied to `framework/`
-- [ ] Each artifact has versions in all `language.i18n` languages in the framework
-- [ ] Content preserved (no corruption)
-- [ ] If remove was yes, files removed from `.ahrena/artifacts/`
-- [ ] Report delivered to the user: list of incorporated files and generated translations
-
-## Inputs
-
-| Input | Required | Description |
-|-------|:--------:|-------------|
-| Target | No | Relative path(s) under `paths.project_artifacts` or "all". If omitted, process all found artifacts |
-| Remove from project | No | "yes" to delete from `.ahrena/artifacts/` after copy. Default: "no" |
+- [ ] For each artifact, versions exist in all languages in `language.i18n` in the framework
+- [ ] No file was corrupted (content preserved)
+- [ ] If "Remove from project" was yes, files were removed from `.ahrena/artifacts/`
+- [ ] Report delivered to the user with list of incorporated files and generated translations
 
 ## Outputs
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Artifacts in framework | Markdown (`.md`) | `framework/{lang}/{clade}/{subclade}/{pilar}/` |
-| Translations (if missing) | Markdown (`.md`) | Same path in each `framework/{lang}/` |
+| Artifacts in framework (local mode) | Markdown (`.md`) | `framework/{lang}/{clade}/{subclade}/{pilar}/` |
+| Translations (if missing, local mode) | Markdown (`.md`) | Same path in each `framework/{lang}/` |
+| Remote mode | — | Report with prepared files, branch, PR link (returned by the GitHub MCP) |
 | Report | Text | Response to user |
 
 ## Constraints
 
-- Do not alter artifact content during copy (copy as-is; only generate new translations when missing)
-- After Push, every artifact MUST exist in the framework in all `language.i18n` languages
-- Overwrite existing framework file only when the project artifact is explicitly the one to promote
-
-## References
-
-- `codex-pilars` — Project artifacts (.ahrena) and Push flow
-- `kata-translate` — For generating missing language versions
-- Framework kata: `framework/{lang}/_foundation/authoring/katas/kata-push-to-framework.md`
+- Do not alter artifact content during copy or when preparing for send (copy as-is, except when generating translations)
+- Always ensure that after the Push, each artifact exists in the framework in all languages in `language.i18n` (at the destination: local or remote)
+- In **remote** mode, **the GitHub MCP must be used**; do not use only git on the command line for push or opening a PR
+- If a file already exists in the framework and is newer or different, consider overwriting only if the project artifact is explicitly the one to promote

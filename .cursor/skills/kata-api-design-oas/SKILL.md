@@ -36,6 +36,7 @@ Progress:
 5. Consult **lex-idempotency** and **codex-idempotency** — Idempotency-Key for mutations
 6. Consult **lex-error-handling** and **codex-error-handling** — error structure (code, reason, message)
 7. Consult **lex-auth** and **codex-auth** — authentication and authorization (OAuth 2.0, JWT, RBAC)
+8. Consult **codex-oas-structure** — order of operations in paths (POST, GET, PUT, PATCH, DELETE)
 
 ### Step 3: Identify Resources and Operations
 
@@ -48,7 +49,7 @@ Progress:
 ### Step 4: Design Endpoints (paths, methods, status, headers, payloads)
 
 1. Define **paths** in RESTful format: resource in plural or singular per project convention; identifier by path (e.g., `/v1/transactions/{entity_id}`)
-2. Assign **HTTP methods**: GET (read), POST (create), PATCH or PUT (update), DELETE (logical delete when applicable)
+2. Assign **HTTP methods**: GET (read), POST (create), PATCH or PUT (update), DELETE (logical delete when applicable). Order HTTP methods per path per **codex-oas-structure**: POST, GET, PUT, PATCH, DELETE (omit unused methods for the path, keeping the order)
 3. For each endpoint, define **status codes** per codex-restful-status-codes (e.g., 200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
 4. Define **required headers**: Idempotency-Key for mutations; X-Grd-Trace-Id when applicable; Content-Type, Accept
 5. Define **request payload**: body for POST/PATCH/PUT; query parameters for listing (page_size, page_token, order_by, sort)
@@ -67,7 +68,7 @@ Progress:
 1. Obtain the canonical path **paths.oas** from `.ahrena/.directives`. Ensure the directory exists at the project root; if not, create it
 2. Generate **OpenAPI 3.x fragment or document** in YAML or JSON (per input or default YAML), containing:
    - `openapi: 3.x`
-   - `paths` with each endpoint, `get`/`post`/`patch`/`put`/`delete`, `parameters` (path, query, header), `requestBody` when applicable, `responses` (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
+   - `paths` with each endpoint; for each path, list operations in **codex-oas-structure** order: post, get, put, patch, delete; for each operation: `parameters` (path, query, header), `requestBody` when applicable, `responses` (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
    - Global header components (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization) per codex-restful-headers
    - Request/response schemas aligned with codex-restful-payload and codex-entities
 3. Name the file consistently (e.g., `openapi.yaml`, `api-spec.yaml`, or main resource name). Save to **paths.oas** (create or update). If the user requests inline delivery in addition to the file, deliver in chat as well
@@ -83,6 +84,7 @@ Before delivering the output, verify:
 - [ ] Authentication/authorization documented per lex-auth when the API is protected
 - [ ] Paginated listings have page_size, page_token, and pagination structure in the response
 - [ ] OpenAPI 3.x file is complete (paths, methods, parameters, responses) with no contradiction to the Lexis
+- [ ] Order of operations in each path follows codex-oas-structure (POST, GET, PUT, PATCH, DELETE)
 - [ ] File was saved to path **paths.oas** (directory created if it did not exist)
 
 ## Outputs
