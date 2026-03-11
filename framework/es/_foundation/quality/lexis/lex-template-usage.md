@@ -25,7 +25,7 @@ Antes de crear un nuevo artefacto, el agente **DEBE** consultar la plantilla (sa
 | **Lexis** | `templates/lex-sample.md` | `.cursor/rules/samples/lex-sample.mdc` |
 | **Codex** | `templates/codex-sample.md` | `.cursor/rules/samples/codex-sample.mdc` |
 | **Katas** | `templates/kata-sample.md` | `.cursor/skills/samples/kata-sample.mdc` |
-| **Warriors** | `templates/warrior-sample.md` | `.cursor/skills/samples/warrior-sample.mdc` |
+| **Warriors** | `templates/warrior-sample.md` | `.cursor/agents/warrior-sample.md` |
 | **Cries** | `templates/cry-sample.md` | `.cursor/commands/samples/cry-sample.mdc` |
 
 El agente **DEBE** usar los valores de `paths.samples` del `.directives` cuando estén disponibles; la tabla anterior refleja la convención predeterminada.

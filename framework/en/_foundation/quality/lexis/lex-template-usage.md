@@ -25,7 +25,7 @@ Before creating a new artifact, the agent **MUST** consult the template (sample)
 | **Lexis** | `templates/lex-sample.md` | `.cursor/rules/samples/lex-sample.mdc` |
 | **Codex** | `templates/codex-sample.md` | `.cursor/rules/samples/codex-sample.mdc` |
 | **Katas** | `templates/kata-sample.md` | `.cursor/skills/samples/kata-sample.mdc` |
-| **Warriors** | `templates/warrior-sample.md` | `.cursor/skills/samples/warrior-sample.mdc` |
+| **Warriors** | `templates/warrior-sample.md` | `.cursor/agents/warrior-sample.md` |
 | **Cries** | `templates/cry-sample.md` | `.cursor/commands/samples/cry-sample.mdc` |
 
 The agent **MUST** use the `paths.samples` values from `.directives` when available; the table above reflects the default convention.
