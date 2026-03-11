@@ -1,6 +1,6 @@
 # Codex: Framework Naming Conventions
 
-> **Prefix:** per `naming.prefixes.codex` in `.ahrena/.directives` | **Type:** Reference Manual | **Scope:** Naming and addressing of Ahrena artifacts
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Naming and addressing of Ahrena artifacts
 
 ## Overview
 

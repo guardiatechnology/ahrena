@@ -82,6 +82,17 @@ If absent, the agent infers from the operating system or asks the user.
 
 See `codex-naming` for details and examples; see `lex-naming` for the law that mandates these conventions.
 
+### Artifact header (block quote)
+
+In the first line of every framework artifact (Lexis, Codex, Katas, Warriors, Cries), the block quote contains **Prefix**, **Type**, and **Scope**. The **Prefix** field **MUST** state the **actual prefix value** (e.g. `lex-`, `codex-`, `kata-`, `warrior-`, `cry-`), and **NOT** only a reference to the directive.
+
+| Form | Correct | Incorrect |
+|------|---------|-----------|
+| **Prefix** | `**Prefix:** \`lex-\` \| **Type:** ...` | `**Prefix:** per naming.prefixes.lexis in .directives \| ...` |
+| Reason | The artifact is self-describing; the reader sees the Pilar prefix immediately | The directive reference requires consulting `.directives` to know the value; in printed docs or outside the repo context, the prefix is ambiguous |
+
+The prefix value MUST match the one defined in `naming.prefixes.{pilar}` in `.directives` (in the Ahrena repo, typically `lex-`, `codex-`, `kata-`, `warrior-`, `cry-`). When creating or reviewing artifacts, use the actual prefix value in the header.
+
 ### Extensibility
 
 New sections may be added to `.directives` (e.g. `security`, `notifications`). The agent must interpret unknown sections reasonably. The file **MUST NOT** be modified by the agent without explicit user request (`lex-directives`).

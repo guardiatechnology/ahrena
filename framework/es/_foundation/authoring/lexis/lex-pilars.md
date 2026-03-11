@@ -1,6 +1,6 @@
 # Lexis: Definición Canónica de los Pilares
 
-> **Prefijo:** conforme `naming.prefixes.lexis` en `.ahrena/.directives` | **Tipo:** Ley Inquebrantable | **Alcance:** Estructura y validación de artefatos del framework Ahrena
+> **Prefijo:** `lex-` | **Tipo:** Ley Inquebrantable | **Alcance:** Estructura y validación de artefatos del framework Ahrena
 
 ## Propósito
 

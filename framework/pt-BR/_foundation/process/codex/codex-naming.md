@@ -1,6 +1,6 @@
 # Codex: Convenções de Nomenclatura do Framework
 
-> **Prefixo:** conforme `naming.prefixes.codex` em `.ahrena/.directives` | **Tipo:** Manual de Referência | **Escopo:** Nomenclatura e endereçamento de artefatos do Ahrena
+> **Prefixo:** `codex-` | **Tipo:** Manual de Referência | **Escopo:** Nomenclatura e endereçamento de artefatos do Ahrena
 
 ## Visão Geral
 

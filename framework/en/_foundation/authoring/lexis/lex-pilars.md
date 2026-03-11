@@ -1,6 +1,6 @@
 # Lexis: Canonical Definition of the Pilars
 
-> **Prefix:** per `naming.prefixes.lexis` in `.ahrena/.directives` | **Type:** Unbreakable Law | **Scope:** Structure and validation of Ahrena framework artifacts
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Structure and validation of Ahrena framework artifacts
 
 ## Purpose
 

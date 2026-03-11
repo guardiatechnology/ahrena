@@ -1,6 +1,6 @@
 # Lexis: Mandatory Naming Conventions
 
-> **Prefix:** per `naming.prefixes.lexis` in `.ahrena/.directives` | **Type:** Unbreakable Law | **Scope:** Naming and addressing of Ahrena framework artifacts
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Naming and addressing of Ahrena framework artifacts
 
 ## Purpose
 

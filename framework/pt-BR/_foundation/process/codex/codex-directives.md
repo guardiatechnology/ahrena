@@ -82,6 +82,17 @@ Se ausente, o agente infere pelo sistema operacional ou pergunta ao usuário.
 
 Consulte `codex-naming` para detalhes e exemplos; consulte `lex-naming` para a lei que obriga o uso dessas convenções.
 
+### Cabeçalho de artefatos (bloco de citação)
+
+Na primeira linha de todo artefato do framework (Lexis, Codex, Katas, Warriors, Cries), o bloco de citação contém **Prefixo**, **Tipo** e **Escopo**. O campo **Prefixo** **DEVE** indicar o **valor efetivo do prefixo** (ex.: `lex-`, `codex-`, `kata-`, `warrior-`, `cry-`), e **NÃO** apenas uma referência à diretiva.
+
+| Forma | Correto | Incorreto |
+|-------|---------|-----------|
+| **Prefixo** | `**Prefixo:** \`lex-\` \| **Tipo:** ...` | `**Prefixo:** conforme naming.prefixes.lexis em .directives \| ...` |
+| Motivo | O artefato é autodescritivo; o leitor vê imediatamente o prefixo do Pilar | A referência à diretiva exige consulta ao `.directives` para saber o valor; em documentação impressa ou fora do contexto do repo, o prefixo fica ambíguo |
+
+O valor do prefixo deve ser o mesmo definido em `naming.prefixes.{pilar}` no `.directives` (no repositório Ahrena, tipicamente `lex-`, `codex-`, `kata-`, `warrior-`, `cry-`). Ao criar ou revisar artefatos, use o valor real do prefixo no cabeçalho.
+
 ### Extensibilidade
 
 Novas seções podem ser adicionadas ao `.directives` (ex.: `security`, `notifications`). O agente deve interpretar seções desconhecidas de forma razoável. O arquivo **NÃO DEVE** ser modificado pelo agente sem solicitação explícita do usuário (`lex-directives`).

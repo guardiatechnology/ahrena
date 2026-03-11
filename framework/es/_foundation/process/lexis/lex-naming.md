@@ -1,6 +1,6 @@
 # Lexis: Convenciones de Nomenclatura Obligatorias
 
-> **Prefijo:** conforme `naming.prefixes.lexis` en `.ahrena/.directives` | **Tipo:** Ley Inquebrantable | **Alcance:** Nomenclatura y direccionamiento de artefatos del framework Ahrena
+> **Prefijo:** `lex-` | **Tipo:** Ley Inquebrantable | **Alcance:** Nomenclatura y direccionamiento de artefatos del framework Ahrena
 
 ## Propósito
 
