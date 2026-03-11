@@ -1,6 +1,6 @@
 ---
-description: "Body without language tag — VIOLATES THE LAW. All commits in Guardia repositories"
-alwaysApply: true
+description: "Idioma do subject do commit (inglês) e tag de idioma no body. Consultar ao fazer commit."
+alwaysApply: false
 ---
 
 # Lexis: Commit Language

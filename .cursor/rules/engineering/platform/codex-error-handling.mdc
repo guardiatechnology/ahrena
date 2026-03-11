@@ -1,5 +1,5 @@
 ---
-description: "Error Handling on the Guardia Platform. Guardia platform — error handling"
+description: "Tratamento de erros (estrutura, retry, circuit breaker). Consultar ao implementar erros."
 alwaysApply: false
 ---
 

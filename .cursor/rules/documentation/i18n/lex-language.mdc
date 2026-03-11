@@ -1,6 +1,6 @@
 ---
-description: "Cross-Language Translation Rules. All technical documentation translation"
-alwaysApply: true
+description: "Regras transversais de tradução. Consultar ao traduzir documentação técnica."
+alwaysApply: false
 ---
 
 # Lexis: Cross-Language Translation Rules

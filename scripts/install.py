@@ -35,13 +35,8 @@ DEFAULT_REPO = "https://github.com/guardiafinance/ahrena"
 DEFAULT_VERSION = "main"
 MIN_PYTHON = (3, 8)
 
-PILAR_TO_CURSOR_RESOURCE: dict[str, str] = {
-    "lex": "rules",
-    "codex": "rules",
-    "kata": "skills",
-    "warrior": "skills",
-    "cry": "commands",
-}
+# Pilar names (prefixes) for detection and clean; transposition comes from platforms.yaml.
+PILAR_NAMES: tuple[str, ...] = ("lex", "codex", "kata", "warrior", "cry")
 
 PILAR_FOLDER_NAME: dict[str, str] = {
     "lex": "lexis",
@@ -161,6 +156,99 @@ def get_directive(directives: dict, *keys: str, default: object = None) -> objec
     return current
 
 
+def _parse_platforms_yaml(content: str) -> dict:
+    """Minimal YAML parser for platforms.yaml structure (stdlib only)."""
+    result: dict = {}
+    stack: list[tuple[dict, str | None, int]] = [(result, None, -1)]
+
+    for line in content.splitlines():
+        stripped = line.lstrip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        indent = len(line) - len(stripped)
+
+        # Find key and value (value may be quoted string with colons)
+        if ":" not in stripped:
+            continue
+        first_colon = stripped.index(":")
+        key = stripped[:first_colon].strip().rstrip(":")
+        rest = stripped[first_colon + 1 :].strip()
+
+        # Pop stack until we are at the right indent
+        while len(stack) > 1 and stack[-1][2] >= indent:
+            stack.pop()
+
+        parent, _, _ = stack[-1]
+
+        if rest:
+            # Value on same line
+            if rest.startswith('"') and rest.endswith('"') and len(rest) >= 2:
+                val = rest[1:-1].replace('\\"', '"')
+            elif rest.startswith("'") and rest.endswith("'") and len(rest) >= 2:
+                val = rest[1:-1].replace("\\'", "'")
+            elif rest.lower() == "true":
+                val = True
+            elif rest.lower() == "false":
+                val = False
+            else:
+                val = rest
+            parent[key] = val
+        else:
+            # Nested block
+            child: dict = {}
+            parent[key] = child
+            stack.append((child, key, indent))
+
+    return result
+
+
+def load_platforms_config(ahrena_dir: Path) -> dict:
+    """Load and merge platforms.yaml from framework (default) and .ahrena (override)."""
+    default_path = ahrena_dir / "framework" / "platforms.yaml"
+    override_path = ahrena_dir / "platforms.yaml"
+    config: dict = {}
+
+    for path in (default_path, override_path):
+        if not path.exists():
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+            data = _parse_platforms_yaml(content)
+            if not data:
+                continue
+            for platform, platform_data in data.items():
+                if not isinstance(platform_data, dict):
+                    continue
+                config.setdefault(platform, {})
+                for key, value in platform_data.items():
+                    if key == "rules" and isinstance(value, dict):
+                        existing_rules = config[platform].get("rules")
+                        if isinstance(existing_rules, dict):
+                            config[platform]["rules"] = {**existing_rules, **value}
+                        else:
+                            config[platform]["rules"] = dict(value)
+                    else:
+                        config[platform][key] = value
+        except (OSError, TypeError) as e:
+            if path == default_path:
+                pass  # ignore missing or invalid default
+            else:
+                print(f"  WARNING: Could not load {path}: {e}", file=sys.stderr)
+
+    return config
+
+
+def _framework_rel_path_to_rule_key(rel_path: Path) -> str:
+    """Convert framework-relative path (e.g. en/_foundation/process/lexis/lex-directives.md) to rule key."""
+    parts = list(rel_path.parts)
+    if not parts or not rel_path.suffix == ".md":
+        return ""
+    # Drop first segment (language)
+    if len(parts) > 1:
+        parts = parts[1:]
+    return str(Path(*parts).with_suffix("")).replace("\\", "/")
+
+
 def parse_clades(value: str | None) -> list[str] | None:
     """Parse a comma-separated clades string into a sorted list, or None for all."""
     if not value:
@@ -237,7 +325,7 @@ def download_and_extract(repo_url: str, version: str) -> Path:
 
 def detect_pilar(filename: str) -> str | None:
     """Detect the pilar type from a filename's prefix."""
-    for prefix in PILAR_TO_CURSOR_RESOURCE:
+    for prefix in PILAR_NAMES:
         if filename.startswith(f"{prefix}-"):
             return prefix
     return None
@@ -271,17 +359,28 @@ def extract_description(content: str) -> str:
     return title or scope or "Ahrena framework artifact"
 
 
-def build_frontmatter(pilar: str, filename: str, description: str,
-                      is_sample: bool = False) -> str:
+def build_frontmatter(
+    pilar: str,
+    filename: str,
+    description: str,
+    is_sample: bool = False,
+    resource: str | None = None,
+    rule_config: dict | None = None,
+) -> str:
     """Generate the YAML frontmatter block for a Cursor .mdc file.
 
     Frontmatter varies by Cursor resource type:
-      - rules  (lex/codex):  description + alwaysApply
+      - rules  (lex/codex):  description + alwaysApply [+ globs]
       - skills (kata/warrior): name + description
       - commands (cry):        description only
+
+    When rule_config is provided for rules, uses alwaysApply/globs/description from it;
+    default for unlisted rules: alwaysApply false, description from content.
     """
-    resource = PILAR_TO_CURSOR_RESOURCE[pilar]
-    safe_desc = description.replace('"', '\\"')
+    if resource is None:
+        raise ValueError(f"resource is required for Cursor frontmatter (pilar={pilar}); define cursor.transposition in framework/platforms.yaml")
+    desc = rule_config.get("description", description) if rule_config else description
+    safe_desc = (desc or description).replace('"', '\\"')
     lines = ["---"]
 
     if resource == "rules":
@@ -290,8 +389,19 @@ def build_frontmatter(pilar: str, filename: str, description: str,
             lines.append("globs: ")
             lines.append("alwaysApply: false")
         else:
-            always_apply = "true" if pilar == "lex" else "false"
-            lines.append(f"alwaysApply: {always_apply}")
+            if rule_config is not None and "alwaysApply" in rule_config:
+                always_apply = bool(rule_config["alwaysApply"])
+            else:
+                always_apply = False
+            lines.append(f"alwaysApply: {str(always_apply).lower()}")
+            if rule_config and rule_config.get("globs"):
+                globs = rule_config["globs"]
+                if isinstance(globs, list):
+                    lines.append("globs:")
+                    for g in globs:
+                        lines.append(f"  - {g!r}" if " " in str(g) else f"  - {g}")
+                else:
+                    lines.append(f"globs: {globs!r}")
     elif resource == "skills":
         name = Path(filename).stem
         lines.append(f"name: {name}")
@@ -337,8 +447,14 @@ def filter_sections(content: str, pilar: str) -> str:
     return text.strip() + "\n"
 
 
-def transform_md_to_mdc(content: str, pilar: str, filename: str,
-                        is_sample: bool = False) -> str:
+def transform_md_to_mdc(
+    content: str,
+    pilar: str,
+    filename: str,
+    is_sample: bool = False,
+    resource: str | None = None,
+    rule_config: dict | None = None,
+) -> str:
     """Transform a framework .md file into a Cursor .mdc file."""
     if is_sample:
         description = SAMPLE_DESCRIPTIONS.get(pilar, extract_description(content))
@@ -346,8 +462,11 @@ def transform_md_to_mdc(content: str, pilar: str, filename: str,
     else:
         description = extract_description(content)
         body = filter_sections(content, pilar)
-
-    frontmatter = build_frontmatter(pilar, filename, description, is_sample)
+    if resource is None:
+        raise ValueError(f"resource is required for transform (pilar={pilar}); define cursor.transposition in framework/platforms.yaml")
+    frontmatter = build_frontmatter(
+        pilar, filename, description, is_sample, resource=resource, rule_config=rule_config
+    )
     return frontmatter + "\n\n" + body
 
 
@@ -365,31 +484,36 @@ def transform_md_to_agent(content: str, pilar: str, filename: str) -> str:
     return frontmatter + "\n\n" + body
 
 
-def build_cursor_path(framework_rel_path: Path, pilar: str) -> Path:
+def build_cursor_path(framework_rel_path: Path, pilar: str, resource: str | None = None) -> Path:
     """
     Map a framework-relative path to a .cursor/ path.
 
     Each Cursor resource type has its own native format:
       rules:    .cursor/rules/{clade}/{subclade}/{file}.mdc
       skills:   .cursor/skills/{skill-name}/SKILL.md
-      commands:  .cursor/commands/{clade}/{subclade}/{file}.md
+      agents:   .cursor/agents/{name}.md
+      commands: .cursor/commands/{clade}/{subclade}/{file}.md
+
+    When resource is None, raises ValueError (cursor.transposition must be defined in platforms.yaml).
     """
-    resource = PILAR_TO_CURSOR_RESOURCE[pilar]
+    if resource is None:
+        raise ValueError(f"resource is required for Cursor path (pilar={pilar}); define cursor.transposition in framework/platforms.yaml")
     parts = list(framework_rel_path.parts)
-
-    parts = parts[1:]
-
+    if len(parts) > 1:
+        parts = parts[1:]  # drop language segment
     pilar_folder = PILAR_FOLDER_NAME.get(pilar, "")
-    parts = [p for p in parts if p != pilar_folder]
+    parts_no_pilar = [p for p in parts if p != pilar_folder]
 
+    if resource == "agents":
+        stem = Path(framework_rel_path).stem
+        return Path(".cursor") / "agents" / f"{stem}.md"
     if resource == "skills":
-        skill_name = Path(parts[-1]).stem
+        skill_name = Path(parts_no_pilar[-1]).stem
         return Path(".cursor") / "skills" / skill_name / "SKILL.md"
-    elif resource == "commands":
-        return Path(".cursor") / "commands" / Path(*parts)
-    else:
-        parts[-1] = re.sub(r"\.md$", ".mdc", parts[-1])
-        return Path(".cursor") / "rules" / Path(*parts)
+    if resource == "commands":
+        return Path(".cursor") / "commands" / Path(*parts_no_pilar)
+    parts_no_pilar[-1] = re.sub(r"\.md$", ".mdc", parts_no_pilar[-1])
+    return Path(".cursor") / "rules" / Path(*parts_no_pilar)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -530,23 +654,49 @@ def _process_lang_dir_to_cursor(
     base_dir: Path,
     target_dir: Path,
     dry_run: bool,
+    cursor_config: dict | None = None,
 ) -> tuple[int, int]:
     """Process a language dir (framework or artifacts) and write .cursor files. Returns (file_count, agent_count)."""
     file_count = 0
     agent_count = 0
+    cursor_config = cursor_config or {}
+    transposition = cursor_config.get("transposition") or {}
+    rules_config = cursor_config.get("rules") or {}
 
     for md_file in sorted(lang_dir.rglob("*.md")):
         pilar = detect_pilar(md_file.name)
         if pilar is None:
             continue
 
+        resource = transposition[pilar]
         rel_path = md_file.relative_to(base_dir)
-        cursor_path = build_cursor_path(rel_path, pilar)
-        full_path = target_dir / cursor_path
 
+        if resource == "agents":
+            cursor_path = build_cursor_path(rel_path, pilar, "agents")
+            full_path = target_dir / cursor_path
+            content = md_file.read_text(encoding="utf-8")
+            out_content = transform_md_to_agent(content, pilar, md_file.name)
+            if dry_run:
+                print(f"    [DRY-RUN] {cursor_path}")
+            else:
+                full_path.parent.mkdir(parents=True, exist_ok=True)
+                full_path.write_text(out_content, encoding="utf-8")
+            agent_count += 1
+            continue
+
+        # rules, skills, commands
+        rule_key = _framework_rel_path_to_rule_key(rel_path) if resource == "rules" else None
+        if resource == "rules" and rule_key and rule_key not in rules_config:
+            print(f"\nERROR: Lexis/Codex '{rule_key}' has no entry in cursor.rules (framework/platforms.yaml or .ahrena/platforms.yaml).")
+            print("  Per lex-platforms-rules, every lex and codex MUST have a cursor.rules entry with at least 'description'.")
+            sys.exit(1)
+        rule_config = rules_config.get(rule_key) if rule_key else None
         content = md_file.read_text(encoding="utf-8")
-        mdc_content = transform_md_to_mdc(content, pilar, md_file.name)
-
+        mdc_content = transform_md_to_mdc(
+            content, pilar, md_file.name, resource=resource, rule_config=rule_config
+        )
+        cursor_path = build_cursor_path(rel_path, pilar, resource)
+        full_path = target_dir / cursor_path
         if dry_run:
             print(f"    [DRY-RUN] {cursor_path}")
         else:
@@ -554,18 +704,19 @@ def _process_lang_dir_to_cursor(
             full_path.write_text(mdc_content, encoding="utf-8")
         file_count += 1
 
+    # Generate agent files only for pilar in PILAR_GENERATES_AGENT when NOT already written as agents by transposition
     for md_file in sorted(lang_dir.rglob("*.md")):
         pilar = detect_pilar(md_file.name)
         if pilar not in PILAR_GENERATES_AGENT:
             continue
-
+        resource = transposition[pilar]
+        if resource == "agents":
+            continue  # already written in first loop
         agent_name = md_file.stem + ".md"
         agent_path = Path(".cursor") / "agents" / agent_name
         full_path = target_dir / agent_path
-
         content = md_file.read_text(encoding="utf-8")
         agent_content = transform_md_to_agent(content, pilar, md_file.name)
-
         if dry_run:
             print(f"    [DRY-RUN] {agent_path}")
         else:
@@ -598,9 +749,26 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
 
     print(f"  Source language for Cursor: '{cursor_lang}'")
 
+    platforms = load_platforms_config(ahrena_dir)
+    cursor_config = platforms.get("cursor")
+    if not cursor_config or not isinstance(cursor_config, dict):
+        print("\nERROR: cursor config not found in platforms.yaml.")
+        print("  Define 'cursor' with 'transposition' in framework/platforms.yaml (or .ahrena/platforms.yaml).")
+        sys.exit(1)
+    transposition = cursor_config.get("transposition")
+    if not transposition or not isinstance(transposition, dict):
+        print("\nERROR: cursor.transposition not found in platforms.yaml.")
+        print("  Define cursor.transposition (lex, codex, kata, warrior, cry -> rules/skills/agents/commands) in framework/platforms.yaml.")
+        sys.exit(1)
+    missing = [p for p in PILAR_NAMES if p not in transposition]
+    if missing:
+        print(f"\nERROR: cursor.transposition in platforms.yaml must define all pilars. Missing: {', '.join(missing)}")
+        print("  Required keys: lex, codex, kata, warrior, cry.")
+        sys.exit(1)
+
     # 1. Process framework (so artifacts can overwrite later)
     file_count_fw, agent_count_fw = _process_lang_dir_to_cursor(
-        lang_dir, framework_dir, target_dir, dry_run
+        lang_dir, framework_dir, target_dir, dry_run, cursor_config
     )
 
     # 2. Process templates (samples) — framework only
@@ -610,24 +778,28 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
             if pilar is None:
                 continue
 
-            resource = PILAR_TO_CURSOR_RESOURCE[pilar]
+            resource = cursor_config["transposition"][pilar]
             if resource == "skills":
                 cursor_path = Path(".cursor") / "skills" / md_file.stem / "SKILL.md"
             elif resource == "commands":
                 cursor_path = Path(".cursor") / "commands" / "samples" / md_file.name
+            elif resource == "agents":
+                cursor_path = Path(".cursor") / "agents" / md_file.name
             else:
                 mdc_name = md_file.name.replace(".md", ".mdc")
                 cursor_path = Path(".cursor") / resource / "samples" / mdc_name
             full_path = target_dir / cursor_path
 
             content = md_file.read_text(encoding="utf-8")
-            mdc_content = transform_md_to_mdc(content, pilar, md_file.name, is_sample=True)
-
+            if resource == "agents":
+                out_content = transform_md_to_agent(content, pilar, md_file.name)
+            else:
+                out_content = transform_md_to_mdc(content, pilar, md_file.name, is_sample=True, resource=resource)
             if dry_run:
                 print(f"    [DRY-RUN] {cursor_path}")
             else:
                 full_path.parent.mkdir(parents=True, exist_ok=True)
-                full_path.write_text(mdc_content, encoding="utf-8")
+                full_path.write_text(out_content, encoding="utf-8")
             file_count_fw += 1
 
     # 3. Process project artifacts (same paths overwrite framework)
@@ -637,7 +809,7 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
         artifacts_lang_dir = artifacts_dir / cursor_lang
         if artifacts_lang_dir.exists():
             file_count_art, agent_count_art = _process_lang_dir_to_cursor(
-                artifacts_lang_dir, artifacts_dir, target_dir, dry_run
+                artifacts_lang_dir, artifacts_dir, target_dir, dry_run, cursor_config
             )
 
     total_files = file_count_fw + file_count_art
@@ -658,7 +830,7 @@ def clean(target_dir: Path) -> None:
         print(f"  Removed .ahrena/")
 
     if cursor_dir.exists():
-        prefixes = tuple(f"{p}-" for p in PILAR_TO_CURSOR_RESOURCE)
+        prefixes = tuple(f"{p}-" for p in PILAR_NAMES)
         removed = 0
 
         # Clean .mdc rules

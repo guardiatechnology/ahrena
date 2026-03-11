@@ -1,6 +1,6 @@
 ---
-description: "PR will be automatically rejected. All commits in Guardia repositories"
-alwaysApply: true
+description: "Commits assinados com GPG. Consultar ao fazer push ou configurar Git."
+alwaysApply: false
 ---
 
 # Lexis: Mandatory Signed Commits

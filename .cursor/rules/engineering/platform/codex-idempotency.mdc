@@ -1,5 +1,5 @@
 ---
-description: "Idempotency in Guardia Platform APIs and Events. Guardia platform — idempotency"
+description: "Idempotência em APIs e eventos. Consultar ao desenhar mutações."
 alwaysApply: false
 ---
 

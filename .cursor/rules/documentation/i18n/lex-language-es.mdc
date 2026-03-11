@@ -1,6 +1,6 @@
 ---
-description: "Rules for Translating to Spanish. Technical documentation translation to Spanish (es)"
-alwaysApply: true
+description: "Regras para tradução para espanhol. Consultar ao traduzir para es."
+alwaysApply: false
 ---
 
 # Lexis: Rules for Translating to Spanish
@@ -60,3 +60,16 @@ Universal technical terms **MUST** remain in English:
 - Use opening question (¿) and exclamation (¡) marks correctly
 - Accents following RAE rules
 - Pay attention to current norms on "solo" (no accent per current standard)
+
+## Examples
+
+### Correct
+
+- "The agent **MUST** consult the .directives." (impersonal voice, MUST in capitals)
+- "The defined workflow should be used." (workflow → flujo de trabajo in Spanish; impersonal)
+
+### Incorrect
+
+- "The agent has to consult the .directives." (avoid "has to"; use "MUST")
+- "Configure the escritorio" when the context is "office" (use "oficina", not "escritorio")
+- Mixing "tú" and "usted" in the same document.

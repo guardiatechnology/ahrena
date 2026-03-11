@@ -1,5 +1,5 @@
 ---
-description: "How to Write Good Katas. Creation of Katas (repeatable procedures)"
+description: "Como escrever bons Katas. Consultar ao criar ou revisar Katas."
 alwaysApply: false
 ---
 
@@ -94,7 +94,8 @@ Final validation is the last step of every Kata. It MUST include:
 
 ### Technical Constraints
 
-- Every Kata MUST have a progress checklist at the beginning of the Workflow
-- The "Final Validation" section MUST be the last step and contain checkboxes
-- The file name MUST follow the pattern `kata-{descriptive-name}.md`
+- Every Kata MUST have a **progress checklist** at the beginning of the Workflow (checkboxes `- [ ]` per step)
+- The **last step** of the Workflow MUST be "Final Validation" (or equivalent) and contain verifiable checkboxes
+- The file name MUST use the prefix defined in `naming.prefixes.katas` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{descriptive-name}.md`
+- The structure MUST follow the official template: consult `paths.samples.katas` in `.directives` (e.g. `templates/kata-sample.md`)
 - Required inputs MUST be validated in the first step

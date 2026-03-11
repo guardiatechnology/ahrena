@@ -1,5 +1,5 @@
 ---
-description: "How to Write Good Lexis. Creation of Lexis (unbreakable laws)"
+description: "Como escrever boas Lexis. Consultar ao criar ou revisar Lexis."
 alwaysApply: false
 ---
 
@@ -76,7 +76,8 @@ The law statement is the heart of a Lexis. It MUST be:
 
 ### Technical Constraints
 
-- The "Law" section MUST contain exactly one imperative statement in a blockquote
-- The "Exceptions" section MUST always state "None"
-- The "Automated Validation" section MUST specify tool, timing, and metric
-- The file name MUST follow the pattern `lex-{descriptive-name}.md`
+- The **Law** section MUST contain exactly one imperative statement in a blockquote (`> **[statement]**`)
+- The **Scope** section MUST include "Exceptions: None" (or equivalent) — Lexis do not admit exceptions
+- The **Automated Validation** section MUST specify tool, timing, and metric
+- The file name MUST use the prefix defined in `naming.prefixes.lexis` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{descriptive-name}.md`
+- The structure MUST follow the official template: consult `paths.samples.lexis` in `.directives` (e.g. `templates/lex-sample.md`)

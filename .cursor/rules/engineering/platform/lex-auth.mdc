@@ -1,6 +1,7 @@
 ---
-description: "Authentication and Authorization for Guardia APIs. Guardia platform — API access"
-alwaysApply: true
+description: "Autenticação e autorização em APIs Guardia. Acesso a APIs da plataforma"
+alwaysApply: false
+globs: '["**/openapi/**", "**/oas/**", "**/api/**"]'
 ---
 
 # Lexis: Authentication and Authorization for Guardia APIs

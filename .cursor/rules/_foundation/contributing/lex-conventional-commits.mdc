@@ -1,6 +1,6 @@
 ---
-description: "Multiple mixed changes — VIOLATES lex-small-commits as well. All commits in Guardia repositories"
-alwaysApply: true
+description: "Formato Conventional Commits. Consultar ao escrever mensagem de commit."
+alwaysApply: false
 ---
 
 # Lexis: Mandatory Conventional Commits

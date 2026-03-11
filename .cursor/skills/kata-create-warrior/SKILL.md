@@ -89,7 +89,7 @@ Use `templates/warrior-sample.md` as a base and fill in all sections:
 - [ ] The interaction example has complete input and output
 - [ ] The file is saved in the correct taxonomy path
 - [ ] Versions exist in all languages from `language.i18n`
-- [ ] The file name uses the `warrior-` prefix and kebab-case
+- [ ] The file name uses the Pilar prefix defined in `naming.prefixes.warriors` (consult `.directives`) and kebab-case
 
 ## Outputs
 

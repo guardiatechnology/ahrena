@@ -23,7 +23,7 @@ description: "API Design for New Feature. Shortcut to design the REST API of a n
 
 1. Interprets the feature description and base path (if provided)
 2. Assumes the role of the Daedalus Warrior (API design specialist) or delegates to the agent that executes kata-api-design-oas or kata-api-design-doc (per requested format)
-3. Consults lex-directives and RESTful Lexis/Codex, entities, idempotency, errors, and auth
+3. The Warrior Daedalus (or the agent in that role) consults lex-directives and RESTful Lexis/Codex, entities, idempotency, errors, and auth
 4. Identifies resources, operations, pagination, sorting, and Idempotency-Key requirements
 5. Produces specification (OpenAPI or Markdown) with endpoints, methods, status, headers, payloads, and errors
 6. Delivers the artifact in the requested format or inline
@@ -36,9 +36,7 @@ Context:
 - Base path (optional): {{base path}}
 
 Task:
-Act as the Daedalus Warrior (API Design Specialist) and execute iteratively **kata-api-design-oas** and **kata-api-design-doc**, producing both artifacts in paths.oas.
-Based on the feature description above, ask clarifying questions when needed (scope, authentication, pagination, sorting, base path, specific criteria) and refine the design based on their answers. Consult Guardia RESTful Lexis and Codex and produce the OpenAPI specification and API document in paths.oas.
-Use the provided base path or propose an appropriate one.
+Act as the Daedalus Warrior (API Design Specialist) and execute iteratively **kata-api-design-oas** and **kata-api-design-doc** (the Katas consult RESTful Lexis and Codex per their documentation). Based on the feature description above, ask clarifying questions when needed and refine the design based on their answers. Produce the OpenAPI specification and API document in paths.oas. Use the provided base path or propose an appropriate one.
 
 Output format:
 - Consult **paths.oas** in `.ahrena/.directives` for the destination

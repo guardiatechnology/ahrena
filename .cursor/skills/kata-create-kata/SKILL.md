@@ -92,7 +92,7 @@ Use `templates/kata-sample.md` as a base and fill in all sections:
 - [ ] Outputs specify format and destination
 - [ ] The file is saved in the correct taxonomy path
 - [ ] Versions exist in all languages from `language.i18n`
-- [ ] The file name uses the `kata-` prefix and kebab-case
+- [ ] The file name uses the Pilar prefix defined in `naming.prefixes.katas` (consult `.directives`) and kebab-case
 
 ## Outputs
 

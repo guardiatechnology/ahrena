@@ -1,6 +1,6 @@
 ---
-description: "Rules for Translating to Brazilian Portuguese. Technical documentation translation to pt-BR"
-alwaysApply: true
+description: "Regras para tradução para pt-BR. Tradução de documentação técnica para pt-BR"
+alwaysApply: false
 ---
 
 # Lexis: Rules for Translating to Brazilian Portuguese
@@ -65,3 +65,15 @@ Avoid anglicisms when a consolidated pt-BR equivalent exists:
 For instructions and technical documentation:
 - "O agente **DEVE**..." (not "O agente tem que...")
 - "É necessário..." (not "Precisa...")
+
+## Examples
+
+### Correct
+
+- "The agent **MUST** consult the .directives." (active voice, MUST in capitals, technical term preserved)
+- "It is recommended to use the defined workflow." (workflow translated where appropriate; impersonal construction)
+
+### Incorrect
+
+- "The agent has to consult the .directives." (avoid "has to"; use "MUST")
+- "Delete the file" (use "Exclude the file" per pt-BR convention)

@@ -1,6 +1,6 @@
 ---
-description: "Idempotency for State-Modifying Operations. Guardia platform — APIs and events"
-alwaysApply: true
+description: "Idempotência em operações que modificam estado. Consultar ao desenhar APIs ou eventos."
+alwaysApply: false
 ---
 
 # Lexis: Idempotency for State-Modifying Operations

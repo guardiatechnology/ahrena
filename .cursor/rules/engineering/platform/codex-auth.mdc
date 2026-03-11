@@ -1,5 +1,5 @@
 ---
-description: "Authentication and Authorization on the Guardia Platform. Guardia platform — API access"
+description: "Autenticação e autorização (OAuth 2.0, JWT, RBAC). Consultar ao implementar acesso a APIs."
 alwaysApply: false
 ---
 

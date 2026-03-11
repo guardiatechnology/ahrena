@@ -1,6 +1,6 @@
 ---
-description: "Standardized Error Structure in Responses. Guardia platform — error handling"
-alwaysApply: true
+description: "Estrutura padronizada de erros (errors array, code, reason, message). Consultar ao retornar erros."
+alwaysApply: false
 ---
 
 # Lexis: Standardized Error Structure in Responses

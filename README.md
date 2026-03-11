@@ -156,3 +156,5 @@ O Ahrena oferece **suporte integrado ao Cursor IDE**. Com `--platform cursor` (o
 | **Agents** (`.md`) | Warriors — subagentes especializados |
 
 As regras são aplicadas automaticamente conforme o escopo do projeto; skills e commands ficam disponíveis no chat. Para instalar com Cursor, use `make bootstrap PLATFORM=cursor` ou `python install.py --platform cursor`.
+
+**Configuração por plataforma:** a transposição (qual Pilar vira qual recurso) e a aplicação das rules (alwaysApply, globs, description) são definidas no arquivo **`platforms.yaml`** (default em `framework/platforms.yaml`, override em `.ahrena/platforms.yaml`). O sync (`python .ahrena/update.py --sync-cursor` ou `make sync-cursor`) usa essa configuração para gerar `.cursor/`. Detalhes em [codex-platforms](framework/pt-BR/_foundation/process/codex/codex-platforms.md).

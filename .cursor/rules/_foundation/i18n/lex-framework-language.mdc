@@ -1,6 +1,6 @@
 ---
-description: "Framework Language Structure. Folder structure and language-based navigation within framework/"
-alwaysApply: true
+description: "Estrutura de idiomas no framework (primeiro nível = lang). Consultar ao criar ou posicionar artefatos i18n."
+alwaysApply: false
 ---
 
 # Lexis: Framework Language Structure
@@ -50,3 +50,31 @@ The artifact in the language defined in `language.default` is the **source of tr
 ### 7. No loose content at the root
 
 No `.md` artifact should exist directly in `framework/` outside of language folders, except meta-configuration files such as `.directives.sample`.
+
+## Examples
+
+### Correct
+
+```
+framework/pt-BR/_foundation/process/lexis/lex-directives.md
+framework/es/_foundation/process/lexis/lex-directives.md
+framework/en/_foundation/process/lexis/lex-directives.md
+# Same relative path in each language; artifact complete for language.i18n.
+```
+
+### Incorrect
+
+```
+framework/lex-directives.md
+# ❌ Artifact outside language folder; breaks addressing {lang}/{clade}/...
+
+framework/pt-BR/_foundation/process/lexis/lex-directives.md
+# Exists only in pt-BR; es and en missing.
+# ❌ Incomplete artifact; violates mandatory completeness.
+```
+
+## Automated Validation
+
+- **Tool:** verification by the agent or script that compares `framework/{lang}/` for each `lang` in `language.i18n`
+- **When:** on artifact creation (kata-create-*), on push to framework, and on PR review
+- **Metric:** 0 artifacts in only one language when `language.i18n` requires all; 0 artifacts outside `{lang}/`

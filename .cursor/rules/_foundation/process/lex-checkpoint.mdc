@@ -1,136 +1,116 @@
 ---
-alwaysApply: false
 description: "Checkpoint de sessão. Usado para salvar o contexto de uma sessão de trabalho com agentes IA."
+alwaysApply: true
 ---
 
-# Lexis: Checkpoint de Sessão
+# Lexis: Session Checkpoint
 
-> **Prefixo:** `lex-` | **Tipo:** Lei Inquebável | **Escopo:** Todas as sessões de trabalho com agentes IA
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All work sessions with AI agents
 
-## Propósito
+## Law
 
-Sessões de trabalho com agentes de IA são efêmeras — quando encerradas, todo o contexto acumulado (decisões tomadas, progresso parcial, próximos passos) é perdido. Isso gera retrabalho, inconsistência e perda de continuidade.
+> **Every agent MUST check the `.checkpoint` file before starting any activity and MUST save the checkpoint when concluding each activity or ending a session.**
 
-O checkpoint é um mecanismo do Ahrena que persiste o contexto de uma atividade em um arquivo `.checkpoint`, permitindo que qualquer agente — na mesma sessão ou em sessões futuras — retome o trabalho exatamente de onde parou.
+## Rules
 
-Esta Lexis existe para garantir que **nenhum contexto relevante seja perdido entre sessões** e que **nenhuma atividade comece sem antes verificar se há trabalho prévio salvo**.
+### 1. Mandatory check at start
 
-## Lei
+Before starting any activity, the agent **MUST**:
 
-> **Todo agente DEVE verificar o arquivo `.checkpoint` antes de iniciar qualquer atividade e DEVE salvar o checkpoint ao concluir cada atividade ou encerrar uma sessão.**
+1. Check whether a `.checkpoint` file exists at the workspace root.
+2. If it exists, read its content and present the user with a summary of the saved context.
+3. Ask the user whether to **resume** the saved activity or **start a new one** (discarding the previous checkpoint).
+4. If it does not exist, proceed as usual.
 
-## Regras
+### 2. Mandatory save on conclusion
 
-### 1. Verificação obrigatória ao iniciar
+When concluding an activity or ending a session, the agent **MUST**:
 
-Antes de iniciar qualquer atividade, o agente **DEVE**:
+1. Ask the user their save preference (only the first time in the session):
+   - **Automatic:** the checkpoint is saved automatically at the end of each activity, without asking again.
+   - **Manual:** the agent asks before each save whether the user wants to save.
+2. Respect the indicated preference for the rest of the session.
+3. Persist the checkpoint to the `.checkpoint` file at the workspace root.
 
-1. Verificar se existe um arquivo `.checkpoint` na raiz do workspace.
-2. Se existir, ler seu conteúdo e apresentar ao usuário um resumo do contexto salvo.
-3. Perguntar ao usuário se deseja **retomar** a atividade salva ou **iniciar uma nova** (descartando o checkpoint anterior).
-4. Se não existir, prosseguir normalmente.
+### 3. Checkpoint structure
 
-### 2. Salvamento obrigatório ao concluir
-
-Ao concluir uma atividade ou encerrar uma sessão, o agente **DEVE**:
-
-1. Perguntar ao usuário sua preferência de salvamento (apenas na primeira vez da sessão):
-   - **Automático:** o checkpoint é salvo automaticamente ao final de cada atividade, sem perguntar novamente.
-   - **Manual:** o agente pergunta antes de cada salvamento se o usuário deseja salvar.
-2. Respeitar a preferência indicada pelo resto da sessão.
-3. Persistir o checkpoint no arquivo `.checkpoint` na raiz do workspace.
-
-### 3. Estrutura do checkpoint
-
-O arquivo `.checkpoint` deve conter, no mínimo:
+The `.checkpoint` file MUST contain at least:
 
 ```markdown
 # Checkpoint
 
-- **Atividade:** [descrição breve da atividade em andamento]
-- **Status:** [em andamento | concluído | bloqueado]
-- **Data:** [data e hora do salvamento]
-- **Sessão:** [identificador da sessão ou chat]
+- **Activity:** [brief description of the activity in progress]
+- **Status:** [in progress | completed | blocked]
+- **Date:** [date and time of save]
+- **Session:** [session or chat identifier]
 
-## Contexto
+## Context
 
-[Resumo do que foi discutido, decidido ou produzido]
+[Summary of what was discussed, decided, or produced]
 
-## Progresso
+## Progress
 
-- [x] [etapa concluída]
-- [ ] [próxima etapa pendente]
+- [x] [completed step]
+- [ ] [next pending step]
 
-## Decisões tomadas
+## Decisions made
 
-- [decisão 1]
-- [decisão 2]
+- [decision 1]
+- [decision 2]
 
-## Próximos passos
+## Next steps
 
-1. [ação pendente]
-2. [ação pendente]
+1. [pending action]
+2. [pending action]
 
-## Artefatos produzidos
+## Artifacts produced
 
-- [caminho/do/arquivo-1]
-- [caminho/do/arquivo-2]
+- [path/to/file-1]
+- [path/to/file-2]
 ```
 
-### 4. Responsabilidade compartilhada
+### 4. Shared responsibility
 
-- Qualquer agente (Warrior) que atue na sessão **herda** esta obrigação.
-- O checkpoint é **agnóstico de disciplina** — aplica-se a atividades de qualquer Clade.
-- O arquivo `.checkpoint` **não deve ser commitado** no repositório (deve estar no `.gitignore`).
+- Any agent (Warrior) acting in the session **inherits** this obligation.
+- The checkpoint is **discipline-agnostic** — it applies to activities in any Clade.
+- The `.checkpoint` file **MUST NOT** be committed to the repository (it MUST be in `.gitignore`).
 
-## Abrangência
+## Examples
 
-- **Aplica-se a:** todas as sessões de trabalho com agentes IA, em qualquer Clade e Subclade
-- **Agentes vinculados:** todos os Warriors e agentes genéricos
-- **Exceções:** Nenhuma. Lexis não admitem exceções.
-
-## Consequências de Violação
-
-1. **Perda de contexto:** sessões sem checkpoint resultam em retrabalho e perda de decisões já tomadas.
-2. **Alerta ao usuário:** se o agente detectar que uma sessão anterior não salvou checkpoint, deve alertar o usuário sobre a possível perda de contexto.
-3. **Remediação:** o agente deve tentar reconstruir o contexto a partir do histórico disponível (arquivos modificados, git log, transcripts) e salvar um checkpoint retroativo.
-
-## Exemplos
-
-### Correto
+### Correct
 
 ```
-Agente: Encontrei um checkpoint salvo:
-  - Atividade: Implementação do módulo de autenticação
-  - Status: em andamento
-  - Última sessão: 2026-03-07 14:30
-  - Progresso: 3 de 5 etapas concluídas
+Agent: I found a saved checkpoint:
+  - Activity: Authentication module implementation
+  - Status: in progress
+  - Last session: 2026-03-07 14:30
+  - Progress: 3 of 5 steps completed
 
-  Deseja retomar esta atividade ou iniciar uma nova?
+  Do you want to resume this activity or start a new one?
 
-Usuário: Retomar.
+User: Resume.
 
-Agente: Perfeito. Retomando de onde paramos...
-  Próximos passos pendentes:
-  1. Implementar refresh token
-  2. Adicionar testes de integração
+Agent: Resuming from where we left off...
+  Pending next steps:
+  1. Implement refresh token
+  2. Add integration tests
 ```
 
-### Incorreto
+### Incorrect
 
 ```
-Agente: Olá! Em que posso ajudar?
+Agent: Hello! How can I help?
 
-Usuário: Vamos continuar a implementação do módulo de autenticação.
+User: Let's continue the authentication module implementation.
 
-Agente: Claro! Vamos começar do zero. Qual é o escopo?
+Agent: Sure! Let's start from scratch. What's the scope?
 
-# ❌ O agente ignorou o checkpoint existente e forçou o usuário
-# a re-explicar todo o contexto da sessão anterior.
+# ❌ The agent ignored the existing checkpoint and forced the user
+# to re-explain the entire context of the previous session.
 ```
 
-## Validação Automatizada
+## Automated Validation
 
-- **Ferramenta:** verificação pelo próprio agente ao iniciar e finalizar cada sessão
-- **Momento:** início de cada sessão (leitura) e fim de cada atividade (escrita)
-- **Métrica:** 100% das sessões devem ter checkpoint verificado na entrada e salvo na saída
+- **Tool:** verification by the agent itself at the start and end of each session
+- **When:** start of each session (read) and end of each activity (write)
+- **Metric:** 100% of sessions MUST have the checkpoint checked on entry and saved on exit

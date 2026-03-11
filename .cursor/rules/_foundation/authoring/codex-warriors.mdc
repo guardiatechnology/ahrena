@@ -1,5 +1,5 @@
 ---
-description: "How to Write Good Warriors. Creation of Warriors (specialized agents)"
+description: "Como escrever bons Warriors. Consultar ao criar ou revisar Warriors."
 alwaysApply: false
 ---
 
@@ -108,7 +108,8 @@ Escalation criteria define when the Warrior stops and requests help:
 
 ### Technical Constraints
 
-- Every Warrior MUST include at least one Lexis in the consultation chain (`lex-directives` at minimum)
-- The "Interaction Example" section MUST contain a complete scenario (input + output)
-- The file name MUST follow the pattern `warrior-{name}.md`
-- The mission MUST be a blockquote citation
+- Every Warrior MUST include **at least one Lexis** in the consultation chain (`lex-directives` at minimum)
+- The **Interaction Example** section MUST contain a complete scenario (user input + structured Warrior response)
+- The file name MUST use the prefix defined in `naming.prefixes.warriors` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{name}.md`
+- The structure MUST follow the official template: consult `paths.samples.warriors` in `.directives` (e.g. `templates/warrior-sample.md`)
+- The **Mission** MUST be a blockquote citation (1–2 sentences)

@@ -1,0 +1,192 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Ahrena: Platform-specific artifact application
+#
+# Defines per platform:
+#   1. Transposition: Ahrena pilar -> platform resource (lex/codex -> rules, etc.)
+#   2. Application config: how each artifact is applied (alwaysApply, globs, description)
+#
+# Per lex-platforms-rules: every Lexis and Codex MUST have an entry under cursor.rules
+# with at least description. Default (framework) can be overridden by .ahrena/platforms.yaml.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cursor:
+  transposition:
+    lex: rules
+    codex: rules
+    kata: skills
+    warrior: agents
+    cry: commands
+
+  rules:
+    _foundation/process/lexis/lex-directives:
+      alwaysApply: true
+      description: "Consulta obrigatória ao .directives. Todo agente deve ler .ahrena/.directives antes de produzir artefatos."
+    _foundation/process/lexis/lex-checkpoint:
+      alwaysApply: true
+      description: "Checkpoint de sessão. Usado para salvar o contexto de uma sessão de trabalho com agentes IA."
+    _foundation/process/lexis/lex-platforms-rules:
+      alwaysApply: false
+      description: "Todo Lexis e Codex deve ter entrada em cursor.rules em platforms.yaml. Consultar ao criar lex/codex."
+    _foundation/process/lexis/lex-naming:
+      alwaysApply: false
+      description: "Convenções de nomenclatura e endereçamento de artefatos do framework. Consultar ao nomear ou posicionar artefatos."
+    _foundation/process/codex/codex-directives:
+      alwaysApply: false
+      description: "Manual do arquivo .directives. Consultar para interpretar paths, idiomas, naming e convenções."
+    _foundation/process/codex/codex-paths:
+      alwaysApply: false
+      description: "Caminhos canônicos do framework. Consultar ao referenciar ou criar artefatos."
+    _foundation/process/codex/codex-naming:
+      alwaysApply: false
+      description: "Convenções de nomenclatura no .directives. Consultar ao nomear arquivos e diretórios."
+    _foundation/process/codex/codex-platforms:
+      alwaysApply: false
+      description: "Aplicação do framework por plataforma (platforms.yaml). Consultar para transposition e cursor.rules."
+    _foundation/authoring/lexis/lex-pilars:
+      alwaysApply: false
+      description: "Sistema de Pilares do Ahrena. Consultar ao decidir tipo de artefato (Lexis, Codex, Kata, Warrior, Cry)."
+    _foundation/authoring/codex/codex-pilars:
+      alwaysApply: false
+      description: "Manual do sistema de Pilares. Consultar para criação e validação de artefatos."
+    _foundation/authoring/codex/codex-lexis:
+      alwaysApply: false
+      description: "Como escrever boas Lexis. Consultar ao criar ou revisar Lexis."
+    _foundation/authoring/codex/codex-codex:
+      alwaysApply: false
+      description: "Como escrever bons Codex. Consultar ao criar ou revisar Codex."
+    _foundation/authoring/codex/codex-katas:
+      alwaysApply: false
+      description: "Como escrever bons Katas. Consultar ao criar ou revisar Katas."
+    _foundation/authoring/codex/codex-warriors:
+      alwaysApply: false
+      description: "Como escrever bons Warriors. Consultar ao criar ou revisar Warriors."
+    _foundation/authoring/codex/codex-cries:
+      alwaysApply: false
+      description: "Como escrever bons Cries. Consultar ao criar ou revisar Cries."
+    _foundation/contributing/lexis/lex-small-commits:
+      alwaysApply: false
+      description: "Commits atômicos. Um único propósito lógico por commit. Consultar ao fazer commit."
+    _foundation/contributing/lexis/lex-conventional-commits:
+      alwaysApply: false
+      description: "Formato Conventional Commits. Consultar ao escrever mensagem de commit."
+    _foundation/contributing/lexis/lex-commit-language:
+      alwaysApply: false
+      description: "Idioma do subject do commit (inglês) e tag de idioma no body. Consultar ao fazer commit."
+    _foundation/contributing/lexis/lex-signed-commits:
+      alwaysApply: false
+      description: "Commits assinados com GPG. Consultar ao fazer push ou configurar Git."
+    _foundation/contributing/lexis/lex-semantic-version:
+      alwaysApply: false
+      description: "Versionamento semântico (SemVer) para releases e tags. Consultar ao criar tag ou release."
+    _foundation/contributing/codex/codex-commit-standards:
+      alwaysApply: false
+      description: "Padrões de mensagem de commit. Consultar ao escrever ou revisar commits."
+    _foundation/contributing/codex/codex-contributing:
+      alwaysApply: false
+      description: "Fluxo de contribuição (PR, revisão, merge). Consultar ao abrir ou revisar PR."
+    _foundation/contributing/codex/codex-semantic-version:
+      alwaysApply: false
+      description: "Referência SemVer (MAJOR.MINOR.PATCH, pre-release). Consultar ao versionar."
+    _foundation/i18n/lexis/lex-framework-language:
+      alwaysApply: false
+      description: "Estrutura de idiomas no framework (primeiro nível = lang). Consultar ao criar ou posicionar artefatos i18n."
+    _foundation/i18n/codex/codex-framework-language:
+      alwaysApply: false
+      description: "Organização do framework por idioma. Consultar para i18n de artefatos."
+    _foundation/quality/lexis/lex-template-usage:
+      alwaysApply: false
+      description: "Uso obrigatório de templates oficiais ao criar Lexis, Codex, Katas, Warriors, Cries. Consultar ao criar artefato."
+    _foundation/quality/lexis/lex-tone:
+      alwaysApply: false
+      description: "Tom e estilo de escrita do framework. Consultar ao redigir artefatos ou comunicação."
+    _foundation/quality/codex/codex-tone:
+      alwaysApply: false
+      description: "Manual de tom e estilo. Consultar para consistência na redação."
+    _foundation/tooling/lexis/lex-terminal-type:
+      alwaysApply: false
+      description: "Ao executar ou propor comandos de shell, use o tipo de terminal definido em .ahrena/.directives (bash ou PowerShell). Consulte esta rule quando for rodar comandos ou gerar documentação com exemplos de terminal."
+    _foundation/tooling/codex/codex-terminal-type:
+      alwaysApply: false
+      description: "Uso de bash e PowerShell no Ahrena. Consultar ao gerar exemplos de comandos."
+    _foundation/tooling/codex/codex-make:
+      alwaysApply: false
+      description: "Targets do Makefile e equivalência sem Make (PowerShell/Python). Consultar ao rodar install, update, sync-cursor."
+    documentation/i18n/lexis/lex-language:
+      alwaysApply: false
+      description: "Regras transversais de tradução. Consultar ao traduzir documentação técnica."
+    documentation/i18n/lexis/lex-language-ptbr:
+      alwaysApply: false
+      description: "Regras para tradução para pt-BR. Tradução de documentação técnica para pt-BR"
+    documentation/i18n/lexis/lex-language-es:
+      alwaysApply: false
+      description: "Regras para tradução para espanhol. Consultar ao traduzir para es."
+    documentation/i18n/lexis/lex-language-en:
+      alwaysApply: false
+      description: "Regras para tradução para inglês. Consultar ao traduzir para en."
+    documentation/i18n/codex/codex-language:
+      alwaysApply: false
+      description: "Guia transversal de tradução. Consultar ao traduzir documentação."
+    documentation/i18n/codex/codex-language-ptbr:
+      alwaysApply: false
+      description: "Guia para tradução para pt-BR. Consultar ao traduzir para pt-BR."
+    documentation/i18n/codex/codex-language-es:
+      alwaysApply: false
+      description: "Guia para tradução para espanhol. Consultar ao traduzir para es."
+    documentation/i18n/codex/codex-language-en:
+      alwaysApply: false
+      description: "Guia para tradução para inglês. Consultar ao traduzir para en."
+    engineering/platform/lexis/lex-auth:
+      alwaysApply: false
+      globs: ["**/openapi/**", "**/oas/**", "**/api/**"]
+      description: "Autenticação e autorização em APIs Guardia. Acesso a APIs da plataforma"
+    engineering/platform/lexis/lex-entities:
+      alwaysApply: false
+      description: "Estrutura base de entidades (entity_id, entity_type, version, timestamps). Consultar ao desenhar recursos."
+    engineering/platform/lexis/lex-idempotency:
+      alwaysApply: false
+      description: "Idempotência em operações que modificam estado. Consultar ao desenhar APIs ou eventos."
+    engineering/platform/lexis/lex-restful-apis:
+      alwaysApply: false
+      description: "Conformidade RESTful (status, payload, headers, paginação). Consultar ao desenhar endpoints."
+    engineering/platform/lexis/lex-error-handling:
+      alwaysApply: false
+      description: "Estrutura padronizada de erros (errors array, code, reason, message). Consultar ao retornar erros."
+    engineering/platform/lexis/lex-cloudevents:
+      alwaysApply: false
+      description: "CloudEvents para eventos na plataforma. Consultar ao publicar ou consumir eventos."
+    engineering/platform/codex/codex-auth:
+      alwaysApply: false
+      description: "Autenticação e autorização (OAuth 2.0, JWT, RBAC). Consultar ao implementar acesso a APIs."
+    engineering/platform/codex/codex-entities:
+      alwaysApply: false
+      description: "Modelo de entidades da plataforma. Consultar ao modelar recursos persistentes."
+    engineering/platform/codex/codex-idempotency:
+      alwaysApply: false
+      description: "Idempotência em APIs e eventos. Consultar ao desenhar mutações."
+    engineering/platform/codex/codex-error-handling:
+      alwaysApply: false
+      description: "Tratamento de erros (estrutura, retry, circuit breaker). Consultar ao implementar erros."
+    engineering/platform/codex/codex-cloudevents:
+      alwaysApply: false
+      description: "CloudEvents (estrutura, tipo, idempotencykey). Consultar ao publicar eventos."
+    engineering/platform/codex/codex-restful-apis:
+      alwaysApply: false
+      description: "APIs RESTful da plataforma. Consultar ao desenhar ou integrar APIs."
+    engineering/platform/codex/codex-restful-headers:
+      alwaysApply: false
+      description: "Headers HTTP em APIs RESTful. Consultar ao definir ou validar headers."
+    engineering/platform/codex/codex-restful-pagination:
+      alwaysApply: false
+      description: "Paginação em listagens. Consultar ao desenhar listagens paginadas."
+    engineering/platform/codex/codex-restful-payload:
+      alwaysApply: false
+      description: "Estrutura de payload de resposta. Consultar ao formatar respostas."
+    engineering/platform/codex/codex-restful-sorting:
+      alwaysApply: false
+      description: "Ordenação em listagens. Consultar ao desenhar order_by/sort."
+    engineering/platform/codex/codex-restful-status-codes:
+      alwaysApply: false
+      description: "Códigos de status HTTP. Consultar ao escolher status de resposta."
+    engineering/platform/codex/codex-oas-structure:
+      alwaysApply: false
+      description: "Ordem de operações em paths OpenAPI. Consultar ao escrever ou revisar OAS."

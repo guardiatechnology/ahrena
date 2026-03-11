@@ -23,11 +23,9 @@ description: "Create New Kata. Katas creation (repeatable procedures)"
 ## What the Command Does
 
 1. Reads `.ahrena/.directives` to obtain languages and conventions
-2. Consults `codex-katas` for quality criteria
-3. Reads `templates/kata-sample.md` as the structural base
-4. Executes `kata-create-kata` with the provided parameters
-5. Creates the Kata in the default language and translates to the remaining languages
-6. Reports the created files
+2. Invokes `kata-create-kata` with the provided parameters; the Kata consults `codex-katas` and the official template and produces the Kata
+3. (The Kata) Creates the Kata in the default language and translates to the remaining languages
+4. Reports the created files
 
 ## Prompt Template
 
@@ -38,9 +36,8 @@ Contexto:
 - Clade/Subclade: {{clade}} (ou inferir da tarefa)
 
 Tarefa:
-Execute o kata-create-kata. Consulte .ahrena/.directives para obter os
-idiomas obrigatórios. Consulte codex-katas para critérios de qualidade.
-Use templates/kata-sample.md como base. Crie o Kata no idioma padrão e
+Execute o kata-create-kata. O Kata consulta .ahrena/.directives, codex-katas
+e templates/kata-sample.md. Crie o Kata no idioma padrão e
 traduza para todos os idiomas de language.i18n.
 
 Formato de saída:

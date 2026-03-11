@@ -23,11 +23,9 @@ description: "Create New Lexis. Lexis creation (unbreakable laws)"
 ## What the Command Does
 
 1. Reads `.ahrena/.directives` to obtain languages and conventions
-2. Consults `codex-lexis` for quality criteria
-3. Reads `templates/lex-sample.md` as the structural base
-4. Executes `kata-create-lexis` with the provided parameters
-5. Creates the Lexis in the default language and translates to the remaining languages
-6. Reports the created files
+2. Invokes `kata-create-lexis` with the provided parameters; the Kata consults `codex-lexis` and the official template and produces the Lexis
+3. (The Kata) Creates the Lexis in the default language and translates to the remaining languages
+4. Reports the created files
 
 ## Prompt Template
 
@@ -38,10 +36,9 @@ Contexto:
 - Clade/Subclade: {{clade}} (ou inferir do assunto)
 
 Tarefa:
-Execute o kata-create-lexis. Consulte .ahrena/.directives para obter os
-idiomas obrigatórios. Consulte codex-lexis para critérios de qualidade.
-Use templates/lex-sample.md como base. Crie a Lexis no idioma padrão e
-traduza para todos os idiomas de language.i18n.
+Execute o kata-create-lexis. O Kata consulta .ahrena/.directives, codex-lexis
+e templates/lex-sample.md. Crie a Lexis no idioma padrão e traduza para
+todos os idiomas de language.i18n.
 
 Formato de saída:
 Lista de arquivos criados com confirmação de que a lei é clara, unívoca

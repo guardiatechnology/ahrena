@@ -85,7 +85,7 @@ Use `templates/lex-sample.md` as a base and fill in all sections:
 - [ ] The examples (Correct/Incorrect) are concrete
 - [ ] The file is saved in the correct taxonomy path
 - [ ] Versions exist in all languages from `language.i18n`
-- [ ] The file name uses the `lex-` prefix and kebab-case
+- [ ] The file name uses the Pilar prefix defined in `naming.prefixes.lexis` (consult `.directives`) and kebab-case
 
 ## Outputs
 

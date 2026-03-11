@@ -1,6 +1,6 @@
 ---
-description: "CloudEvents on the Guardia Platform. Guardia platform — distributed systems and events"
-alwaysApply: true
+description: "CloudEvents para eventos na plataforma. Consultar ao publicar ou consumir eventos."
+alwaysApply: false
 ---
 
 # Lexis: CloudEvents on the Guardia Platform

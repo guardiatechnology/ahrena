@@ -19,15 +19,11 @@ description: "Sync with upstream remote. Shortcut to sync the local repository w
 | `remote` | No | Remote name (default: `origin`) | `origin`, `upstream` |
 | `branch` | No | Branch to sync (default: current branch) | `main`, `develop` |
 
-## Behavior
+## What the Command Does
 
-The command runs, **in this order**:
-
-1. **Fetch:** `git fetch <remote>` — updates remote references and objects without changing the working tree.
-2. **Pull:** `git pull <remote> <branch>` — fetches and merges (or rebases, per config) remote commits into the current branch.
-3. **Push:** `git push <remote> <branch>` — pushes local commits to the remote.
-
-If the pull has conflicts, the agent reports them and guides the user to use `/cry-rebase` to resolve before attempting push.
+1. Invokes **kata-sync**, which encapsulates the repository sync procedure (fetch, pull, push, and conflict handling).
+2. The detailed procedure is in the Kata; the Cry does not define steps with external commands — it only invokes the Kata.
+3. While `kata-sync` is pending creation, the agent may guide the user based on `codex-contributing`; once created, the Cry will invoke it exclusively.
 
 ## Usage Examples
 

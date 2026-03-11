@@ -100,6 +100,10 @@ Behavior:
 /cry-contribute discuss
 ```
 
+## Delegation to per-type cries
+
+For type-guided flow, the user MAY invoke the corresponding cry directly: **cry-new-feature-request**, **cry-new-epic**, **cry-new-user-story-api**, **cry-new-user-story-frontend** (issues), **cry-new-pr** (PR), **cry-new-discuss** (discussion). `cry-contribute` MAY delegate to these cries when the user selects a specific action/type (e.g., `cry-contribute issue` → ask type and delegate to the corresponding cry-new-*, or invoke `kata-contributing-issue` with the type).
+
 ## Rules
 
 - Blank issues are disabled — every issue MUST use a template
@@ -107,6 +111,9 @@ Behavior:
 - PRs MUST follow all 4 commit Lexis
 - The PR title MUST follow Conventional Commits in English
 
-## Associated Kata
+## Associated Katas
 
-`kata-contribute` — Complete procedure for contributing via Pull Request
+- `kata-contribute` — Complete procedure for contributing via Pull Request (`pr` action)
+- `kata-contributing-issue` — Procedure for opening an issue (issue actions; invoked by cries cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend)
+- `kata-contributing-pr` — Procedure for PR (invoked by cry-new-pr)
+- `kata-contributing-discuss` — Procedure for discussion (`discuss` action; invoked by cry-new-discuss)

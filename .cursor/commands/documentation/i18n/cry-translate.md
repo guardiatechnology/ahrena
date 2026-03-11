@@ -26,10 +26,7 @@ description: "Translate Document. Technical documentation translation"
 2. Identifies the source language from the path or content
 3. Determines target language(s) and execution order
 4. Invokes `warrior-translator` with `kata-translate`
-5. For each language in order:
-   a. Consults `lex-language-{lang}` and `codex-language-{lang}`
-   b. Translates the document
-   c. Saves to the correct path
+5. For each language in order, the Warrior (via kata-translate) consults `lex-language-{lang}` and `codex-language-{lang}`, translates the document, and saves to the correct path
 6. Reports created files
 
 ## Prompt Template
@@ -41,11 +38,7 @@ Context:
 - Order: {{order}} (or as per language.i18n)
 
 Task:
-Assume the role of warrior-translator (Hermes). Consult .ahrena/.directives
-for required languages. For each target language in the defined order:
-1. Consult lex-language + lex-language-{lang} + codex-language + codex-language-{lang}
-2. Read the source file and execute kata-translate
-3. Save the translation to the correct path
+Assume the role of warrior-translator (Hermes). Read .ahrena/.directives for required languages. For each target language in the defined order, execute **kata-translate** (the Kata consults the language Lexis and Codex per its documentation). Read the source file, execute the Kata, and save the translation to the correct path.
 
 Output format:
 List of created files with per-language validation confirmation.

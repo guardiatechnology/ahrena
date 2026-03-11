@@ -1,6 +1,6 @@
 ---
-description: "Mandatory Semantic Versioning. Versions and release tags in Guardia repositories"
-alwaysApply: true
+description: "Versionamento semântico (SemVer) para releases e tags. Consultar ao criar tag ou release."
+alwaysApply: false
 ---
 
 # Lexis: Mandatory Semantic Versioning

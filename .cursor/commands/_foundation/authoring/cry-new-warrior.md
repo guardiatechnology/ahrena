@@ -24,11 +24,9 @@ description: "Create New Warrior. Warriors creation (specialized agents)"
 ## What the Command Does
 
 1. Reads `.ahrena/.directives` to obtain languages and conventions
-2. Consults `codex-warriors` for quality criteria
-3. Reads `templates/warrior-sample.md` as the structural base
-4. Executes `kata-create-warrior` with the provided parameters
-5. Creates the Warrior in the default language and translates to the remaining languages
-6. Reports the created files
+2. Invokes `kata-create-warrior` with the provided parameters; the Kata consults `codex-warriors` and the official template and produces the Warrior
+3. (The Kata) Creates the Warrior in the default language and translates to the remaining languages
+4. Reports the created files
 
 ## Prompt Template
 
@@ -40,9 +38,8 @@ Contexto:
 - Clade/Subclade: {{clade}} (ou inferir do domínio)
 
 Tarefa:
-Execute o kata-create-warrior. Consulte .ahrena/.directives para obter os
-idiomas obrigatórios. Consulte codex-warriors para critérios de qualidade.
-Use templates/warrior-sample.md como base. Crie o Warrior no idioma padrão e
+Execute o kata-create-warrior. O Kata consulta .ahrena/.directives, codex-warriors
+e templates/warrior-sample.md. Crie o Warrior no idioma padrão e
 traduza para todos os idiomas de language.i18n.
 
 Formato de saída:

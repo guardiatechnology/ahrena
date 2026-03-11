@@ -1,5 +1,5 @@
 ---
-description: "How to Write Good Codex. Creation of Codex (reference manuals)"
+description: "Como escrever bons Codex. Consultar ao criar ou revisar Codex."
 alwaysApply: false
 ---
 
@@ -59,7 +59,9 @@ alwaysApply: false
 
 ### Technical Constraints
 
-- The "Overview" section MUST describe the scope in at most two paragraphs
-- The "Context" section MUST include "Update" with a concrete trigger
+- The **Overview** section MUST describe the scope in at most two paragraphs
+- The **Context** section MUST include **Update** with a concrete trigger (when the Codex needs review)
+- **Content** MUST include: Principles, Standards and Conventions, Active Decisions (if applicable), Technical Constraints
 - Tables are preferable to long paragraphs for structured information
-- The file name MUST follow the pattern `codex-{descriptive-name}.md`
+- The file name MUST use the prefix defined in `naming.prefixes.codex` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{descriptive-name}.md`
+- The structure MUST follow the official template: consult `paths.samples.codex` in `.directives` (e.g. `templates/codex-sample.md`)

@@ -1,6 +1,6 @@
 ---
-description: "Rules for Translating to English. Technical documentation translation to English (en)"
-alwaysApply: true
+description: "Regras para tradução para inglês. Consultar ao traduzir para en."
+alwaysApply: false
 ---
 
 # Lexis: Rules for Translating to English
@@ -69,3 +69,16 @@ Prioritize **short, direct sentences**:
 | "actually" (≠ atualmente) | "currently" |
 | "pretend" (≠ pretender) | "intend" |
 | "library" (≠ livraria) | "bookstore" (livraria) / "library" (biblioteca) |
+
+## Examples
+
+### Correct
+
+- "The agent **MUST** consult the .directives." (active voice, MUST per RFC 2119)
+- "Use the defined workflow." (concise; "workflow" kept in English when standard)
+
+### Incorrect
+
+- "The directives are read by the agent" (prefer active: "The agent reads the directives")
+- "Actually, the user must perform the action" ("actually" ≠ "atualmente"; use "Currently" if that is the meaning)
+- "The library sells books" when meaning "bookstore" (library = biblioteca; bookstore = livraria)

@@ -81,7 +81,7 @@ Use `templates/codex-sample.md` as a base and fill in all sections:
 - [ ] The Glossary defines terms in the context of this Codex
 - [ ] The file is saved in the correct taxonomy path
 - [ ] Versions exist in all languages from `language.i18n`
-- [ ] The file name uses the `codex-` prefix and kebab-case
+- [ ] The file name uses the Pilar prefix defined in `naming.prefixes.codex` (consult `.directives`) and kebab-case
 
 ## Outputs
 

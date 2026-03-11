@@ -1,6 +1,6 @@
 ---
-description: "RESTful Compliance for HTTP Endpoints. Guardia platform — REST APIs"
-alwaysApply: true
+description: "Conformidade RESTful (status, payload, headers, paginação). Consultar ao desenhar endpoints."
+alwaysApply: false
 ---
 
 # Lexis: RESTful Compliance for HTTP Endpoints

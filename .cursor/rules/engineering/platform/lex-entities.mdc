@@ -1,6 +1,6 @@
 ---
-description: "Base Entity Structure. Guardia platform — entity model"
-alwaysApply: true
+description: "Estrutura base de entidades (entity_id, entity_type, version, timestamps). Consultar ao desenhar recursos."
+alwaysApply: false
 ---
 
 # Lexis: Base Entity Structure

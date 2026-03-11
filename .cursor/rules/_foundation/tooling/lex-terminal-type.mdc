@@ -1,6 +1,6 @@
 ---
-description: "The agent should have inferred PowerShell or asked the user.. Execution of shell commands by AI agents"
-alwaysApply: true
+description: "Ao executar ou propor comandos de shell, use o tipo de terminal definido em .ahrena/.directives (bash ou PowerShell). Consulte esta rule quando for rodar comandos ou gerar documentação com exemplos de terminal."
+alwaysApply: false
 ---
 
 # Lexis: Mandatory Use of Defined Terminal Type

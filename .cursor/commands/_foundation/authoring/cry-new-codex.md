@@ -23,11 +23,9 @@ description: "Create New Codex. Codex creation (reference manuals)"
 ## What the Command Does
 
 1. Reads `.ahrena/.directives` to obtain languages and conventions
-2. Consults `codex-codex` for quality criteria
-3. Reads `templates/codex-sample.md` as the structural base
-4. Executes `kata-create-codex` with the provided parameters
-5. Creates the Codex in the default language and translates to the remaining languages
-6. Reports the created files
+2. Invokes `kata-create-codex` with the provided parameters; the Kata consults `codex-codex` and the official template and produces the Codex
+3. (The Kata) Creates the Codex in the default language and translates to the remaining languages
+4. Reports the created files
 
 ## Prompt Template
 
@@ -38,9 +36,8 @@ Contexto:
 - Clade/Subclade: {{clade}} (ou inferir do domínio)
 
 Tarefa:
-Execute o kata-create-codex. Consulte .ahrena/.directives para obter os
-idiomas obrigatórios. Consulte codex-codex para critérios de qualidade.
-Use templates/codex-sample.md como base. Crie o Codex no idioma padrão e
+Execute o kata-create-codex. O Kata consulta .ahrena/.directives, codex-codex
+e templates/codex-sample.md. Crie o Codex no idioma padrão e
 traduza para todos os idiomas de language.i18n.
 
 Formato de saída:

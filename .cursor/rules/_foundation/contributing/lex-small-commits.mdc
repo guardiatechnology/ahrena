@@ -1,6 +1,6 @@
 ---
-description: "It should be 4 separate commits.. All commits in Guardia repositories"
-alwaysApply: true
+description: "Commits atômicos. Um único propósito lógico por commit. Consultar ao fazer commit."
+alwaysApply: false
 ---
 
 # Lexis: Mandatory Atomic Commits

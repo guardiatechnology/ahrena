@@ -1,179 +1,161 @@
 ---
-description: "Uso obrigatório de templates. Orienta o agente a usar os samples oficiais como base ao criar novos artefatos (Lexis, Codex, Katas, Warriors, Cries)."
+description: "Uso obrigatório de templates oficiais ao criar Lexis, Codex, Katas, Warriors, Cries. Consultar ao criar artefato."
 alwaysApply: false
 ---
 
-# Lexis: Uso Obrigatório de Templates
+# Lexis: Mandatory Use of Templates
 
-> **Prefixo:** `lex-` | **Tipo:** Lei Inquebável | **Escopo:** Criação de qualquer artefato do Ahrena
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Creation of any Ahrena artifact
 
-## Propósito
+## Law
 
-O Ahrena mantém templates oficiais (samples) para cada Pilar da taxonomia — Lexis, Codex, Katas, Warriors e Cries. Esses templates garantem consistência estrutural, completude de informações e padronização entre todos os artefatos do framework.
+> **Every agent MUST use the official template (sample) of the corresponding Pilar as the structural base when creating any new Ahrena artifact — Lexis, Codex, Kata, Warrior, or Cry.**
 
-Sem essa padronização, agentes podem gerar artefatos com seções faltantes, estrutura inconsistente ou nomenclatura divergente, comprometendo a interoperabilidade e a governança do sistema.
+## Rules
 
-Esta Lexis existe para garantir que **todo novo artefato seja criado a partir do template oficial correspondente**, preservando a integridade estrutural do framework.
+### 1. Mandatory template per Pilar
 
-## Lei
+Before creating a new artifact, the agent **MUST** consult the template (sample) for the corresponding Pilar. Canonical paths are in `.ahrena/.directives` under the `paths.samples` section (e.g. `paths.samples.lexis`, `paths.samples.codex`). Typical values in the Ahrena repository:
 
-> **Todo agente DEVE utilizar o template oficial (sample) do Pilar correspondente como base estrutural ao criar qualquer novo artefato do Ahrena — Lexis, Codex, Kata, Warrior ou Cry.**
+| Pilar | Template (paths.samples in .directives) | Template (.cursor/) |
+|-------|----------------------------------------|---------------------|
+| **Lexis** | `templates/lex-sample.md` | `.cursor/rules/samples/lex-sample.mdc` |
+| **Codex** | `templates/codex-sample.md` | `.cursor/rules/samples/codex-sample.mdc` |
+| **Katas** | `templates/kata-sample.md` | `.cursor/skills/samples/kata-sample.mdc` |
+| **Warriors** | `templates/warrior-sample.md` | `.cursor/agents/warrior-sample.md` |
+| **Cries** | `templates/cry-sample.md` | `.cursor/commands/samples/cry-sample.mdc` |
 
-## Regras
+The agent **MUST** use the `paths.samples` values from `.directives` when available; the table above reflects the default convention.
 
-### 1. Template obrigatório por Pilar
+### 2. Creation process
 
-Antes de criar um novo artefato, o agente **DEVE** consultar o template (sample) correspondente ao Pilar:
+When receiving a request to create a new artifact, the agent **MUST**:
 
-| Pilar | Template (framework/) | Template (.cursor/) |
-|-------|----------------------|---------------------|
-| **Lexis** | `framework/lexis/lex-sample.md` | `.cursor/rules/samples/lex-sample.mdc` |
-| **Codex** | `framework/codex/codex-sample.md` | `.cursor/rules/samples/codex-sample.mdc` |
-| **Katas** | `framework/katas/kata-sample.md` | `.cursor/skills/samples/kata-sample.mdc` |
-| **Warriors** | `framework/warriors/warrior-sample.md` | `.cursor/skills/samples/warrior-sample.mdc` |
-| **Cries** | `framework/cries/cry-sample.md` | `.cursor/commands/samples/cry-sample.mdc` |
+1. **Identify the Pilar** — determine whether the artifact is a Lexis, Codex, Kata, Warrior, or Cry.
+2. **Read the template** — load the content of the corresponding sample using the table above.
+3. **Use as structural base** — create the new artifact keeping all sections, headings, and structure of the template.
+4. **Fill in the fields** — replace the fields in square brackets `[]` with the artifact-specific content.
+5. **Remove template instructions** — remove generic explanatory text from the sample (e.g. "Describe why this law exists") and replace it with real content.
+6. **Respect addressing** — save to the correct path per the taxonomy: `<clade>/<subclade>/<pilar>/<prefix>-<name>.md`.
 
-### 2. Processo de criação
+### 3. Inviolable structure
 
-Ao receber uma solicitação para criar um novo artefato, o agente **DEVE**:
+The agent **MUST NOT**:
 
-1. **Identificar o Pilar** — determinar se o artefato é uma Lexis, Codex, Kata, Warrior ou Cry.
-2. **Ler o template** — carregar o conteúdo do sample correspondente usando a tabela acima.
-3. **Usar como base estrutural** — criar o novo artefato mantendo todas as seções, headings e estrutura do template.
-4. **Preencher os campos** — substituir os campos entre colchetes `[]` pelo conteúdo específico do artefato.
-5. **Remover instruções do template** — eliminar textos explicativos genéricos do sample (ex: "Descreva por que esta lei existe") e substituí-los pelo conteúdo real.
-6. **Respeitar o endereçamento** — salvar no caminho correto conforme a taxonomia: `<clade>/<subclade>/<pilar>/<prefixo>-<nome>.md`.
+- Omit mandatory sections defined in the template.
+- Invent its own structure ignoring the template.
+- Change the template’s standard headings (it may add sub-sections, never remove existing ones).
 
-### 3. Estrutura inviolável
+### 4. Dual creation (framework + IDE)
 
-O agente **NÃO PODE**:
+When the context requires it, the agent **MUST** create the artifact in both places:
 
-- Omitir seções obrigatórias definidas no template.
-- Inventar uma estrutura própria ignorando o template.
-- Alterar os headings padrão do template (pode adicionar sub-seções, nunca remover as existentes).
+- **`framework/`** — canonical version in plain `.md`, without IDE frontmatter.
+- **`.cursor/`** (or other IDE) — derived version in `.mdc` with appropriate YAML frontmatter.
 
-### 4. Criação dual (framework + IDE)
+### 5. Mandatory frontmatter in `.cursor/`
 
-Quando o contexto exigir, o agente **DEVE** criar o artefato em ambos os locais:
+When creating the `.mdc` version for Cursor, the agent **MUST** include the correct YAML frontmatter at the start of the file, delimited by `---`. The frontmatter varies by Cursor resource:
 
-- **`framework/`** — versão canônica em `.md` puro, sem frontmatter de IDE.
-- **`.cursor/`** (ou outra IDE) — versão derivada em `.mdc` com frontmatter YAML apropriado.
-
-### 5. Frontmatter obrigatório no `.cursor/`
-
-Ao criar a versão `.mdc` para o Cursor, o agente **DEVE** incluir o frontmatter YAML correto no início do arquivo, delimitado por `---`. O frontmatter varia conforme o recurso Cursor utilizado:
-
-#### Rules (Lexis e Codex)
+#### Rules (Lexis and Codex)
 
 ```yaml
 ---
-description: "Descrição concisa do que a rule faz e quando deve ser consultada."
-globs: "padrão/glob/se/aplicável"
+description: "Concise description of what the rule does and when it should be consulted."
+globs: "glob/pattern/if/applicable"
 alwaysApply: false
 ---
 ```
 
-| Campo | Obrigatório | Descrição |
-|-------|:-----------:|-----------|
-| `description` | Sim | Texto que o Cursor exibe para o agente entender quando consultar esta rule |
-| `globs` | Condicional | Padrão glob de arquivos aos quais a rule se aplica. **Omitir ou deixar vazio** quando a rule se aplica a todos os arquivos ou não é vinculada a tipos de arquivo específicos |
-| `alwaysApply` | Sim | `true` se a rule deve ser carregada em toda interação; `false` se deve ser ativada sob demanda ou por glob |
+| Field | Required | Description |
+|-------|:--------:|-------------|
+| `description` | Yes | Text Cursor shows so the agent knows when to consult this rule |
+| `globs` | Conditional | Glob pattern of files the rule applies to. **Omit or leave empty** when the rule applies to all files or is not tied to specific file types |
+| `alwaysApply` | Yes | `true` if the rule must be loaded on every interaction; `false` if activated on demand or by glob |
 
-#### Skills (Katas e Warriors)
+#### Skills (Katas and Warriors)
 
 ```yaml
 ---
-name: prefixo-nome
-description: "Descrição concisa do que a skill faz e quando deve ser usada."
+name: prefix-name
+description: "Concise description of what the skill does and when to use it."
 ---
 ```
 
-| Campo | Obrigatório | Descrição |
-|-------|:-----------:|-----------|
-| `name` | Sim | Identificador da skill, usando o prefixo do Pilar (ex: `kata-code-review`, `warrior-spartacus`) |
-| `description` | Sim | Texto que o Cursor exibe para o agente entender quando ativar esta skill |
+| Field | Required | Description |
+|-------|:--------:|-------------|
+| `name` | Yes | Skill identifier, using the Pilar prefix (e.g. `kata-code-review`, `warrior-spartacus`) |
+| `description` | Yes | Text Cursor shows so the agent knows when to activate this skill |
 
 #### Commands (Cries)
 
 ```yaml
 ---
-description: "Descrição concisa do que o comando faz ao ser invocado."
+description: "Concise description of what the command does when invoked."
 ---
 ```
 
-| Campo | Obrigatório | Descrição |
-|-------|:-----------:|-----------|
-| `description` | Sim | Texto que o Cursor exibe para o usuário entender o que o comando faz |
+| Field | Required | Description |
+|-------|:--------:|-------------|
+| `description` | Yes | Text Cursor shows so the user understands what the command does |
 
-### 6. Prefixo obrigatório
+### 6. Mandatory prefix
 
-Todo artefato **DEVE** usar o prefixo correto do seu Pilar no nome do arquivo:
+Every artifact **MUST** use the correct prefix of its Pilar in the file name:
 
-| Pilar | Prefixo | Exemplo |
-|-------|---------|---------|
+| Pilar | Prefix | Example |
+|-------|--------|---------|
 | Lexis | `lex-` | `lex-no-secrets.md` |
 | Codex | `codex-` | `codex-architecture.md` |
 | Katas | `kata-` | `kata-code-review.md` |
 | Warriors | `warrior-` | `warrior-spartacus.md` |
 | Cries | `cry-` | `cry-changelog.md` |
 
-## Abrangência
+## Examples
 
-- **Aplica-se a:** criação de qualquer artefato em qualquer Clade e Subclade
-- **Agentes vinculados:** todos os Warriors e agentes genéricos
-- **Exceções:** Nenhuma. Lexis não admitem exceções.
-
-## Consequências de Violação
-
-1. **Rejeição do artefato:** artefatos criados sem seguir o template oficial devem ser reescritos antes de serem aceitos.
-2. **Inconsistência estrutural:** artefatos fora do padrão comprometem a navegabilidade e a governança do framework.
-3. **Remediação:** o agente deve recriar o artefato usando o template correto, preservando o conteúdo já produzido mas adequando-o à estrutura padrão.
-
-## Exemplos
-
-### Correto
+### Correct
 
 ```
-Usuário: Crie uma nova Lexis sobre code review obrigatório.
+User: Create a new Lexis about mandatory code review.
 
-Agente:
-1. Identifica o Pilar: Lexis
-2. Lê o template: framework/lexis/lex-sample.md
-3. Cria o artefato seguindo a estrutura:
-   - # Lexis: Code Review Obrigatório
-   - > Prefixo: lex- | Tipo: Lei Inquebável | Escopo: ...
-   - ## Propósito
-   - ## Lei
-   - ## Abrangência
-   - ## Consequências de Violação
-   - ## Exemplos
-   - ## Validação Automatizada
-4. Salva em: engineering/quality/lexis/lex-code-review.md
-5. Cria versão .cursor com frontmatter:
+Agent:
+1. Identifies Pilar: Lexis
+2. Reads template: framework/lexis/lex-sample.md
+3. Creates artifact following the structure:
+   - # Lexis: Mandatory Code Review
+   - > Prefix: lex- | Type: Unbreakable Law | Scope: ...
+   - ## Purpose
+   - ## Law
+   - ## Scope
+   - ## Consequences of Violation
+   - ## Examples
+   - ## Automated Validation
+4. Saves to: engineering/quality/lexis/lex-code-review.md
+5. Creates .cursor version with frontmatter:
    ---
-   description: "Code review obrigatório. Todo PR deve passar por revisão antes do merge."
+   description: "Mandatory code review. Every PR must be reviewed before merge."
    alwaysApply: false
    ---
-6. Salva em: .cursor/rules/engineering/quality/lex-code-review.mdc
+6. Saves to: .cursor/rules/engineering/quality/lex-code-review.mdc
 ```
 
-### Incorreto
+### Incorrect
 
 ```
-Usuário: Crie uma nova Lexis sobre code review obrigatório.
+User: Create a new Lexis about mandatory code review.
 
-Agente: Aqui está a lei:
+Agent: Here is the law:
 
-# Lei de Code Review
-Todo PR precisa de review.
+# Code Review Law
+Every PR needs review.
 
-# ❌ O agente ignorou o template, criou estrutura própria,
-# omitiu seções obrigatórias e não seguiu o prefixo correto.
-# A versão .mdc foi criada sem frontmatter YAML.
+# ❌ The agent ignored the template, created its own structure,
+# omitted mandatory sections, and did not use the correct prefix.
+# The .mdc version was created without YAML frontmatter.
 ```
 
-## Validação Automatizada
+## Automated Validation
 
-- **Ferramenta:** verificação pelo próprio agente antes de salvar o artefato
-- **Momento:** durante a criação de qualquer novo artefato do Ahrena
-- **Métrica:** 100% dos artefatos devem seguir a estrutura do template oficial do seu Pilar e incluir frontmatter correto na versão `.mdc`
+- **Tool:** verification by the agent itself before saving the artifact
+- **When:** during creation of any new Ahrena artifact
+- **Metric:** 100% of artifacts must follow the structure of the official template for their Pilar
