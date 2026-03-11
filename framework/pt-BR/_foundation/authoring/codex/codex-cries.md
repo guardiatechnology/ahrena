@@ -21,6 +21,7 @@ Este Codex documenta como projetar comandos recorrentes eficazes no Ahrena. Abor
 3. **Parâmetros mínimos:** O Cry deve exigir o mínimo de informação do usuário, usando defaults inteligentes do `.directives` para o restante.
 4. **Previsibilidade:** O mesmo Cry com os mesmos parâmetros deve produzir o mesmo resultado.
 5. **Regra de invocação (inquebrável):** O Cry **NÃO PODE** invocar Lexis. O Cry **NÃO PODE** acessar Codex diretamente. O Cry invoca **SOMENTE** Katas e/ou Warriors. A consulta a Lexis e Codex é feita pelo Kata ou Warrior invocado, nunca pelo Cry como ação direta.
+6. **Sem comandos externos sem Kata:** O Cry **NÃO PODE** definir ou prescrever como procedimento principal a execução de comandos externos (ex.: `git`, `make`, `npm`, `pnpm`, `python`, scripts de shell) sem que exista um **Kata** que encapsule esse procedimento e que o Cry invoque. Se o fluxo do comando envolve rodar ferramentas externas, deve existir um Kata (ex.: `kata-sync`, `kata-rebase`) que descreva os passos, e o Cry apenas invoca esse Kata (ou um Warrior que o orquestre). Um Cry que descreve "execute git X, depois Y" no corpo do artefato, sem invocar um Kata existente, é não conforme — o procedimento deve estar no Kata; o Cry é apenas o atalho de invocação.
 
 ### Anatomia de um Bom Cry
 
@@ -96,6 +97,7 @@ Usado quando existe um Warrior que adiciona persona e contexto.
 |-----------|----------|---------|
 | Cry complexo | Muitos parâmetros obrigatórios | Reduzir a 1-2 obrigatórios, usar defaults |
 | Cry sem Kata | Toda a lógica no prompt template | Extrair procedimento para um Kata |
+| Cry com comandos externos sem Kata | Cry descreve "execute git X", "rode make Y" sem invocar um Kata que encapsule o fluxo | Criar o Kata (ex.: kata-sync, kata-rebase) e fazer o Cry invocá-lo; o Cry não pode ser o único lugar onde o procedimento está definido |
 | Cry redundante | Duplica outro Cry existente | Verificar Cries existentes antes de criar |
 | Prompt vago | "Faça algo com o arquivo" | Referenciar Kata específico e formato de saída |
 | Sem exemplo | Usuário não sabe como usar | Sempre incluir exemplo com input e output |
@@ -112,7 +114,8 @@ Usado quando existe um Warrior que adiciona persona e contexto.
 
 ### Restrições Técnicas
 
-- Todo Cry deve **referenciar pelo menos um Kata** (ou Warrior que orquestra Kata) que executa — Cry não contém lógica própria
+- Todo Cry deve **referenciar e invocar pelo menos um Kata** (ou Warrior que orquestra Kata) que exista e execute o procedimento — Cry não contém lógica própria. **Violação:** Cry que descreve passos com comandos externos (git, make, etc.) sem invocar um Kata que encapsule esses passos; Cry com "Kata associado: kata-X — Pendente de criação" continua não conforme até que o Kata exista e o Cry o invoque.
+- Todo Cry que envolva execução de ferramentas externas (git, make, npm, etc.) **DEVE** invocar um Kata que documente e execute esse fluxo; o Cry não pode ser o único lugar onde o procedimento está definido.
 - A seção **Prompt Template** deve usar `{{variáveis}}` para parâmetros e referenciar explicitamente o Kata (e Warrior, se houver)
 - O nome do arquivo deve usar o prefixo definido em `naming.prefixes.cries` (consultar `.ahrena/.directives`) e kebab-case: `{prefixo}-{nome-descritivo}.md`
 - A estrutura deve seguir o template oficial: consultar `paths.samples.cries` em `.directives` (ex.: `templates/cry-sample.md`)

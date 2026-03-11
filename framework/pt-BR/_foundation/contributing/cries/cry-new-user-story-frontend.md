@@ -25,6 +25,6 @@
 
 ## Referências
 
-- `codex-contributing` — Fluxo de contribuição Guardia
-- `kata-contributing-issue` — Kata invocado por este cry
+- `codex-contributing` — Fluxo de contribuição Guardia (contexto do Cry)
+- `kata-contributing-issue` — Procedimento executado por este Cry (ver documentação do Kata)
 - `.ahrena/contributing_templates/user-story-for-frontend.md` — Template da issue

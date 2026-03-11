@@ -23,7 +23,7 @@ Este comando aciona o Warrior Daedalus (ou o agente assumindo seu papel) para de
 
 1. Interpreta a descrição da feature e o base path (se informado)
 2. Assume o papel do Warrior Daedalus (especialista em design de API) ou delega ao agente que executa kata-api-design-oas ou kata-api-design-doc (conforme formato pedido)
-3. Consulta lex-directives e as Lexis/Codex RESTful, entidades, idempotência, erros e auth
+3. O Warrior Daedalus (ou o agente no seu papel) consulta lex-directives e as Lexis/Codex RESTful, entidades, idempotência, erros e auth
 4. Identifica recursos, operações, paginação, ordenação e necessidade de Idempotency-Key
 5. Produz especificação (OpenAPI ou Markdown) com endpoints, métodos, status, headers, payloads e erros
 6. Entrega o artefato no formato solicitado ou inline
@@ -36,9 +36,7 @@ Contexto:
 - Base path (opcional): {{base path}}
 
 Tarefa:
-Atue como o Warrior Daedalus (Especialista em Design de API) e execute de forma iterativa o **kata-api-design-oas** e o **kata-api-design-doc**, produzindo ambos os artefatos em paths.oas.
-Com base na descrição da feature acima, faça perguntas de clarificação quando necessário (escopo, autenticação, paginação, ordenação, base path, critérios específicos) e refine o design com base nas respostas. Consulte as Lexis e Codex RESTful da Guardia e produza a especificação OpenAPI e o documento da API em paths.oas.
-Use o base path informado ou proponha um adequado.
+Atue como o Warrior Daedalus (Especialista em Design de API) e execute de forma iterativa o **kata-api-design-oas** e o **kata-api-design-doc** (os Katas consultam as Lexis e Codex RESTful conforme sua documentação). Com base na descrição da feature acima, faça perguntas de clarificação quando necessário e refine o design com base nas respostas. Produza a especificação OpenAPI e o documento da API em paths.oas. Use o base path informado ou proponha um adequado.
 
 Formato de saída:
 - Consultar **paths.oas** em `.ahrena/.directives` para o destino
@@ -86,5 +84,4 @@ Resposta estruturada do Warrior Daedalus com:
 
 ## Referências
 
-- lex-restful-apis, lex-entities, lex-idempotency, lex-error-handling, lex-auth
-- codex-restful-apis, codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting
+- `kata-api-design-oas`, `kata-api-design-doc` — Procedimentos executados pelo Warrior Daedalus (os Katas consultam as Lexis e Codex RESTful; ver documentação dos Katas)

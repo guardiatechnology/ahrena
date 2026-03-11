@@ -25,6 +25,6 @@
 
 ## Referencias
 
-- `codex-contributing` — Flujo de contribución Guardia (discusión primero)
-- `kata-contributing-discuss` — Kata invocado por este cry
+- `codex-contributing` — Flujo de contribución Guardia (contexto del Cry)
+- `kata-contributing-discuss` — Procedimiento ejecutado por este Cry (ver documentación del Kata)
 - Golden Circle — QUÉ, POR QUÉ, CÓMO

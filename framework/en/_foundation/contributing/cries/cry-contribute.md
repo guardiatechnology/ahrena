@@ -116,10 +116,9 @@ For type-guided flow, the user MAY invoke the corresponding cry directly: **cry-
 
 ## References
 
-- `codex-contributing` — Guardia contribution flow
-- `kata-commit` — Commit procedure (invoked by `pr`)
+- `codex-contributing` — Guardia contribution flow (Cry context)
+- `kata-commit` — Commit procedure (invoked by `pr`; the Kata consults commit Lexis; see Kata documentation)
 - `kata-contribute`, `kata-contributing-pr`, `kata-contributing-issue`, `kata-contributing-discuss` — Contributing katas
 - Per-type cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-pr, cry-new-discuss
-- `lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language` — Commit Lexis
 - `.ahrena/contributing_templates/` — Issue and PR templates (after install)
 - `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` — Fallback when .ahrena does not exist

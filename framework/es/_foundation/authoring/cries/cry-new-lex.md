@@ -23,11 +23,9 @@ Comando rápido para crear una nueva Lexis en Ahrena. Invoca `kata-create-lexis`
 ## Lo que el Comando Hace
 
 1. Lee `.ahrena/.directives` para obtener idiomas y convenciones
-2. Consulta `codex-lexis` para criterios de calidad
-3. Lee `templates/lex-sample.md` como base estructural
-4. Ejecuta `kata-create-lexis` con los parámetros proporcionados
-5. Crea la Lexis en el idioma por defecto y traduce a los demás idiomas
-6. Reporta los archivos creados
+2. Invoca `kata-create-lexis` con los parámetros proporcionados; el Kata consulta `codex-lexis` y el template oficial y produce la Lexis
+3. (El Kata) Crea la Lexis en el idioma por defecto y traduce a los demás idiomas
+4. Reporta los archivos creados
 
 ## Prompt Template
 
@@ -38,10 +36,9 @@ Contexto:
 - Clade/Subclade: {{clade}} (o inferir del asunto)
 
 Tarea:
-Ejecute kata-create-lexis. Consulte .ahrena/.directives para obtener los
-idiomas obligatorios. Consulte codex-lexis para criterios de calidad.
-Use templates/lex-sample.md como base. Cree la Lexis en el idioma por
-defecto y traduzca a todos los idiomas de language.i18n.
+Ejecute kata-create-lexis. El Kata consulta .ahrena/.directives, codex-lexis
+y templates/lex-sample.md. Cree la Lexis en el idioma por defecto y
+traduzca a todos los idiomas de language.i18n.
 
 Formato de salida:
 Lista de archivos creados con confirmación de que la ley es clara, unívoca
@@ -97,6 +94,5 @@ Validación:
 
 ## Referencias
 
-- `kata-create-lexis` — Procedimiento ejecutado por este Cry
-- `codex-lexis` — Criterios de calidad consultados
+- `kata-create-lexis` — Procedimiento ejecutado por este Cry (el Kata consulta los criterios de calidad aplicables; ver documentación del Kata)
 - `templates/lex-sample.md` — Template base

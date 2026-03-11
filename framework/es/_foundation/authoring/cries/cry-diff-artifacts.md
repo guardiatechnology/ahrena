@@ -71,5 +71,4 @@ y los que difieren (con indicación de diff). Ningún cambio en archivos.
 
 ## Referencias
 
-- `kata-diff-artifacts` — Procedimiento ejecutado por este Cry
-- `codex-pilars` — Flujo y conceptos de artefactos en el proyecto y Push
+- `kata-diff-artifacts` — Procedimiento ejecutado por este Cry (el Kata consulta flujo y conceptos de artefactos; ver documentación del Kata)

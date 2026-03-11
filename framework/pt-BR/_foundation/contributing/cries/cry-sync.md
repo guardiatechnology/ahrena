@@ -15,15 +15,11 @@
 | `remote` | Não | Nome do remoto (padrão: `origin`) | `origin`, `upstream` |
 | `branch` | Não | Branch a sincronizar (padrão: branch atual) | `main`, `develop` |
 
-## Comportamento
+## O que o Comando Faz
 
-O comando executa, **nessa ordem**:
-
-1. **Fetch:** `git fetch <remote>` — atualiza referências e objetos do remoto sem alterar a working tree.
-2. **Pull:** `git pull <remote> <branch>` — traz e faz merge (ou rebase, conforme config) dos commits do remoto para a branch atual.
-3. **Push:** `git push <remote> <branch>` — envia os commits locais para o remoto.
-
-Se houver conflitos no pull, o agente informa e orienta o uso de `/cry-rebase` para resolver antes de tentar o push.
+1. Invoca o **kata-sync**, que encapsula o procedimento de sincronização do repositório (fetch, pull, push e tratamento de conflitos).
+2. O procedimento detalhado está no Kata; o Cry não define passos com comandos externos — apenas invoca o Kata.
+3. Enquanto o `kata-sync` estiver pendente de criação, o agente pode orientar o usuário com base em `codex-contributing`; ao ser criado, o Cry passará a invocá-lo exclusivamente.
 
 ## Exemplos de Uso
 
@@ -45,4 +41,4 @@ Se houver conflitos no pull, o agente informa e orienta o uso de `/cry-rebase` p
 ## Referências
 
 - `cry-rebase` — Usar quando houver conflitos após o pull para resolver via rebase
-- `codex-contributing` — Fluxo de contribuição
+- `codex-contributing` — Fluxo de contribuição (contexto do Cry)

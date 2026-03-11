@@ -24,11 +24,9 @@ Comando rápido para criar um novo Warrior no Ahrena. Invoca o `kata-create-warr
 ## O que o Comando Faz
 
 1. Lê `.ahrena/.directives` para obter idiomas e convenções
-2. Consulta `codex-warriors` para critérios de qualidade
-3. Lê `templates/warrior-sample.md` como base estrutural
-4. Executa `kata-create-warrior` com os parâmetros fornecidos
-5. Cria o Warrior no idioma padrão e traduz para os demais idiomas
-6. Reporta os arquivos criados
+2. Invoca `kata-create-warrior` com os parâmetros fornecidos; o Kata consulta `codex-warriors` e o template oficial e produz o Warrior
+3. (O Kata) Cria o Warrior no idioma padrão e traduz para os demais idiomas
+4. Reporta os arquivos criados
 
 ## Prompt Template
 
@@ -40,10 +38,9 @@ Contexto:
 - Clade/Subclade: {{clade}} (ou inferir do domínio)
 
 Tarefa:
-Execute o kata-create-warrior. Consulte .ahrena/.directives para obter os
-idiomas obrigatórios. Consulte codex-warriors para critérios de qualidade.
-Use templates/warrior-sample.md como base. Crie o Warrior no idioma padrão e
-traduza para todos os idiomas de language.i18n.
+Execute o kata-create-warrior. O Kata consulta .ahrena/.directives, codex-warriors
+e templates/warrior-sample.md. Crie o Warrior no idioma padrão e traduza para
+todos os idiomas de language.i18n.
 
 Formato de saída:
 Lista de arquivos criados com confirmação de que o Warrior tem identidade
@@ -98,6 +95,5 @@ Arquivos criados:
 
 ## Referências
 
-- `kata-create-warrior` — Procedimento executado por este Cry
-- `codex-warriors` — Critérios de qualidade consultados
+- `kata-create-warrior` — Procedimento executado por este Cry (o Kata consulta os critérios de qualidade aplicáveis; ver documentação do Kata)
 - `templates/warrior-sample.md` — Template base

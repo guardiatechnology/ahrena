@@ -74,5 +74,4 @@ Deliver a final summary: artifacts in paths.oas (OAS + API doc) and in paths.eve
 
 ## References
 
-- lex-restful-apis, lex-cloudevents, lex-entities, lex-idempotency
-- codex-restful-apis, codex-cloudevents, codex-entities, codex-idempotency
+- `cry-api-design`, `cry-event-storm` — Cries invoked (the Katas they execute consult the applicable Lexis and Codex; see Cries/Katas documentation)

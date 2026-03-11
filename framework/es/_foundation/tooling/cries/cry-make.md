@@ -4,7 +4,7 @@
 
 ## Descripción
 
-Comando rápido para ejecutar un target del Makefile en la raíz del repositorio Ahrena. El Cry **elige el Kata** según el target indicado por el usuario y delega la ejecución. Consulta `codex-make` para variables y equivalencia sin Make.
+Comando rápido para ejecutar un target del Makefile en la raíz del repositorio Ahrena. El Cry **elige el Kata** según el target indicado por el usuario y delega la ejecución; el Kata ejecutado consulta `codex-make` para variables y equivalencia sin Make.
 
 ## Uso
 
@@ -62,7 +62,7 @@ Según el target solicitado, ejecute el Kata correspondiente:
 - clean → kata-make-clean-framework
 - target no listado arriba → informe target inválido y liste los targets válidos (no ejecute kata)
 
-Consulte codex-make para variables válidas y equivalencia sin Make cuando
+El Kata consulta codex-make para variables válidas y equivalencia sin Make cuando
 make no esté disponible. Reporte la salida del comando o el error con
 sugerencia de corrección.
 
@@ -96,12 +96,5 @@ Salida del comando ejecutado o mensaje de error con indicación de cómo corregi
 
 ## Referencias
 
-- `kata-make-install-framework` — Instalación del framework (target `install`)
-- `kata-make-update-framework` — Actualización (target `update`)
-- `kata-make-dev-install-framework` — Instalación desde desarrollo (target `dev-install`)
-- `kata-make-bootstrap-framework` — Primera instalación (target `bootstrap`)
-- `kata-make-sync-cursor` — Regenerar .cursor/ (target `sync-cursor`)
-- `kata-make-uninstall-framework` — Desinstalar (target `uninstall`)
-- `kata-make-clean-framework` — Limpiar sin confirmación (target `clean`)
-- `codex-make` — Variables, targets y equivalencia sin Make
+- `kata-make-*` — Procedimientos por target (install, update, dev-install, bootstrap, sync-cursor, uninstall, clean); los Katas consultan variables y targets (ver documentación de los Katas)
 - `Makefile` — Archivo en la raíz del repositorio

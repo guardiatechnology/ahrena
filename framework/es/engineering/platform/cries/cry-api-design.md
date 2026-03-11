@@ -23,7 +23,7 @@ Este comando invoca al Warrior Daedalus (o al agente asumiendo su rol) para dise
 
 1. Interpreta la descripción de la feature y el base path (si se informa)
 2. Asume el rol del Warrior Daedalus (especialista en diseño de API) o delega al agente que ejecuta kata-api-design-oas o kata-api-design-doc (según formato solicitado)
-3. Consulta lex-directives y las Lexis/Codex RESTful, entidades, idempotencia, errores y auth
+3. El Warrior Daedalus (o el agente en su papel) consulta lex-directives y las Lexis/Codex RESTful, entidades, idempotencia, errores y auth
 4. Identifica recursos, operaciones, paginación, ordenación y necesidad de Idempotency-Key
 5. Produce especificación (OpenAPI o Markdown) con endpoints, métodos, status, headers, payloads y errores
 6. Entrega el artefacto en el formato solicitado o inline
@@ -36,9 +36,7 @@ Contexto:
 - Base path (opcional): {{base path}}
 
 Tarea:
-Actúe como el Warrior Daedalus (Especialista en Diseño de API) y ejecute de forma iterativa el **kata-api-design-oas** y el **kata-api-design-doc**, produciendo ambos artefactos en paths.oas.
-Con base en la descripción de la feature anterior, haga preguntas de clarificación cuando sea necesario (alcance, autenticación, paginación, ordenación, base path, criterios específicos) y refine el diseño con base en las respuestas. Consulte las Lexis y Codex RESTful de Guardia y produzca la especificación OpenAPI y el documento de la API en paths.oas.
-Use el base path informado o proponga uno adecuado.
+Actúe como el Warrior Daedalus (Especialista en Diseño de API) y ejecute de forma iterativa el **kata-api-design-oas** y el **kata-api-design-doc** (los Katas consultan las Lexis y Codex RESTful conforme su documentación). Con base en la descripción de la feature anterior, haga preguntas de clarificación cuando sea necesario y refine el diseño con base en las respuestas. Produzca la especificación OpenAPI y el documento de la API en paths.oas. Use el base path informado o proponga uno adecuado.
 
 Formato de salida:
 - Consultar **paths.oas** en `.ahrena/.directives` para el destino
@@ -86,5 +84,4 @@ Respuesta estructurada del Warrior Daedalus con:
 
 ## Referencias
 
-- lex-restful-apis, lex-entities, lex-idempotency, lex-error-handling, lex-auth
-- codex-restful-apis, codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting
+- `kata-api-design-oas`, `kata-api-design-doc` — Procedimientos ejecutados por el Warrior Daedalus (los Katas consultan las Lexis y Codex RESTful; ver documentación de los Katas)

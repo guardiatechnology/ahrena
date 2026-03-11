@@ -74,5 +74,4 @@ Entregue un resumen final: artefactos en paths.oas (OAS + doc de la API) y en pa
 
 ## Referencias
 
-- lex-restful-apis, lex-cloudevents, lex-entities, lex-idempotency
-- codex-restful-apis, codex-cloudevents, codex-entities, codex-idempotency
+- `cry-api-design`, `cry-event-storm` — Cries invocados (los Katas que ejecutan consultan las Lexis y Codex aplicables; ver documentación de los Cries/Katas)

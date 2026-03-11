@@ -23,11 +23,9 @@ Comando rápido para crear un nuevo Kata en Ahrena. Invoca `kata-create-kata`, q
 ## Lo que el Comando Hace
 
 1. Lee `.ahrena/.directives` para obtener idiomas y convenciones
-2. Consulta `codex-katas` para criterios de calidad
-3. Lee `templates/kata-sample.md` como base estructural
-4. Ejecuta `kata-create-kata` con los parámetros proporcionados
-5. Crea el Kata en el idioma por defecto y traduce a los demás idiomas
-6. Reporta los archivos creados
+2. Invoca `kata-create-kata` con los parámetros proporcionados; el Kata consulta `codex-katas` y el template oficial y produce el Kata
+3. (El Kata) Crea el Kata en el idioma por defecto y traduce a los demás idiomas
+4. Reporta los archivos creados
 
 ## Prompt Template
 
@@ -38,10 +36,9 @@ Contexto:
 - Clade/Subclade: {{clade}} (o inferir de la tarea)
 
 Tarea:
-Ejecute kata-create-kata. Consulte .ahrena/.directives para obtener los
-idiomas obligatorios. Consulte codex-katas para criterios de calidad.
-Use templates/kata-sample.md como base. Cree el Kata en el idioma por
-defecto y traduzca a todos los idiomas de language.i18n.
+Ejecute kata-create-kata. El Kata consulta .ahrena/.directives, codex-katas
+y templates/kata-sample.md. Cree el Kata en el idioma por defecto y traduzca
+a todos los idiomas de language.i18n.
 
 Formato de salida:
 Lista de archivos creados con confirmación de que el Kata tiene inputs definidos,
@@ -88,6 +85,5 @@ Archivos creados:
 
 ## Referencias
 
-- `kata-create-kata` — Procedimiento ejecutado por este Cry
-- `codex-katas` — Criterios de calidad consultados
+- `kata-create-kata` — Procedimiento ejecutado por este Cry (el Kata consulta los criterios de calidad aplicables; ver documentación del Kata)
 - `templates/kata-sample.md` — Template base

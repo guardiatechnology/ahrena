@@ -23,11 +23,9 @@ Comando rápido para criar um novo Codex no Ahrena. Invoca o `kata-create-codex`
 ## O que o Comando Faz
 
 1. Lê `.ahrena/.directives` para obter idiomas e convenções
-2. Consulta `codex-codex` para critérios de qualidade
-3. Lê `templates/codex-sample.md` como base estrutural
-4. Executa `kata-create-codex` com os parâmetros fornecidos
-5. Cria o Codex no idioma padrão e traduz para os demais idiomas
-6. Reporta os arquivos criados
+2. Invoca `kata-create-codex` com os parâmetros fornecidos; o Kata consulta `codex-codex` e o template oficial e produz o Codex
+3. (O Kata) Cria o Codex no idioma padrão e traduz para os demais idiomas
+4. Reporta os arquivos criados
 
 ## Prompt Template
 
@@ -38,10 +36,9 @@ Contexto:
 - Clade/Subclade: {{clade}} (ou inferir do domínio)
 
 Tarefa:
-Execute o kata-create-codex. Consulte .ahrena/.directives para obter os
-idiomas obrigatórios. Consulte codex-codex para critérios de qualidade.
-Use templates/codex-sample.md como base. Crie o Codex no idioma padrão e
-traduza para todos os idiomas de language.i18n.
+Execute o kata-create-codex. O Kata consulta .ahrena/.directives, codex-codex
+e templates/codex-sample.md. Crie o Codex no idioma padrão e traduza para
+todos os idiomas de language.i18n.
 
 Formato de saída:
 Lista de arquivos criados com confirmação de que o Codex tem escopo
@@ -88,6 +85,5 @@ Arquivos criados:
 
 ## Referências
 
-- `kata-create-codex` — Procedimento executado por este Cry
-- `codex-codex` — Critérios de qualidade consultados
+- `kata-create-codex` — Procedimento executado por este Cry (o Kata consulta os critérios de qualidade aplicáveis; ver documentação do Kata)
 - `templates/codex-sample.md` — Template base

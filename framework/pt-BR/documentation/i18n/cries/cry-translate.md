@@ -38,10 +38,7 @@ Quando múltiplos idiomas são alvo, o Cry define a **ordem de execução**:
 2. Identifica o idioma de origem a partir do caminho ou conteúdo
 3. Determina o(s) idioma(s) alvo e a ordem de execução
 4. Invoca o `warrior-translator` com o `kata-translate`
-5. Para cada idioma na ordem:
-   a. Consulta `lex-language-{lang}` e `codex-language-{lang}`
-   b. Traduz o documento
-   c. Salva no caminho correto
+5. Para cada idioma na ordem, o Warrior (via kata-translate) consulta `lex-language-{lang}` e `codex-language-{lang}`, traduz o documento e salva no caminho correto
 6. Reporta os arquivos criados
 
 ## Prompt Template
@@ -53,11 +50,7 @@ Contexto:
 - Ordem: {{order}} (ou conforme language.i18n)
 
 Tarefa:
-Assuma o papel do warrior-translator (Hermes). Consulte .ahrena/.directives
-para obter os idiomas obrigatórios. Para cada idioma-alvo na ordem definida:
-1. Consulte lex-language + lex-language-{lang} + codex-language + codex-language-{lang}
-2. Leia o arquivo-fonte e execute o kata-translate
-3. Salve a tradução no caminho correto
+Assuma o papel do warrior-translator (Hermes). Leia .ahrena/.directives para obter os idiomas obrigatórios. Para cada idioma-alvo na ordem definida, execute o **kata-translate** (o Kata consulta as Lexis e Codex de idioma conforme sua documentação). Leia o arquivo-fonte, execute o Kata e salve a tradução no caminho correto.
 
 Formato de saída:
 Lista de arquivos criados com confirmação de validação por idioma.
@@ -111,6 +104,4 @@ Validação por idioma:
 ## Referências
 
 - `warrior-translator` — Agente invocado por este Cry
-- `kata-translate` — Procedimento executado pelo warrior
-- `lex-language`, `lex-language-{lang}` — Regras consultadas
-- `codex-language`, `codex-language-{lang}` — Guias consultados
+- `kata-translate` — Procedimento executado pelo Warrior (o Kata consulta as Lexis e Codex de idioma; ver documentação do Kata)

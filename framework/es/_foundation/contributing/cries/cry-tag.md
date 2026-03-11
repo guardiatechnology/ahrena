@@ -64,7 +64,4 @@ Si la versión se omite al crear tag, el agente sugiere la próxima versión con
 
 ## Referencias
 
-- `kata-tag` — Procedimiento ejecutado por este Cry al crear tag
-- `lex-semantic-version` — Formato SemVer obligatorio
-- `lex-signed-commits` — Firma GPG en tags de release
-- `codex-semantic-version` — Guía de referencia para SemVer y git tags
+- `kata-tag` — Procedimiento ejecutado por este Cry al crear tag (el Kata consulta las Lexis y el Codex de SemVer y firma; ver documentación del Kata)

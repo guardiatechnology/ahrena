@@ -20,6 +20,8 @@ This Codex documents how to design effective recurring commands in Ahrena. It co
 2. **Delegation:** The Cry does not contain its own logic — it delegates to a Kata (optionally via a Warrior). The Cry is the entry point, not the procedure.
 3. **Minimal parameters:** The Cry MUST require the minimum information from the user, using smart defaults from `.directives` for the rest.
 4. **Predictability:** The same Cry with the same parameters MUST produce the same result.
+5. **Invocation rule (unbreakable):** The Cry **MUST NOT** invoke Lexis. The Cry **MUST NOT** access Codex directly. The Cry invokes **ONLY** Katas and/or Warriors. Consultation of Lexis and Codex is done by the invoked Kata or Warrior, never by the Cry as a direct action.
+6. **No external commands without Kata:** The Cry **MUST NOT** define or prescribe as the main procedure the execution of external commands (e.g. `git`, `make`, `npm`, `pnpm`, `python`, shell scripts) unless a **Kata** exists that encapsulates that procedure and that the Cry invokes. If the command flow involves running external tools, a Kata (e.g. `kata-sync`, `kata-rebase`) MUST exist that describes the steps, and the Cry only invokes that Kata (or a Warrior that orchestrates it). A Cry that describes "run git X, then Y" in the artifact body without invoking an existing Kata is non-compliant — the procedure MUST be in the Kata; the Cry is only the invocation shortcut.
 
 ### Anatomy of a Good Cry
 
@@ -95,6 +97,7 @@ Use when a Warrior exists that adds persona and context.
 |---------|---------|----------|
 | Complex Cry | Too many required parameters | Reduce to 1-2 required, use defaults |
 | Cry without Kata | All logic in the prompt template | Extract procedure into a Kata |
+| Cry with external commands without Kata | Cry describes "run git X", "run make Y" without invoking a Kata that encapsulates the flow | Create the Kata (e.g. kata-sync, kata-rebase) and have the Cry invoke it; the Cry MUST NOT be the only place where the procedure is defined |
 | Redundant Cry | Duplicates another existing Cry | Check existing Cries before creating |
 | Vague prompt | "Do something with the file" | Reference specific Kata and output format |
 | No example | User does not know how to use it | Always include an example with input and output |
@@ -111,7 +114,8 @@ Use when a Warrior exists that adds persona and context.
 
 ### Technical Constraints
 
-- Every Cry MUST **reference at least one Kata** (or Warrior that orchestrates a Kata) that it executes — Cry has no logic of its own
+- Every Cry MUST **reference and invoke at least one Kata** (or Warrior that orchestrates a Kata) that exists and executes the procedure — Cry has no logic of its own. **Violation:** Cry that describes steps with external commands (git, make, etc.) without invoking a Kata that encapsulates those steps; Cry with "Associated Kata: kata-X — Pending creation" remains non-compliant until the Kata exists and the Cry invokes it.
+- Every Cry that involves execution of external tools (git, make, npm, etc.) **MUST** invoke a Kata that documents and executes that flow; the Cry MUST NOT be the only place where the procedure is defined.
 - The **Prompt Template** section MUST use `{{variables}}` for parameters and explicitly reference the Kata (and Warrior, if any)
 - The file name MUST use the prefix defined in `naming.prefixes.cries` (consult `.ahrena/.directives`) and kebab-case: `{prefix}-{descriptive-name}.md`
 - The structure MUST follow the official template: consult `paths.samples.cries` in `.directives` (e.g. `templates/cry-sample.md`)

@@ -26,7 +26,7 @@
 
 ## Referências
 
-- `codex-contributing` — Fluxo de contribuição Guardia
-- `kata-contributing-pr` — Kata invocado por este cry
+- `codex-contributing` — Fluxo de contribuição Guardia (contexto do Cry)
+- `kata-contributing-pr` — Procedimento executado por este Cry (ver documentação do Kata)
 - `kata-commit` — Procedimento de commit (garantir conformidade antes do PR)
 - `.ahrena/contributing_templates/pull_request_template.md` — Template de PR

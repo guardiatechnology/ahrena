@@ -14,16 +14,11 @@
 |-----------|:--------:|-------------|---------|
 | `base` | No | Reference to rebase onto (default: tracking branch or `origin/main`) | `origin/main`, `upstream/develop` |
 
-## Behavior
+## What the Command Does
 
-The command guides conflict resolution using rebase:
-
-1. **Check state:** confirm there are conflicts or the branch is behind the remote (e.g. after a pull with divergence).
-2. **Run rebase:** `git rebase <base>` — reapplies local commits on top of `<base>`.
-3. **Resolve conflicts (if any):** for each conflict, the agent helps edit files, `git add`, and `git rebase --continue`; or `git rebase --abort` to cancel.
-4. **Final check:** after rebase completes, inform the user they can run `git push` (possibly `--force-with-lease` if the branch had already been pushed).
-
-If the user ran `/cry-sync` and the pull had conflicts, use this Cry to rebase onto the remote and then complete the push.
+1. Invokes **kata-rebase**, which encapsulates the rebase and conflict-resolution procedure.
+2. The detailed procedure (check state, run rebase, resolve conflicts, final check) is in the Kata; the Cry does not define steps with external commands — it only invokes the Kata.
+3. While `kata-rebase` is pending creation, the agent may guide the user based on `codex-contributing`; once created, the Cry will invoke it exclusively.
 
 ## Usage Examples
 
@@ -45,4 +40,4 @@ If the user ran `/cry-sync` and the pull had conflicts, use this Cry to rebase o
 ## References
 
 - `cry-sync` — Repository sync (fetch, pull, push); use rebase when there are conflicts
-- `codex-contributing` — Contribution flow
+- `codex-contributing` — Contribution flow (Cry context)

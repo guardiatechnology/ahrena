@@ -116,10 +116,9 @@ Para flujo guiado por tipo, el usuario puede invocar directamente el cry corresp
 
 ## Referencias
 
-- `codex-contributing` — Flujo de contribución Guardia
-- `kata-commit` — Procedimiento de commit (invocado por `pr`)
+- `codex-contributing` — Flujo de contribución Guardia (contexto del Cry)
+- `kata-commit` — Procedimiento de commit (invocado por `pr`; el Kata consulta las Lexis de commit; ver documentación del Kata)
 - `kata-contribute`, `kata-contributing-pr`, `kata-contributing-issue`, `kata-contributing-discuss` — Katas de contribución
 - Cries por tipo: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-pr, cry-new-discuss
-- `lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language` — Lexis de commit
 - `.ahrena/contributing_templates/` — Plantillas de issue y PR (tras el install)
 - `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` — Respaldo cuando .ahrena no exista

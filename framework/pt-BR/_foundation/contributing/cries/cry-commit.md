@@ -47,9 +47,4 @@ Se parâmetros forem omitidos, o agente analisa `git diff --staged` e sugere aut
 
 ## Referências
 
-- `kata-commit` — Procedimento executado por este Cry
-- `lex-conventional-commits` — Formato obrigatório
-- `lex-signed-commits` — Assinatura GPG
-- `lex-small-commits` — Atomicidade
-- `lex-commit-language` — Idioma de commits
-- `codex-commit-standards` — Guia de referência
+- `kata-commit` — Procedimento executado por este Cry (o Kata consulta as Lexis e o Codex de commits; ver documentação do Kata)

@@ -47,9 +47,4 @@ If parameters are omitted, the agent analyzes `git diff --staged` and suggests a
 
 ## References
 
-- `kata-commit` — Procedure executed by this Cry
-- `lex-conventional-commits` — Mandatory format
-- `lex-signed-commits` — GPG signature
-- `lex-small-commits` — Atomicity
-- `lex-commit-language` — Commit language
-- `codex-commit-standards` — Reference guide
+- `kata-commit` — Procedure executed by this Cry (the Kata consults commit Lexis and Codex; see Kata documentation)

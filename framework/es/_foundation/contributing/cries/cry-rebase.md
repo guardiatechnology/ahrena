@@ -14,16 +14,11 @@
 |-----------|:-----------:|-------------|---------|
 | `base` | No | Referencia sobre la que hacer rebase (por defecto: branch de rastreo o `origin/main`) | `origin/main`, `upstream/develop` |
 
-## Comportamiento
+## Qué Hace el Comando
 
-El comando orienta la resolución de conflictos usando rebase:
-
-1. **Verificar estado:** confirmar que hay conflictos o que la branch está detrás del remoto (ej.: tras un pull con divergencia).
-2. **Ejecutar rebase:** `git rebase <base>` — reaplica los commits locales encima de `<base>`.
-3. **Resolver conflictos (si los hay):** en cada conflicto, el agente ayuda a editar archivos, `git add` y `git rebase --continue`; o `git rebase --abort` para cancelar.
-4. **Verificación final:** tras terminar el rebase, informar que el usuario puede hacer `git push` (posiblemente `--force-with-lease` si la branch ya había sido enviada).
-
-Si el usuario invocó `/cry-sync` y hubo conflicto en el pull, usar este Cry para hacer rebase sobre el remoto y luego completar el push.
+1. Invoca el **kata-rebase**, que encapsula el procedimiento de rebase y resolución de conflictos.
+2. El procedimiento detallado (verificar estado, ejecutar rebase, resolver conflictos, verificación final) está en el Kata; el Cry no define pasos con comandos externos — solo invoca el Kata.
+3. Mientras el `kata-rebase` esté pendiente de creación, el agente puede orientar al usuario con base en `codex-contributing`; al crearse, el Cry lo invocará exclusivamente.
 
 ## Ejemplos de Uso
 
@@ -45,4 +40,4 @@ Si el usuario invocó `/cry-sync` y hubo conflicto en el pull, usar este Cry par
 ## Referencias
 
 - `cry-sync` — Sincronización del repositorio (fetch, pull, push); usar rebase cuando haya conflictos
-- `codex-contributing` — Flujo de contribución
+- `codex-contributing` — Flujo de contribución (contexto del Cry)

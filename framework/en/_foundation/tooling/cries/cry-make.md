@@ -4,7 +4,7 @@
 
 ## Description
 
-Shortcut command to execute a Makefile target at the root of the Ahrena repository. The Cry **chooses the Kata** based on the target provided by the user and delegates execution. It consults `codex-make` for variables and equivalence without Make.
+Shortcut command to execute a Makefile target at the root of the Ahrena repository. The Cry **chooses the Kata** based on the target provided by the user and delegates execution; the executed Kata consults `codex-make` for variables and equivalence without Make.
 
 ## Usage
 
@@ -41,7 +41,7 @@ Targets not listed above are invalid for this Cry; inform the user and list vali
 2. If the target is invalid: inform the user and list valid targets; do not run a kata
 3. Based on the valid target, chooses the corresponding Kata (table above)
 4. Runs the chosen Kata with the given variables
-5. The Kata verifies the environment, runs `make` or the equivalent (per codex-make), and reports the result
+5. The Kata consults codex-make, verifies the environment, runs `make` or the equivalent, and reports the result
 6. Presents the output to the user or the error with a suggested fix
 
 ## Prompt Template
@@ -62,8 +62,8 @@ Based on the requested target, execute the corresponding Kata:
 - clean → kata-make-clean-framework
 - target not listed above → report invalid target and list valid targets (do not run a kata)
 
-Consult codex-make for valid variables and equivalence without Make when
-make is not available. Report the command output or the error with a
+The Kata consults codex-make for valid variables and equivalence without Make
+when make is not available. Report the command output or the error with a
 suggested fix.
 
 Output format:
@@ -96,12 +96,5 @@ Command output or error message with indication of how to fix.
 
 ## References
 
-- `kata-make-install-framework` — Framework install (target `install`)
-- `kata-make-update-framework` — Update (target `update`)
-- `kata-make-dev-install-framework` — Install from development (target `dev-install`)
-- `kata-make-bootstrap-framework` — First-time install (target `bootstrap`)
-- `kata-make-sync-cursor` — Regenerate .cursor/ (target `sync-cursor`)
-- `kata-make-uninstall-framework` — Uninstall (target `uninstall`)
-- `kata-make-clean-framework` — Clean without confirmation (target `clean`)
-- `codex-make` — Variables, targets, and equivalence without Make
+- `kata-make-*` — Procedures per target (install, update, dev-install, bootstrap, sync-cursor, uninstall, clean); the Katas consult variables and targets (see Katas documentation)
 - `Makefile` — File at the repository root

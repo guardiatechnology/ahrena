@@ -24,11 +24,9 @@ Comando rápido para crear un nuevo Warrior en Ahrena. Invoca `kata-create-warri
 ## Lo que el Comando Hace
 
 1. Lee `.ahrena/.directives` para obtener idiomas y convenciones
-2. Consulta `codex-warriors` para criterios de calidad
-3. Lee `templates/warrior-sample.md` como base estructural
-4. Ejecuta `kata-create-warrior` con los parámetros proporcionados
-5. Crea el Warrior en el idioma por defecto y traduce a los demás idiomas
-6. Reporta los archivos creados
+2. Invoca `kata-create-warrior` con los parámetros proporcionados; el Kata consulta `codex-warriors` y el template oficial y produce el Warrior
+3. (El Kata) Crea el Warrior en el idioma por defecto y traduce a los demás idiomas
+4. Reporta los archivos creados
 
 ## Prompt Template
 
@@ -41,8 +39,7 @@ Contexto:
 
 Tarea:
 Ejecute kata-create-warrior. Consulte .ahrena/.directives para obtener los
-idiomas obligatorios. Consulte codex-warriors para criterios de calidad.
-Use templates/warrior-sample.md como base. Cree el Warrior en el idioma por
+idiomas obligatorios. El Kata consulta .ahrena/.directives, codex-warriors y templates/warrior-sample.md. Cree el Warrior en el idioma por
 defecto y traduzca a todos los idiomas de language.i18n.
 
 Formato de salida:
@@ -98,6 +95,5 @@ Archivos creados:
 
 ## Referencias
 
-- `kata-create-warrior` — Procedimiento ejecutado por este Cry
-- `codex-warriors` — Criterios de calidad consultados
+- `kata-create-warrior` — Procedimiento ejecutado por este Cry (el Kata consulta los criterios de calidad aplicables; ver documentación del Kata)
 - `templates/warrior-sample.md` — Template base

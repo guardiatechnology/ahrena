@@ -25,6 +25,6 @@
 
 ## References
 
-- `codex-contributing` — Guardia contribution flow
-- `kata-contributing-issue` — Kata invoked by this cry
+- `codex-contributing` — Guardia contribution flow (Cry context)
+- `kata-contributing-issue` — Procedure executed by this Cry (see Kata documentation)
 - `.ahrena/contributing_templates/user-story-for-api.md` — Issue template

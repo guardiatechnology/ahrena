@@ -4,7 +4,7 @@
 
 ## Descrição
 
-Comando rápido para executar um target do Makefile na raiz do repositório Ahrena. O Cry **escolhe o Kata** com base no target informado pelo usuário e delega a execução. Consulta `codex-make` para variáveis e equivalência sem Make.
+Comando rápido para executar um target do Makefile na raiz do repositório Ahrena. O Cry **escolhe o Kata** com base no target informado pelo usuário e delega a execução; o Kata executado consulta `codex-make` para variáveis e equivalência sem Make.
 
 ## Uso
 
@@ -41,7 +41,7 @@ Targets não listados acima são inválidos para este Cry; informe o usuário e 
 2. Se o target for inválido: informe o usuário e liste os targets válidos; não execute kata
 3. Com base no target válido, escolhe o Kata correspondente (tabela acima)
 4. Executa o Kata escolhido com as variáveis fornecidas
-5. O Kata verifica o ambiente, executa `make` ou o equivalente (conforme codex-make) e reporta o resultado
+5. O Kata consulta codex-make, verifica o ambiente, executa `make` ou o equivalente e reporta o resultado
 6. Apresenta a saída ao usuário ou o erro com sugestão de correção
 
 ## Prompt Template
@@ -62,9 +62,9 @@ Com base no target solicitado, execute o Kata correspondente:
 - clean → kata-make-clean-framework
 - target não listado acima → informe target inválido e liste os targets válidos (não execute kata)
 
-Consulte codex-make para variáveis válidas e equivalência sem Make quando
-make não estiver disponível. Reporte a saída do comando ou o erro com
-sugestão de correção.
+O Kata consulta codex-make para variáveis válidas e equivalência sem Make
+quando make não estiver disponível. Reporte a saída do comando ou o erro
+com sugestão de correção.
 
 Formato de saída:
 Saída do comando executado ou mensagem de erro com indicação de como corrigir.
@@ -96,12 +96,5 @@ Saída do comando executado ou mensagem de erro com indicação de como corrigir
 
 ## Referências
 
-- `kata-make-install-framework` — Instalação do framework (target `install`)
-- `kata-make-update-framework` — Atualização (target `update`)
-- `kata-make-dev-install-framework` — Instalação a partir do desenvolvimento (target `dev-install`)
-- `kata-make-bootstrap-framework` — Primeira instalação (target `bootstrap`)
-- `kata-make-sync-cursor` — Regenerar .cursor/ (target `sync-cursor`)
-- `kata-make-uninstall-framework` — Desinstalar (target `uninstall`)
-- `kata-make-clean-framework` — Limpar sem confirmação (target `clean`)
-- `codex-make` — Variáveis, targets e equivalência sem Make
+- `kata-make-*` — Procedimentos por target (install, update, dev-install, bootstrap, sync-cursor, uninstall, clean); os Katas consultam variáveis e targets (ver documentação dos Katas)
 - `Makefile` — Arquivo na raiz do repositório

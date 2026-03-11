@@ -23,12 +23,9 @@ Comando rápido para crear un nuevo Cry en Ahrena. Invoca `kata-create-cry`, que
 ## Lo que el Comando Hace
 
 1. Lee `.ahrena/.directives` para obtener idiomas y convenciones
-2. Consulta `codex-cries` para criterios de calidad
-3. Lee `templates/cry-sample.md` como base estructural
-4. Verifica si el Kata asociado existe
-5. Ejecuta `kata-create-cry` con los parámetros proporcionados
-6. Crea el Cry en el idioma por defecto y traduce a los demás idiomas
-7. Reporta los archivos creados
+2. Invoca `kata-create-cry` con los parámetros proporcionados; el Kata consulta `codex-cries` y el template oficial y produce el Cry (y verifica si el Kata asociado existe)
+3. (El Kata) Crea el Cry en el idioma por defecto y traduce a los demás idiomas
+4. Reporta los archivos creados
 
 ## Prompt Template
 
@@ -39,11 +36,9 @@ Contexto:
 - Clade/Subclade: {{clade}} (o inferir de la acción)
 
 Tarea:
-Ejecute kata-create-cry. Consulte .ahrena/.directives para obtener los
-idiomas obligatorios. Consulte codex-cries para criterios de calidad.
-Use templates/cry-sample.md como base. Verifique si el Kata asociado
-existe. Cree el Cry en el idioma por defecto y traduzca a todos los idiomas
-de language.i18n.
+Ejecute kata-create-cry. El Kata consulta .ahrena/.directives, codex-cries
+y templates/cry-sample.md. Verifique si el Kata asociado existe. Cree el Cry
+en el idioma por defecto y traduzca a todos los idiomas de language.i18n.
 
 Formato de salida:
 Lista de archivos creados con confirmación de que el Cry tiene sintaxis clara,
@@ -99,6 +94,5 @@ Sugerencia: /cry-new-kata "generar changelog"
 
 ## Referencias
 
-- `kata-create-cry` — Procedimiento ejecutado por este Cry
-- `codex-cries` — Criterios de calidad consultados
+- `kata-create-cry` — Procedimiento ejecutado por este Cry (el Kata consulta los criterios de calidad aplicables; ver documentación del Kata)
 - `templates/cry-sample.md` — Template base

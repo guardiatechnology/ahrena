@@ -23,7 +23,7 @@ Este comando invoca al Warrior Kronos (o al agente asumiendo su rol) para realiz
 
 1. Interpreta el contexto de la feature/módulo y el source base (si se informa)
 2. Asume el rol del Warrior Kronos (especialista en Event Storm) o delega al agente que ejecuta **kata-events-doc**
-3. Consulta lex-directives, lex-cloudevents, codex-cloudevents, lex-entities, codex-entities, lex-idempotency y codex-idempotency
+3. El Warrior Kronos (vía kata-events-doc) consulta lex-directives, lex-cloudevents, codex-cloudevents, lex-entities, codex-entities, lex-idempotency y codex-idempotency
 4. Identifica tipos de evento (formato event.guardia.{module}.{entity_type}.{event_name}), source, subject, data e idempotencykey
 5. Produce documento Markdown de eventos (ej.: events.md, cloudevents.md) con catálogo y detalles por tipo
 6. Persiste en **paths.events** (`.ahrena/.directives`; predeterminado `docs/events`) y entrega resumen o inline
@@ -36,8 +36,7 @@ Contexto:
 - Source base (opcional): {{source base}}
 
 Tarea:
-Actúe como el Warrior Kronos (Especialista en Event Storm) y ejecute de forma iterativa el **kata-events-doc**.
-Con base en el contexto anterior, haga preguntas de clarificación cuando sea necesario (módulo, entity type, eventos a catalogar, source base, payload) y refine el catálogo con base en las respuestas. Consulte lex-cloudevents y codex-cloudevents y produzca la documentación de eventos en paths.events.
+Actúe como el Warrior Kronos (Especialista en Event Storm) y ejecute de forma iterativa el **kata-events-doc** (el Kata consulta lex-cloudevents, codex-cloudevents y demás Lexis/Codex conforme su documentación). Con base en el contexto anterior, haga preguntas de clarificación cuando sea necesario y refine el catálogo con base en las respuestas. Produzca la documentación de eventos en paths.events.
 
 Formato de salida:
 - Consultar **paths.events** en `.ahrena/.directives` para el destino (predeterminado docs/events)
@@ -74,5 +73,4 @@ Respuesta estructurada del Warrior Kronos con:
 
 ## Referencias
 
-- lex-cloudevents, lex-entities, lex-idempotency
-- codex-cloudevents, codex-entities, codex-idempotency
+- `kata-events-doc` — Procedimiento ejecutado por el Warrior Kronos (el Kata consulta las Lexis y Codex de eventos, entidades e idempotencia; ver documentación del Kata)

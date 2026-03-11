@@ -76,5 +76,4 @@ Si se usó --remove, confirmación de eliminación en .ahrena/artifacts/.
 
 ## Referencias
 
-- `kata-push-to-framework` — Procedimiento ejecutado por este Cry
-- `codex-pilars` — Flujo recomendado (crear en proyecto → validar → Push)
+- `kata-push-to-framework` — Procedimiento ejecutado por este Cry (el Kata consulta el flujo recomendado de artefactos; ver documentación del Kata)
