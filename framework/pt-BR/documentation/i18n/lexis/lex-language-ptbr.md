@@ -85,6 +85,25 @@ Para instruções e documentação técnica:
 - **Agentes vinculados:** `warrior-translator` e qualquer agente que traduza para pt-BR
 - **Exceções:** Nenhuma. Lexis não admitem exceções.
 
+## Consequências de Violação
+
+1. **Tradução inconsistente:** texto que não siga as regras desta Lexis pode gerar mistura de tratamento, anglicismos desnecessários ou desvio da norma culta.
+2. **Rejeição em revisão:** traduções para pt-BR que violem as regras devem ser corrigidas antes de serem aceitas no framework.
+3. **Remediação:** o agente deve consultar `codex-language-ptbr` e esta Lexis e reaplicar as regras ao texto traduzido.
+
+## Exemplos
+
+### Correto
+
+- "O agente **DEVE** consultar o .directives." (voz ativa, DEVE em maiúsculas, termo técnico em inglês preservado)
+- "Recomenda-se usar fluxo de trabalho definido." (workflow traduzido; construção impessoal)
+
+### Incorreto
+
+- "O agente tem que consultar o .directives." (evitar "tem que"; usar "DEVE")
+- "Deletar o arquivo" (usar "Excluir o arquivo")
+- "Faça o merge da branch" (commit, merge, branch mantidos em inglês — correto; mas "Faça" em vez de "Execute" ou "Realize" pode ser aceitável conforme contexto)
+
 ## Referências
 
 - `lex-language` — Regras transversais (esta Lexis complementa)

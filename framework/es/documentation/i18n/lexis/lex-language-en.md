@@ -69,6 +69,24 @@ Tono **profesional-neutro**: claro, preciso, sin lenguaje coloquial.
 - **Agentes vinculados:** `warrior-translator` y cualquier agente que traduzca al inglés
 - **Excepciones:** Ninguna. Las Lexis no admiten excepciones.
 
+## Consecuencias de Violación
+
+1. **Traducción inconsistente:** texto que no siga las reglas de esta Lexis puede mezclar voz, usar falsos cognatos o desviarse del inglés americano.
+2. **Rechazo en revisión:** traducciones al inglés que violen las reglas deben corregirse antes de ser aceptadas en el framework.
+3. **Remediación:** el agente debe consultar `codex-language-en` y esta Lexis y reaplicar las reglas al texto traducido.
+
+## Ejemplos
+
+### Correcto
+
+- "The agent **MUST** consult the .directives." (voz activa, MUST según RFC 2119)
+- "Use the defined workflow." (conciso; "workflow" se mantiene en inglés cuando es estándar)
+
+### Incorrecto
+
+- "The directives are read by the agent" (preferir activa: "The agent reads the directives")
+- "Actually, the user must perform the action" ("actually" ≠ "atualmente"; usar "Currently" si ese es el significado)
+
 ## Referencias
 
 - `lex-language` — Reglas transversales (esta Lexis complementa)

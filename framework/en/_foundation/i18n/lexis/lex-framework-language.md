@@ -64,6 +64,34 @@ No `.md` artifact should exist directly in `framework/` outside of language fold
 2. **Broken navigation:** artifacts outside the `{lang}/` structure break the framework's navigability.
 3. **Remediation:** the agent must create the missing folders and versions, using the `warrior-translator` from `documentation/i18n/`.
 
+## Examples
+
+### Correct
+
+```
+framework/pt-BR/_foundation/process/lexis/lex-directives.md
+framework/es/_foundation/process/lexis/lex-directives.md
+framework/en/_foundation/process/lexis/lex-directives.md
+# Same relative path in each language; artifact complete for language.i18n.
+```
+
+### Incorrect
+
+```
+framework/lex-directives.md
+# ❌ Artifact outside language folder; breaks addressing {lang}/{clade}/...
+
+framework/pt-BR/_foundation/process/lexis/lex-directives.md
+# Exists only in pt-BR; es and en missing.
+# ❌ Incomplete artifact; violates mandatory completeness.
+```
+
+## Automated Validation
+
+- **Tool:** verification by the agent or script that compares `framework/{lang}/` for each `lang` in `language.i18n`
+- **When:** on artifact creation (kata-create-*), on push to framework, and on PR review
+- **Metric:** 0 artifacts in only one language when `language.i18n` requires all; 0 artifacts outside `{lang}/`
+
 ## References
 
 - `codex-framework-language` — Structural manual complementing this Lexis

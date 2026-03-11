@@ -64,6 +64,34 @@ Nenhum artefato `.md` deve existir diretamente em `framework/` fora das pastas d
 2. **Navegação quebrada:** artefatos fora da estrutura `{lang}/` quebram a navegabilidade do framework.
 3. **Remediação:** o agente deve criar as pastas e versões faltantes, utilizando o `warrior-translator` de `documentation/i18n/`.
 
+## Exemplos
+
+### Correto
+
+```
+framework/pt-BR/_foundation/process/lexis/lex-directives.md
+framework/es/_foundation/process/lexis/lex-directives.md
+framework/en/_foundation/process/lexis/lex-directives.md
+# Mesmo path relativo em cada idioma; artefato completo em language.i18n.
+```
+
+### Incorreto
+
+```
+framework/lex-directives.md
+# ❌ Artefato fora da pasta de idioma; quebra o endereçamento {lang}/{clade}/...
+
+framework/pt-BR/_foundation/process/lexis/lex-directives.md
+# Existe só em pt-BR; faltam es e en.
+# ❌ Artefato incompleto; viola completude obrigatória.
+```
+
+## Validação Automatizada
+
+- **Ferramenta:** verificação pelo agente ou script que compare `framework/{lang}/` para cada `lang` em `language.i18n`
+- **Momento:** na criação de artefato (kata-create-*), no push para o framework e na revisão de PR
+- **Métrica:** 0 artefatos apenas em um idioma quando `language.i18n` exige todos; 0 artefatos fora de `{lang}/`
+
 ## Referências
 
 - `codex-framework-language` — Manual estrutural complementar a esta Lexis

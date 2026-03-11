@@ -69,6 +69,25 @@ Termos técnicos universais **DEVEM** ser mantidos em inglês, assim como em pt-
 - **Agentes vinculados:** `warrior-translator` e qualquer agente que traduza para espanhol
 - **Exceções:** Nenhuma. Lexis não admitem exceções.
 
+## Consequências de Violação
+
+1. **Traducción inconsistente:** texto que no siga las reglas de esta Lexis puede generar mezcla de tratamiento, falsos cognatos o desvío del español neutro.
+2. **Rechazo en revisión:** traducciones al español que violen las reglas deben corregirse antes de ser aceptadas en el framework.
+3. **Remediación:** el agente debe consultar `codex-language-es` y esta Lexis y reaplicar las reglas al texto traducido.
+
+## Exemplos
+
+### Correto
+
+- "El agente **DEBE** consultar el .directives." (voz impersonal, DEBE en mayúsculas)
+- "Se recomienda usar el flujo de trabajo definido." (workflow → flujo de trabajo; construcción impersonal)
+
+### Incorreto
+
+- "El agente tiene que consultar el .directives." (evitar "tiene que"; usar "DEBE")
+- "Configurar el escritorio" cuando el contexto es "office" (usar "oficina", no "escritorio")
+- Mezclar "tú" y "usted" en el mismo documento.
+
 ## Referências
 
 - `lex-language` — Regras transversais (esta Lexis complementa)

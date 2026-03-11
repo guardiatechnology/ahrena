@@ -66,6 +66,25 @@ Universal technical terms **MUST** remain in English:
 - **Bound agents:** `warrior-translator` and any agent translating to Spanish
 - **Exceptions:** None. Lexis do not admit exceptions.
 
+## Consequences of Violation
+
+1. **Inconsistent translation:** text that does not follow the rules of this Lexis may mix formality, use false cognates, or deviate from neutral Spanish.
+2. **Rejection in review:** translations to Spanish that violate the rules must be corrected before being accepted into the framework.
+3. **Remediation:** the agent must consult `codex-language-es` and this Lexis and reapply the rules to the translated text.
+
+## Examples
+
+### Correct
+
+- "The agent **MUST** consult the .directives." (impersonal voice, MUST in capitals)
+- "The defined workflow should be used." (workflow → flujo de trabajo in Spanish; impersonal)
+
+### Incorrect
+
+- "The agent has to consult the .directives." (avoid "has to"; use "MUST")
+- "Configure the escritorio" when the context is "office" (use "oficina", not "escritorio")
+- Mixing "tú" and "usted" in the same document.
+
 ## References
 
 - `lex-language` — Cross-cutting rules (this Lexis complements)

@@ -71,6 +71,24 @@ For instructions and technical documentation:
 - **Bound agents:** `warrior-translator` and any agent translating to pt-BR
 - **Exceptions:** None. Lexis do not admit exceptions.
 
+## Consequences of Violation
+
+1. **Inconsistent translation:** text that does not follow the rules of this Lexis may mix formality, use unnecessary anglicisms, or deviate from the standard norm.
+2. **Rejection in review:** translations to pt-BR that violate the rules must be corrected before being accepted into the framework.
+3. **Remediation:** the agent must consult `codex-language-ptbr` and this Lexis and reapply the rules to the translated text.
+
+## Examples
+
+### Correct
+
+- "The agent **MUST** consult the .directives." (active voice, MUST in capitals, technical term preserved)
+- "It is recommended to use the defined workflow." (workflow translated where appropriate; impersonal construction)
+
+### Incorrect
+
+- "The agent has to consult the .directives." (avoid "has to"; use "MUST")
+- "Delete the file" (use "Exclude the file" per pt-BR convention)
+
 ## References
 
 - `lex-language` — Cross-cutting rules (this Lexis complements)
