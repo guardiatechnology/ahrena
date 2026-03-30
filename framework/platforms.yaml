@@ -190,3 +190,11 @@ cursor:
     engineering/platform/codex/codex-oas-structure:
       alwaysApply: false
       description: "When writing or ordering OpenAPI paths, follow operation order and structure from this codex."
+
+claude-code:
+  transposition:
+    lex: docs
+    codex: docs
+    kata: skills
+    warrior: agents
+    cry: commands

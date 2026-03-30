@@ -85,7 +85,7 @@ UPDATE_CMD_RUN = $(PYTHON) .ahrena/update.py --target $(TARGET) --version $(VERS
 endif
 endif
 
-.PHONY: bootstrap install dev-install update sync-cursor uninstall clean help
+.PHONY: bootstrap install dev-install update sync-cursor sync-claude-code uninstall clean help
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
@@ -96,11 +96,12 @@ help:
 	@echo "  dev-install   Install from local source (run from Ahrena repo root)"
 	@echo "  update        Update installation (default: remote). After dev-install use update LOCAL=1 or SOURCE=..."
 	@echo "  sync-cursor   Regenerate .cursor/ from .ahrena/framework/ and .ahrena/artifacts/ (no download)"
+	@echo "  sync-claude-code  Regenerate .claude/ + CLAUDE.md from .ahrena/ (no download)"
 	@echo "  uninstall     Remove Ahrena with confirmation"
 	@echo "  clean         Remove installed Ahrena files (no confirmation)"
 	@echo ""
 	@echo "Variables:"
-	@echo "  PLATFORM     Target platform (e.g. cursor)"
+	@echo "  PLATFORM     Target platform (e.g. cursor, claude-code)"
 	@echo "  VERSION      Tag or branch (default: main)"
 	@echo "  TARGET       Target project path (default: .)"
 	@echo "  REPO         GitHub repo URL"
@@ -126,6 +127,9 @@ update:
 
 sync-cursor:
 	$(PYTHON) .ahrena/update.py --target $(TARGET) --sync-cursor
+
+sync-claude-code:
+	$(PYTHON) .ahrena/update.py --target $(TARGET) --sync-claude-code
 
 uninstall:
 	$(PYTHON) .ahrena/uninstall.py --target $(TARGET)

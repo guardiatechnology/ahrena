@@ -22,6 +22,9 @@ MIN_PYTHON = (3, 8)
 PILAR_PREFIXES = ("lex-", "codex-", "kata-", "warrior-", "cry-")
 
 
+AHRENA_MARKER_START = "<!-- AHRENA:START -->"
+
+
 def count_ahrena_cursor_files(cursor_dir: Path) -> int:
     if not cursor_dir.exists():
         return 0
@@ -31,10 +34,20 @@ def count_ahrena_cursor_files(cursor_dir: Path) -> int:
     )
 
 
+def count_ahrena_claude_code_files(claude_dir: Path) -> int:
+    if not claude_dir.exists():
+        return 0
+    return sum(
+        1 for f in claude_dir.rglob("*.md")
+        if f.name.startswith(PILAR_PREFIXES)
+    )
+
+
 def remove_ahrena(target: Path) -> None:
-    """Remove .ahrena/ and Ahrena .mdc files from .cursor/."""
+    """Remove .ahrena/ and Ahrena files from .cursor/ and .claude/."""
     ahrena_dir = target / ".ahrena"
     cursor_dir = target / ".cursor"
+    claude_dir = target / ".claude"
 
     if ahrena_dir.exists():
         shutil.rmtree(ahrena_dir)
@@ -53,6 +66,28 @@ def remove_ahrena(target: Path) -> None:
 
         if removed:
             print(f"  Removed {removed} Ahrena .mdc files from .cursor/")
+
+    if claude_dir.exists():
+        removed = 0
+        for md_file in list(claude_dir.rglob("*.md")):
+            if md_file.name.startswith(PILAR_PREFIXES):
+                md_file.unlink()
+                removed += 1
+
+        for dirpath in sorted(claude_dir.rglob("*"), reverse=True):
+            if dirpath.is_dir() and not any(dirpath.iterdir()):
+                dirpath.rmdir()
+
+        if removed:
+            print(f"  Removed {removed} Ahrena .md files from .claude/")
+
+    # Clean CLAUDE.md if it has Ahrena markers
+    claude_md = target / "CLAUDE.md"
+    if claude_md.exists():
+        content = claude_md.read_text(encoding="utf-8")
+        if AHRENA_MARKER_START in content:
+            claude_md.unlink()
+            print(f"  Removed CLAUDE.md")
 
 
 def main() -> None:
@@ -93,12 +128,20 @@ examples:
 
     framework_files = sum(1 for _ in ahrena_dir.rglob("*") if _.is_file())
     cursor_files = count_ahrena_cursor_files(cursor_dir)
+    claude_dir = target / ".claude"
+    claude_files = count_ahrena_claude_code_files(claude_dir)
+    claude_md = target / "CLAUDE.md"
+    has_claude_md = claude_md.exists() and AHRENA_MARKER_START in claude_md.read_text(encoding="utf-8")
 
     print(f"\n  Target: {target}")
     print(f"\n  Will be removed:")
     print(f"    .ahrena/           {framework_files} files")
     if cursor_files:
         print(f"    .cursor/ (.mdc)    {cursor_files} Ahrena files")
+    if claude_files:
+        print(f"    .claude/ (.md)     {claude_files} Ahrena files")
+    if has_claude_md:
+        print(f"    CLAUDE.md          1 file")
     print()
 
     if not args.force:

@@ -517,6 +517,178 @@ def build_cursor_path(framework_rel_path: Path, pilar: str, resource: str | None
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Markdown → Claude Code transformer
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AHRENA_MARKER_START = "<!-- AHRENA:START -->"
+AHRENA_MARKER_END = "<!-- AHRENA:END -->"
+
+
+def transform_md_to_claude_doc(content: str, pilar: str) -> str:
+    """Transform a framework lex/codex .md into a plain Claude Code doc .md.
+
+    Claude Code docs are plain markdown — no frontmatter, no format conversion.
+    Non-essential sections are filtered out to reduce token usage.
+    """
+    return filter_sections(content, pilar)
+
+
+def transform_md_to_claude_command(content: str, pilar: str) -> str:
+    """Transform a framework cry .md into a Claude Code command .md.
+
+    Claude Code commands use plain markdown. The first line is the description,
+    followed by a blank line and the filtered body.
+    """
+    description = extract_description(content)
+    body = filter_sections(content, pilar)
+    return description + "\n\n" + body
+
+
+def transform_md_to_claude_skill(content: str, pilar: str, filename: str) -> str:
+    """Transform a framework kata .md into a Claude Code SKILL.md.
+
+    Claude Code skills use SKILL.md with instructions and metadata,
+    following the same structure as Cursor skills.
+    """
+    description = extract_description(content)
+    body = filter_sections(content, pilar)
+    safe_desc = description.replace('"', '\\"')
+    name = Path(filename).stem
+    frontmatter = f'---\nname: {name}\ndescription: "{safe_desc}"\n---'
+    return frontmatter + "\n\n" + body
+
+
+def transform_md_to_claude_agent(content: str, pilar: str, filename: str) -> str:
+    """Transform a framework warrior .md into a Claude Code agent .md.
+
+    Claude Code agents use .md files with name + description frontmatter.
+    The body becomes the agent's system prompt.
+    """
+    description = extract_description(content)
+    body = filter_sections(content, pilar)
+    safe_desc = description.replace('"', '\\"')
+    name = Path(filename).stem
+    frontmatter = f'---\nname: {name}\ndescription: "{safe_desc}"\n---'
+    return frontmatter + "\n\n" + body
+
+
+def build_claude_code_path(framework_rel_path: Path, pilar: str, resource: str | None = None) -> Path:
+    """Map a framework-relative path to a .claude/ path.
+
+    Each Claude Code resource type maps to:
+      docs:     .claude/docs/{clade}/{subclade}/{file}.md
+      skills:   .claude/skills/{skill-name}/SKILL.md
+      agents:   .claude/agents/{name}.md
+      commands: .claude/commands/{stem}.md  (flat namespace)
+
+    When resource is None, raises ValueError.
+    """
+    if resource is None:
+        raise ValueError(f"resource is required for Claude Code path (pilar={pilar}); define claude-code.transposition in framework/platforms.yaml")
+    parts = list(framework_rel_path.parts)
+    if len(parts) > 1:
+        parts = parts[1:]  # drop language segment
+    pilar_folder = PILAR_FOLDER_NAME.get(pilar, "")
+    parts_no_pilar = [p for p in parts if p != pilar_folder]
+
+    if resource == "agents":
+        stem = Path(framework_rel_path).stem
+        return Path(".claude") / "agents" / f"{stem}.md"
+    if resource == "skills":
+        skill_name = Path(parts_no_pilar[-1]).stem
+        return Path(".claude") / "skills" / skill_name / "SKILL.md"
+    if resource == "commands":
+        stem = Path(framework_rel_path).stem
+        return Path(".claude") / "commands" / f"{stem}.md"
+    # docs: preserve clade/subclade hierarchy
+    return Path(".claude") / "docs" / Path(*parts_no_pilar)
+
+
+def generate_claude_md(
+    target_dir: Path,
+    platforms_config: dict,
+) -> None:
+    """Generate CLAUDE.md at the project root with Ahrena docs.
+
+    Docs whose cursor.rules entry has alwaysApply: true are inlined.
+    All other docs are listed as available references.
+    """
+    claude_docs_dir = target_dir / ".claude" / "docs"
+    if not claude_docs_dir.exists():
+        return
+
+    cursor_rules = platforms_config.get("cursor", {}).get("rules", {})
+
+    always_apply_docs: list[tuple[str, str]] = []
+    reference_docs: list[str] = []
+
+    for md_file in sorted(claude_docs_dir.rglob("*.md")):
+        rel_path = md_file.relative_to(target_dir / ".claude" / "docs")
+        # Reconstruct the rule key WITH the pilar folder to match cursor.rules keys.
+        # Claude Code docs strip the pilar folder (e.g. _foundation/process/lex-directives.md)
+        # but cursor.rules keys include it (e.g. _foundation/process/lexis/lex-directives).
+        pilar = detect_pilar(md_file.name)
+        pilar_folder = PILAR_FOLDER_NAME.get(pilar, "") if pilar else ""
+        rel_parts = list(rel_path.with_suffix("").parts)
+        if pilar_folder and len(rel_parts) >= 2:
+            # Insert the pilar folder before the filename
+            rule_key = "/".join(rel_parts[:-1] + [pilar_folder, rel_parts[-1]])
+        else:
+            rule_key = str(rel_path.with_suffix("")).replace("\\", "/")
+
+        rule_config = cursor_rules.get(rule_key, {})
+        is_always_apply = isinstance(rule_config, dict) and rule_config.get("alwaysApply", False)
+
+        if is_always_apply:
+            content = md_file.read_text(encoding="utf-8").strip()
+            always_apply_docs.append((str(rel_path), content))
+        else:
+            reference_docs.append(str(rel_path))
+
+    lines = [
+        AHRENA_MARKER_START,
+        "# Ahrena Framework",
+        "",
+        "> Auto-generated by Ahrena. Do not edit between AHRENA markers.",
+        "",
+    ]
+
+    if always_apply_docs:
+        for rel, content in always_apply_docs:
+            lines.append(content)
+            lines.append("")
+
+    if reference_docs:
+        lines.append("## Reference Docs")
+        lines.append("")
+        lines.append("Available in `.claude/docs/` — use `@` to import when needed:")
+        lines.append("")
+        for ref in reference_docs:
+            lines.append(f"- `.claude/docs/{ref}`")
+        lines.append("")
+
+    lines.append(AHRENA_MARKER_END)
+
+    claude_md_path = target_dir / "CLAUDE.md"
+
+    # Preserve user content outside markers if CLAUDE.md already exists
+    if claude_md_path.exists():
+        existing = claude_md_path.read_text(encoding="utf-8")
+        start_idx = existing.find(AHRENA_MARKER_START)
+        end_idx = existing.find(AHRENA_MARKER_END)
+        if start_idx != -1 and end_idx != -1:
+            before = existing[:start_idx]
+            after = existing[end_idx + len(AHRENA_MARKER_END):]
+            new_content = before + "\n".join(lines) + after
+        else:
+            new_content = existing.rstrip() + "\n\n" + "\n".join(lines) + "\n"
+    else:
+        new_content = "\n".join(lines) + "\n"
+
+    claude_md_path.write_text(new_content, encoding="utf-8")
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Installation phases
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -727,6 +899,169 @@ def _process_lang_dir_to_cursor(
     return file_count, agent_count
 
 
+def _process_lang_dir_to_claude_code(
+    lang_dir: Path,
+    base_dir: Path,
+    target_dir: Path,
+    dry_run: bool,
+    claude_code_config: dict | None = None,
+) -> tuple[int, int, int, int]:
+    """Process a language dir and write .claude/ files.
+
+    Returns (doc_count, skill_count, agent_count, command_count).
+    """
+    doc_count = 0
+    skill_count = 0
+    agent_count = 0
+    command_count = 0
+    claude_code_config = claude_code_config or {}
+    transposition = claude_code_config.get("transposition") or {}
+
+    for md_file in sorted(lang_dir.rglob("*.md")):
+        pilar = detect_pilar(md_file.name)
+        if pilar is None:
+            continue
+
+        resource = transposition.get(pilar)
+        if resource is None:
+            continue
+
+        rel_path = md_file.relative_to(base_dir)
+        claude_path = build_claude_code_path(rel_path, pilar, resource)
+        full_path = target_dir / claude_path
+
+        content = md_file.read_text(encoding="utf-8")
+        if resource == "docs":
+            out_content = transform_md_to_claude_doc(content, pilar)
+            doc_count += 1
+        elif resource == "skills":
+            out_content = transform_md_to_claude_skill(content, pilar, md_file.name)
+            skill_count += 1
+        elif resource == "agents":
+            out_content = transform_md_to_claude_agent(content, pilar, md_file.name)
+            agent_count += 1
+        else:
+            out_content = transform_md_to_claude_command(content, pilar)
+            command_count += 1
+
+        if dry_run:
+            print(f"    [DRY-RUN] {claude_path}")
+        else:
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.write_text(out_content, encoding="utf-8")
+
+    return doc_count, skill_count, agent_count, command_count
+
+
+def install_claude_code(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) -> None:
+    """Phase 2: generate .claude/ files and CLAUDE.md from .ahrena/framework/ and .ahrena/artifacts/."""
+    directives_path = ahrena_dir / ".directives"
+    if not directives_path.exists():
+        print(f"\nERROR: .directives not found at {directives_path}")
+        sys.exit(1)
+
+    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
+    claude_lang = str(get_directive(directives, "language", "claude-code", default="en"))
+
+    framework_dir = ahrena_dir / "framework"
+    lang_dir = framework_dir / claude_lang
+    templates_dir = framework_dir / "templates"
+    artifacts_dir = ahrena_dir / "artifacts"
+
+    if not lang_dir.exists():
+        print(f"\nERROR: Language directory not found: {lang_dir}")
+        print(f"Available: {[d.name for d in framework_dir.iterdir() if d.is_dir() and not d.name.startswith('.')]}")
+        sys.exit(1)
+
+    print(f"  Source language for Claude Code: '{claude_lang}'")
+
+    platforms = load_platforms_config(ahrena_dir)
+    claude_code_config = platforms.get("claude-code")
+    if not claude_code_config or not isinstance(claude_code_config, dict):
+        print("\nERROR: claude-code config not found in platforms.yaml.")
+        print("  Define 'claude-code' with 'transposition' in framework/platforms.yaml (or .ahrena/platforms.yaml).")
+        sys.exit(1)
+    transposition = claude_code_config.get("transposition")
+    if not transposition or not isinstance(transposition, dict):
+        print("\nERROR: claude-code.transposition not found in platforms.yaml.")
+        print("  Define claude-code.transposition (lex, codex, kata, warrior, cry -> docs/commands) in framework/platforms.yaml.")
+        sys.exit(1)
+    missing = [p for p in PILAR_NAMES if p not in transposition]
+    if missing:
+        print(f"\nERROR: claude-code.transposition in platforms.yaml must define all pilars. Missing: {', '.join(missing)}")
+        print("  Required keys: lex, codex, kata, warrior, cry.")
+        sys.exit(1)
+
+    # 1. Process framework
+    docs_fw, skills_fw, agents_fw, cmds_fw = _process_lang_dir_to_claude_code(
+        lang_dir, framework_dir, target_dir, dry_run, claude_code_config
+    )
+
+    # 2. Process templates (samples)
+    if templates_dir.exists():
+        for md_file in sorted(templates_dir.glob("*-sample.md")):
+            pilar = detect_pilar(md_file.name)
+            if pilar is None:
+                continue
+
+            resource = transposition[pilar]
+            if resource == "skills":
+                claude_path = Path(".claude") / "skills" / md_file.stem / "SKILL.md"
+            elif resource == "agents":
+                claude_path = Path(".claude") / "agents" / md_file.name
+            elif resource == "commands":
+                claude_path = Path(".claude") / "commands" / md_file.name
+            else:
+                claude_path = Path(".claude") / "docs" / "samples" / md_file.name
+            full_path = target_dir / claude_path
+
+            content = md_file.read_text(encoding="utf-8")
+            if resource == "docs":
+                out_content = transform_md_to_claude_doc(content, pilar)
+                docs_fw += 1
+            elif resource == "skills":
+                out_content = transform_md_to_claude_skill(content, pilar, md_file.name)
+                skills_fw += 1
+            elif resource == "agents":
+                out_content = transform_md_to_claude_agent(content, pilar, md_file.name)
+                agents_fw += 1
+            else:
+                out_content = transform_md_to_claude_command(content, pilar)
+                cmds_fw += 1
+
+            if dry_run:
+                print(f"    [DRY-RUN] {claude_path}")
+            else:
+                full_path.parent.mkdir(parents=True, exist_ok=True)
+                full_path.write_text(out_content, encoding="utf-8")
+
+    # 3. Process project artifacts
+    docs_art, skills_art, agents_art, cmds_art = 0, 0, 0, 0
+    if artifacts_dir.exists():
+        artifacts_lang_dir = artifacts_dir / claude_lang
+        if artifacts_lang_dir.exists():
+            docs_art, skills_art, agents_art, cmds_art = _process_lang_dir_to_claude_code(
+                artifacts_lang_dir, artifacts_dir, target_dir, dry_run, claude_code_config
+            )
+
+    # 4. Generate CLAUDE.md
+    if not dry_run:
+        generate_claude_md(target_dir, platforms)
+    else:
+        print(f"    [DRY-RUN] CLAUDE.md")
+
+    total_docs = docs_fw + docs_art
+    total_skills = skills_fw + skills_art
+    total_agents = agents_fw + agents_art
+    total_cmds = cmds_fw + cmds_art
+    has_art = docs_art > 0 or skills_art > 0 or agents_art > 0 or cmds_art > 0
+    if has_art:
+        print(f"  Generated from framework: {docs_fw} docs, {skills_fw} skills, {agents_fw} agents, {cmds_fw} commands")
+        print(f"  Generated from artifacts: {docs_art} docs, {skills_art} skills, {agents_art} agents, {cmds_art} commands")
+    else:
+        print(f"  Generated {total_docs} docs, {total_skills} skills, {total_agents} agents, {total_cmds} commands")
+
+
 def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) -> None:
     """Phase 2: generate .cursor/ files from .ahrena/framework/ and .ahrena/artifacts/."""
     directives_path = ahrena_dir / ".directives"
@@ -824,6 +1159,7 @@ def clean(target_dir: Path) -> None:
     """Remove Ahrena-installed files from the project."""
     ahrena_dir = target_dir / ".ahrena"
     cursor_dir = target_dir / ".cursor"
+    claude_dir = target_dir / ".claude"
 
     if ahrena_dir.exists():
         shutil.rmtree(ahrena_dir)
@@ -877,6 +1213,59 @@ def clean(target_dir: Path) -> None:
         if agent_removed:
             print(f"  Removed {agent_removed} Ahrena agent files from .cursor/agents/")
 
+    # Clean Claude Code files
+    if claude_dir.exists():
+        prefixes = tuple(f"{p}-" for p in PILAR_NAMES)
+        removed = 0
+
+        # Clean docs and commands (files with pilar prefixes)
+        for md_file in list(claude_dir.rglob("*.md")):
+            if md_file.name.startswith(prefixes):
+                md_file.unlink()
+                removed += 1
+
+        # Clean skill directories (contain SKILL.md; dir name has pilar prefix)
+        skills_dir = claude_dir / "skills"
+        if skills_dir.exists():
+            for skill_dir in list(skills_dir.iterdir()):
+                if skill_dir.is_dir() and skill_dir.name.startswith(prefixes):
+                    shutil.rmtree(skill_dir)
+                    removed += 1
+
+        # Clean agent files (pilar prefix in filename)
+        agents_dir = claude_dir / "agents"
+        agent_prefixes = tuple(f"{p}-" for p in PILAR_GENERATES_AGENT)
+        if agents_dir.exists():
+            for md_file in list(agents_dir.glob("*.md")):
+                if md_file.name.startswith(agent_prefixes):
+                    md_file.unlink()
+                    removed += 1
+
+        # Remove empty directories left behind
+        for dirpath in sorted(claude_dir.rglob("*"), reverse=True):
+            if dirpath.is_dir() and not any(dirpath.iterdir()):
+                dirpath.rmdir()
+
+        if removed:
+            print(f"  Removed {removed} Ahrena files from .claude/")
+        else:
+            print(f"  No Ahrena files found in .claude/")
+
+    # Clean CLAUDE.md if it has Ahrena markers
+    claude_md = target_dir / "CLAUDE.md"
+    if claude_md.exists():
+        content = claude_md.read_text(encoding="utf-8")
+        if AHRENA_MARKER_START in content and AHRENA_MARKER_END in content:
+            start_idx = content.find(AHRENA_MARKER_START)
+            end_idx = content.find(AHRENA_MARKER_END) + len(AHRENA_MARKER_END)
+            remaining = (content[:start_idx] + content[end_idx:]).strip()
+            if remaining:
+                claude_md.write_text(remaining + "\n", encoding="utf-8")
+                print(f"  Removed Ahrena section from CLAUDE.md")
+            else:
+                claude_md.unlink()
+                print(f"  Removed CLAUDE.md")
+
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # CLI
@@ -914,8 +1303,8 @@ examples:
         help=f"GitHub repository URL (default: {DEFAULT_REPO})",
     )
     parser.add_argument(
-        "--platform", choices=["cursor"],
-        help="target platform to generate files for (e.g., cursor)",
+        "--platform", choices=["cursor", "claude-code"],
+        help="target platform to generate files for (e.g., cursor, claude-code)",
     )
     parser.add_argument(
         "--clades",
@@ -1029,6 +1418,12 @@ def main() -> None:
             print("  [DRY-RUN] Would generate .cursor/ files")
         else:
             install_cursor(ahrena_dir, target_dir, dry_run=args.dry_run)
+    elif args.platform == "claude-code":
+        print(f"\n--- Phase 2: Generate .claude/ + CLAUDE.md ---")
+        if args.dry_run and not ahrena_dir.exists():
+            print("  [DRY-RUN] Would generate .claude/ files and CLAUDE.md")
+        else:
+            install_claude_code(ahrena_dir, target_dir, dry_run=args.dry_run)
 
     print(f"\nDone!")
 
