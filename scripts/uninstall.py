@@ -23,6 +23,7 @@ PILAR_PREFIXES = ("lex-", "codex-", "kata-", "warrior-", "cry-")
 
 
 AHRENA_MARKER_START = "<!-- AHRENA:START -->"
+AHRENA_MARKER_END = "<!-- AHRENA:END -->"
 
 
 def count_ahrena_cursor_files(cursor_dir: Path) -> int:
@@ -81,13 +82,20 @@ def remove_ahrena(target: Path) -> None:
         if removed:
             print(f"  Removed {removed} Ahrena .md files from .claude/")
 
-    # Clean CLAUDE.md if it has Ahrena markers
+    # Clean CLAUDE.md — remove only the Ahrena section, preserve user content
     claude_md = target / "CLAUDE.md"
     if claude_md.exists():
         content = claude_md.read_text(encoding="utf-8")
-        if AHRENA_MARKER_START in content:
-            claude_md.unlink()
-            print(f"  Removed CLAUDE.md")
+        if AHRENA_MARKER_START in content and AHRENA_MARKER_END in content:
+            start_idx = content.find(AHRENA_MARKER_START)
+            end_idx = content.find(AHRENA_MARKER_END) + len(AHRENA_MARKER_END)
+            remaining = (content[:start_idx] + content[end_idx:]).strip()
+            if remaining:
+                claude_md.write_text(remaining + "\n", encoding="utf-8")
+                print(f"  Removed Ahrena section from CLAUDE.md")
+            else:
+                claude_md.unlink()
+                print(f"  Removed CLAUDE.md")
 
 
 def main() -> None:
