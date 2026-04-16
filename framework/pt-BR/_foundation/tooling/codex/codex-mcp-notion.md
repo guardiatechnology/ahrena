@@ -122,6 +122,6 @@ create_page(
 ## Referências
 
 - `lex-mcp` — Leis de uso de ferramentas MCP
-- `kata-mcp-notion-sync` — Kata de sincronização de documentação para Notion
+- `kata-mcp-notion-read` — Kata de consulta de conteúdo do Notion (somente leitura)
 - [Notion MCP Server — repositório oficial](https://github.com/makenotion/notion-mcp-server)
 - [Notion API — Block types](https://developers.notion.com/reference/block)

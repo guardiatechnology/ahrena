@@ -121,6 +121,7 @@ create_pull_request(
 ## References
 
 - `lex-mcp` — MCP tool usage laws
-- `kata-mcp-notion-sync` — Kata for Notion synchronization (analogous pattern)
+- `kata-mcp-notion-read` — Kata for querying Notion content (analogous pattern)
+- `kata-mcp-github-read` — Kata for querying GitHub repositories and code (read-only)
 - [GitHub MCP Server — official repository](https://github.com/modelcontextprotocol/servers)
 - `_foundation/contributing/katas/kata-contribute` — Contribution kata that uses GitHub MCP

@@ -1410,16 +1410,22 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 examples:
-  %(prog)s                                           Install .ahrena/ only (from remote)
-  %(prog)s --platform cursor                         Install .ahrena/ + .cursor/ (remote)
-  %(prog)s --local --platform cursor                 Install from current dir (Ahrena repo root)
-  %(prog)s --source /path/to/ahrena --platform cursor  Install from local clone
-  %(prog)s --clades _foundation,documentation        Install only specific clades
-  %(prog)s --version v0.1.0                          Install specific version (remote)
-  %(prog)s --language en                             Override default language
-  %(prog)s --directives ./my-directives              Use custom directives
-  %(prog)s --clean                                   Remove installed files
-  %(prog)s --dry-run --platform cursor               Preview without changes
+  %(prog)s                                                Install .ahrena/ only (from remote)
+  %(prog)s --platform cursor                              Install .ahrena/ + .cursor/ (remote)
+  %(prog)s --platform claude-code                         Install .ahrena/ + .claude/ + CLAUDE.md (remote)
+  %(prog)s --local --platform cursor                      Install from current dir (Ahrena repo root)
+  %(prog)s --source /path/to/ahrena --platform cursor     Install from a local clone
+  %(prog)s --clades _foundation,documentation             Install only specific clades
+  %(prog)s --version v0.1.0                               Install specific version (remote)
+  %(prog)s --language en                                  Override default language
+  %(prog)s --directives ./my-directives                   Use custom directives
+  %(prog)s --clean                                        Remove installed files
+  %(prog)s --dry-run --platform cursor                    Preview without changes
+
+offline (run this script directly from a cloned Ahrena repo):
+  python scripts/install.py --self --target /path/to/project --platform cursor
+  python scripts/install.py --self --target /path/to/project --platform claude-code
+  python scripts/install.py --self --target /path/to/project --platform cursor --language en
         """,
     )
     parser.add_argument(
@@ -1459,6 +1465,10 @@ examples:
         help="path to local Ahrena repo (use instead of downloading from GitHub)",
     )
     parser.add_argument(
+        "--self", action="store_true", dest="self_source",
+        help="use the Ahrena repo containing this script as source (offline install to --target)",
+    )
+    parser.add_argument(
         "--dry-run", action="store_true",
         help="show what would be done without making changes",
     )
@@ -1495,6 +1505,8 @@ def main() -> None:
     # ── Install mode ──
     if args.source is not None:
         source_label = str(args.source.resolve())
+    elif args.self_source:
+        source_label = f"SELF ({Path(__file__).resolve().parent.parent})"
     elif args.local:
         source_label = "LOCAL (CWD)"
     else:
@@ -1524,6 +1536,13 @@ def main() -> None:
         if not (source_dir / "scripts").exists():
             print(f"\nERROR: 'scripts/' not found in {source_dir}")
             print("--source must point to the Ahrena repository root (containing framework/ and scripts/).")
+            sys.exit(1)
+        ahrena_dir = install_ahrena(source_dir, target_dir, args)
+    elif args.self_source:
+        source_dir = Path(__file__).resolve().parent.parent
+        if not (source_dir / "framework").exists():
+            print(f"\nERROR: 'framework/' not found at {source_dir}")
+            print("--self assumes this script lives in <ahrena-repo>/scripts/. Check your clone.")
             sys.exit(1)
         ahrena_dir = install_ahrena(source_dir, target_dir, args)
     elif args.local:

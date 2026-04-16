@@ -65,6 +65,6 @@ Este Codex es la referencia para usar el **servidor MCP de Notion** en proyectos
 ## Referencias
 
 - `lex-mcp` — Leyes de uso de herramientas MCP
-- `kata-mcp-notion-sync` — Kata de sincronización de documentación a Notion
+- `kata-mcp-notion-read` — Kata de consulta de contenido de Notion (solo lectura)
 - [Notion MCP Server — repositorio oficial](https://github.com/makenotion/notion-mcp-server)
 - [Notion API — Block types](https://developers.notion.com/reference/block)

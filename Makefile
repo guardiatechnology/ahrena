@@ -85,7 +85,11 @@ UPDATE_CMD_RUN = $(PYTHON) .ahrena/update.py --target $(TARGET) --version $(VERS
 endif
 endif
 
-.PHONY: bootstrap install dev-install update sync-cursor sync-claude-code uninstall clean validate help
+# Detect the directory of this Makefile (the Ahrena repo root).
+# Used by install-to so --self resolves correctly regardless of CWD.
+MAKEFILE_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+
+.PHONY: bootstrap install dev-install install-to update sync-cursor sync-claude-code uninstall clean validate help
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
@@ -94,6 +98,8 @@ help:
 	@echo "  bootstrap     First install (downloads installer from GitHub Release)"
 	@echo "  install       Reinstall from .ahrena/install.py (default: remote)"
 	@echo "  dev-install   Install from local source (run from Ahrena repo root)"
+	@echo "  install-to    Offline install FROM this repo TO any target (no network)"
+	@echo "                  make install-to TARGET=/path/to/project PLATFORM=cursor"
 	@echo "  update        Update installation (default: remote). After dev-install use update LOCAL=1 or SOURCE=..."
 	@echo "  sync-cursor   Regenerate .cursor/ from .ahrena/framework/ and .ahrena/artifacts/ (no download)"
 	@echo "  sync-claude-code  Regenerate .claude/ + CLAUDE.md from .ahrena/ (no download)"
@@ -121,6 +127,9 @@ install:
 
 dev-install:
 	$(DEV_INSTALL_CMD)
+
+install-to:
+	$(PYTHON) $(MAKEFILE_DIR)scripts/install.py --self --target $(TARGET) $(LOCAL_OPTS)
 
 update:
 	$(UPDATE_CMD_RUN)
