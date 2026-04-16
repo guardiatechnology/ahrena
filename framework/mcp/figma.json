@@ -1,0 +1,17 @@
+{
+  "_comment": "Ahrena MCP: Figma server config. Merged into platform MCP files during install. Do not edit — override via .ahrena/mcp/figma.json instead.",
+  "cursor": {
+    "command": "npx",
+    "args": ["-y", "figma-developer-mcp", "--stdio"],
+    "env": {
+      "FIGMA_API_KEY": "${env:FIGMA_API_KEY}"
+    }
+  },
+  "claude-code": {
+    "command": "npx",
+    "args": ["-y", "figma-developer-mcp", "--stdio"],
+    "env": {
+      "FIGMA_API_KEY": "${FIGMA_API_KEY}"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "_comment": "Ahrena MCP: GitHub server config. Merged into platform MCP files during install. Do not edit — override via .ahrena/mcp/github.json instead.",
+  "cursor": {
+    "url": "https://api.githubcopilot.com/mcp/",
+    "headers": {
+      "Authorization": "Bearer ${env:GITHUB_PAT}"
+    }
+  },
+  "claude-code": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-github"],
+    "env": {
+      "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}"
+    }
+  }
+}

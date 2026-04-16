@@ -32,6 +32,20 @@ paths:
     cries: "templates/cry-sample.md"
 
 
+# ─── MCP Servers ────────────────────────────────────────────────
+# List of MCP servers to activate. The installer merges the
+# corresponding config from framework/mcp/<name>.json (or
+# .ahrena/mcp/<name>.json if overridden) into .cursor/mcp.json
+# and .claude/settings.json. Uncomment only the servers you need.
+# Override individual server configs in .ahrena/mcp/<name>.json.
+
+# mcp:
+#   servers:
+#     - github
+#     - notion
+#     - figma
+
+
 # ─── Language ────────────────────────────────────────────────────
 # Defines the default language, the mandatory languages for the
 # framework, and the language used in Cursor artifacts.

@@ -85,7 +85,7 @@ UPDATE_CMD_RUN = $(PYTHON) .ahrena/update.py --target $(TARGET) --version $(VERS
 endif
 endif
 
-.PHONY: bootstrap install dev-install update sync-cursor sync-claude-code uninstall clean help
+.PHONY: bootstrap install dev-install update sync-cursor sync-claude-code uninstall clean validate help
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
@@ -136,3 +136,6 @@ uninstall:
 
 clean:
 	$(PYTHON) .ahrena/install.py --target $(TARGET) --clean
+
+validate:
+	$(PYTHON) scripts/validate.py

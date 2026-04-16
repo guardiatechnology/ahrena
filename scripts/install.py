@@ -221,12 +221,12 @@ def load_platforms_config(ahrena_dir: Path) -> dict:
                     continue
                 config.setdefault(platform, {})
                 for key, value in platform_data.items():
-                    if key == "rules" and isinstance(value, dict):
-                        existing_rules = config[platform].get("rules")
-                        if isinstance(existing_rules, dict):
-                            config[platform]["rules"] = {**existing_rules, **value}
+                    if key in ("rules", "docs") and isinstance(value, dict):
+                        existing = config[platform].get(key)
+                        if isinstance(existing, dict):
+                            config[platform][key] = {**existing, **value}
                         else:
-                            config[platform]["rules"] = dict(value)
+                            config[platform][key] = dict(value)
                     else:
                         config[platform][key] = value
         except (OSError, TypeError) as e:
@@ -236,6 +236,104 @@ def load_platforms_config(ahrena_dir: Path) -> dict:
                 print(f"  WARNING: Could not load {path}: {e}", file=sys.stderr)
 
     return config
+
+
+def load_mcp_server_config(ahrena_dir: Path, server_name: str) -> dict | None:
+    """Load JSON config for a named MCP server.
+
+    Checks .ahrena/mcp/<name>.json first (user override), then
+    framework/mcp/<name>.json (framework default).
+    Returns the raw dict or None if not found.
+    """
+    import json
+    for base in (ahrena_dir, ahrena_dir / "framework"):
+        path = base / "mcp" / f"{server_name}.json"
+        if path.exists():
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                pass
+    return None
+
+
+def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: bool = False) -> None:
+    """Merge MCP server configs into .cursor/mcp.json and .claude/settings.json.
+
+    Reads mcp.servers list from directives. For each server, loads the
+    platform-specific block from framework/mcp/<name>.json (or the user
+    override in .ahrena/mcp/<name>.json) and merges it additively.
+
+    Cursor:      .cursor/mcp.json       → {"mcpServers": {...}}
+    Claude Code: .claude/settings.json  → {"mcpServers": {...}}
+
+    Merge is additive — existing entries for other servers are preserved.
+    Only the keys listed in mcp.servers are written/overwritten.
+    """
+    import json
+
+    servers = get_directive(directives, "mcp", "servers", default=[])
+    if not servers or not isinstance(servers, list):
+        return  # mcp section absent or empty
+
+    cursor_mcp: dict = {}
+    claude_mcp: dict = {}
+
+    for server_name in servers:
+        raw = load_mcp_server_config(ahrena_dir, server_name)
+        if raw is None:
+            print(f"  WARNING: No MCP config found for server '{server_name}' — skipping", file=sys.stderr)
+            continue
+        cursor_block = raw.get("cursor")
+        claude_block = raw.get("claude-code")
+        if cursor_block and isinstance(cursor_block, dict):
+            cursor_mcp[server_name] = cursor_block
+        if claude_block and isinstance(claude_block, dict):
+            claude_mcp[server_name] = claude_block
+
+    if dry_run:
+        if cursor_mcp:
+            print(f"    [DRY-RUN] .cursor/mcp.json ({', '.join(cursor_mcp)})")
+        if claude_mcp:
+            print(f"    [DRY-RUN] .claude/settings.json ({', '.join(claude_mcp)})")
+        return
+
+    # ── Cursor: .cursor/mcp.json ──────────────────────────────────
+    if cursor_mcp:
+        cursor_dir = target_dir / ".cursor"
+        cursor_dir.mkdir(parents=True, exist_ok=True)
+        mcp_path = cursor_dir / "mcp.json"
+        existing: dict = {}
+        if mcp_path.exists():
+            try:
+                existing = json.loads(mcp_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                existing = {}
+        existing.setdefault("mcpServers", {})
+        existing["mcpServers"].update(cursor_mcp)
+        mcp_path.write_text(
+            json.dumps(existing, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"  Updated .cursor/mcp.json ({', '.join(cursor_mcp)})")
+
+    # ── Claude Code: .claude/settings.json ───────────────────────
+    if claude_mcp:
+        claude_dir = target_dir / ".claude"
+        claude_dir.mkdir(parents=True, exist_ok=True)
+        settings_path = claude_dir / "settings.json"
+        existing_s: dict = {}
+        if settings_path.exists():
+            try:
+                existing_s = json.loads(settings_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                existing_s = {}
+        existing_s.setdefault("mcpServers", {})
+        existing_s["mcpServers"].update(claude_mcp)
+        settings_path.write_text(
+            json.dumps(existing_s, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"  Updated .claude/settings.json ({', '.join(claude_mcp)})")
 
 
 def _framework_rel_path_to_rule_key(rel_path: Path) -> str:
@@ -610,23 +708,28 @@ def generate_claude_md(
 ) -> None:
     """Generate CLAUDE.md at the project root with Ahrena docs.
 
-    Docs whose cursor.rules entry has alwaysApply: true are inlined.
+    Docs whose claude-code.docs entry has essential: true are inlined.
     All other docs are listed as available references.
+
+    Falls back to cursor.rules alwaysApply when claude-code.docs is absent
+    (backward compatibility with installations before this feature).
     """
     claude_docs_dir = target_dir / ".claude" / "docs"
     if not claude_docs_dir.exists():
         return
 
+    claude_code_docs = platforms_config.get("claude-code", {}).get("docs", {})
     cursor_rules = platforms_config.get("cursor", {}).get("rules", {})
+    use_claude_docs = bool(claude_code_docs)
 
     always_apply_docs: list[tuple[str, str]] = []
     reference_docs: list[str] = []
 
     for md_file in sorted(claude_docs_dir.rglob("*.md")):
         rel_path = md_file.relative_to(target_dir / ".claude" / "docs")
-        # Reconstruct the rule key WITH the pilar folder to match cursor.rules keys.
+        # Reconstruct the rule key WITH the pilar folder to match config keys.
         # Claude Code docs strip the pilar folder (e.g. _foundation/process/lex-directives.md)
-        # but cursor.rules keys include it (e.g. _foundation/process/lexis/lex-directives).
+        # but rule keys include it (e.g. _foundation/process/lexis/lex-directives).
         pilar = detect_pilar(md_file.name)
         pilar_folder = PILAR_FOLDER_NAME.get(pilar, "") if pilar else ""
         rel_parts = list(rel_path.with_suffix("").parts)
@@ -636,8 +739,13 @@ def generate_claude_md(
         else:
             rule_key = str(rel_path.with_suffix("")).replace("\\", "/")
 
-        rule_config = cursor_rules.get(rule_key, {})
-        is_always_apply = isinstance(rule_config, dict) and rule_config.get("alwaysApply", False)
+        if use_claude_docs:
+            rule_config = claude_code_docs.get(rule_key, {})
+            is_always_apply = isinstance(rule_config, dict) and rule_config.get("essential", False)
+        else:
+            # Fallback: use cursor.rules alwaysApply for backward compatibility
+            rule_config = cursor_rules.get(rule_key, {})
+            is_always_apply = isinstance(rule_config, dict) and rule_config.get("alwaysApply", False)
 
         if is_always_apply:
             content = md_file.read_text(encoding="utf-8").strip()
@@ -802,6 +910,17 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
             print(f"  Installed contributing_templates to .ahrena/contributing_templates/")
         else:
             print(f"  contributing_templates already exist — preserved")
+
+    # 2.6. Copy mcp/ templates to .ahrena/mcp/ (never overwrite user overrides)
+    mcp_src = ahrena_framework / "mcp"
+    mcp_dst = ahrena_dir / "mcp"
+    if mcp_src.exists():
+        mcp_dst.mkdir(exist_ok=True)
+        for json_file in mcp_src.glob("*.json"):
+            dst_file = mcp_dst / json_file.name
+            if not dst_file.exists():
+                shutil.copy2(json_file, dst_file)
+        print(f"  Installed MCP templates to .ahrena/mcp/")
 
     # 3. Copy scripts for future use (install, update, uninstall)
     scripts_src = source_dir / "scripts"
@@ -1061,6 +1180,10 @@ def install_claude_code(ahrena_dir: Path, target_dir: Path, dry_run: bool = Fals
     else:
         print(f"  Generated {total_docs} docs, {total_skills} skills, {total_agents} agents, {total_cmds} commands")
 
+    # MCP: merge server configs (also runs during sync-claude-code)
+    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
+    install_mcp(ahrena_dir, target_dir, directives, dry_run=dry_run)
+
 
 def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) -> None:
     """Phase 2: generate .cursor/ files from .ahrena/framework/ and .ahrena/artifacts/."""
@@ -1153,6 +1276,10 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
         print(f"  Generated {file_count_fw} files from framework, {file_count_art} from project artifacts; {total_agents} agent files")
     else:
         print(f"  Generated {total_files} files from framework; {total_agents} agent files")
+
+    # MCP: merge server configs (also runs during sync-cursor)
+    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
+    install_mcp(ahrena_dir, target_dir, directives, dry_run=dry_run)
 
 
 def clean(target_dir: Path) -> None:
@@ -1250,6 +1377,11 @@ def clean(target_dir: Path) -> None:
             print(f"  Removed {removed} Ahrena files from .claude/")
         else:
             print(f"  No Ahrena files found in .claude/")
+
+    # MCP entries in .cursor/mcp.json and .claude/settings.json are NOT removed.
+    # They cannot be safely distinguished from user-managed entries in the same file.
+    print(f"  NOTE: MCP server entries in .cursor/mcp.json and .claude/settings.json were preserved.")
+    print(f"        Remove them manually if needed.")
 
     # Clean CLAUDE.md if it has Ahrena markers
     claude_md = target_dir / "CLAUDE.md"
