@@ -46,6 +46,24 @@ paths:
 #     - figma
 
 
+# ─── Quality (Issue-Driven Workflow) ────────────────────────────
+# Settings used by kata-quality-gate (Gate 2 of the Issue-Driven
+# Development flow orchestrated by warrior-athena).
+
+# quality:
+#   coverage_threshold: 80   # Minimum test coverage (%) required to pass Gate 2
+
+
+# ─── Knowledge (Issue-Driven Workflow) ──────────────────────────
+# Optional: Notion root page/database that kata-issue-analysis
+# prioritizes when enriching issue context. If omitted, full
+# workspace search is performed.
+
+# knowledge:
+#   notion:
+#     root_page: "page-id-or-url"
+
+
 # ─── Language ────────────────────────────────────────────────────
 # Defines the default language, the mandatory languages for the
 # framework, and the language used in Cursor artifacts.

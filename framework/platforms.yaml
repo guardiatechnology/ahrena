@@ -245,6 +245,46 @@ cursor:
     engineering/backend/codex/codex-python-tooling:
       alwaysApply: false
       description: "When setting up Python project tooling, use ruff, mypy, pytest, and uv per this codex."
+    engineering/workflow/lexis/lex-issue-driven:
+      alwaysApply: false
+      description: "When using /cry-implement-issue or warrior-athena, enforce Gates 1/2, AC↔test traceability, ADR generation, and docs/ structure."
+    engineering/workflow/codex/codex-issue-workflow:
+      alwaysApply: false
+      description: "When orchestrating Issue-Driven flow, follow 7 phases, 2 gates, MADR format, and delegation to Apollo/Daedalus/Kronos/Hephaestus/Atlas from this codex."
+    engineering/frontend/lexis/lex-frontend-typing:
+      alwaysApply: false
+      globs: ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.svelte"]
+      description: "When writing frontend code, enforce TypeScript strict mode; no implicit or unjustified any; contracts typed via OAS or Zod."
+    engineering/frontend/lexis/lex-frontend-testing:
+      alwaysApply: false
+      globs: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
+      description: "When writing frontend tests, test user behavior with accessible queries; mock only at external boundaries."
+    engineering/frontend/lexis/lex-frontend-accessibility:
+      alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte", "**/*.html"]
+      description: "When building UI, meet WCAG 2.1 AA as minimum; semantic HTML, keyboard navigation, labels, contrast, dynamic content announcements."
+    engineering/frontend/lexis/lex-frontend-security:
+      alwaysApply: false
+      globs: ["**/*.ts", "**/*.tsx", "**/*.vue"]
+      description: "When writing frontend code, prevent XSS, never bundle secrets, validate inputs in two tiers, configure CSP, rel=noopener on external links."
+    engineering/frontend/codex/codex-frontend-architecture:
+      alwaysApply: false
+      description: "When designing frontend structure, follow layer separation, server/client state split, component composition, routing, performance, and i18n from this codex."
+    engineering/devops/lexis/lex-aws-security:
+      alwaysApply: false
+      description: "When provisioning AWS, enforce IAM least privilege, encryption in transit/at rest, Secrets Manager, CloudTrail, public-access blocks on S3/RDS."
+    engineering/devops/lexis/lex-aws-iac:
+      alwaysApply: false
+      description: "When changing AWS infrastructure, use versioned IaC (Terraform/CDK) with remote state; no console changes in production; one tool per project."
+    engineering/devops/lexis/lex-aws-cost:
+      alwaysApply: false
+      description: "When designing AWS architecture, apply cost-allocation tags, configure budgets, justify choices with cost awareness, right-size periodically."
+    engineering/devops/codex/codex-aws-well-architected:
+      alwaysApply: false
+      description: "When designing or reviewing AWS architectures, apply the 6 pillars (Operational, Security, Reliability, Performance, Cost, Sustainability) from this codex."
+    engineering/devops/codex/codex-aws-services:
+      alwaysApply: false
+      description: "When selecting AWS services, use the catalog by use case (compute, storage, DB, messaging, network, security, observability) from this codex."
 
 claude-code:
   transposition:
@@ -285,3 +325,27 @@ claude-code:
     _foundation/tooling/codex/codex-mcp-figma:
       essential: false
       description: "When using Figma MCP server, reference tools (get_file, get_component, get_local_variables, etc.) from this codex."
+    engineering/workflow/lexis/lex-issue-driven:
+      essential: false
+      description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
+    engineering/workflow/codex/codex-issue-workflow:
+      essential: false
+      description: "Reference for the 7-phase Issue-Driven flow, the 2 gates, MADR format, and delegation."
+    engineering/frontend/lexis/lex-frontend-typing:
+      essential: false
+      description: "When writing frontend code, TypeScript strict mode and typed contracts are mandatory."
+    engineering/frontend/lexis/lex-frontend-accessibility:
+      essential: false
+      description: "When building UI, WCAG 2.1 AA compliance is mandatory."
+    engineering/frontend/codex/codex-frontend-architecture:
+      essential: false
+      description: "Reference for frontend architecture layers, state management, composition, and performance."
+    engineering/devops/lexis/lex-aws-security:
+      essential: false
+      description: "When provisioning AWS, enforce security laws on IAM, encryption, secrets, and public access."
+    engineering/devops/codex/codex-aws-well-architected:
+      essential: false
+      description: "Reference for the 6 pillars of AWS Well-Architected Framework."
+    engineering/devops/codex/codex-aws-services:
+      essential: false
+      description: "Reference catalog of AWS services by use case with alternatives and trade-offs."

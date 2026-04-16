@@ -184,7 +184,7 @@ Full description of each Pilar and when to use it: [Framework — Developer Guid
 | Clade | Subclades | Documentation |
 |-------|-----------|----------------|
 | **product** | discovery, strategy, analytics, delivery | Extensible by organization |
-| **engineering** | platform, backend, frontend, devops, security, quality | [Platform (Guardia)](framework/en/engineering/platform/README.md) |
+| **engineering** | platform, backend, frontend, devops, security, quality, workflow | [Platform (Guardia)](framework/en/engineering/platform/README.md) · [Workflow (Issue-Driven)](framework/en/engineering/workflow/README.md) · Backend (Apollo) · Frontend (Hephaestus) · DevOps (Atlas) |
 | **finance** | accounting, treasury, controllership | Extensible by organization |
 | **operations** | support, infrastructure, monitoring | Extensible by organization |
 | **documentation** | i18n (translation) | [Translation system / Hermes](framework/en/documentation/i18n/README.md) |
@@ -199,8 +199,28 @@ Clades and Subclades are **extensible**: each organization defines what makes se
 | `warrior-translator` | Hermes | documentation/i18n | Technical documentation translation; [details](framework/en/documentation/i18n/README.md) |
 | `warrior-daedalus` | Daedalus | engineering/platform | RESTful API design (OAS); `/cry-api-design`, `/cry-full-design` |
 | `warrior-kronos` | Kronos | engineering/platform | Event Storm and CloudEvents; `/cry-event-storm`, `/cry-full-design` |
+| `warrior-apollo` | Apollo | engineering/backend | Python implementation with Clean Architecture; `/cry-python-implement` |
+| `warrior-hephaestus` | Hephaestus | engineering/frontend | Frontend implementation (React/TS) with a11y and behavioral testing |
+| `warrior-atlas` | Atlas | engineering/devops | AWS solutions architecture; Well-Architected; IaC and cost |
+| `warrior-athena` | Athena | engineering/workflow | Issue-Driven flow orchestrator; `/cry-implement-issue` |
 
 For framework architecture (paths, diagrams, mapping to `.cursor/`), see the [Developer Guide](./framework/en/README.md#framework-architecture).
+
+---
+
+## Issue-Driven Development Flow
+
+Ahrena provides a **complete development flow driven by GitHub issues**, led by `warrior-athena`. Starting from an issue, the flow goes through 7 phases (analysis → requirements → architecture → implementation → security → quality gate → PR), with 2 human/automated gates, ADR generation (`docs/adr/`), and documentation structured under `docs/issues/issue-{n}/`.
+
+```bash
+# Prerequisite: mcp.servers includes github (and optionally notion) in .ahrena/.directives
+/cry-implement-issue 42 guardiafinance/ahrena
+```
+
+**Gate 1 (Scope):** human approves brief + ACs + architecture before implementation.
+**Gate 2 (Quality):** automated with 6 checks — AC↔test traceability (bidirectional), scope creep, best practices, tests, coverage, types.
+
+Full guide: [engineering/workflow/README.md](framework/en/engineering/workflow/README.md).
 
 ---
 

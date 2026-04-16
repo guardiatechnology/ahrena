@@ -1,0 +1,214 @@
+# Kata: Gate de Qualidade (Gate 2)
+
+> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Fase 6 do fluxo Issue-Driven — validação final da implementação com 6 checks que incluem rastreabilidade AC↔teste, detecção de scope creep e aderência a best practices
+
+## Objetivo
+
+Executar o Gate 2 do fluxo Issue-Driven: 6 verificações obrigatórias sobre a implementação concluída na Fase 4 (e revisada pela Fase 5). Produz relatório `go`/`no-go` em `docs/issues/issue-{n}/06-quality-report.md`. Qualquer falha retorna à Fase 4 com contexto detalhado; apenas `go` permite avançar à Fase 7 (criação do PR).
+
+Esta kata é a **guardiã da qualidade** do fluxo — garante que a implementação cobre todos os ACs, não ultrapassou o escopo, e aplicou as melhores práticas definidas nas Lexis do framework.
+
+## Quando Usar
+
+- Fase 6 do fluxo orquestrado por `warrior-athena`, após `kata-security-review` resultar em `approved`
+- Quando é necessário validar rigorosamente uma implementação antes de abrir PR
+
+## Inputs
+
+| Input | Obrigatório | Descrição |
+|-------|:-----------:|-----------|
+| Requisitos Fase 2 | Sim | `docs/issues/issue-{n}/02-requirements.md` (ACs numerados) |
+| Arquitetura Fase 3 | Sim | `docs/issues/issue-{n}/03-architecture.md` (tabela de componentes — escopo) |
+| Implementação Fase 4 | Sim | Código + testes no working tree |
+| Revisão Fase 5 | Sim | `docs/issues/issue-{n}/05-security-review.md` (deve estar `approved`) |
+| Coverage threshold | Não | `quality.coverage_threshold` em `.directives` (padrão: 80) |
+| Stack | Sim | Linguagem do código implementado (detectado via arquivos tocados) |
+
+## Workflow
+
+```
+Progresso:
+- [ ] 1. Coletar contexto (ACs, escopo, diff, stack)
+- [ ] 2. Check 1 — Rastreabilidade AC ↔ teste (bidirecional)
+- [ ] 3. Check 2 — Scope creep
+- [ ] 4. Check 3 — Best practices (Lexis aplicáveis)
+- [ ] 5. Check 4 — Testes executados
+- [ ] 6. Check 5 — Cobertura
+- [ ] 7. Check 6 — Tipos
+- [ ] 8. Consolidar resultado go/no-go
+- [ ] 9. Persistir em docs/issues/issue-{n}/06-quality-report.md
+- [ ] 10. Atualizar checkpoint
+```
+
+### Passo 1: Coletar contexto
+
+1. Ler ACs de `02-requirements.md` (extrair `AC-1`, `AC-2`, ...).
+2. Ler tabela de componentes de `03-architecture.md` (extrair lista de arquivos previstos).
+3. Executar `git diff --name-only {base}...HEAD` para lista de arquivos modificados.
+4. Detectar stack (`*.py` → Python; `*.ts` → Node/TS; etc.).
+5. Ler `quality.coverage_threshold` de `.ahrena/.directives` (padrão: `80`).
+
+### Passo 2: Check 1 — Rastreabilidade AC ↔ teste (bidirecional)
+
+**AC → Teste:**
+1. Para cada AC identificado no Passo 1, buscar em arquivos de teste (via regex) por:
+   - Nome contendo `AC_{N}` ou `AC-{N}`
+   - Docstring contendo `AC-{N}`
+   - Marker `@pytest.mark.ac("AC-{N}")` ou equivalente
+2. Cada AC deve ter pelo menos 1 teste correspondente.
+3. ACs sem teste → ❌ `Check 1 — AC→Test`.
+
+**Teste → AC:**
+1. Para cada teste novo/modificado no diff, verificar se referencia pelo menos um AC.
+2. Testes sem AC referenciado → ❌ `Check 1 — Test→AC` (indica scope creep).
+
+Resultado do Check 1: ✅ se ambas as direções estão completas; ❌ caso contrário.
+
+### Passo 3: Check 2 — Scope creep
+
+1. Comparar lista de arquivos modificados (Passo 1) com tabela de componentes da Fase 3.
+2. Arquivos fora da tabela → candidatos a scope creep.
+3. **Exceções legítimas** (não flagar):
+   - Arquivos de teste correspondentes a componentes declarados (ex.: se `service.py` está na tabela, `test_service.py` é implícito).
+   - Arquivos de configuração automática (ex.: `requirements.lock`, `yarn.lock`).
+   - Documentação gerada pelo próprio fluxo (ex.: `docs/issues/issue-{n}/*`).
+4. Funções/classes públicas novas em arquivos tocados que não mapeiam a nenhum AC → flagar.
+
+Resultado do Check 2: ✅ se só arquivos declarados + exceções foram modificados; ❌ se há scope creep não justificado.
+
+Se ❌: **opções apresentadas ao usuário**:
+- (a) Ampliar ACs (retornar a Fase 2/3 e reexecutar Gate 1).
+- (b) Reverter código fora de escopo e abrir nova issue para ele.
+
+### Passo 4: Check 3 — Best practices (Lexis aplicáveis)
+
+Selecionar Lexis aplicáveis ao stack e executar a verificação de cada:
+
+**Python (`*.py` no diff):**
+
+| Lexis | Verificação | Comando / Heurística |
+|---|---|---|
+| `lex-python-typing` | Sem erros de tipo | `mypy --strict {arquivos-tocados}` |
+| `lex-python-testing` | Funções públicas testadas | Para cada função pública nova/modificada, procurar teste que a chama |
+| `lex-python-security` | Sem credenciais hardcoded | Regex por padrões de credencial |
+| `lex-python-immutability` | Sem mutação em estruturas compartilhadas | Análise estática (ast): mutação em parâmetros ou globais |
+| `lex-python-error-handling` | Sem `except: pass` ou swallowing | Regex por `except` sem re-raise e sem log |
+| `lex-conventional-commits` | Commits no formato correto | `git log {base}..HEAD --format=%s` + regex `^(feat\|fix\|chore\|docs\|refactor\|test\|build\|ci)(\(.+\))?: .+` |
+
+Registrar violações com arquivo/linha. Qualquer violação → ❌ `Check 3 — {lex-name}`.
+
+### Passo 5: Check 4 — Testes executados
+
+1. Executar comando de teste detectado pelo stack:
+   - Python: `pytest`
+   - Node/TS: `yarn test` (ou `npm test` conforme `.directives`)
+2. Capturar exit code e output.
+3. Qualquer falha → ❌ `Check 4 — Tests`.
+
+### Passo 6: Check 5 — Cobertura
+
+1. Executar teste com coverage:
+   - Python: `pytest --cov={pacote} --cov-report=term-missing`
+2. Extrair percentual de cobertura total.
+3. Comparar com `quality.coverage_threshold` (padrão: 80).
+4. `% < threshold` → ❌ `Check 5 — Coverage ({%}% < {threshold}%)`.
+
+### Passo 7: Check 6 — Tipos
+
+1. Executar verificador de tipos específico do stack:
+   - Python: `mypy --strict` sobre pacotes modificados
+   - TS: `tsc --noEmit`
+2. Capturar erros.
+3. Erros novos (em arquivos modificados neste PR) → ❌ `Check 6 — Types`.
+4. Erros pré-existentes em arquivos não modificados → não bloquear (registrar como nota).
+
+### Passo 8: Consolidar resultado go/no-go
+
+1. Se todos os 6 checks ✅ → resultado `go`.
+2. Se qualquer check ❌ → resultado `no-go`.
+
+Para cada ❌, registrar:
+- Qual check falhou
+- Detalhes (arquivos, linhas, comandos, output)
+- Recomendação de correção
+
+### Passo 9: Persistir em `docs/issues/issue-{n}/06-quality-report.md`
+
+Estrutura:
+
+```markdown
+# Quality Gate — Issue #{n}: {título}
+
+- **Referências:** [Requisitos](./02-requirements.md) · [Arquitetura](./03-architecture.md) · [Segurança](./05-security-review.md)
+- **Data:** {YYYY-MM-DD}
+- **Resultado:** {✅ go | ❌ no-go}
+
+## Matriz de Rastreabilidade AC ↔ Teste
+
+| AC | Descrição | Testes que cobrem | Status |
+|---|---|---|:-:|
+| AC-1 | ... | `test_foo_AC_1`, `test_bar_AC_1` | ✅ |
+| AC-2 | ... | `test_baz_AC_2` | ✅ |
+| AC-3 | ... | — | ❌ |
+
+### Testes sem AC referenciado (candidatos a scope creep)
+
+- `test_helper_utility` em `tests/test_utils.py:42` — {recomendação}
+
+## Resultado por Check
+
+| # | Check | Status | Detalhes |
+|:-:|---|:-:|---|
+| 1 | Rastreabilidade AC ↔ Teste | {✅/❌} | {resumo} |
+| 2 | Scope Creep | {✅/❌} | {resumo} |
+| 3 | Best Practices | {✅/❌} | {resumo} |
+| 4 | Testes Executados | {✅/❌} | {resumo} |
+| 5 | Cobertura | {✅/❌} | {atual}% / {threshold}% |
+| 6 | Tipos | {✅/❌} | {resumo} |
+
+## Detalhes das Falhas
+
+### Check {n}: {nome}
+
+{descrição detalhada, arquivos, linhas, output do comando}
+
+**Recomendação:** {como corrigir}
+
+## Conclusão
+
+- Se `go`: seguir para Fase 7 (`kata-pr-prepare`).
+- Se `no-go`: retornar à Fase 4 com as correções acima.
+```
+
+### Passo 10: Atualizar checkpoint
+
+1. Atualizar `.ahrena/workflow/issue-{n}/checkpoint.md`:
+   - fase concluída: 6
+   - resultado: `go` ou `no-go`
+   - Se `go`: próxima fase = 7
+   - Se `no-go`: próxima fase = 4 (retornar para correções)
+2. Informar ao `warrior-athena`:
+   - Se `go`: avançar para `kata-pr-prepare`
+   - Se `no-go`: apresentar relatório ao humano e aguardar direção (corrigir ou ampliar ACs)
+
+## Saídas
+
+| Saída | Formato | Destino |
+|-------|---------|---------|
+| Relatório do Gate | Markdown com 6 checks + matriz de rastreabilidade | `docs/issues/issue-{n}/06-quality-report.md` |
+| Resultado | `go` / `no-go` | Retorno ao orquestrador |
+| Checkpoint atualizado | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
+
+## Restrições
+
+- **Checks são executados, não simulados:** `pytest`, `mypy`, coverage e scans são comandos reais; a kata não pode "marcar como passado" sem execução efetiva.
+- **Ordem dos checks é mandatória:** checks 1-3 (análise estática) antes de 4-6 (execução); se análise falha, ainda executar os demais para reportar panorama completo.
+- **Threshold configurável mas não opcional:** `quality.coverage_threshold` pode ser ajustado em `.directives`, mas Check 5 é sempre executado.
+- **Sem override para `no-go`:** a única saída legítima de `no-go` é corrigir a implementação ou renegociar os ACs (via Gate 1). Nenhum humano ou agente pode marcar como `go` manualmente.
+- **Destino fixo:** `docs/issues/issue-{n}/06-quality-report.md` (conforme `lex-issue-driven`).
+
+## Referências
+
+- `lex-issue-driven` — leis do fluxo, em particular as regras de rastreabilidade e scope creep
+- `codex-issue-workflow` — detalhamento completo dos 6 checks
+- `lex-python-typing`, `lex-python-testing`, `lex-python-security`, `lex-python-immutability`, `lex-python-error-handling`, `lex-conventional-commits` — Lexis verificadas no Check 3
