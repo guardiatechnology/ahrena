@@ -4,7 +4,7 @@
 
 ## Visão Geral
 
-Este Codex é a referência para usar o **servidor MCP do GitHub** em projetos Ahrena. Define as ferramentas disponíveis, seus parâmetros principais, autenticação e quando preferir MCP sobre o CLI `gh`. Consultado por Warriors e Katas que realizam operações de repositório (issues, pull requests, branches, arquivos, buscas).
+Este Codex é a referência para usar o **servidor MCP do GitHub** em projetos Ahrena. Ver `codex-mcp-common` para padrões MCP compartilhados (autenticação, configuração, fallback). Este documento foca em ferramentas, parâmetros e exemplos específicos do GitHub. Consultado por Warriors e Katas que realizam operações de repositório (issues, pull requests, branches, arquivos, buscas).
 
 ## Contexto
 

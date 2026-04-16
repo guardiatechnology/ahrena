@@ -51,7 +51,13 @@ paths:
 # Development flow orchestrated by warrior-athena).
 
 # quality:
-#   coverage_threshold: 80   # Minimum test coverage (%) required to pass Gate 2
+#   coverage_threshold: 80            # Minimum test coverage (%) to pass Gate 2
+#   stack: auto                       # auto | python | frontend | iac | mixed
+#   performance:
+#     lighthouse_min: 80              # Frontend: minimum Lighthouse performance score
+#     bundle_kb_max: 250              # Frontend: main bundle size limit (KB)
+#     api_p99_ms_max: 300             # Backend: p99 latency limit (ms) for modified endpoints
+#     benchmark_regression_pct: 10    # Backend: max regression vs. baseline on main (%)
 
 
 # ─── Knowledge (Issue-Driven Workflow) ──────────────────────────

@@ -1,12 +1,12 @@
 # Kata: Gate de Qualidade (Gate 2)
 
-> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Fase 6 do fluxo Issue-Driven — validação final da implementação com 6 checks que incluem rastreabilidade AC↔teste, detecção de scope creep e aderência a best practices
+> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Fase 6 do fluxo Issue-Driven — validação final com 7 checks que incluem rastreabilidade AC↔teste, scope creep, best practices, testes, cobertura, tipos e performance budget
 
 ## Objetivo
 
-Executar o Gate 2 do fluxo Issue-Driven: 6 verificações obrigatórias sobre a implementação concluída na Fase 4 (e revisada pela Fase 5). Produz relatório `go`/`no-go` em `docs/issues/issue-{n}/06-quality-report.md`. Qualquer falha retorna à Fase 4 com contexto detalhado; apenas `go` permite avançar à Fase 7 (criação do PR).
+Executar o Gate 2 do fluxo Issue-Driven: 7 verificações stack-aware sobre a implementação concluída na Fase 4 (e revisada pela Fase 5). Produz relatório `go`/`no-go`/`unverifiable` em `docs/issues/issue-{n}/06-quality-report.md`. Qualquer falha retorna à Fase 4 com contexto detalhado; apenas `go` permite avançar à Fase 7. Checks individuais que não podem ser executados no ambiente atual (ferramenta ausente, sem arquivos aplicáveis) reportam `unverifiable` e aparecem ao humano em vez de passar silenciosamente.
 
-Esta kata é a **guardiã da qualidade** do fluxo — garante que a implementação cobre todos os ACs, não ultrapassou o escopo, e aplicou as melhores práticas definidas nas Lexis do framework.
+Esta kata é a **guardiã da qualidade** do fluxo — garante que a implementação cobre todos os ACs, não ultrapassou o escopo, aplicou as best practices definidas nas Lexis, e não regrediu performance além dos budgets declarados.
 
 ## Quando Usar
 
@@ -31,13 +31,14 @@ Progresso:
 - [ ] 1. Coletar contexto (ACs, escopo, diff, stack)
 - [ ] 2. Check 1 — Rastreabilidade AC ↔ teste (bidirecional)
 - [ ] 3. Check 2 — Scope creep
-- [ ] 4. Check 3 — Best practices (Lexis aplicáveis)
+- [ ] 4. Check 3 — Best practices (Lexis aplicáveis por stack)
 - [ ] 5. Check 4 — Testes executados
 - [ ] 6. Check 5 — Cobertura
 - [ ] 7. Check 6 — Tipos
-- [ ] 8. Consolidar resultado go/no-go
-- [ ] 9. Persistir em docs/issues/issue-{n}/06-quality-report.md
-- [ ] 10. Atualizar checkpoint
+- [ ] 8. Check 7 — Performance budget
+- [ ] 9. Consolidar resultado go/no-go/unverifiable
+- [ ] 10. Persistir em docs/issues/issue-{n}/06-quality-report.md
+- [ ] 11. Atualizar checkpoint
 ```
 
 ### Passo 1: Coletar contexto

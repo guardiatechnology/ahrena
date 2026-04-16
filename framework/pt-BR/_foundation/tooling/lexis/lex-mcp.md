@@ -38,13 +38,23 @@ O agente **NÃO PODE**:
 2. Adicionar servidores MCP à configuração de plataforma (`.cursor/mcp.json`, `.claude/settings.json`) sem instrução explícita do usuário.
 3. Alterar a seção `mcp.servers` em `.ahrena/.directives` sem solicitação explícita do usuário.
 
-### 4. Fallback quando MCP indisponível
+### 4. Comportamento de fallback quando MCP indisponível
 
-Se o servidor MCP necessário não estiver disponível (servidor desligado, variável de ambiente ausente, ferramenta não suportada):
+Se o servidor MCP necessário está indisponível no meio da operação (servidor desligado, variável de ambiente ausente, ferramenta não suportada, rate-limit, timeout):
 
-1. O agente **DEVE** informar ao usuário que o MCP não está disponível e qual é o motivo.
-2. O agente **PODE** oferecer o equivalente de CLI como alternativa, identificando claramente que é um fallback.
-3. O agente **NÃO DEVE** silenciosamente usar o CLI sem comunicar a indisponibilidade do MCP.
+1. **Retry uma vez** com backoff breve (padrão: 5 segundos). Falhas transientes acontecem; um retry evita escalação espúria.
+2. Se o retry ainda falha, o agente **DEVE** informar o usuário com contexto estruturado:
+   - Qual servidor (`github`, `notion`, `figma`).
+   - Qual ferramenta foi tentada.
+   - Erro observado (status HTTP, mensagem).
+3. O agente **DEVE** então oferecer escolhas explícitas — não escolher silenciosamente:
+   - **(a)** Usar o CLI equivalente como fallback (quando existe e é seguro), claramente rotulado como fallback.
+   - **(b)** Pausar o fluxo até o usuário restaurar conectividade (credenciais, restart do servidor).
+   - **(c)** Abortar a operação com mensagem clara.
+4. O agente **NÃO PODE** silenciosamente cair para CLI sem a escolha apresentada no Passo 3.
+5. O agente **NÃO PODE** entrar em loop de retry além do Passo 1 — falha persistente exige decisão humana.
+
+Sinais comuns de falha e suas causas típicas estão listados em `codex-mcp-common` — consultar antes de apresentar ao usuário.
 
 ## Abrangência
 

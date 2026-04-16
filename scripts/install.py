@@ -157,7 +157,18 @@ def get_directive(directives: dict, *keys: str, default: object = None) -> objec
 
 
 def _parse_platforms_yaml(content: str) -> dict:
-    """Minimal YAML parser for platforms.yaml structure (stdlib only)."""
+    """Parse platforms.yaml. Uses pyyaml when available; falls back to stdlib parser.
+
+    The custom parser supports a narrow YAML subset (see `codex-platforms` §"YAML
+    subset"). If pyyaml is installed, it is preferred for correctness.
+    """
+    try:
+        import yaml  # type: ignore
+        data = yaml.safe_load(content)
+        return data if isinstance(data, dict) else {}
+    except ImportError:
+        pass  # fall through to stdlib parser
+
     result: dict = {}
     stack: list[tuple[dict, str | None, int]] = [(result, None, -1)]
 
@@ -353,6 +364,20 @@ def parse_clades(value: str | None) -> list[str] | None:
         return None
     clades = [c.strip() for c in value.split(",") if c.strip()]
     return sorted(clades) if clades else None
+
+
+def parse_languages(value: str | None) -> list[str] | None:
+    """Parse a comma-separated languages string into a list, or None for all."""
+    if not value:
+        return None
+    KNOWN = {"pt-BR", "en", "es"}
+    langs = [l.strip() for l in value.split(",") if l.strip()]
+    unknown = set(langs) - KNOWN
+    if unknown:
+        print(f"WARNING: unknown language(s) in --languages: {', '.join(sorted(unknown))}; "
+              f"known: {', '.join(sorted(KNOWN))}", file=sys.stderr)
+    filtered = [l for l in langs if l in KNOWN]
+    return filtered if filtered else None
 
 
 def override_language_default(content: str, language: str) -> str:
@@ -800,8 +825,14 @@ def generate_claude_md(
 # Installation phases
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def copy_framework(src: Path, dst: Path, clades: list[str] | None) -> int:
-    """Copy framework/ to destination, optionally filtering by clade.
+def copy_framework(src: Path, dst: Path, clades: list[str] | None,
+                   languages: list[str] | None = None) -> int:
+    """Copy framework/ to destination, optionally filtering by clade and language.
+
+    `languages` (e.g. `["en"]` or `["pt-BR", "en"]`) limits which language directories
+    are copied; `None` copies all. Language directories are recognized by matching
+    known language codes (pt-BR, en, es). Non-language files and directories
+    (templates/, platforms.yaml, mcp/) are copied unconditionally.
 
     Returns the number of clades copied.
     """
@@ -809,6 +840,7 @@ def copy_framework(src: Path, dst: Path, clades: list[str] | None) -> int:
         shutil.rmtree(dst)
     dst.mkdir(parents=True, exist_ok=True)
 
+    KNOWN_LANGUAGES = {"pt-BR", "en", "es"}
     clade_count = 0
 
     for item in sorted(src.iterdir()):
@@ -818,6 +850,11 @@ def copy_framework(src: Path, dst: Path, clades: list[str] | None) -> int:
         elif item.name == "templates":
             shutil.copytree(item, dst_item)
         elif item.is_dir():
+            # Language filtering: if item is a known language and `languages`
+            # is set, skip unless in list.
+            if item.name in KNOWN_LANGUAGES and languages is not None:
+                if item.name not in languages:
+                    continue
             if clades is None:
                 shutil.copytree(item, dst_item)
                 clade_count = max(clade_count,
@@ -845,15 +882,21 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
         sys.exit(1)
 
     clades = parse_clades(getattr(args, "clades", None))
+    languages = parse_languages(getattr(args, "languages", None))
 
-    # 1. Copy framework/ (filtered by clades if specified)
+    # 1. Copy framework/ (filtered by clades and/or languages if specified)
+    filter_parts = []
     if clades:
-        print(f"  Copying framework (clades: {', '.join(clades)}) to {ahrena_framework}/ ...")
+        filter_parts.append(f"clades: {', '.join(clades)}")
+    if languages:
+        filter_parts.append(f"languages: {', '.join(languages)}")
+    if filter_parts:
+        print(f"  Copying framework ({'; '.join(filter_parts)}) to {ahrena_framework}/ ...")
     else:
         print(f"  Copying framework to {ahrena_framework}/ ...")
 
     ahrena_dir.mkdir(parents=True, exist_ok=True)
-    copy_framework(framework_src, ahrena_framework, clades)
+    copy_framework(framework_src, ahrena_framework, clades, languages)
 
     # Persist clade selection for future updates
     clades_file = ahrena_dir / ".installed-clades"
@@ -1451,6 +1494,12 @@ offline (run this script directly from a cloned Ahrena repo):
     parser.add_argument(
         "--language",
         help="override language.default in .directives (e.g., pt-BR, en, es)",
+    )
+    parser.add_argument(
+        "--languages",
+        help="comma-separated list of language directories to copy into .ahrena/framework/ "
+             "(default: all; known: pt-BR, en, es). Use to reduce .ahrena/ footprint when "
+             "a project only needs a subset.",
     )
     parser.add_argument(
         "--directives",

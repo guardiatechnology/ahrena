@@ -60,7 +60,76 @@ O agente **DEVE** estruturar toda documentação pública do fluxo em `docs/`:
 5. `docs/issues/issue-{n}/06-quality-report.md` — relatório do Gate 2 (Fase 6)
 6. `docs/adr/ADR-{n}-*.md` — ADRs quando aplicáveis
 
-Estado efêmero de orquestração (checkpoint entre fases) pode ir em `.ahrena/workflow/issue-{n}/checkpoint.md`, **nunca** em `docs/`.
+Estado efêmero de orquestração (checkpoint entre fases) pode ir em `.ahrena/workflow/issue-{n}/checkpoint.md`, **nunca** em `docs/`. O checkpoint **DEVE** usar front-matter YAML versionado (ver Regra 7).
+
+### 7. Schema versionado do checkpoint
+
+O agente **DEVE** manter o checkpoint em `.ahrena/workflow/issue-{n}/checkpoint.md` com **front-matter YAML estruturado** contendo no mínimo:
+
+```yaml
+---
+schema_version: 1
+issue: 42
+repo: guardiafinance/ahrena
+phase_completed: 3
+phase_next: 4
+artifacts:
+  brief: docs/issues/issue-42/01-brief.md
+  requirements: docs/issues/issue-42/02-requirements.md
+  architecture: docs/issues/issue-42/03-architecture.md
+adrs:
+  - ADR-008-use-event-sourcing-for-refund-audit-trail.md
+gate_1:
+  status: approved | pending | rejected
+  approved_at: "2026-04-16T14:30:00Z"
+  approver: "@user"
+gate_2:
+  status: go | no-go | pending
+  last_run_at: "..."
+delegations:
+  - warrior: warrior-daedalus
+    kata: kata-api-design-oas
+    status: completed | running | failed | timed-out
+    started_at: "..."
+    completed_at: "..."
+    output_refs: ["docs/..."]
+updated_at: "2026-04-16T15:00:00Z"
+---
+
+# Notas narrativas (opcional, para contexto humano)
+```
+
+O conteúdo após `---` pode conter prosa livre para leitura humana, mas o estado operacional **DEVE** estar no front-matter. Campos desconhecidos são preservados; campos obrigatórios removidos invalidam o checkpoint e exigem reconstrução manual.
+
+### 8. Protocolo de delegação (máquina de estados)
+
+Quando `warrior-athena` delega uma fase a um warrior especialista (Apollo, Hephaestus, Daedalus, Kronos, Atlas, Hera, Hestia, Demeter, Iris), o handoff **DEVE** seguir uma máquina de estados registrada no checkpoint:
+
+```
+delegated → running → completed | failed | timed-out
+```
+
+Regras:
+
+1. **`delegated`**: Athena grava a entrada de delegação no front-matter do `checkpoint.md` (warrior, kata, refs de entrada, `started_at`). Especialista é invocado.
+2. **`running`**: especialista confirma atualizando a entrada com `status: running` no primeiro passo. Se o agente não consegue confirmar em até 60 segundos da invocação, a delegação é tratada como `timed-out`.
+3. **`completed`**: especialista termina e grava `output_refs: [...]` + `completed_at`; status vira `completed`. Athena retoma a partir do checkpoint.
+4. **`failed`**: especialista registra motivo explícito + outputs parciais (se houver). Athena apresenta a falha ao humano e pede direção (retry, escalar, abandonar).
+5. **`timed-out`**: inferido por Athena quando não há atualização de status dentro do deadline configurado (default: 30 min para `kata-*-implement`; 10 min para katas curtos). Tratado como `failed` — humano decide.
+
+Athena **NUNCA** re-invoca silenciosamente uma delegação em `running` ou `completed`. Re-invocação após `failed`/`timed-out` **DEVE** criar nova entrada de delegação (preservando a antiga como trilha de auditoria) — nunca mutar o histórico.
+
+O formato da entrada de delegação está definido na Regra 7 (lista `delegations:`); timestamps e status são fonte da verdade para o estado da orquestração.
+
+### 9. Checkpoint permanece enxuto
+
+O arquivo checkpoint é re-lido a cada transição de fase. Para manter consumo de tokens previsível, o checkpoint **DEVE**:
+
+- Conter apenas **estado operacional ativo** (fase atual, última delegação, outcomes dos gates, ponteiros para artefatos).
+- **Não duplicar conteúdo** de `docs/issues/issue-{n}/*.md` — esses são a narrativa durável; checkpoint carrega referências (caminhos), não cópias.
+- **Não acumular histórico além da última delegação failed/timed-out mantida para auditoria** (histórico mais antigo pertence aos arquivos de narrativa da issue, não ao checkpoint).
+
+Tamanho-alvo: menos de ~2 KB após o fluxo completo. Se o checkpoint exceder 5 KB, o agente **DEVE** podar entradas históricas antes de continuar; conteúdo podado vai para `history.md` irmão (opcional) ou é descartado se já capturado em `docs/issues/issue-{n}/`.
 
 ### 6. Scope creep é bloqueio, não aviso
 

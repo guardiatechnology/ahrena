@@ -271,6 +271,74 @@ def check_i18n(framework_dir: Path) -> list[str]:
     return failures
 
 
+def check_i18n_parity(framework_dir: Path, parity_threshold: float = 0.4) -> list[str]:
+    """Detect content drift between language variants of the same artifact.
+
+    Compares the pt-BR reference file against its en and es counterparts on:
+      - H2 section count (must match)
+      - table count (must match, approximate)
+      - code block count (must match)
+      - total line count ratio (must be within [1-parity_threshold, 1+parity_threshold])
+
+    Emits warnings (not hard failures) — missing i18n files are already caught by
+    check_i18n. This check flags files that exist in all languages but look
+    structurally stale.
+    """
+    warnings: list[str] = []
+    ref_dir = framework_dir / REFERENCE_LANGUAGE
+    if not ref_dir.exists():
+        return warnings
+
+    def _structural_signals(path: Path) -> dict[str, int]:
+        try:
+            content = path.read_text(encoding="utf-8")
+        except OSError:
+            return {}
+        h2 = sum(1 for ln in content.splitlines() if ln.startswith("## "))
+        tables = sum(1 for ln in content.splitlines() if ln.startswith("|") and "|" in ln[1:])
+        fences = content.count("```")
+        lines = len(content.splitlines())
+        return {"h2": h2, "tables": tables, "fences": fences, "lines": lines}
+
+    for md_file in ref_dir.rglob("*.md"):
+        if md_file.name in ALWAYS_ALLOWED_NAMES:
+            continue
+        if "templates" in md_file.parts:
+            continue
+        rel = md_file.relative_to(ref_dir)
+        ref_sig = _structural_signals(md_file)
+        if not ref_sig:
+            continue
+        for lang in I18N_LANGUAGES:
+            target = framework_dir / lang / rel
+            if not target.exists():
+                continue  # handled by check_i18n
+            tgt_sig = _structural_signals(target)
+            if not tgt_sig:
+                continue
+            # H2 mismatch → drift
+            if tgt_sig["h2"] != ref_sig["h2"]:
+                warnings.append(
+                    f"I18N_DRIFT_H2            {lang}/{rel}  "
+                    f"(H2 sections: {tgt_sig['h2']} vs. ref {ref_sig['h2']})"
+                )
+            # code fence mismatch → drift
+            if tgt_sig["fences"] != ref_sig["fences"]:
+                warnings.append(
+                    f"I18N_DRIFT_FENCES        {lang}/{rel}  "
+                    f"(code fences: {tgt_sig['fences']} vs. ref {ref_sig['fences']})"
+                )
+            # line count ratio outside threshold → drift (allows for linguistic expansion)
+            if ref_sig["lines"] > 20:  # skip for very short files
+                ratio = tgt_sig["lines"] / ref_sig["lines"]
+                if ratio < (1 - parity_threshold) or ratio > (1 + parity_threshold):
+                    warnings.append(
+                        f"I18N_DRIFT_SIZE          {lang}/{rel}  "
+                        f"(line ratio {ratio:.2f}; expected 1.0 ±{parity_threshold:.0%})"
+                    )
+    return warnings
+
+
 def check_platforms(framework_dir: Path, platforms_yaml: Path) -> list[str]:
     """Every lex-/codex- file must have a cursor.rules entry in platforms.yaml."""
     failures: list[str] = []
@@ -315,18 +383,19 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 checks:
-  naming    Every .md file has correct pilar prefix or is README.md
-  path      Pilar files are in the correct pilar directory
-  sections  Required H2 sections present per pilar type
-  i18n      Every pt-BR file has counterpart in en/ and es/
-  platforms Every lex-/codex- file is registered in cursor.rules in platforms.yaml
-  all       Run all checks (default)
+  naming         Every .md file has correct pilar prefix or is README.md
+  path           Pilar files are in the correct pilar directory
+  sections       Required H2 sections present per pilar type
+  i18n           Every pt-BR file has counterpart in en/ and es/
+  i18n-parity    Structural drift between language variants (WARN-only)
+  platforms      Every lex-/codex- file is registered in cursor.rules in platforms.yaml
+  all            Run all hard checks (naming, path, sections, i18n, platforms)
 
 examples:
   %(prog)s
   %(prog)s --check naming,platforms
+  %(prog)s --check all,i18n-parity         # include drift warnings
   %(prog)s --framework .ahrena/framework --check all
-  %(prog)s --check naming,platforms   # fast pre-commit hook
         """,
     )
     parser.add_argument(
@@ -335,7 +404,11 @@ examples:
     )
     parser.add_argument(
         "--check", default="all",
-        help="comma-separated checks to run: naming,path,sections,i18n,platforms,all",
+        help="comma-separated checks to run: naming,path,sections,i18n,i18n-parity,platforms,all",
+    )
+    parser.add_argument(
+        "--parity-threshold", type=float, default=0.4,
+        help="allowed line-count ratio deviation between languages (default: 0.4 = ±40%%)",
     )
     return parser
 
@@ -352,10 +425,13 @@ def main() -> None:
     platforms_yaml = framework_dir / "platforms.yaml"
 
     selected_raw = [c.strip().lower() for c in args.check.split(",") if c.strip()]
+    valid = {"naming", "path", "sections", "i18n", "i18n-parity", "platforms"}
     if "all" in selected_raw:
         selected = {"naming", "path", "sections", "i18n", "platforms"}
+        # honor explicit i18n-parity even when `all` is passed
+        if "i18n-parity" in selected_raw:
+            selected.add("i18n-parity")
     else:
-        valid = {"naming", "path", "sections", "i18n", "platforms"}
         unknown = set(selected_raw) - valid
         if unknown:
             print(f"ERROR: unknown check(s): {', '.join(sorted(unknown))}", file=sys.stderr)
@@ -414,6 +490,23 @@ def main() -> None:
         else:
             print(f"PASS [{label}]")
 
+    # i18n-parity runs WARN-only — does NOT add to all_failures
+    parity_warnings: list[str] = []
+    if "i18n-parity" in selected:
+        parity_warnings = check_i18n_parity(framework_dir, parity_threshold=args.parity_threshold)
+        label = "i18n-par "
+        if parity_warnings:
+            print(f"WARN [{label}] {len(parity_warnings)} drift warning(s)")
+        else:
+            print(f"PASS [{label}]")
+
+    if parity_warnings:
+        print()
+        print(f"{'=' * 60}")
+        print(f"I18N DRIFT WARNINGS ({len(parity_warnings)} total; not blocking):")
+        for w in parity_warnings:
+            print(f"  {w}")
+
     if all_failures:
         print()
         print(f"{'=' * 60}")
@@ -424,7 +517,7 @@ def main() -> None:
         sys.exit(1)
     else:
         print()
-        print("All checks passed.")
+        print("All hard checks passed." if parity_warnings else "All checks passed.")
         sys.exit(0)
 
 

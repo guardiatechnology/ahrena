@@ -285,6 +285,48 @@ cursor:
     engineering/devops/codex/codex-aws-services:
       alwaysApply: false
       description: "When selecting AWS services, use the catalog by use case (compute, storage, DB, messaging, network, security, observability) from this codex."
+    _foundation/quality/lexis/lex-observability-required:
+      alwaysApply: false
+      description: "When adding HTTP endpoint/event consumer/job, emit trace + metric + structured log with correlation ID; no sensitive data in logs."
+    _foundation/tooling/codex/codex-mcp-common:
+      alwaysApply: false
+      description: "Shared MCP patterns (auth, config, fallback, failure signals) — preamble consumed by all codex-mcp-{server} references."
+    engineering/quality/lexis/lex-test-pyramid:
+      alwaysApply: false
+      description: "When authoring test suites, enforce 70/20/10 distribution (unit/integration/E2E); E2E only for critical journeys."
+    engineering/quality/lexis/lex-test-isolation:
+      alwaysApply: false
+      description: "Tests must be deterministic, order-independent, parallelizable; flaky is a P1 bug — no retries as cure."
+    engineering/quality/codex/codex-test-strategy:
+      alwaysApply: false
+      description: "When deciding test level/tool/scope, consult decision tree, per-stack tooling, and anti-patterns from this codex."
+    engineering/sre/lexis/lex-slo-required:
+      alwaysApply: false
+      description: "Tier-1/2 services MUST have SLO declared pre go-live; error budget guides priorization of reliability vs. features."
+    engineering/sre/lexis/lex-runbook-for-every-alert:
+      alwaysApply: false
+      description: "Every human-paging alert MUST link to a versioned runbook with symptoms, diagnosis, mitigation, escalation."
+    engineering/sre/codex/codex-incident-response:
+      alwaysApply: false
+      description: "When responding to incidents, follow severity ladder, role assignments, comms templates, and blameless post-mortem from this codex."
+    engineering/data/lexis/lex-migrations-reversible:
+      alwaysApply: false
+      description: "Schema migrations MUST be reversible or documented with rollback plan; destructive DDL requires validated backup + window."
+    engineering/data/lexis/lex-data-retention:
+      alwaysApply: false
+      description: "Every persistent data class MUST declare retention + legal basis; LGPD/GDPR deletion SLA enforced; logs with PII are time-limited."
+    engineering/data/codex/codex-data-modeling:
+      alwaysApply: false
+      description: "When modeling data, follow entity/value object/aggregate patterns, normalization, indexing, and DB-choice guidance from this codex."
+    engineering/mobile/lexis/lex-mobile-platform-parity:
+      alwaysApply: false
+      description: "Mobile features ship in iOS and Android same release; functional parity mandatory; UI follows HIG/Material; deviation needs ADR."
+    engineering/mobile/lexis/lex-mobile-offline-first:
+      alwaysApply: false
+      description: "Mobile apps MUST operate in online/intermittent/offline states; cache reads, queue mutations; never block UI >5s on network."
+    engineering/mobile/codex/codex-mobile-architecture:
+      alwaysApply: false
+      description: "When designing mobile app structure, follow layer separation, state management, offline sync, testing, observability from this codex."
 
 claude-code:
   transposition:
@@ -349,3 +391,33 @@ claude-code:
     engineering/devops/codex/codex-aws-services:
       essential: false
       description: "Reference catalog of AWS services by use case with alternatives and trade-offs."
+    _foundation/quality/lexis/lex-observability-required:
+      essential: false
+      description: "Every runtime surface emits trace + metric + structured log with correlation ID."
+    _foundation/tooling/codex/codex-mcp-common:
+      essential: false
+      description: "Shared MCP patterns — consulted alongside any server-specific MCP codex."
+    engineering/quality/lexis/lex-test-pyramid:
+      essential: false
+      description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
+    engineering/quality/codex/codex-test-strategy:
+      essential: false
+      description: "Reference for test-level decisions, tooling per stack, and anti-patterns."
+    engineering/sre/lexis/lex-slo-required:
+      essential: false
+      description: "Tier-1/2 services require SLO pre go-live; error budget guides priorization."
+    engineering/sre/codex/codex-incident-response:
+      essential: false
+      description: "Reference for severity, roles, comms templates, and blameless post-mortem."
+    engineering/data/lexis/lex-migrations-reversible:
+      essential: false
+      description: "Schema migrations reversible or documented; destructive DDL requires backup + window."
+    engineering/data/codex/codex-data-modeling:
+      essential: false
+      description: "Reference for entity/value object/aggregate patterns and DB choice."
+    engineering/mobile/lexis/lex-mobile-offline-first:
+      essential: false
+      description: "Mobile apps operate in 3 network states; cache reads, queue mutations."
+    engineering/mobile/codex/codex-mobile-architecture:
+      essential: false
+      description: "Reference for mobile app structure, state, offline sync, testing."

@@ -4,7 +4,7 @@
 
 ## Resumen General
 
-Este Codex es la referencia para usar el **servidor MCP de Figma** en proyectos Ahrena. Define las herramientas disponibles, sus parámetros principales, autenticación y casos de uso típicos: extraer tokens de diseño, leer specs de componentes, obtener dimensiones de frames para implementación.
+Este Codex es la referencia para usar el **servidor MCP de Figma** en proyectos Ahrena. Ver `codex-mcp-common` para patrones MCP compartidos (autenticación, configuración, fallback). Este documento se enfoca en herramientas, parámetros y casos de uso específicos de Figma: extraer tokens de diseño, leer specs de componentes, obtener dimensiones de frames para implementación.
 
 ## Contexto
 

@@ -44,6 +44,34 @@ O **rule key** identifica o artefato de forma invariante entre idiomas e platafo
 - **Default para todas as rules:** `alwaysApply: false`; **description** sempre presente (definida no YAML ou derivada do corpo do artefato), para o Cursor aplicar a rule de forma inteligente.
 - **Exceções com `alwaysApply: true`** (definidas no `platforms.yaml`): ex.: `lex-directives`, `lex-checkpoint`.
 
+### Disciplina com `alwaysApply: true` / `essential: true`
+
+Ambas as flags inflam o contexto base de toda sessão (rules Cursor com `alwaysApply: true` são sempre carregadas; docs Claude Code com `essential: true` são inlinadas em `CLAUDE.md`). Adicionar artefato com essas flags custa tokens de contexto em 100% das sessões, não só nas relevantes.
+
+Regras:
+
+1. **Default é sempre `false`.** Marcar `true` exige justificativa explícita no PR que introduz a mudança.
+2. **PR que adiciona `alwaysApply: true` ou `essential: true` a Lexis/Codex DEVE incluir ADR** (via `kata-adr-write`) justificando por que o artefato é essencial o suficiente para viver no contexto base de toda sessão.
+3. **Revisar candidatos periodicamente** (sugerido: a cada versão major do framework): o artefato ainda é lido na maioria das sessões? Se não → rebaixar para `false`.
+
+### Subconjunto YAML suportado pelo parser customizado
+
+O `scripts/install.py` traz um parser YAML stdlib-only intencionalmente restrito. O parser suporta:
+
+- Chaves de topo com chaves aninhadas (indentação 2+ espaços).
+- Valores escalares: strings (com ou sem aspas, escape `"` suportado), booleanos (`true`/`false` case-insensitive), inteiros.
+- Mapas aninhados via indentação.
+- Listas via entradas `- item` sob chave que declara lista.
+
+O parser **NÃO** suporta:
+
+- Anchors (`&anchor`) e aliases (`*alias`).
+- Escalares multi-linha com `|` ou `>`.
+- Flow-style (`[a, b]`, `{k: v}`).
+- Strings entre aspas cruzando múltiplas linhas.
+
+Se `platforms.yaml` ou `.directives` precisa de feature fora desse subset: ou (a) refatorar para ficar no subset, ou (b) instalar `pyyaml` opcional — `scripts/install.py` detecta automaticamente e usa quando disponível.
+
 ### Uso no sync Cursor
 
 Ao rodar `python .ahrena/update.py --sync-cursor` (ou `make sync-cursor`):

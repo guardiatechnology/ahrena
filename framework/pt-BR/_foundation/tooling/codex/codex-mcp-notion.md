@@ -4,7 +4,7 @@
 
 ## Visão Geral
 
-Este Codex é a referência para usar o **servidor MCP do Notion** em projetos Ahrena. Define as ferramentas disponíveis, seus parâmetros principais, autenticação e casos de uso típicos: sincronizar documentação do framework para o Notion, criar wikis, notas de reunião e páginas de projeto.
+Este Codex é a referência para usar o **servidor MCP do Notion** em projetos Ahrena. Ver `codex-mcp-common` para padrões MCP compartilhados (autenticação, configuração, fallback). Este documento foca em ferramentas, parâmetros e casos de uso específicos do Notion: leitura de documentação, criação de wikis, notas de reunião e páginas de projeto.
 
 ## Contexto
 

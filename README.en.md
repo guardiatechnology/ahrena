@@ -202,6 +202,10 @@ Clades and Subclades are **extensible**: each organization defines what makes se
 | `warrior-apollo` | Apollo | engineering/backend | Python implementation with Clean Architecture; `/cry-python-implement` |
 | `warrior-hephaestus` | Hephaestus | engineering/frontend | Frontend implementation (React/TS) with a11y and behavioral testing |
 | `warrior-atlas` | Atlas | engineering/devops | AWS solutions architecture; Well-Architected; IaC and cost |
+| `warrior-hera` | Hera | engineering/quality | Test strategy, coverage planning, suite audit |
+| `warrior-hestia` | Hestia | engineering/sre | SLO, runbooks, incident response, blameless post-mortem |
+| `warrior-demeter` | Demeter | engineering/data | Data modeling, safe migrations, LGPD/GDPR retention |
+| `warrior-iris` | Iris | engineering/mobile | iOS/Android parity implementation, offline-first, accessibility |
 | `warrior-athena` | Athena | engineering/workflow | Issue-Driven flow orchestrator; `/cry-implement-issue` |
 
 For framework architecture (paths, diagrams, mapping to `.cursor/`), see the [Developer Guide](./framework/en/README.md#framework-architecture).

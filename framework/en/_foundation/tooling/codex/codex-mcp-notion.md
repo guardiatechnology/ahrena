@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex is the reference for using the **Notion MCP server** in Ahrena projects. It defines available tools, their main parameters, authentication, and typical use cases: syncing framework documentation to Notion, creating wikis, meeting notes, and project pages.
+This Codex is the reference for using the **Notion MCP server** in Ahrena projects. See `codex-mcp-common` for shared MCP patterns (authentication, configuration layout, fallback behavior). This document focuses on Notion-specific tools, parameters, and use cases: reading framework documentation, creating wikis, meeting notes, and project pages.
 
 ## Context
 

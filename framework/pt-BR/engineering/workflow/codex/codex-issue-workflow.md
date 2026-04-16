@@ -38,16 +38,17 @@ Este Codex é a referência operacional do fluxo **Issue-Driven Development** do
 **Gate 2 — Qualidade de Implementação** (entre Fase 6 e Fase 7)
 
 - Executado por: `kata-quality-gate`
-- 6 verificações (todas ✅ para passar):
+- 7 verificações; resultado é `go` (todas ✅ ou `unverifiable` onde não aplicável), `no-go` (qualquer ❌), ou `go-with-caveats` (>2 `unverifiable`, humano decide):
 
 | # | Verificação | Como |
 |:-:|---|---|
-| 1 | Rastreabilidade AC → teste (bidirecional) | Parse dos testes procurando `AC-N` + cross-check com ACs da Fase 2 |
+| 1 | Rastreabilidade AC ↔ teste (bidirecional) | Markers canônicos por stack (pytest marker, JS `@ac` tag); regex só como fallback |
 | 2 | Scope creep check | `git diff` vs. componentes declarados na Fase 3 |
-| 3 | Best practices (Lexis aplicáveis) | Checklist por Lexis (ver tabela abaixo) |
-| 4 | Testes executados | `pytest` (ou equivalente) sem falhas |
+| 3 | Best practices (Lexis aplicáveis por stack) | Python/Frontend/IaC Lexis; convenções cross-stack |
+| 4 | Testes executados | `pytest` / `yarn test` / comando específico do stack |
 | 5 | Cobertura | `pytest --cov` ≥ `quality.coverage_threshold` em `.directives` |
-| 6 | Tipos | `mypy --strict` sem erros novos |
+| 6 | Tipos | `mypy --strict` / `tsc --noEmit` sem erros novos |
+| 7 | Performance budget | Lighthouse/bundle (Frontend); benchmark p99 (Backend); Infracost (IaC) |
 
 - Se falhar: retorna a Fase 4 (Apollo) com relatório detalhado; humano pode optar por ampliar ACs (nova iteração do Gate 1) se o problema for scope creep justificável.
 

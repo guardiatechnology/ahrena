@@ -38,13 +38,23 @@ El agente **NO PUEDE**:
 2. Agregar servidores MCP a la configuración de plataforma (`.cursor/mcp.json`, `.claude/settings.json`) sin instrucción explícita del usuario.
 3. Modificar la sección `mcp.servers` en `.ahrena/.directives` sin solicitud explícita del usuario.
 
-### 4. Fallback cuando MCP no está disponible
+### 4. Comportamiento de fallback cuando MCP no está disponible
 
-Si el servidor MCP requerido no está disponible (servidor caído, variable de entorno ausente, herramienta no soportada):
+Si el servidor MCP requerido no está disponible a mitad de operación (servidor caído, variable de entorno ausente, herramienta no soportada, rate-limit, timeout):
 
-1. El agente **DEBE** informar al usuario que MCP no está disponible y cuál es el motivo.
-2. El agente **PUEDE** ofrecer el equivalente CLI como alternativa, identificándolo claramente como fallback.
-3. El agente **NO DEBE** usar silenciosamente el CLI sin comunicar la indisponibilidad del MCP.
+1. **Reintentar una vez** con backoff breve (por defecto: 5 segundos). Las fallas transientes ocurren; un retry evita escalación espuria.
+2. Si el retry aún falla, el agente **DEBE** informar al usuario con contexto estructurado:
+   - Qué servidor (`github`, `notion`, `figma`).
+   - Qué herramienta fue intentada.
+   - Error observado (status HTTP, mensaje).
+3. El agente **DEBE** entonces ofrecer opciones explícitas — sin elegir silenciosamente:
+   - **(a)** Usar el CLI equivalente como fallback (cuando existe y es seguro), claramente etiquetado como fallback.
+   - **(b)** Pausar el flujo hasta que el usuario restaure la conectividad (credenciales, restart del servidor).
+   - **(c)** Abortar la operación con mensaje claro.
+4. El agente **NO PUEDE** caer silenciosamente al CLI sin la opción presentada en el Paso 3.
+5. El agente **NO PUEDE** entrar en loop de retry más allá del Paso 1 — la falla persistente exige decisión humana.
+
+Las señales comunes de falla y sus causas típicas están listadas en `codex-mcp-common` — consultar antes de presentar al usuario.
 
 ## Alcance
 

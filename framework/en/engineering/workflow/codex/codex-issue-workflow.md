@@ -38,16 +38,17 @@ This Codex is the operational reference for the Ahrena **Issue-Driven Developmen
 **Gate 2 — Implementation Quality** (between Phase 6 and Phase 7)
 
 - Executed by: `kata-quality-gate`
-- 6 verifications (all ✅ to pass):
+- 7 verifications; result is `go` (all ✅ or `unverifiable` where not applicable), `no-go` (any ❌), or `go-with-caveats` (>2 `unverifiable`, human decides):
 
 | # | Verification | How |
 |:-:|---|---|
-| 1 | Bidirectional AC → test traceability | Parse tests for `AC-N` + cross-check with Phase 2 ACs |
+| 1 | Bidirectional AC ↔ test traceability | Canonical markers per stack (pytest marker, JS `@ac` tag); regex fallback only |
 | 2 | Scope creep check | `git diff` vs. components declared in Phase 3 |
-| 3 | Best practices (applicable Lexis) | Checklist per Lexis (see table below) |
-| 4 | Tests executed | `pytest` (or equivalent) without failures |
+| 3 | Best practices (applicable Lexis per stack) | Python/Frontend/IaC Lexis; cross-stack conventions |
+| 4 | Tests executed | `pytest` / `yarn test` / stack-specific command |
 | 5 | Coverage | `pytest --cov` ≥ `quality.coverage_threshold` in `.directives` |
-| 6 | Types | `mypy --strict` without new errors |
+| 6 | Types | `mypy --strict` / `tsc --noEmit` without new errors |
+| 7 | Performance budget | Lighthouse/bundle (Frontend); p99 benchmark (Backend); Infracost (IaC) |
 
 - On failure: returns to Phase 4 (Apollo) with a detailed report; the human may choose to expand ACs (new Gate 1 iteration) if the issue is justifiable scope creep.
 

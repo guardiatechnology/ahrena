@@ -38,13 +38,23 @@ The agent **MUST NOT**:
 2. Add MCP servers to platform configuration (`.cursor/mcp.json`, `.claude/settings.json`) without explicit user instruction.
 3. Modify the `mcp.servers` section in `.ahrena/.directives` without explicit user request.
 
-### 4. Fallback when MCP is unavailable
+### 4. Fallback behavior when MCP is unavailable
 
-If the required MCP server is unavailable (server down, missing environment variable, unsupported tool):
+If the required MCP server is unavailable mid-operation (server down, missing environment variable, unsupported tool, rate-limit, timeout):
 
-1. The agent **MUST** inform the user that MCP is unavailable and why.
-2. The agent **MAY** offer the CLI equivalent as a fallback, clearly identifying it as a fallback.
-3. The agent **MUST NOT** silently use the CLI without communicating MCP unavailability.
+1. **Retry once** with brief backoff (default: 5 seconds). Transient failures happen; a single retry avoids spurious escalation.
+2. If the retry still fails, the agent **MUST** inform the user with structured context:
+   - Which server (`github`, `notion`, `figma`).
+   - Which tool was attempted.
+   - Observed error (HTTP status, message).
+3. The agent **MUST** then offer explicit choices — not pick silently:
+   - **(a)** Use the CLI equivalent as fallback (when one exists and is safe), clearly labelled as fallback.
+   - **(b)** Pause the flow until the user restores connectivity (credentials, server restart).
+   - **(c)** Abort the operation with clear message.
+4. The agent **MUST NOT** silently fall back to CLI without the choice surfaced in Step 3.
+5. The agent **MUST NOT** enter a retry loop beyond Step 1 — persistent failure requires human decision.
+
+Common failure signals and their typical cause are listed in `codex-mcp-common` — consult before surfacing to the user.
 
 ## Scope
 

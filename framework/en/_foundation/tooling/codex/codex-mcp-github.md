@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex is the reference for using the **GitHub MCP server** in Ahrena projects. It defines available tools, their main parameters, authentication, and when to prefer MCP over the `gh` CLI. Consulted by Warriors and Katas that perform repository operations (issues, pull requests, branches, files, searches).
+This Codex is the reference for using the **GitHub MCP server** in Ahrena projects. See `codex-mcp-common` for shared MCP patterns (authentication model, configuration layout, fallback behavior, when-to-prefer-MCP rule). This document focuses on GitHub-specific tools, parameters, and examples. Consulted by Warriors and Katas that perform repository operations (issues, pull requests, branches, files, searches).
 
 ## Context
 
@@ -98,11 +98,11 @@ branch        (string, optional) — branch (default: default branch)
 
 ### When to use MCP vs `gh` CLI
 
-| Situation | Use |
-|---|---|
-| GitHub MCP server listed in `mcp.servers` | **MCP** (always, per `lex-mcp`) |
-| MCP server unavailable or variable not defined | `gh` CLI as fallback (communicate unavailability) |
-| Operation not covered by the MCP tools above | `gh` CLI or REST API directly |
+See `codex-mcp-common` §"Preference over CLI" and §"Fallback behavior" for the general rule. Summary:
+
+- Listed in `mcp.servers` + tool exists → MCP (mandatory per `lex-mcp`).
+- MCP unavailable → surface to user + offer `gh` CLI as explicit fallback.
+- Operation not covered by any MCP tool above → `gh` CLI or REST API directly.
 
 ### Usage example: create PR with structured body
 
