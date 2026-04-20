@@ -157,7 +157,18 @@ def get_directive(directives: dict, *keys: str, default: object = None) -> objec
 
 
 def _parse_platforms_yaml(content: str) -> dict:
-    """Minimal YAML parser for platforms.yaml structure (stdlib only)."""
+    """Parse platforms.yaml. Uses pyyaml when available; falls back to stdlib parser.
+
+    The custom parser supports a narrow YAML subset (see `codex-platforms` §"YAML
+    subset"). If pyyaml is installed, it is preferred for correctness.
+    """
+    try:
+        import yaml  # type: ignore
+        data = yaml.safe_load(content)
+        return data if isinstance(data, dict) else {}
+    except ImportError:
+        pass  # fall through to stdlib parser
+
     result: dict = {}
     stack: list[tuple[dict, str | None, int]] = [(result, None, -1)]
 
@@ -221,12 +232,12 @@ def load_platforms_config(ahrena_dir: Path) -> dict:
                     continue
                 config.setdefault(platform, {})
                 for key, value in platform_data.items():
-                    if key == "rules" and isinstance(value, dict):
-                        existing_rules = config[platform].get("rules")
-                        if isinstance(existing_rules, dict):
-                            config[platform]["rules"] = {**existing_rules, **value}
+                    if key in ("rules", "docs") and isinstance(value, dict):
+                        existing = config[platform].get(key)
+                        if isinstance(existing, dict):
+                            config[platform][key] = {**existing, **value}
                         else:
-                            config[platform]["rules"] = dict(value)
+                            config[platform][key] = dict(value)
                     else:
                         config[platform][key] = value
         except (OSError, TypeError) as e:
@@ -236,6 +247,104 @@ def load_platforms_config(ahrena_dir: Path) -> dict:
                 print(f"  WARNING: Could not load {path}: {e}", file=sys.stderr)
 
     return config
+
+
+def load_mcp_server_config(ahrena_dir: Path, server_name: str) -> dict | None:
+    """Load JSON config for a named MCP server.
+
+    Checks .ahrena/mcp/<name>.json first (user override), then
+    framework/mcp/<name>.json (framework default).
+    Returns the raw dict or None if not found.
+    """
+    import json
+    for base in (ahrena_dir, ahrena_dir / "framework"):
+        path = base / "mcp" / f"{server_name}.json"
+        if path.exists():
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                pass
+    return None
+
+
+def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: bool = False) -> None:
+    """Merge MCP server configs into .cursor/mcp.json and .claude/settings.json.
+
+    Reads mcp.servers list from directives. For each server, loads the
+    platform-specific block from framework/mcp/<name>.json (or the user
+    override in .ahrena/mcp/<name>.json) and merges it additively.
+
+    Cursor:      .cursor/mcp.json       → {"mcpServers": {...}}
+    Claude Code: .claude/settings.json  → {"mcpServers": {...}}
+
+    Merge is additive — existing entries for other servers are preserved.
+    Only the keys listed in mcp.servers are written/overwritten.
+    """
+    import json
+
+    servers = get_directive(directives, "mcp", "servers", default=[])
+    if not servers or not isinstance(servers, list):
+        return  # mcp section absent or empty
+
+    cursor_mcp: dict = {}
+    claude_mcp: dict = {}
+
+    for server_name in servers:
+        raw = load_mcp_server_config(ahrena_dir, server_name)
+        if raw is None:
+            print(f"  WARNING: No MCP config found for server '{server_name}' — skipping", file=sys.stderr)
+            continue
+        cursor_block = raw.get("cursor")
+        claude_block = raw.get("claude-code")
+        if cursor_block and isinstance(cursor_block, dict):
+            cursor_mcp[server_name] = cursor_block
+        if claude_block and isinstance(claude_block, dict):
+            claude_mcp[server_name] = claude_block
+
+    if dry_run:
+        if cursor_mcp:
+            print(f"    [DRY-RUN] .cursor/mcp.json ({', '.join(cursor_mcp)})")
+        if claude_mcp:
+            print(f"    [DRY-RUN] .claude/settings.json ({', '.join(claude_mcp)})")
+        return
+
+    # ── Cursor: .cursor/mcp.json ──────────────────────────────────
+    if cursor_mcp:
+        cursor_dir = target_dir / ".cursor"
+        cursor_dir.mkdir(parents=True, exist_ok=True)
+        mcp_path = cursor_dir / "mcp.json"
+        existing: dict = {}
+        if mcp_path.exists():
+            try:
+                existing = json.loads(mcp_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                existing = {}
+        existing.setdefault("mcpServers", {})
+        existing["mcpServers"].update(cursor_mcp)
+        mcp_path.write_text(
+            json.dumps(existing, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"  Updated .cursor/mcp.json ({', '.join(cursor_mcp)})")
+
+    # ── Claude Code: .claude/settings.json ───────────────────────
+    if claude_mcp:
+        claude_dir = target_dir / ".claude"
+        claude_dir.mkdir(parents=True, exist_ok=True)
+        settings_path = claude_dir / "settings.json"
+        existing_s: dict = {}
+        if settings_path.exists():
+            try:
+                existing_s = json.loads(settings_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                existing_s = {}
+        existing_s.setdefault("mcpServers", {})
+        existing_s["mcpServers"].update(claude_mcp)
+        settings_path.write_text(
+            json.dumps(existing_s, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"  Updated .claude/settings.json ({', '.join(claude_mcp)})")
 
 
 def _framework_rel_path_to_rule_key(rel_path: Path) -> str:
@@ -255,6 +364,20 @@ def parse_clades(value: str | None) -> list[str] | None:
         return None
     clades = [c.strip() for c in value.split(",") if c.strip()]
     return sorted(clades) if clades else None
+
+
+def parse_languages(value: str | None) -> list[str] | None:
+    """Parse a comma-separated languages string into a list, or None for all."""
+    if not value:
+        return None
+    KNOWN = {"pt-BR", "en", "es"}
+    langs = [l.strip() for l in value.split(",") if l.strip()]
+    unknown = set(langs) - KNOWN
+    if unknown:
+        print(f"WARNING: unknown language(s) in --languages: {', '.join(sorted(unknown))}; "
+              f"known: {', '.join(sorted(KNOWN))}", file=sys.stderr)
+    filtered = [l for l in langs if l in KNOWN]
+    return filtered if filtered else None
 
 
 def override_language_default(content: str, language: str) -> str:
@@ -610,23 +733,28 @@ def generate_claude_md(
 ) -> None:
     """Generate CLAUDE.md at the project root with Ahrena docs.
 
-    Docs whose cursor.rules entry has alwaysApply: true are inlined.
+    Docs whose claude-code.docs entry has essential: true are inlined.
     All other docs are listed as available references.
+
+    Falls back to cursor.rules alwaysApply when claude-code.docs is absent
+    (backward compatibility with installations before this feature).
     """
     claude_docs_dir = target_dir / ".claude" / "docs"
     if not claude_docs_dir.exists():
         return
 
+    claude_code_docs = platforms_config.get("claude-code", {}).get("docs", {})
     cursor_rules = platforms_config.get("cursor", {}).get("rules", {})
+    use_claude_docs = bool(claude_code_docs)
 
     always_apply_docs: list[tuple[str, str]] = []
     reference_docs: list[str] = []
 
     for md_file in sorted(claude_docs_dir.rglob("*.md")):
         rel_path = md_file.relative_to(target_dir / ".claude" / "docs")
-        # Reconstruct the rule key WITH the pilar folder to match cursor.rules keys.
+        # Reconstruct the rule key WITH the pilar folder to match config keys.
         # Claude Code docs strip the pilar folder (e.g. _foundation/process/lex-directives.md)
-        # but cursor.rules keys include it (e.g. _foundation/process/lexis/lex-directives).
+        # but rule keys include it (e.g. _foundation/process/lexis/lex-directives).
         pilar = detect_pilar(md_file.name)
         pilar_folder = PILAR_FOLDER_NAME.get(pilar, "") if pilar else ""
         rel_parts = list(rel_path.with_suffix("").parts)
@@ -636,8 +764,13 @@ def generate_claude_md(
         else:
             rule_key = str(rel_path.with_suffix("")).replace("\\", "/")
 
-        rule_config = cursor_rules.get(rule_key, {})
-        is_always_apply = isinstance(rule_config, dict) and rule_config.get("alwaysApply", False)
+        if use_claude_docs:
+            rule_config = claude_code_docs.get(rule_key, {})
+            is_always_apply = isinstance(rule_config, dict) and rule_config.get("essential", False)
+        else:
+            # Fallback: use cursor.rules alwaysApply for backward compatibility
+            rule_config = cursor_rules.get(rule_key, {})
+            is_always_apply = isinstance(rule_config, dict) and rule_config.get("alwaysApply", False)
 
         if is_always_apply:
             content = md_file.read_text(encoding="utf-8").strip()
@@ -692,8 +825,14 @@ def generate_claude_md(
 # Installation phases
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def copy_framework(src: Path, dst: Path, clades: list[str] | None) -> int:
-    """Copy framework/ to destination, optionally filtering by clade.
+def copy_framework(src: Path, dst: Path, clades: list[str] | None,
+                   languages: list[str] | None = None) -> int:
+    """Copy framework/ to destination, optionally filtering by clade and language.
+
+    `languages` (e.g. `["en"]` or `["pt-BR", "en"]`) limits which language directories
+    are copied; `None` copies all. Language directories are recognized by matching
+    known language codes (pt-BR, en, es). Non-language files and directories
+    (templates/, platforms.yaml, mcp/) are copied unconditionally.
 
     Returns the number of clades copied.
     """
@@ -701,6 +840,7 @@ def copy_framework(src: Path, dst: Path, clades: list[str] | None) -> int:
         shutil.rmtree(dst)
     dst.mkdir(parents=True, exist_ok=True)
 
+    KNOWN_LANGUAGES = {"pt-BR", "en", "es"}
     clade_count = 0
 
     for item in sorted(src.iterdir()):
@@ -710,6 +850,11 @@ def copy_framework(src: Path, dst: Path, clades: list[str] | None) -> int:
         elif item.name == "templates":
             shutil.copytree(item, dst_item)
         elif item.is_dir():
+            # Language filtering: if item is a known language and `languages`
+            # is set, skip unless in list.
+            if item.name in KNOWN_LANGUAGES and languages is not None:
+                if item.name not in languages:
+                    continue
             if clades is None:
                 shutil.copytree(item, dst_item)
                 clade_count = max(clade_count,
@@ -737,15 +882,21 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
         sys.exit(1)
 
     clades = parse_clades(getattr(args, "clades", None))
+    languages = parse_languages(getattr(args, "languages", None))
 
-    # 1. Copy framework/ (filtered by clades if specified)
+    # 1. Copy framework/ (filtered by clades and/or languages if specified)
+    filter_parts = []
     if clades:
-        print(f"  Copying framework (clades: {', '.join(clades)}) to {ahrena_framework}/ ...")
+        filter_parts.append(f"clades: {', '.join(clades)}")
+    if languages:
+        filter_parts.append(f"languages: {', '.join(languages)}")
+    if filter_parts:
+        print(f"  Copying framework ({'; '.join(filter_parts)}) to {ahrena_framework}/ ...")
     else:
         print(f"  Copying framework to {ahrena_framework}/ ...")
 
     ahrena_dir.mkdir(parents=True, exist_ok=True)
-    copy_framework(framework_src, ahrena_framework, clades)
+    copy_framework(framework_src, ahrena_framework, clades, languages)
 
     # Persist clade selection for future updates
     clades_file = ahrena_dir / ".installed-clades"
@@ -802,6 +953,17 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
             print(f"  Installed contributing_templates to .ahrena/contributing_templates/")
         else:
             print(f"  contributing_templates already exist — preserved")
+
+    # 2.6. Copy mcp/ templates to .ahrena/mcp/ (never overwrite user overrides)
+    mcp_src = ahrena_framework / "mcp"
+    mcp_dst = ahrena_dir / "mcp"
+    if mcp_src.exists():
+        mcp_dst.mkdir(exist_ok=True)
+        for json_file in mcp_src.glob("*.json"):
+            dst_file = mcp_dst / json_file.name
+            if not dst_file.exists():
+                shutil.copy2(json_file, dst_file)
+        print(f"  Installed MCP templates to .ahrena/mcp/")
 
     # 3. Copy scripts for future use (install, update, uninstall)
     scripts_src = source_dir / "scripts"
@@ -1061,6 +1223,10 @@ def install_claude_code(ahrena_dir: Path, target_dir: Path, dry_run: bool = Fals
     else:
         print(f"  Generated {total_docs} docs, {total_skills} skills, {total_agents} agents, {total_cmds} commands")
 
+    # MCP: merge server configs (also runs during sync-claude-code)
+    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
+    install_mcp(ahrena_dir, target_dir, directives, dry_run=dry_run)
+
 
 def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) -> None:
     """Phase 2: generate .cursor/ files from .ahrena/framework/ and .ahrena/artifacts/."""
@@ -1153,6 +1319,10 @@ def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) ->
         print(f"  Generated {file_count_fw} files from framework, {file_count_art} from project artifacts; {total_agents} agent files")
     else:
         print(f"  Generated {total_files} files from framework; {total_agents} agent files")
+
+    # MCP: merge server configs (also runs during sync-cursor)
+    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
+    install_mcp(ahrena_dir, target_dir, directives, dry_run=dry_run)
 
 
 def clean(target_dir: Path) -> None:
@@ -1251,6 +1421,11 @@ def clean(target_dir: Path) -> None:
         else:
             print(f"  No Ahrena files found in .claude/")
 
+    # MCP entries in .cursor/mcp.json and .claude/settings.json are NOT removed.
+    # They cannot be safely distinguished from user-managed entries in the same file.
+    print(f"  NOTE: MCP server entries in .cursor/mcp.json and .claude/settings.json were preserved.")
+    print(f"        Remove them manually if needed.")
+
     # Clean CLAUDE.md if it has Ahrena markers
     claude_md = target_dir / "CLAUDE.md"
     if claude_md.exists():
@@ -1278,16 +1453,22 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 examples:
-  %(prog)s                                           Install .ahrena/ only (from remote)
-  %(prog)s --platform cursor                         Install .ahrena/ + .cursor/ (remote)
-  %(prog)s --local --platform cursor                 Install from current dir (Ahrena repo root)
-  %(prog)s --source /path/to/ahrena --platform cursor  Install from local clone
-  %(prog)s --clades _foundation,documentation        Install only specific clades
-  %(prog)s --version v0.1.0                          Install specific version (remote)
-  %(prog)s --language en                             Override default language
-  %(prog)s --directives ./my-directives              Use custom directives
-  %(prog)s --clean                                   Remove installed files
-  %(prog)s --dry-run --platform cursor               Preview without changes
+  %(prog)s                                                Install .ahrena/ only (from remote)
+  %(prog)s --platform cursor                              Install .ahrena/ + .cursor/ (remote)
+  %(prog)s --platform claude-code                         Install .ahrena/ + .claude/ + CLAUDE.md (remote)
+  %(prog)s --local --platform cursor                      Install from current dir (Ahrena repo root)
+  %(prog)s --source /path/to/ahrena --platform cursor     Install from a local clone
+  %(prog)s --clades _foundation,documentation             Install only specific clades
+  %(prog)s --version v0.1.0                               Install specific version (remote)
+  %(prog)s --language en                                  Override default language
+  %(prog)s --directives ./my-directives                   Use custom directives
+  %(prog)s --clean                                        Remove installed files
+  %(prog)s --dry-run --platform cursor                    Preview without changes
+
+offline (run this script directly from a cloned Ahrena repo):
+  python scripts/install.py --self --target /path/to/project --platform cursor
+  python scripts/install.py --self --target /path/to/project --platform claude-code
+  python scripts/install.py --self --target /path/to/project --platform cursor --language en
         """,
     )
     parser.add_argument(
@@ -1315,6 +1496,12 @@ examples:
         help="override language.default in .directives (e.g., pt-BR, en, es)",
     )
     parser.add_argument(
+        "--languages",
+        help="comma-separated list of language directories to copy into .ahrena/framework/ "
+             "(default: all; known: pt-BR, en, es). Use to reduce .ahrena/ footprint when "
+             "a project only needs a subset.",
+    )
+    parser.add_argument(
         "--directives",
         help="path or URL to a custom .directives file",
     )
@@ -1325,6 +1512,10 @@ examples:
     parser.add_argument(
         "--source", type=Path, metavar="PATH",
         help="path to local Ahrena repo (use instead of downloading from GitHub)",
+    )
+    parser.add_argument(
+        "--self", action="store_true", dest="self_source",
+        help="use the Ahrena repo containing this script as source (offline install to --target)",
     )
     parser.add_argument(
         "--dry-run", action="store_true",
@@ -1363,6 +1554,8 @@ def main() -> None:
     # ── Install mode ──
     if args.source is not None:
         source_label = str(args.source.resolve())
+    elif args.self_source:
+        source_label = f"SELF ({Path(__file__).resolve().parent.parent})"
     elif args.local:
         source_label = "LOCAL (CWD)"
     else:
@@ -1392,6 +1585,13 @@ def main() -> None:
         if not (source_dir / "scripts").exists():
             print(f"\nERROR: 'scripts/' not found in {source_dir}")
             print("--source must point to the Ahrena repository root (containing framework/ and scripts/).")
+            sys.exit(1)
+        ahrena_dir = install_ahrena(source_dir, target_dir, args)
+    elif args.self_source:
+        source_dir = Path(__file__).resolve().parent.parent
+        if not (source_dir / "framework").exists():
+            print(f"\nERROR: 'framework/' not found at {source_dir}")
+            print("--self assumes this script lives in <ahrena-repo>/scripts/. Check your clone.")
             sys.exit(1)
         ahrena_dir = install_ahrena(source_dir, target_dir, args)
     elif args.local:

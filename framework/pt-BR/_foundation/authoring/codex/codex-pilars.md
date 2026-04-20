@@ -62,7 +62,25 @@ Cada Pilar pode referenciar artefatos de outros Pilares:
 |------------------|-------------------------|
 | Cry | Apenas Kata(s) e/ou Warrior(s) |
 | Warrior | Kata(s); pode consultar Lexis e Codex |
+| Warrior Orquestrador | Kata(s) próprios **e** pode delegar fases a outros Warriors (via handoff por checkpoint) |
 | Kata | Nenhum artefato como "invocação"; aplica Lexis e consulta Codex |
+
+### Warrior Orquestrador (tipo especial)
+
+Um **Warrior Orquestrador** é um Warrior cujo papel é coordenar um fluxo multi-fase que envolve outros Warriors especialistas. Diferente do Warrior comum, ele pode delegar fases específicas a outros Warriors via handoff documentado em `.ahrena/workflow/.../checkpoint.md`.
+
+**Exemplo:** `warrior-athena` (clade `engineering/workflow/`) orquestra o fluxo Issue-Driven Development em 7 fases, delegando:
+- Fase 3 (API) → `warrior-daedalus`
+- Fase 3 (eventos) → `warrior-kronos`
+- Fase 4 (implementação Python) → `warrior-apollo`
+
+**Regras para Warriors Orquestradores:**
+- Devem ter nome, identidade e persona como qualquer outro Warrior
+- A delegação só ocorre via handoff por checkpoint (estado persistido), não por chamada direta
+- O Warrior Orquestrador permanece responsável pela integridade global do fluxo, mesmo durante a delegação
+- A delegação deve estar explicitamente documentada na seção "Warriors delegados" do próprio Warrior
+
+Essa formalização evita encadeamento descontrolado entre Warriors e mantém a clareza das responsabilidades.
 
 ### Kit de Criação
 

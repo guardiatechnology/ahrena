@@ -32,6 +32,44 @@ paths:
     cries: "templates/cry-sample.md"
 
 
+# ─── MCP Servers ────────────────────────────────────────────────
+# List of MCP servers to activate. The installer merges the
+# corresponding config from framework/mcp/<name>.json (or
+# .ahrena/mcp/<name>.json if overridden) into .cursor/mcp.json
+# and .claude/settings.json. Uncomment only the servers you need.
+# Override individual server configs in .ahrena/mcp/<name>.json.
+
+# mcp:
+#   servers:
+#     - github
+#     - notion
+#     - figma
+
+
+# ─── Quality (Issue-Driven Workflow) ────────────────────────────
+# Settings used by kata-quality-gate (Gate 2 of the Issue-Driven
+# Development flow orchestrated by warrior-athena).
+
+# quality:
+#   coverage_threshold: 80            # Minimum test coverage (%) to pass Gate 2
+#   stack: auto                       # auto | python | frontend | iac | mixed
+#   performance:
+#     lighthouse_min: 80              # Frontend: minimum Lighthouse performance score
+#     bundle_kb_max: 250              # Frontend: main bundle size limit (KB)
+#     api_p99_ms_max: 300             # Backend: p99 latency limit (ms) for modified endpoints
+#     benchmark_regression_pct: 10    # Backend: max regression vs. baseline on main (%)
+
+
+# ─── Knowledge (Issue-Driven Workflow) ──────────────────────────
+# Optional: Notion root page/database that kata-issue-analysis
+# prioritizes when enriching issue context. If omitted, full
+# workspace search is performed.
+
+# knowledge:
+#   notion:
+#     root_page: "page-id-or-url"
+
+
 # ─── Language ────────────────────────────────────────────────────
 # Defines the default language, the mandatory languages for the
 # framework, and the language used in Cursor artifacts.

@@ -1,0 +1,17 @@
+{
+  "_comment": "Ahrena MCP: Notion server config. Merged into platform MCP files during install. Do not edit — override via .ahrena/mcp/notion.json instead.",
+  "cursor": {
+    "command": "npx",
+    "args": ["-y", "@notionhq/notion-mcp-server"],
+    "env": {
+      "NOTION_API_KEY": "${env:NOTION_API_KEY}"
+    }
+  },
+  "claude-code": {
+    "command": "npx",
+    "args": ["-y", "@notionhq/notion-mcp-server"],
+    "env": {
+      "NOTION_API_KEY": "${NOTION_API_KEY}"
+    }
+  }
+}

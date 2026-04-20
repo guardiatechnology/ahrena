@@ -21,6 +21,7 @@
 | Nombre | Descripción |
 |--------|-------------|
 | **Cursor** | IDE con soporte integrado: el instalador genera `.cursor/` (rules, skills, commands, agents) a partir del framework. [Soporte para Cursor](#soporte-para-cursor) |
+| **Claude Code** | Soporte para Claude Code: el instalador genera `.claude/` (docs, skills, commands, agents) y `CLAUDE.md` a partir del framework. [Soporte para Claude Code](#soporte-para-claude-code) |
 
 ### Primera instalación
 
@@ -48,11 +49,17 @@ Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/downl
 
 # Windows — framework + Cursor IDE
 Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
+
+# Windows — framework + Claude Code
+Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform claude-code; Remove-Item install.py
 ```
 
 ```bash
 # macOS / Linux — framework + Cursor
 curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform cursor
+
+# macOS / Linux — framework + Claude Code
+curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform claude-code
 ```
 
 **Opciones del instalador:**
@@ -60,8 +67,12 @@ curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/inst
 | Flag | Descripción |
 |------|-------------|
 | `--platform cursor` | Generar `.cursor/` (rules, skills, commands, agents) |
+| `--platform claude-code` | Generar `.claude/` (docs, skills, commands, agents) y `CLAUDE.md` |
 | `--clades X,Y` | Instalar solo los clades indicados (ej.: `_foundation,documentation`) |
-| `--version v0.1.0` | Versión específica (tag o rama) |
+| `--version v0.1.0` | Versión específica (tag o rama) — instalación remota |
+| `--local` | Usar el directorio actual como fuente (ejecutar en la raíz del repo Ahrena) |
+| `--source PATH` | Usar un clon local de Ahrena en PATH en lugar de descargar de GitHub |
+| `--self` | Usar el repo Ahrena que contiene este script como fuente — instalación offline |
 | `--language en` | Sobrescribir idioma por defecto en `.directives` |
 | `--directives PATH` | Usar `.directives` personalizado (ruta local o URL) |
 | `--target PATH` | Instalar en otro directorio |
@@ -70,21 +81,87 @@ curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/inst
 
 Cuando se usa `--clades`, la selección se guarda en `.ahrena/.installed-clades` y es respetada por `update.py`.
 
+### Instalación offline
+
+Si no hay acceso a internet, o desea distribuir Ahrena en entornos restringidos, use la flag `--self` desde un clon local del repositorio:
+
+```bash
+# Clonar el repo una vez (con acceso a red)
+git clone https://github.com/guardiafinance/ahrena.git
+
+# Instalar en cualquier proyecto, desde cualquier directorio, sin red
+python /ruta/a/ahrena/scripts/install.py --self --target /ruta/al/proyecto --platform cursor
+python /ruta/a/ahrena/scripts/install.py --self --target /ruta/al/proyecto --platform claude-code
+```
+
+**Por Makefile** (desde la raíz del repo Ahrena):
+
+```bash
+make install-to TARGET=/ruta/al/proyecto PLATFORM=cursor
+make install-to TARGET=/ruta/al/proyecto PLATFORM=claude-code LANGUAGE=en
+```
+
+`--self` detecta automáticamente la raíz del repo Ahrena desde la ubicación del propio script, independientemente del directorio de trabajo actual.
+
 ### Actualización y desinstalación
 
 | Acción | Makefile | Script directo |
 |--------|----------|----------------|
-| **Actualizar** | `make update` o `make update VERSION=v0.2.0` | `python .ahrena/update.py` |
+| **Actualizar (remoto)** | `make update` o `make update VERSION=v0.2.0` | `python .ahrena/update.py` |
+| **Actualizar (local)** | `make update LOCAL=1` o `make update SOURCE=../ahrena` | `python .ahrena/update.py --local` o `--source /ruta/a/ahrena` |
+| **Re-sincronizar Cursor** | `make sync-cursor` | `python .ahrena/update.py --sync-cursor` |
+| **Re-sincronizar Claude Code** | `make sync-claude-code` | `python .ahrena/update.py --sync-claude-code` |
 | **Desinstalar** | `make uninstall` | `python .ahrena/uninstall.py` (u `--force` sin confirmación) |
+
+**Por defecto:** la instalación y actualización vienen del **remoto** (GitHub). Para fuente local use `--local` / `--source` o en el Makefile `LOCAL=1` / `SOURCE=...`.
 
 **Desarrollo local (contribuidores):** `make dev-install PLATFORM=cursor` — usa los fuentes locales de `framework/` en lugar de descargar de GitHub.
 
 ### Qué se instala
 
-| Comando | `.ahrena/` | `.cursor/` |
-|---------|------------|------------|
-| Sin `--platform` | framework, directives, scripts, Makefile | — |
-| `--platform cursor` | idem | rules, skills, commands, agents |
+| Comando | `.ahrena/` | `.cursor/` | `.claude/` + `CLAUDE.md` |
+|---------|------------|------------|--------------------------|
+| Sin `--platform` | framework, directives, scripts, Makefile | — | — |
+| `--platform cursor` | idem | rules, skills, commands, agents | — |
+| `--platform claude-code` | idem | — | docs, skills, commands, agents + CLAUDE.md |
+
+---
+
+## MCP (Model Context Protocol)
+
+Ahrena admite servidores MCP para GitHub, Notion y Figma. Cuando se activan, el instalador genera automáticamente las entradas correspondientes en `.cursor/mcp.json` y `.claude/settings.json`.
+
+### Activar servidores MCP
+
+Agregue la sección `mcp` a su `.ahrena/.directives`:
+
+```yaml
+mcp:
+  servers:
+    - github
+    - notion
+    - figma
+```
+
+En la próxima ejecución de `make sync-cursor`, `make sync-claude-code` o `make install-to`, las entradas MCP se fusionarán de forma **aditiva** — los servidores que usted gestione fuera de Ahrena se conservan.
+
+### Servidores disponibles
+
+| Servidor | Variable de entorno | Uso |
+|----------|---------------------|-----|
+| `github` | `GITHUB_PAT` | Crear issues, PRs, push de archivos, listar commits |
+| `notion` | `NOTION_API_KEY` | Crear y sincronizar páginas, buscar databases |
+| `figma` | `FIGMA_API_KEY` | Extraer design tokens, specs de componentes, exportar frames |
+
+Las credenciales siempre se referencian mediante variables de entorno — **nunca** hardcodeadas en archivos versionados.
+
+### Katas MCP
+
+| Kata | Plataforma | Descripción |
+|------|-----------|-------------|
+| `kata-mcp-github-read` | GitHub | Consulta repositorios, issues, PRs, commits y código (solo lectura) |
+| `kata-mcp-notion-read` | Notion | Consulta páginas, databases y bloques de Notion (solo lectura) |
+| `kata-mcp-figma-extract` | Figma | Extrae design tokens y specs de componentes de Figma |
 
 ---
 
@@ -107,7 +184,7 @@ Descripción completa de cada Pilar y cuándo usarlo: [Framework — Guía del d
 | Clade | Subclades | Documentación |
 |-------|-----------|---------------|
 | **product** | discovery, strategy, analytics, delivery | Extensible por organización |
-| **engineering** | platform, backend, frontend, devops, security, quality | [Platform (Guardia)](framework/es/engineering/platform/README.md) |
+| **engineering** | platform, backend, frontend, devops, security, quality, workflow | [Platform (Guardia)](framework/es/engineering/platform/README.md) · [Workflow (Issue-Driven)](framework/es/engineering/workflow/README.md) · Backend (Apollo) · Frontend (Hephaestus) · DevOps (Atlas) |
 | **finance** | accounting, treasury, controllership | Extensible por organización |
 | **operations** | support, infrastructure, monitoring | Extensible por organización |
 | **documentation** | i18n (traducción) | [Sistema de traducción / Hermes](framework/es/documentation/i18n/README.md) |
@@ -122,8 +199,32 @@ Clades y Subclades son **extensibles**: cada organización define los que tengan
 | `warrior-translator` | Hermes | documentation/i18n | Traducción de documentación técnica; [detalles](framework/es/documentation/i18n/README.md) |
 | `warrior-daedalus` | Daedalus | engineering/platform | Diseño de API RESTful (OAS); `/cry-api-design`, `/cry-full-design` |
 | `warrior-kronos` | Kronos | engineering/platform | Event Storm y CloudEvents; `/cry-event-storm`, `/cry-full-design` |
+| `warrior-apollo` | Apollo | engineering/backend | Implementación Python con Clean Architecture; `/cry-python-implement` |
+| `warrior-hephaestus` | Hephaestus | engineering/frontend | Implementación Frontend (React/TS) con a11y y pruebas comportamentales |
+| `warrior-atlas` | Atlas | engineering/devops | Arquitectura de soluciones AWS; Well-Architected; IaC y costo |
+| `warrior-hera` | Hera | engineering/quality | Estrategia de pruebas, plan de cobertura, auditoría de suite |
+| `warrior-hestia` | Hestia | engineering/sre | SLO, runbooks, respuesta a incidentes, post-mortem blameless |
+| `warrior-demeter` | Demeter | engineering/data | Modelado de datos, migrations seguras, retención LGPD/GDPR |
+| `warrior-iris` | Iris | engineering/mobile | Implementación iOS/Android paritaria, offline-first, accesibilidad |
+| `warrior-athena` | Athena | engineering/workflow | Orquestadora del flujo Issue-Driven; `/cry-implement-issue` |
 
 Para la arquitectura del framework (paths, diagramas, correspondencia con `.cursor/`), consulte la [Guía del desarrollador](./framework/es/README.md#arquitectura-del-framework).
+
+---
+
+## Flujo Issue-Driven Development
+
+Ahrena ofrece un **flujo completo de desarrollo orientado por issues de GitHub**, conducido por `warrior-athena`. Partiendo de una issue, el flujo pasa por 7 fases (análisis → requisitos → arquitectura → implementación → seguridad → quality gate → PR), con 2 gates humano/automático, generación de ADRs (`docs/adr/`) y documentación estructurada en `docs/issues/issue-{n}/`.
+
+```bash
+# Requisito previo: mcp.servers incluye github (y opcionalmente notion) en .ahrena/.directives
+/cry-implement-issue 42 guardiafinance/ahrena
+```
+
+**Gate 1 (Alcance):** el humano aprueba brief + ACs + arquitectura antes de la implementación.
+**Gate 2 (Calidad):** automatizado con 6 checks — trazabilidad AC↔prueba (bidireccional), scope creep, best practices, pruebas, cobertura, tipos.
+
+Guía completa: [engineering/workflow/README.md](framework/es/engineering/workflow/README.md).
 
 ---
 
@@ -138,4 +239,48 @@ Ahrena ofrece **soporte integrado para Cursor IDE**. Con `--platform cursor` (o 
 | **Commands** (`.md`) | Cries — comandos rápidos vía `/cry-nombre` |
 | **Agents** (`.md`) | Warriors — subagentes especializados |
 
-Las reglas se aplican automáticamente según el alcance del proyecto; skills y commands están disponibles en el chat. Para instalar con Cursor, use `make bootstrap PLATFORM=cursor` o `python install.py --platform cursor`.
+Las reglas se aplican automáticamente según el alcance del proyecto; skills y commands están disponibles en el chat.
+
+**Configuración por plataforma:** la transposición (qué Pilar se convierte en qué recurso) y la aplicación de rules (alwaysApply, globs, description) se definen en **`platforms.yaml`** (por defecto en `framework/platforms.yaml`, override en `.ahrena/platforms.yaml`). Más detalles en [codex-platforms](framework/es/_foundation/process/codex/codex-platforms.md).
+
+---
+
+## Soporte para Claude Code
+
+Ahrena ofrece **soporte integrado para Claude Code**. Con `--platform claude-code`, el instalador genera `.claude/` y `CLAUDE.md` a partir del `framework/`:
+
+| Recurso Claude Code | Origen en el framework |
+|---------------------|------------------------|
+| **Docs** (`.md`) | Lexis y Codex — documentación de referencia inyectada en el contexto |
+| **Skills** (`SKILL.md`) | Katas — procedimientos repetibles bajo demanda |
+| **Commands** (`.md`) | Cries — comandos rápidos vía `/cry-nombre` |
+| **Agents** (`.md`) | Warriors — subagentes especializados |
+| **CLAUDE.md** | Lexis esenciales inyectadas directamente en el contexto de sesión |
+
+La configuración `claude-code.docs` en `platforms.yaml` controla qué artefactos se inyectan directamente en `CLAUDE.md` (`essential: true`) frente a los que se listan como referencias (`essential: false`).
+
+---
+
+## Validador de estructura
+
+Ahrena incluye un validador para garantizar que el contenido del framework sigue las convenciones antes de una transposición.
+
+```bash
+# Validar todo
+make validate
+# o
+python scripts/validate.py
+
+# Validar checks específicos
+python scripts/validate.py --check naming,platforms
+```
+
+| Check | Qué valida |
+|-------|-----------|
+| `naming` | Todo `.md` comienza con prefijo de Pilar o es `README.md` |
+| `path` | El archivo está en el directorio correcto del Pilar (`lexis/`, `katas/`, etc.) |
+| `sections` | Secciones obligatorias presentes (ley en Lexis, workflow en Kata, etc.) |
+| `i18n` | Todo archivo en `pt-BR/` tiene su contraparte en `en/` y `es/` |
+| `platforms` | Todo `lex-` y `codex-` tiene entrada en `cursor.rules` de `platforms.yaml` |
+
+Código de salida `0` = todo pasó; `1` = violaciones encontradas. Puede usarse como hook de pre-commit.
