@@ -1,5 +1,5 @@
 ---
-description: "CloudEvents para eventos na plataforma. Consultar ao publicar ou consumir eventos."
+description: "When publishing or consuming events, use CloudEvents format with idempotencykey and type catalog."
 alwaysApply: false
 ---
 

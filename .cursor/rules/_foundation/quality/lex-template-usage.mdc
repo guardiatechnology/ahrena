@@ -1,5 +1,5 @@
 ---
-description: "Uso obrigatório de templates oficiais ao criar Lexis, Codex, Katas, Warriors, Cries. Consultar ao criar artefato."
+description: "When creating a Lexis, Codex, Kata, Warrior, or Cry, start from the official template in .directives paths.samples."
 alwaysApply: false
 ---
 

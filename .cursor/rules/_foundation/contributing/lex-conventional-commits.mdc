@@ -1,5 +1,5 @@
 ---
-description: "Formato Conventional Commits. Consultar ao escrever mensagem de commit."
+description: "When writing a commit message, use format type(scope): description (feat, fix, docs, etc.)."
 alwaysApply: false
 ---
 

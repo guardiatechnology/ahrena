@@ -1,5 +1,5 @@
 ---
-description: "Convenções de nomenclatura e endereçamento de artefatos do framework. Consultar ao nomear ou posicionar artefatos."
+description: "When naming files/dirs or placing artifacts, follow naming.prefixes, naming.casing, naming.addressing from .directives."
 alwaysApply: false
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: "Commits assinados com GPG. Consultar ao fazer push ou configurar Git."
+description: "When pushing commits or configuring Git, ensure commits are GPG-signed and show Verified."
 alwaysApply: false
 ---
 

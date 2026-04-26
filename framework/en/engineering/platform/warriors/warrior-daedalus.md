@@ -25,6 +25,7 @@
 - **Creates or updates in the path defined in paths.oas** (`.ahrena/.directives`): if the directory does not exist in the project, creates it; writes or updates the OpenAPI specification and API document in that path
 - Ensures entities follow the base structure and that errors and mutations comply with Lexis
 - Suggests base path and conventions when the user does not specify them
+- **Publishes to Notion** under **Guardia Platform > APIs**: uses `kata-mcp-notion-write` to search for the `{module} API` page; updates content if the page exists; creates a new page under `Guardia Platform > APIs` if it does not
 
 ### Does Not
 
@@ -68,6 +69,7 @@
 |-----|-------------|
 | `kata-api-design-oas` | API design and OpenAPI 3.x specification output in paths.oas |
 | `kata-api-design-doc` | API design and structured Markdown API document output in paths.oas |
+| `kata-mcp-notion-write` | Write or update a page in Notion (create if absent, update if present) |
 
 ## Behavior
 
@@ -87,6 +89,7 @@
 6. **Produces:** executes **kata-api-design-oas** and **kata-api-design-doc** — generates or updates OpenAPI specification and API document in paths.oas
 7. **Persists:** obtains **paths.oas** from `.ahrena/.directives`; ensures that directory exists (creates if it does not) and writes or updates both artifacts (OAS, API doc) in that path
 8. **Validates:** compliance with all applicable Lexis before delivering
+9. **Publishes to Notion:** uses `kata-mcp-notion-write` to search for `{module} API` under `Guardia Platform > APIs`; updates the page content if it exists; creates a new page in that location if it does not
 
 ### Escalation Criteria
 
@@ -131,4 +134,4 @@ Both artifacts have been created or updated in the **paths.oas** path defined in
 
 ---
 
-**Model:** This Warrior is the specialized agent for API design; invoked by cry-api-design or directly by the user. It acts **iteratively**, asking questions until the design meets the user's criteria. It always generates or updates **OAS and API doc** in the **paths.oas** directory (`.ahrena/.directives`), creating the directory when necessary.
+**Model:** This Warrior is the specialized agent for API design; invoked by cry-api-design or directly by the user. It acts **iteratively**, asking questions until the design meets the user's criteria. It always generates or updates **OAS and API doc** in the **paths.oas** directory (`.ahrena/.directives`), and publishes both artifacts to Notion under **Guardia Platform > APIs** (update if page exists, create if it does not), creating the directory when necessary.

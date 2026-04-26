@@ -1,0 +1,63 @@
+# Lexis: Mandatory Signed Commits
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All commits in Guardia repositories
+
+## Law
+
+> **Every commit MUST be signed with a GPG key and marked as "Verified" by GitHub.**
+
+## Rules
+
+### 1. Mandatory signature
+
+Every commit pushed to Guardia repositories MUST contain a valid GPG signature that GitHub can verify.
+
+### 2. Accepted status
+
+| Status | Accepted | Description |
+|--------|:--------:|-------------|
+| Verified | Yes | Signed commit, verified signature, committer is the author |
+| Partially verified | No | Signed commit but author differs from committer with vigilant mode |
+| Unverified | No | Signature could not be verified |
+| No status | No | Unsigned commit |
+
+### 3. Recommended configuration
+
+Configure Git to sign commits automatically:
+
+```
+git config --global commit.gpgsign true
+git config --global user.signingkey <GPG-KEY-ID>
+```
+
+### 4. Tags
+
+Release tags MUST also be signed with GPG.
+
+## Examples
+
+### Correct
+
+```
+$ git log --show-signature -1
+commit abc123...
+gpg: Signature made Mon Mar 08 10:00:00 2026 UTC
+gpg: Good signature from "Developer <dev@guardia.finance>"
+```
+
+### Incorrect
+
+```
+$ git log --show-signature -1
+commit def456...
+gpg: No signature found
+
+# Unsigned commit — VIOLATES THE LAW
+# PR will be automatically rejected
+```
+
+## Automated Validation
+
+- **Tool:** GitHub branch protection rules (require signed commits)
+- **Trigger:** when opening or updating a PR
+- **Metric:** 100% of commits must have "Verified" status

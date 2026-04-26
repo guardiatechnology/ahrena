@@ -1,10 +1,10 @@
-# Cry: Event Storm — Documentación de Eventos CloudEvents
+# Cry: Event Storm — Descubrimiento y Documentación de CloudEvents
 
-> **Prefijo:** `cry-` | **Tipo:** Comando Recorrente | **Alcance:** Atajo para documentar eventos CloudEvents de una feature o módulo conforme a Lexis y Codex de Guardia
+> **Prefijo:** `cry-` | **Tipo:** Comando Recurrente | **Alcance:** Atajo para descubrir y documentar eventos CloudEvents de una feature o módulo conforme a Lexis y Codex de Guardia
 
 ## Descripción
 
-Este comando invoca al Warrior Kronos (o al agente asumiendo su rol) para realizar event storm y documentar los eventos CloudEvents de una feature o módulo: consultar lex-cloudevents y codex-cloudevents, catalogar tipos de evento y producir documentación en Markdown en **paths.events** (docs/events).
+Este comando invoca al Warrior Kronos (especialista en Event Storm) para descubrir y documentar eventos CloudEvents de una feature o módulo en dos fases. Cuando el panorama de eventos es desconocido, Kronos ejecuta primero el **kata-event-storm** (Descubrimiento) para mapear eventos de dominio, comandos, agregados, políticas, hotspots y bounded contexts, y luego procede al **kata-events-doc** (Documentación). Cuando los eventos ya están identificados, Kronos va directamente a la Documentación.
 
 ## Uso
 
@@ -16,17 +16,18 @@ Este comando invoca al Warrior Kronos (o al agente asumiendo su rol) para realiz
 
 | Parámetro | Obligatorio | Descripción | Ejemplo |
 |-----------|:-----------:|-------------|---------|
-| `contexto de la feature o módulo` | Sí | Nombre del módulo, entidades involucradas y operaciones que emiten eventos (ej.: created, updated, cancelled) o lista explícita de tipos de evento | "Módulo platform, entidad scheduled_transfer: eventos created (tras POST), updated (tras PATCH), cancelled (tras DELETE)" |
-| `source base` | No | Base de la URI `source` (ej.: https://tenant.guardia.finance/platform/api/v1). Si se omite, el agente propone conforme codex-cloudevents | `https://tenant.guardia.finance/platform/api/v1` |
+| `contexto de la feature o módulo` | Sí | Nombre del módulo y descripción del dominio (para Descubrimiento) o lista explícita de tipos de evento (solo para Documentación) | `"Módulo platform, transferencias agendadas — eventos desconocidos"` o `"event.guardia.platform.scheduled_transfer.created, .updated, .cancelled"` |
+| `source base` | No | Base de la URI `source` (ej.: `https://tenant.guardia.finance/platform/api/v1`). Si se omite, el agente propone conforme codex-cloudevents | `https://tenant.guardia.finance/platform/api/v1` |
 
 ## Qué Hace el Comando
 
-1. Interpreta el contexto de la feature/módulo y el source base (si se informa)
-2. Asume el rol del Warrior Kronos (especialista en Event Storm) o delega al agente que ejecuta **kata-events-doc**
-3. El Warrior Kronos (vía kata-events-doc) consulta lex-directives, lex-cloudevents, codex-cloudevents, lex-entities, codex-entities, lex-idempotency y codex-idempotency
-4. Identifica tipos de evento (formato event.guardia.{module}.{entity_type}.{event_name}), source, subject, data e idempotencykey
-5. Produce documento Markdown de eventos (ej.: events.md, cloudevents.md) con catálogo y detalles por tipo
-6. Persiste en **paths.events** (`.ahrena/.directives`; predeterminado `docs/events`) y entrega resumen o inline
+1. Lee `.ahrena/.directives` para obtener `paths.events`, `language.default` y configuración MCP
+2. Asume el rol del Warrior Kronos y **determina el punto de entrada**:
+   - El contexto describe un dominio sin eventos conocidos → **Fase 1: Descubrimiento** (kata-event-storm) luego **Fase 2: Documentación** (kata-events-doc)
+   - El contexto proporciona una lista explícita de tipos de evento → **Fase 2: Documentación únicamente** (kata-events-doc)
+3. **Fase 1 — Descubrimiento** (cuando aplica): ejecuta kata-event-storm de forma iterativa — mapea eventos de dominio (línea de tiempo), comandos, actores, agregados, políticas, sistemas externos, read models, hotspots y bounded contexts; produce catálogo CloudEvents; lo presenta al usuario para confirmación; resuelve hotspots P1 antes de avanzar
+4. **Fase 2 — Documentación**: ejecuta kata-events-doc — documenta estructura del evento, payload (data), idempotencia; genera o actualiza el documento formal de eventos en **paths.events**
+5. Persiste ambos artefactos (documento de descubrimiento cuando se ejecutó la Fase 1; documento de eventos siempre) en **paths.events** (predeterminado `docs/events`); crea el directorio si no existe
 
 ## Prompt Template
 
@@ -36,41 +37,68 @@ Contexto:
 - Source base (opcional): {{source base}}
 
 Tarea:
-Actúe como el Warrior Kronos (Especialista en Event Storm) y ejecute de forma iterativa el **kata-events-doc** (el Kata consulta lex-cloudevents, codex-cloudevents y demás Lexis/Codex conforme su documentación). Con base en el contexto anterior, haga preguntas de clarificación cuando sea necesario y refine el catálogo con base en las respuestas. Produzca la documentación de eventos en paths.events.
+Actúe como el Warrior Kronos (Especialista en Event Storm). Lea .ahrena/.directives
+y determine el punto de entrada:
+- Si el panorama de eventos es desconocido o el dominio no ha sido mapeado →
+  ejecute kata-event-storm primero (Fase 1 — Descubrimiento), luego kata-events-doc
+  (Fase 2 — Documentación).
+- Si se proporciona una lista explícita de tipos de evento → ejecute kata-events-doc
+  directamente (Fase 2 — Documentación únicamente).
+
+Trabaje de forma iterativa: haga preguntas de clarificación cuando sea necesario y
+espere respuestas antes de avanzar. No pase de la Fase 1 a la Fase 2 si hay
+hotspots P1 sin resolver.
 
 Formato de salida:
-- Consultar **paths.events** en `.ahrena/.directives` para el destino (predeterminado docs/events)
-- Crear el directorio (paths.events) si no existe en el proyecto
-- Crear o actualizar el documento de eventos (ej.: events.md) en ese path
-- Tabla de eventos (type, descripción, cuándo se emite); para cada evento: type, source, subject, idempotencykey, estructura de data conforme codex-entities
+- Consultar paths.events en .ahrena/.directives para el destino (predeterminado docs/events)
+- Crear el directorio si no existe
+- Fase 1 (cuando se ejecuta): guardar documento de descubrimiento de event storm (ej.: event-storm-{modulo}.md)
+- Fase 2: crear o actualizar el documento formal de eventos (ej.: events.md)
+- Confirmar los paths de todos los artefactos persistidos
 ```
 
-## Ejemplo de Invocación
+## Ejemplos de Invocación
 
-**Input:**
+**Escenario A — Panorama de eventos desconocido (Fase 1 → Fase 2):**
 
 ```
-/cry-event-storm "Módulo platform, entidad scheduled_transfer: eventos created, updated y cancelled"
+/cry-event-storm "Módulo platform, transferencias agendadas — contadores programan transferencias bancarias para ejecución futura; se requiere aprobación del supervisor antes de la ejecución"
 ```
 
-**Output esperado:**
+Output esperado:
+- Kronos ejecuta kata-event-storm: mapea línea de tiempo, comandos, actores, agregados, hotspots
+- Presenta catálogo CloudEvents para confirmación; resuelve hotspots P1
+- Ejecuta kata-events-doc y produce documento formal de eventos
+- Ambos artefactos guardados en `paths.events`
 
-Respuesta estructurada del Warrior Kronos con:
-- Catálogo de tipos (ej.: event.guardia.platform.scheduled_transfer.created, .updated, .cancelled)
-- Para cada tipo: descripción, source, subject, idempotencykey, estructura de data
-- Documento creado o actualizado en el path **paths.events** (`.ahrena/.directives`; directorio creado si no existía)
+**Escenario B — Eventos ya conocidos (solo Fase 2):**
+
+```
+/cry-event-storm "event.guardia.platform.scheduled_transfer.created, .updated, .cancelled"
+```
+
+Output esperado:
+- Kronos ejecuta kata-events-doc directamente
+- Hace preguntas sobre source base y payload si es necesario
+- Documento de eventos creado o actualizado en `paths.events`
 
 ## Restricciones
 
-- El Cry no implementa código; solo dispara la documentación de eventos
-- El contexto debe permitir identificar módulo, entidades y eventos; si es vago, el agente puede pedir complemento
+- El Cry no implementa código (publicadores o consumidores); solo dispara descubrimiento y documentación
+- Hotspots P1 identificados en la Fase 1 bloquean la transición a la Fase 2 — deben resolverse antes de la documentación
+- El contexto debe ser suficiente para identificar el módulo y el dominio o los tipos de evento; si es vago, Kronos solicita complemento
 - Excepciones a las Lexis deben documentarse en ADR
 
-## Kata y Warrior Asociados
+## Katas y Warrior Asociados
 
-- **kata-events-doc** — Documentación de eventos CloudEvents (Markdown) en paths.events
-- **warrior-kronos** — Especialista en Event Storm; ejecuta kata-events-doc
+| Artefacto | Fase | Descripción |
+|-----------|------|-------------|
+| `kata-event-storm` | 1 — Descubrimiento | Eventos de dominio, comandos, agregados, políticas, bounded contexts, catálogo CloudEvents |
+| `kata-events-doc` | 2 — Documentación | Documento formal de CloudEvents (Markdown) en paths.events |
+| `warrior-kronos` | Orquestador | Determina el punto de entrada y orquesta las dos fases |
 
 ## Referencias
 
-- `kata-events-doc` — Procedimiento ejecutado por el Warrior Kronos (el Kata consulta las Lexis y Codex de eventos, entidades e idempotencia; ver documentación del Kata)
+- `warrior-kronos` — Especialista en Event Storm; enruta entre Descubrimiento y Documentación según el contexto
+- `kata-event-storm` — Procedimiento de Descubrimiento (Fase 1)
+- `kata-events-doc` — Procedimiento de Documentación (Fase 2)

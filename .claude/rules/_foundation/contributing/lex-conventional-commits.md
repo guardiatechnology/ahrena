@@ -1,0 +1,86 @@
+# Lexis: Mandatory Conventional Commits
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All commits in Guardia repositories
+
+## Law
+
+> **Every commit MUST follow the Conventional Commits format: `<type>[optional scope]: <description>`.**
+
+## Rules
+
+### 1. Mandatory format
+
+Every commit must follow this structure:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### 2. Allowed types
+
+| Type | When to use |
+|------|-------------|
+| `feat` | New feature (correlates with MINOR in SemVer) |
+| `fix` | Bug fix (correlates with PATCH in SemVer) |
+| `docs` | Documentation changes |
+| `build` | Build system or external dependency changes |
+| `chore` | Maintenance tasks that do not alter production code |
+| `ci` | CI/CD configuration changes |
+| `style` | Formatting, semicolons, spaces — no logic change |
+| `refactor` | Refactoring that does not add features or fix bugs |
+| `perf` | Performance improvement |
+| `test` | Adding or fixing tests |
+
+### 3. Breaking changes
+
+Commits that introduce incompatible changes MUST:
+- Add `!` after the type/scope: `feat(api)!: change auth endpoint`
+- Or include `BREAKING CHANGE:` in the footer
+
+### 4. Scope
+
+The scope is optional and provides additional context in parentheses: `feat(auth): add OAuth2 support`.
+
+## Examples
+
+### Correct
+
+```
+feat(auth): implement OAuth2 authentication
+
+[pt-BR]
+Implementa fluxo de autenticação OAuth2 com suporte para múltiplos provedores.
+
+Closes #123
+```
+
+```
+fix: resolve null pointer in transaction processing
+```
+
+```
+docs(api): update endpoint documentation for v2
+```
+
+### Incorrect
+
+```
+# No type — VIOLATES THE LAW
+updated the login page
+
+# Invalid type — VIOLATES THE LAW
+feature: add new button
+
+# Multiple mixed changes — VIOLATES lex-small-commits as well
+feat: add login, fix header, update docs
+```
+
+## Automated Validation
+
+- **Tool:** commitlint with `@commitlint/config-conventional`
+- **Trigger:** pre-commit hook and CI pipeline
+- **Metric:** 0 out-of-format commits tolerated

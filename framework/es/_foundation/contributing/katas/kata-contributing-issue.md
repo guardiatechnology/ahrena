@@ -1,91 +1,135 @@
-# Kata: Abrir issue en el repositorio (plantilla por tipo)
+# Kata: Abrir issue en el repositorio (template por tipo)
 
-> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Creación de issue en el repositorio origin vía MCP de GitHub
+> **Prefix:** `kata-` | **Type:** Skill Repetible | **Scope:** Crear issue en el repositorio de origen mediante GitHub MCP
 
 ## Objetivo
 
-Este Kata define el procedimiento estandarizado para abrir una issue en el repositorio origin del proyecto usando una de las 4 plantillas de issue (feature-request, epic, user-story-for-api, user-story-for-frontend). El agente resuelve la plantilla en `.ahrena/contributing_templates/`, rellena las secciones con el usuario y crea la issue **vía MCP de GitHub** (respaldo con `gh` CLI cuando no esté disponible). Sigue el flujo del `codex-contributing`.
+Esta Kata define el procedimiento estandarizado para abrir un issue en el repositorio de origen del proyecto usando uno de los 5 templates de issue (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task). El agente resuelve el template en `.ahrena/contributing_templates/`, completa las secciones con el usuario, aplica los labels obligatorios según `lex-issue-quality`, define el GitHub Issue Type, se auto-asigna el issue y lo crea **mediante GitHub MCP** (fallback al CLI `gh` cuando no está disponible). Sigue el flujo definido en `codex-contributing`.
 
 ## Cuándo Usar
 
-- Cuando el usuario solicita abrir una feature request, epic o user story (API o frontend)
-- Cuando se invoca por uno de los cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend
-- Cuando se invoca por cry-contribute con acción issue (y tipo indicado o inferido)
+- Cuando el usuario solicita abrir un feature request, epic, user story (API o frontend) o simple task
+- Cuando es invocada por uno de los cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-simple-task
+- Cuando es invocada por cry-contribute con acción de issue (y tipo indicado o inferido)
 
-## Inputs
+## Entradas
 
-| Input | Obligatorio | Descripción |
-|-------|:-----------:|-------------|
-| Tipo | Sí* | `feature-request` \| `epic` \| `user-story-for-api` \| `user-story-for-frontend`. *Inferido por el cry que invocó si no se indica.* |
-| Título (resumen) | No | Resumen breve de la issue. Si se omite, el agente compone a partir del contexto. |
-| Contexto del usuario | No | Información adicional para rellenar placeholders de la plantilla. |
+| Entrada | Obligatorio | Descripción |
+|---------|:-----------:|-------------|
+| Tipo | Sí* | `feature-request` \| `epic` \| `user-story-for-api` \| `user-story-for-frontend` \| `simple-task`. *Inferido del cry invocante si no se proporciona.* |
+| Título (resumen) | No | Resumen breve del issue. Si se omite, el agente lo compone a partir del contexto. |
+| Contexto del usuario | No | Información adicional para completar los placeholders del template. |
 
-### Tabla: tipo → plantilla
+### Tabla: tipo → template → labels obligatorios → Issue Type
 
-| Tipo | Archivo de plantilla (en `.ahrena/contributing_templates/`) |
-|------|-------------------------------------------------------------|
-| feature-request | `feature-request.md` |
-| epic | `epic.md` |
-| user-story-for-api | `user-story-for-api.md` |
-| user-story-for-frontend | `user-story-for-frontend.md` |
+| Tipo | Archivo de template | Labels obligatorios | GitHub Issue Type |
+|------|---------------------|---------------------|-------------------|
+| feature-request | `feature-request.md` | `feature request ➕` | Feature |
+| epic | `epic.md` | `epic` | Feature |
+| user-story-for-api | `user-story-for-api.md` | `api`, `user story 🎯` | Feature |
+| user-story-for-frontend | `user-story-for-frontend.md` | `frontend`, `user story 🎯` | Feature |
+| simple-task | `simple-task.md` | Al menos uno de: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` | Task |
 
-## Workflow
+## Flujo de Trabajo
 
 ```
 Progreso:
-- [ ] 1. Resolver tipo de la issue
-- [ ] 2. Cargar plantilla .md
-- [ ] 3. Rellenar secciones/placeholders con el usuario
-- [ ] 4. Crear issue vía MCP de GitHub (o gh)
-- [ ] 5. Verificación final
+- [ ] 1. Resolver el tipo del issue
+- [ ] 2. Cargar template .md
+- [ ] 3. Completar secciones/placeholders con el usuario
+- [ ] 4. Crear issue mediante GitHub MCP (o gh)
+- [ ] 5. Definir GitHub Issue Type mediante GraphQL
+- [ ] 6. Verificación final
 ```
 
-### Paso 1: Resolver tipo de la issue
+### Paso 1: Resolver el tipo del issue
 
-1. Si el tipo se pasó de forma explícita (p. ej. por el cry), usarlo.
-2. En caso contrario, preguntar al usuario qué tipo desea: feature request, epic, user story (API) o user story (frontend).
-3. Mapear al nombre del archivo según la tabla anterior.
+1. Si el tipo fue pasado explícitamente (por ejemplo, por el cry), utilizarlo.
+2. En caso contrario, preguntar al usuario qué tipo desea: feature request, epic, user story (API), user story (frontend) o simple task.
+3. Mapear al nombre del archivo de template, labels obligatorios y GitHub Issue Type según la tabla anterior.
 
-### Paso 2: Cargar plantilla .md
+### Paso 2: Cargar template .md
 
-1. Ruta canónica: `.ahrena/contributing_templates/<archivo>.md` (p. ej. `feature-request.md`).
-2. Si no existe en `.ahrena/`, usar respaldo: `framework/templates/contributing_templates/<archivo>.md` o `.github/ISSUE_TEMPLATE/` cuando aplique.
-3. Leer el contenido e identificar secciones y placeholders (p. ej. `{user_role}`, `{specific_objective}`).
+1. Ruta canónica: `.ahrena/contributing_templates/<archivo>.md` (por ejemplo, `feature-request.md`).
+2. Si no existe en `.ahrena/`, usar fallback: `framework/templates/contributing_templates/<archivo>.md` o `.github/ISSUE_TEMPLATE/` cuando corresponda.
+3. Leer el contenido e identificar secciones y placeholders (por ejemplo, `{user_role}`, `{specific_objective}`).
 
-### Paso 3: Rellenar secciones/placeholders con el usuario
+### Paso 3: Completar secciones/placeholders con el usuario
 
-1. Para cada sección obligatoria de la plantilla, obtener del usuario o del contexto la información necesaria.
-2. Sustituir placeholders y marcar checkboxes cuando aplique.
-3. Componer el título de la issue (p. ej. "feat/ resumen" para feature request; resumen breve para epic/user story).
-4. Montar el body en Markdown con la plantilla rellenada.
+1. Para cada sección obligatoria del template, obtener la información necesaria del usuario o del contexto.
+2. Reemplazar placeholders y completar checkboxes cuando corresponda.
+3. Componer el título del issue (por ejemplo, "feat/ resumen" para feature request; resumen breve para epic/user story).
+4. Construir el cuerpo en Markdown con el template completado.
 
-### Paso 4: Crear issue vía MCP de GitHub (o gh)
+### Paso 4: Crear issue mediante GitHub MCP (o gh)
 
-1. **Preferencia:** usar MCP de GitHub (servidor que exponga creación de issue). Ej.: servidor `project-0-ahrena-github`, herramienta `issue_write` con `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` opcional.
-2. **Respaldo:** si el MCP no está disponible, usar `gh issue create --title "..." --body "..."` (o body vía archivo temporal).
+1. Determinar los labels obligatorios según la tabla anterior. Para `simple-task`, preguntar al usuario qué label aplica si no queda claro por el contexto.
+2. **Preferido:** Usar GitHub MCP (servidor que expone la creación de issues). Por ejemplo, servidor `project-0-ahrena-github`, herramienta `issue_write` con: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **obligatorio**, según `lex-issue-quality`; `assignees`: `["@me"]`.
+3. **Fallback:** Si el MCP no está disponible, usar:
+   ```bash
+   gh issue create \
+     --title "..." \
+     --body "..." \
+     --label "nombre-del-label" \
+     --assignee "@me"
+   ```
+4. Registrar el número del issue y el node ID devueltos por la API — necesarios para el Paso 5.
 
-### Paso 5: Verificación final
+### Paso 5: Definir GitHub Issue Type mediante GraphQL
 
-- [ ] La issue se creó correctamente
-- [ ] El título y el body reflejan la plantilla rellenada
-- [ ] Se presentó al usuario el enlace de la issue
+El CLI `gh issue create` no soporta `--type`. Se debe definir el Issue Type inmediatamente después de la creación mediante la API GraphQL.
 
-## Outputs
+```bash
+# Obtener el node ID del issue (si no fue devuelto en el Paso 4)
+ISSUE_ID=$(gh issue view $ISSUE_NUMBER --repo $OWNER/$REPO --json id -q .id)
 
-| Output | Formato | Destino |
+# Definir Issue Type (reemplazar ISSUE_TYPE_ID con el valor de la tabla a continuación)
+gh api graphql -f query="
+  mutation {
+    updateIssue(input: {id: \"$ISSUE_ID\", issueTypeId: \"$ISSUE_TYPE_ID\"}) {
+      issue { number }
+    }
+  }
+"
+```
+
+**IDs de Issue Type** (específicos del repositorio — verificar mediante `codex-labels`):
+
+| GitHub Issue Type | ID |
+|-------------------|----|
+| Task | `IT_kwDOED9Qy84B7pBh` |
+| Bug | `IT_kwDOED9Qy84B7pBi` |
+| Feature | `IT_kwDOED9Qy84B7pBj` |
+
+### Paso 6: Verificación final
+
+- [ ] El issue fue creado correctamente
+- [ ] El título y el cuerpo reflejan el template completado
+- [ ] Los labels obligatorios fueron aplicados según `lex-issue-quality`
+- [ ] El issue está asignado al usuario actual (`@me`)
+- [ ] El GitHub Issue Type está definido (Task o Feature según el template)
+- [ ] El enlace del issue fue presentado al usuario
+
+## Salidas
+
+| Salida | Formato | Destino |
 |--------|---------|---------|
-| Issue | GitHub Issue | Repositorio origin |
-| URL de la issue | Enlace | Presentado al usuario |
+| Issue | GitHub Issue | Repositorio de origen |
+| URL del issue | Enlace | Presentado al usuario |
 
 ## Restricciones
 
-- Usar siempre uno de los 4 tipos y la plantilla correspondiente; no crear issue sin plantilla cuando el tipo sea uno de los cuatro.
-- Si no existen ni `.ahrena/contributing_templates/` ni el respaldo, informar al usuario y sugerir ejecutar el install de Ahrena o crear la plantilla manualmente.
-- En caso de fallo del MCP, presentar el error y sugerir creación manual vía `gh issue create` o la UI de GitHub.
+- Siempre usar uno de los 5 tipos y el template correspondiente; no crear un issue sin el template o sin los labels obligatorios.
+- Siempre auto-asignarse el issue (`--assignee "@me"`), a menos que el usuario especifique explícitamente un assignee diferente.
+- Siempre definir el GitHub Issue Type en el Paso 5 inmediatamente después de la creación.
+- Si ni `.ahrena/contributing_templates/` ni el fallback existen, informar al usuario y sugerir ejecutar el install de Ahrena o crear el template manualmente.
+- En caso de fallo del MCP, presentar el error y sugerir la creación manual mediante `gh issue create` o la UI de GitHub.
 
 ## Referencias
 
+- `lex-issue-quality` — Ley que rige templates, labels y contenido Why/What/How
+- `codex-labels` — Taxonomía completa de labels y definiciones de GitHub Issue Type
 - `codex-contributing` — Flujo de contribución Guardia
-- `.ahrena/contributing_templates/` — Plantillas de issue (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md)
-- MCP de GitHub (p. ej. issue_write para creación de issue)
-- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend
+- `.ahrena/contributing_templates/` — Templates de issue (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md, simple-task.md)
+- GitHub MCP (por ejemplo, issue_write para la creación de issues)
+- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-simple-task

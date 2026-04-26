@@ -1,5 +1,5 @@
 ---
-description: "Sistema de Pilares do Ahrena. Consultar ao decidir tipo de artefato (Lexis, Codex, Kata, Warrior, Cry)."
+description: "When choosing artifact type (Lexis, Codex, Kata, Warrior, Cry), apply Pilar rules from this lex."
 alwaysApply: false
 ---
 

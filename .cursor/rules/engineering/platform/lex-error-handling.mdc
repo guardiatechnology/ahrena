@@ -1,5 +1,5 @@
 ---
-description: "Estrutura padronizada de erros (errors array, code, reason, message). Consultar ao retornar erros."
+description: "When returning errors, use errors array with code, reason, message; never reveal user existence in auth errors."
 alwaysApply: false
 ---
 

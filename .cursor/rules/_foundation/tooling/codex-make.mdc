@@ -1,5 +1,5 @@
 ---
-description: "Targets do Makefile e equivalência sem Make (PowerShell/Python). Consultar ao rodar install, update, sync-cursor."
+description: "When running install, update, sync-cursor, or clean, use Make target or equivalent Python command from this codex."
 alwaysApply: false
 ---
 

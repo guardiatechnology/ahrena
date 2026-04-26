@@ -1,5 +1,5 @@
 ---
-description: "Códigos de status HTTP. Consultar ao escolher status de resposta."
+description: "When choosing HTTP status for a response, use allowed codes and meaning from this codex."
 alwaysApply: false
 ---
 

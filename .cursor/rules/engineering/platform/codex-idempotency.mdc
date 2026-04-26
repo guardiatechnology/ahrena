@@ -1,5 +1,5 @@
 ---
-description: "Idempotência em APIs e eventos. Consultar ao desenhar mutações."
+description: "When implementing mutations or event handlers, apply idempotency key and dedup rules from this codex."
 alwaysApply: false
 ---
 

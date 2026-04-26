@@ -41,26 +41,27 @@ Para correções triviais (typos, formatação), os passos 1 e 2 podem ser omiti
 
 Os templates de contribuição (issue e PR) ficam em **`.ahrena/contributing_templates/`** (5 arquivos .md), instalados pelo setup do Ahrena a partir de `framework/templates/contributing_templates/` e preservados se já existirem. Os **3 katas** (issue, PR, discussão) orientam o uso do **MCP do GitHub** (ou servidor equivalente) para criar issues, PRs e discussões; fallback para `gh` CLI quando o MCP não estiver disponível.
 
-| Tipo                  | Kata                          | Cry (um por tipo)           | Template (em .ahrena/contributing_templates/)     |
-| --------------------- | ----------------------------- | --------------------------- | ------------------------------------------------- |
-| Feature Request       | kata-contributing-issue       | cry-new-feature-request     | `feature-request.md`                              |
-| Epic                  | kata-contributing-issue       | cry-new-epic                | `epic.md`                                         |
-| User Story (API)      | kata-contributing-issue       | cry-new-user-story-api      | `user-story-for-api.md`                           |
-| User Story (Frontend) | kata-contributing-issue       | cry-new-user-story-frontend | `user-story-for-frontend.md`                      |
-| Pull Request          | kata-contributing-pr          | cry-new-pr                  | `pull_request_template.md`                        |
-| Discussão             | kata-contributing-discuss     | cry-new-discuss             | (Golden Circle; sem .md)                          |
+| Tipo                  | Kata                          | Cry (um por tipo)           | Template (em .ahrena/contributing_templates/)     | Labels obrigatórias |
+| --------------------- | ----------------------------- | --------------------------- | ------------------------------------------------- | ------------------- |
+| Feature Request       | kata-contributing-issue       | cry-new-feature-request     | `feature-request.md`                              | `feature request ➕` |
+| Epic                  | kata-contributing-issue       | cry-new-epic                | `epic.md`                                         | `epic` |
+| User Story (API)      | kata-contributing-issue       | cry-new-user-story-api      | `user-story-for-api.md`                           | `api`, `user story 🎯` |
+| User Story (Frontend) | kata-contributing-issue       | cry-new-user-story-frontend | `user-story-for-frontend.md`                      | `frontend`, `user story 🎯` |
+| Tarefa Simples        | kata-contributing-issue       | cry-new-simple-task         | `simple-task.md`                                  | uma de: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
+| Pull Request          | kata-contributing-pr          | cry-new-pr                  | `pull_request_template.md`                        | — |
+| Discussão             | kata-contributing-discuss     | cry-new-discuss             | (Golden Circle; sem .md)                          | — |
 
 - **Cry genérico:** `cry-contribute` — para contribuições genéricas; pode delegar aos cries por tipo ou perguntar qual tipo.
-- **Referências:** os 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) e os 6 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-pr`, `cry-new-discuss`).
+- **Referências:** os 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) e os 7 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-simple-task`, `cry-new-pr`, `cry-new-discuss`).
 
 ### Padrões e Convenções
 
 | Aspecto | Padrão |
 |---------|--------|
 | Discussões | GitHub Discussions, categoria "Ideas" |
-| Issues | Criadas a partir de discussões aprovadas |
-| Branches | `feat/nome`, `fix/nome`, `docs/nome` |
-| PRs | Título em Conventional Commits, body com template preenchido |
+| Issues | Um dos 5 templates; com label; responde Por quê/O quê/Como (`lex-issue-quality`) |
+| Branches | `{type}/{issue-number}-{slug}` (ex.: `feat/42-oauth2`) — veja `lex-git-branches` |
+| PRs | Título em Conventional Commits; body inclui `Closes #N` ou `Refs #N` (`lex-issue-first`) |
 | CI | Deve passar antes do merge |
 
 ### Requisitos de PR
@@ -100,8 +101,12 @@ Os templates de contribuição (issue e PR) ficam em **`.ahrena/contributing_tem
 
 - [CONTRIBUTING da Guardia](https://hub.guardia.finance/docs/community/CONTRIBUTING/)
 - `.github/CODEOWNERS` — Arquivo de codeowners do repositório
+- `lex-issue-quality` — Templates, labels e requisitos de conteúdo Por quê/O quê/Como
+- `lex-issue-first` — Issue antes do branch; PR deve referenciar issue
+- `lex-git-branches` — Nomenclatura de branch: `{type}/{issue-number}-{slug}`
 - `lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language` — Lexis de commit
 - `codex-commit-standards` — Standards de mensagem de commit
+- `codex-git-workflow` — Fluxo completo Issue → Branch → Commits → PR → Merge
 - `kata-contribute` — Procedimento para contribuir via PR
 - `kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss` — Katas por tipo de contribuição
-- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-pr, cry-new-discuss
+- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-simple-task, cry-new-pr, cry-new-discuss

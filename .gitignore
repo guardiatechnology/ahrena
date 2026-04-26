@@ -9,3 +9,5 @@ temp.md
 
 # Personal IDE config
 .cursor/mcp.json
+
+.claude/settings.local.json

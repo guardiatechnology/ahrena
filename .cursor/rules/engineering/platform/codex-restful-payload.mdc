@@ -1,5 +1,5 @@
 ---
-description: "Estrutura de payload de resposta. Consultar ao formatar respostas."
+description: "When formatting API responses, use data/errors/pagination structure from this codex."
 alwaysApply: false
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: "Padrões de mensagem de commit. Consultar ao escrever ou revisar commits."
+description: "When writing or reviewing commit messages, apply footer and body standards from this codex."
 alwaysApply: false
 ---
 

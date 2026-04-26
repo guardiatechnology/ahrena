@@ -1,5 +1,5 @@
 ---
-description: "Modelo de entidades da plataforma. Consultar ao modelar recursos persistentes."
+description: "When modeling persistent entities, use base structure (entity_id, version, timestamps) from this codex."
 alwaysApply: false
 ---
 

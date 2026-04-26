@@ -1,5 +1,5 @@
 ---
-description: "Autenticação e autorização em APIs Guardia. Acesso a APIs da plataforma"
+description: "When designing or implementing API access, apply OAuth 2.0/JWT/RBAC per Guardia auth spec."
 alwaysApply: false
 globs: '["**/openapi/**", "**/oas/**", "**/api/**"]'
 ---

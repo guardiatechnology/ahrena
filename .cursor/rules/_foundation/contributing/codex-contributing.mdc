@@ -1,5 +1,5 @@
 ---
-description: "Fluxo de contribuição (PR, revisão, merge). Consultar ao abrir ou revisar PR."
+description: "When opening a PR, reviewing, or merging, follow contribution flow and branch rules from this codex."
 alwaysApply: false
 ---
 
@@ -36,26 +36,27 @@ For trivial fixes (typos, formatting), steps 1 and 2 MAY be omitted (open PR dir
 
 Contribution templates (issue and PR) live in **`.ahrena/contributing_templates/`** (5 .md files), installed by the Ahrena setup from `framework/templates/contributing_templates/` and preserved if they already exist. The **3 katas** (issue, PR, discussion) guide the use of **GitHub MCP** (or equivalent server) to create issues, PRs, and discussions; fallback to `gh` CLI when MCP is unavailable.
 
-| Type                  | Kata                          | Cry (one per type)           | Template (in .ahrena/contributing_templates/)     |
-| --------------------- | ----------------------------- | --------------------------- | ------------------------------------------------- |
-| Feature Request       | kata-contributing-issue       | cry-new-feature-request     | `feature-request.md`                              |
-| Epic                  | kata-contributing-issue       | cry-new-epic                | `epic.md`                                         |
-| User Story (API)      | kata-contributing-issue       | cry-new-user-story-api      | `user-story-for-api.md`                           |
-| User Story (Frontend) | kata-contributing-issue       | cry-new-user-story-frontend | `user-story-for-frontend.md`                      |
-| Pull Request          | kata-contributing-pr          | cry-new-pr                  | `pull_request_template.md`                        |
-| Discussion            | kata-contributing-discuss     | cry-new-discuss             | (Golden Circle; no .md)                           |
+| Type                  | Kata                          | Cry (one per type)           | Template (in .ahrena/contributing_templates/)     | Required labels |
+| --------------------- | ----------------------------- | --------------------------- | ------------------------------------------------- | --------------- |
+| Feature Request       | kata-contributing-issue       | cry-new-feature-request     | `feature-request.md`                              | `feature request ➕` |
+| Epic                  | kata-contributing-issue       | cry-new-epic                | `epic.md`                                         | `epic` |
+| User Story (API)      | kata-contributing-issue       | cry-new-user-story-api      | `user-story-for-api.md`                           | `api`, `user story 🎯` |
+| User Story (Frontend) | kata-contributing-issue       | cry-new-user-story-frontend | `user-story-for-frontend.md`                      | `frontend`, `user story 🎯` |
+| Simple Task           | kata-contributing-issue       | cry-new-simple-task         | `simple-task.md`                                  | one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
+| Pull Request          | kata-contributing-pr          | cry-new-pr                  | `pull_request_template.md`                        | — |
+| Discussion            | kata-contributing-discuss     | cry-new-discuss             | (Golden Circle; no .md)                           | — |
 
 - **Generic cry:** `cry-contribute` — for generic contributions; MAY delegate to the per-type cries or ask which type.
-- **References:** the 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) and the 6 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-pr`, `cry-new-discuss`).
+- **References:** the 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) and the 7 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-simple-task`, `cry-new-pr`, `cry-new-discuss`).
 
 ### Standards and Conventions
 
 | Aspect | Standard |
 |--------|----------|
 | Discussions | GitHub Discussions, category "Ideas" |
-| Issues | Created from approved discussions |
-| Branches | `feat/name`, `fix/name`, `docs/name` |
-| PRs | Title in Conventional Commits, body with template filled |
+| Issues | One of 5 templates; labeled; answers Why/What/How (`lex-issue-quality`) |
+| Branches | `{type}/{issue-number}-{slug}` (e.g. `feat/42-oauth2`) — see `lex-git-branches` |
+| PRs | Title in Conventional Commits; body includes `Closes #N` or `Refs #N` (`lex-issue-first`) |
 | CI | MUST pass before merge |
 
 ### PR Requirements

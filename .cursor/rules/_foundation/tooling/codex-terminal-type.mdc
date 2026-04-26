@@ -1,5 +1,5 @@
 ---
-description: "Uso de bash e PowerShell no Ahrena. Consultar ao gerar exemplos de comandos."
+description: "When generating command examples in docs, use bash or PowerShell per .directives; see this codex for usage."
 alwaysApply: false
 ---
 

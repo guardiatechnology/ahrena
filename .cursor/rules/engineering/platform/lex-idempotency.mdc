@@ -1,5 +1,5 @@
 ---
-description: "Idempotência em operações que modificam estado. Consultar ao desenhar APIs ou eventos."
+description: "When designing state-changing APIs or events, require Idempotency-Key and deduplicate by key/hash."
 alwaysApply: false
 ---
 

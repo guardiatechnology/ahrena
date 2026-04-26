@@ -1,5 +1,5 @@
 ---
-description: "CloudEvents (estrutura, tipo, idempotencykey). Consultar ao publicar eventos."
+description: "When implementing event publishers/consumers, use CloudEvents structure and type naming from this codex."
 alwaysApply: false
 ---
 
