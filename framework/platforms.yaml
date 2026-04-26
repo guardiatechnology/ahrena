@@ -323,46 +323,59 @@ cursor:
       description: "When modeling data, follow entity/value object/aggregate patterns, normalization, indexing, and DB-choice guidance from this codex."
     design/brand/lexis/lex-brand-colors:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "When applying color, use only the official Guardia palette and meet WCAG 2.1 AA; the Yellow 500 + White combination is forbidden."
     design/brand/lexis/lex-brand-typography:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "When typesetting, use Poppins as the everyday face; Lastica only in official logo files; Roboto as fallback."
     design/brand/lexis/lex-brand-voice:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "When writing on Guardia's behalf, follow the four voice pillars (direct, strategic, affirmative, clear); say 'agentic accounting', not 'fintech'; avoid buzzwords."
     design/brand/lexis/lex-brand-logo:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "When placing the Guardia logo, use only official files and pick the right variant per background; never recolor or distort."
     design/brand/codex/codex-brand-essence:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "Reference for Guardia's essence, promise, name meaning, personality, visual fundamentals, and application principles."
     design/brand/codex/codex-brand-colors:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "Reference for the Guardia palette, scales, mono tones, signal colors, and approved/restricted/forbidden WCAG combinations."
     design/brand/codex/codex-brand-typography:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "Reference for Guardia typography: Poppins hierarchy, Lastica for logos, Roboto fallback, and CSS declaration."
     design/brand/codex/codex-brand-voice:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "Reference for Guardia voice: pillars, personality, practical rules, examples, channel applications, and review checklist."
     design/brand/codex/codex-brand-logo:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "Reference for Guardia logo variants and background-based selection."
     design/system/lexis/lex-design-system-library:
       alwaysApply: false
-      globs: ["**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte", "**/*.ts", "**/*.js"]
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]
       description: "When building Guardia UI, consume @guardia/design-system; reimplementing primitives or using hardcoded color/type/spacing values is forbidden."
     design/system/lexis/lex-ai-first-experience:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]
       description: "When designing Guardia product UI, follow the AI-First pattern: Isac-led conversation + live workspace; no module sidebar as primary architecture."
     design/system/codex/codex-design-system:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]
       description: "Reference for Guardia's Design System: principles, scope, governance, sources (Notion/code/Chromatic/Figma), and stack."
     design/system/codex/codex-design-system-components:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]
       description: "Reference for consuming, composing, and contributing to @guardia/design-system; component families, examples, tokens, accessibility."
     design/system/codex/codex-ai-first-experience:
       alwaysApply: false
+      globs: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]
       description: "Reference for the AI-First UX pattern (conversation + workspace) with Isac at the center."
     engineering/mobile/lexis/lex-mobile-platform-parity:
       alwaysApply: false
