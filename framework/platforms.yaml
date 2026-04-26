@@ -333,6 +333,21 @@ cursor:
     design/brand/lexis/lex-brand-logo:
       alwaysApply: false
       description: "When placing the Guardia logo, use only official files and pick the right variant per background; never recolor or distort."
+    design/brand/codex/codex-brand-essence:
+      alwaysApply: false
+      description: "Reference for Guardia's essence, promise, name meaning, personality, visual fundamentals, and application principles."
+    design/brand/codex/codex-brand-colors:
+      alwaysApply: false
+      description: "Reference for the Guardia palette, scales, mono tones, signal colors, and approved/restricted/forbidden WCAG combinations."
+    design/brand/codex/codex-brand-typography:
+      alwaysApply: false
+      description: "Reference for Guardia typography: Poppins hierarchy, Lastica for logos, Roboto fallback, and CSS declaration."
+    design/brand/codex/codex-brand-voice:
+      alwaysApply: false
+      description: "Reference for Guardia voice: pillars, personality, practical rules, examples, channel applications, and review checklist."
+    design/brand/codex/codex-brand-logo:
+      alwaysApply: false
+      description: "Reference for Guardia logo variants and background-based selection."
     engineering/mobile/lexis/lex-mobile-platform-parity:
       alwaysApply: false
       description: "Mobile features ship in iOS and Android same release; functional parity mandatory; UI follows HIG/Material; deviation needs ADR."
@@ -445,6 +460,21 @@ claude-code:
     design/brand/lexis/lex-brand-logo:
       essential: false
       description: "Use only official Guardia logo files and pick the variant matching the background."
+    design/brand/codex/codex-brand-essence:
+      essential: false
+      description: "Reference for Guardia's essence, promise, personality, and visual fundamentals."
+    design/brand/codex/codex-brand-colors:
+      essential: false
+      description: "Reference for Guardia palette, scales, signal colors, and WCAG combinations."
+    design/brand/codex/codex-brand-typography:
+      essential: false
+      description: "Reference for Guardia typography (Poppins, Lastica, Roboto), hierarchy, and CSS declaration."
+    design/brand/codex/codex-brand-voice:
+      essential: false
+      description: "Full voice reference: pillars, personality, rules, examples, channels, checklist."
+    design/brand/codex/codex-brand-logo:
+      essential: false
+      description: "Reference for Guardia logo variants and per-background selection."
     engineering/mobile/lexis/lex-mobile-offline-first:
       essential: false
       description: "Mobile apps operate in 3 network states; cache reads, queue mutations."
