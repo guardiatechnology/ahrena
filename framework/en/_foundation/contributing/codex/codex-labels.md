@@ -51,13 +51,13 @@ Required per `lex-issue-quality`. Applied manually at issue creation by the cont
 |-------|----------|-------------|
 | `feature request ➕` | `feature-request` | New feature request (before approval) |
 | `epic` | `epic` | Large initiative grouping multiple stories |
+| `api` | `user-story-for-api` | API design or implementation scope |
 | `user story 🎯` | `user-story-for-api`, `user-story-for-frontend` | Scoped user-facing story |
+| `frontend` | `user-story-for-frontend` | Frontend (UI/UX) implementation scope |
 | `documentation 📃` | `simple-task` | Documentation improvements or additions |
 | `ci 🏗️` | `simple-task` | CI/CD or pipeline changes |
 | `enhancement 🔝` | `simple-task` | Enhancement to an existing feature |
 | `evolvability ♻️` | `simple-task` | Refactoring, clean code, maintenance |
-
-> **Known gap:** The labels `api`, `frontend`, and `epic` are referenced in `lex-issue-quality` as required for some templates but are not yet defined in `labels.yml`. They MUST be added to the canonical label set before those templates can be fully enforced. Track via `lex-issue-quality` amendment.
 
 #### 2. Content and Nature Labels
 

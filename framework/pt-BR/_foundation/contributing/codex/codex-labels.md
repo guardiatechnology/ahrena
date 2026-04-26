@@ -51,13 +51,13 @@ Obrigatórios conforme `lex-issue-quality`. Aplicados manualmente na criação d
 |-------|----------|-----------|
 | `feature request ➕` | `feature-request` | Nova solicitação de funcionalidade (antes da aprovação) |
 | `epic` | `epic` | Grande iniciativa agrupando múltiplas histórias |
+| `api` | `user-story-for-api` | Escopo de design ou implementação de API |
 | `user story 🎯` | `user-story-for-api`, `user-story-for-frontend` | História com escopo voltada ao usuário |
+| `frontend` | `user-story-for-frontend` | Escopo de implementação de frontend (UI/UX) |
 | `documentation 📃` | `simple-task` | Melhorias ou adições de documentação |
 | `ci 🏗️` | `simple-task` | Mudanças em CI/CD ou pipeline |
 | `enhancement 🔝` | `simple-task` | Melhoria em uma funcionalidade existente |
 | `evolvability ♻️` | `simple-task` | Refatoração, código limpo, manutenção |
-
-> **Gap conhecido:** Os labels `api`, `frontend` e `epic` são referenciados em `lex-issue-quality` como obrigatórios para alguns templates, mas ainda não estão definidos em `labels.yml`. Devem ser adicionados ao conjunto canônico de labels antes que esses templates possam ser completamente aplicados. Acompanhe via emenda em `lex-issue-quality`.
 
 #### 2. Labels de Conteúdo e Natureza
 
