@@ -653,18 +653,25 @@ def transform_md_to_claude_rule(content: str, pilar: str, rule_config: dict | No
     Generates a frontmatter block with optional paths: list (for file-scoped rules).
     Rules without paths apply to every session (equivalent to CLAUDE.md injection).
     """
+    import ast as _ast
     body = filter_sections(content, pilar)
     paths = rule_config.get("paths") if rule_config else None
-    lines = ["---"]
     if paths:
+        if isinstance(paths, str):
+            try:
+                paths = _ast.literal_eval(paths)
+            except (ValueError, SyntaxError):
+                paths = [paths]
+        lines = ["---"]
         if isinstance(paths, list):
             lines.append("paths:")
             for p in paths:
                 lines.append(f"  - {p}")
         else:
             lines.append(f"paths: {paths!r}")
-    lines.append("---")
-    return "\n".join(lines) + "\n\n" + body
+        lines.append("---")
+        return "\n".join(lines) + "\n\n" + body
+    return body
 
 
 def transform_md_to_claude_doc(content: str, pilar: str) -> str:

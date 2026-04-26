@@ -1,0 +1,23 @@
+# Lexis: Authentication and Authorization for Guardia APIs
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — API access
+
+## Law
+
+> **Access to Guardia platform APIs MUST be controlled by authentication and authorization per the Hub Authentication and Authorization specification: OAuth 2.0 as standard; public APIs with Client Credentials and FAPI 2.0 extensions; private APIs with JWT tokens from a trusted IdP and role-based access control (RBAC).**
+
+## Examples
+
+### Correct
+
+Public API: Client Credentials, FAPI 2.0, RBAC/ABAC, traceability; private API: JWT from trusted IdP, RBAC, isolation (e.g. VPC).
+
+### Incorrect
+
+API without authentication mechanism; use of API keys without OAuth 2.0 when spec requires it; private APIs without JWT or without RBAC.
+
+## Automated Validation
+
+- **Tool:** design and code review; authentication and authorization tests.
+- **When:** PR review and security audit.
+- **Metric:** 0 protected APIs without compliance with Auth spec.
