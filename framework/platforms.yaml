@@ -389,139 +389,105 @@ cursor:
 
 claude-code:
   transposition:
-    lex: docs
+    lex: rules
     codex: docs
     kata: skills
     warrior: agents
     cry: commands
 
-  docs:
+  rules:
     _foundation/process/lexis/lex-directives:
-      essential: true
       description: "Read .ahrena/.directives before producing any artifact — language, paths, naming, tone all come from here."
     _foundation/process/lexis/lex-checkpoint:
-      essential: true
       description: "Check .checkpoint at session start; save progress when concluding an activity."
     _foundation/process/lexis/lex-platforms-rules:
-      essential: false
       description: "When creating or publishing a Lexis or Codex, add its rule key to platforms.yaml cursor.rules."
     _foundation/process/lexis/lex-naming:
-      essential: false
       description: "When naming files, directories, or artifacts, apply kebab-case and pilar prefix from this lex."
     _foundation/authoring/lexis/lex-pilars:
-      essential: false
       description: "When creating a new framework artifact, choose the correct Pilar type and follow its mandatory sections."
     _foundation/tooling/lexis/lex-terminal-type:
-      essential: false
       description: "When running or suggesting shell commands, use terminal type from .ahrena/.directives."
     _foundation/tooling/lexis/lex-mcp:
-      essential: false
       description: "When an MCP server is active for the current operation, use MCP tool over CLI. Credentials via env vars only."
-    _foundation/tooling/codex/codex-mcp-github:
-      essential: false
-      description: "When using GitHub MCP server, reference tools (create_issue, create_pull_request, push_files, etc.) from this codex."
-    _foundation/tooling/codex/codex-mcp-notion:
-      essential: false
-      description: "When using Notion MCP server, reference tools (create_page, search, update_page, etc.) from this codex."
-    _foundation/tooling/codex/codex-mcp-figma:
-      essential: false
-      description: "When using Figma MCP server, reference tools (get_file, get_component, get_local_variables, etc.) from this codex."
     engineering/workflow/lexis/lex-issue-driven:
-      essential: false
       description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
-    engineering/workflow/codex/codex-issue-workflow:
-      essential: false
-      description: "Reference for the 7-phase Issue-Driven flow, the 2 gates, MADR format, and delegation."
     engineering/frontend/lexis/lex-frontend-typing:
-      essential: false
+      paths: ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.svelte"]
       description: "When writing frontend code, TypeScript strict mode and typed contracts are mandatory."
     engineering/frontend/lexis/lex-frontend-accessibility:
-      essential: false
+      paths: ["**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte", "**/*.html"]
       description: "When building UI, WCAG 2.1 AA compliance is mandatory."
-    engineering/frontend/codex/codex-frontend-architecture:
-      essential: false
-      description: "Reference for frontend architecture layers, state management, composition, and performance."
-    engineering/platform/codex/codex-known-errors:
-      essential: false
-      description: "Catalog of standardized code/reason pairs across the platform; consulted when emitting or handling errors."
     engineering/devops/lexis/lex-aws-security:
-      essential: false
       description: "When provisioning AWS, enforce security laws on IAM, encryption, secrets, and public access."
-    engineering/devops/codex/codex-aws-well-architected:
-      essential: false
-      description: "Reference for the 6 pillars of AWS Well-Architected Framework."
-    engineering/devops/codex/codex-aws-services:
-      essential: false
-      description: "Reference catalog of AWS services by use case with alternatives and trade-offs."
     _foundation/quality/lexis/lex-observability-required:
-      essential: false
       description: "Every runtime surface emits trace + metric + structured log with correlation ID."
-    _foundation/tooling/codex/codex-mcp-common:
-      essential: false
-      description: "Shared MCP patterns — consulted alongside any server-specific MCP codex."
     engineering/quality/lexis/lex-test-pyramid:
-      essential: false
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
-    engineering/quality/codex/codex-test-strategy:
-      essential: false
-      description: "Reference for test-level decisions, tooling per stack, and anti-patterns."
     engineering/sre/lexis/lex-slo-required:
-      essential: false
       description: "Tier-1/2 services require SLO pre go-live; error budget guides priorization."
-    engineering/sre/codex/codex-incident-response:
-      essential: false
-      description: "Reference for severity, roles, comms templates, and blameless post-mortem."
     engineering/data/lexis/lex-migrations-reversible:
-      essential: false
       description: "Schema migrations reversible or documented; destructive DDL requires backup + window."
-    engineering/data/codex/codex-data-modeling:
-      essential: false
-      description: "Reference for entity/value object/aggregate patterns and DB choice."
     design/brand/lexis/lex-brand-colors:
-      essential: false
+      paths: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "When applying color, use only the official Guardia palette and meet WCAG 2.1 AA; Yellow 500 + White is forbidden."
     design/brand/lexis/lex-brand-typography:
-      essential: false
+      paths: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "Poppins is the everyday typeface; Lastica only in official logo files; Roboto as fallback."
     design/brand/lexis/lex-brand-voice:
-      essential: true
       description: "Voice rules for any Guardia-facing text: direct, strategic, affirmative, clear; 'agentic accounting' positioning; no buzzwords."
     design/brand/lexis/lex-brand-logo:
-      essential: false
+      paths: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
       description: "Use only official Guardia logo files and pick the variant matching the background."
-    design/brand/codex/codex-brand-essence:
-      essential: false
-      description: "Reference for Guardia's essence, promise, personality, and visual fundamentals."
-    design/brand/codex/codex-brand-colors:
-      essential: false
-      description: "Reference for Guardia palette, scales, signal colors, and WCAG combinations."
-    design/brand/codex/codex-brand-typography:
-      essential: false
-      description: "Reference for Guardia typography (Poppins, Lastica, Roboto), hierarchy, and CSS declaration."
-    design/brand/codex/codex-brand-voice:
-      essential: false
-      description: "Full voice reference: pillars, personality, rules, examples, channels, checklist."
-    design/brand/codex/codex-brand-logo:
-      essential: false
-      description: "Reference for Guardia logo variants and per-background selection."
     design/system/lexis/lex-design-system-library:
-      essential: true
+      paths: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]
       description: "All Guardia UI MUST consume @guardia/design-system; reimplementing primitives or using hardcoded design values is forbidden."
     design/system/lexis/lex-ai-first-experience:
-      essential: true
+      paths: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]
       description: "Guardia product UI follows the AI-First pattern (Isac-led conversation + live workspace); no module sidebar as primary architecture."
+    engineering/mobile/lexis/lex-mobile-offline-first:
+      description: "Mobile apps operate in 3 network states; cache reads, queue mutations."
+
+  docs:
+    _foundation/tooling/codex/codex-mcp-github:
+      description: "When using GitHub MCP server, reference tools (create_issue, create_pull_request, push_files, etc.) from this codex."
+    _foundation/tooling/codex/codex-mcp-notion:
+      description: "When using Notion MCP server, reference tools (create_page, search, update_page, etc.) from this codex."
+    _foundation/tooling/codex/codex-mcp-figma:
+      description: "When using Figma MCP server, reference tools (get_file, get_component, get_local_variables, etc.) from this codex."
+    _foundation/tooling/codex/codex-mcp-common:
+      description: "Shared MCP patterns — consulted alongside any server-specific MCP codex."
+    engineering/workflow/codex/codex-issue-workflow:
+      description: "Reference for the 7-phase Issue-Driven flow, the 2 gates, MADR format, and delegation."
+    engineering/frontend/codex/codex-frontend-architecture:
+      description: "Reference for frontend architecture layers, state management, composition, and performance."
+    engineering/platform/codex/codex-known-errors:
+      description: "Catalog of standardized code/reason pairs across the platform; consulted when emitting or handling errors."
+    engineering/devops/codex/codex-aws-well-architected:
+      description: "Reference for the 6 pillars of AWS Well-Architected Framework."
+    engineering/devops/codex/codex-aws-services:
+      description: "Reference catalog of AWS services by use case with alternatives and trade-offs."
+    engineering/quality/codex/codex-test-strategy:
+      description: "Reference for test-level decisions, tooling per stack, and anti-patterns."
+    engineering/sre/codex/codex-incident-response:
+      description: "Reference for severity, roles, comms templates, and blameless post-mortem."
+    engineering/data/codex/codex-data-modeling:
+      description: "Reference for entity/value object/aggregate patterns and DB choice."
+    design/brand/codex/codex-brand-essence:
+      description: "Reference for Guardia's essence, promise, personality, and visual fundamentals."
+    design/brand/codex/codex-brand-colors:
+      description: "Reference for Guardia palette, scales, signal colors, and WCAG combinations."
+    design/brand/codex/codex-brand-typography:
+      description: "Reference for Guardia typography (Poppins, Lastica, Roboto), hierarchy, and CSS declaration."
+    design/brand/codex/codex-brand-voice:
+      description: "Full voice reference: pillars, personality, rules, examples, channels, checklist."
+    design/brand/codex/codex-brand-logo:
+      description: "Reference for Guardia logo variants and per-background selection."
     design/system/codex/codex-design-system:
-      essential: false
       description: "Reference for the Guardia Design System: principles, governance, sources, and stack."
     design/system/codex/codex-design-system-components:
-      essential: false
       description: "Guidance for consuming, composing, and contributing to @guardia/design-system."
     design/system/codex/codex-ai-first-experience:
-      essential: false
       description: "Reference for the AI-First UX pattern with Isac at the center."
-    engineering/mobile/lexis/lex-mobile-offline-first:
-      essential: false
-      description: "Mobile apps operate in 3 network states; cache reads, queue mutations."
     engineering/mobile/codex/codex-mobile-architecture:
-      essential: false
       description: "Reference for mobile app structure, state, offline sync, testing."
