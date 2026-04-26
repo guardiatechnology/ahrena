@@ -355,6 +355,15 @@ cursor:
     design/system/lexis/lex-ai-first-experience:
       alwaysApply: false
       description: "When designing Guardia product UI, follow the AI-First pattern: Isac-led conversation + live workspace; no module sidebar as primary architecture."
+    design/system/codex/codex-design-system:
+      alwaysApply: false
+      description: "Reference for Guardia's Design System: principles, scope, governance, sources (Notion/code/Chromatic/Figma), and stack."
+    design/system/codex/codex-design-system-components:
+      alwaysApply: false
+      description: "Reference for consuming, composing, and contributing to @guardia/design-system; component families, examples, tokens, accessibility."
+    design/system/codex/codex-ai-first-experience:
+      alwaysApply: false
+      description: "Reference for the AI-First UX pattern (conversation + workspace) with Isac at the center."
     engineering/mobile/lexis/lex-mobile-platform-parity:
       alwaysApply: false
       description: "Mobile features ship in iOS and Android same release; functional parity mandatory; UI follows HIG/Material; deviation needs ADR."
@@ -488,6 +497,15 @@ claude-code:
     design/system/lexis/lex-ai-first-experience:
       essential: true
       description: "Guardia product UI follows the AI-First pattern (Isac-led conversation + live workspace); no module sidebar as primary architecture."
+    design/system/codex/codex-design-system:
+      essential: false
+      description: "Reference for the Guardia Design System: principles, governance, sources, and stack."
+    design/system/codex/codex-design-system-components:
+      essential: false
+      description: "Guidance for consuming, composing, and contributing to @guardia/design-system."
+    design/system/codex/codex-ai-first-experience:
+      essential: false
+      description: "Reference for the AI-First UX pattern with Isac at the center."
     engineering/mobile/lexis/lex-mobile-offline-first:
       essential: false
       description: "Mobile apps operate in 3 network states; cache reads, queue mutations."
