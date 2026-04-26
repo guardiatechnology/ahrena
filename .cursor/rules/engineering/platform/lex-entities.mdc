@@ -1,5 +1,5 @@
 ---
-description: "Estrutura base de entidades (entity_id, entity_type, version, timestamps). Consultar ao desenhar recursos."
+description: "When designing persistent resources, include entity_id, entity_type, version, created_at, updated_at per spec."
 alwaysApply: false
 ---
 

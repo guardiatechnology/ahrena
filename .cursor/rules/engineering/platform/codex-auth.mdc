@@ -1,5 +1,5 @@
 ---
-description: "Autenticação e autorização (OAuth 2.0, JWT, RBAC). Consultar ao implementar acesso a APIs."
+description: "When implementing API authentication, use OAuth 2.0, FAPI 2.0, JWT, RBAC from this codex."
 alwaysApply: false
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: "Commits atômicos. Um único propósito lógico por commit. Consultar ao fazer commit."
+description: "When committing, ensure one logical change per commit; split if multiple purposes."
 alwaysApply: false
 ---
 

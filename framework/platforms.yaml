@@ -154,6 +154,9 @@ cursor:
     engineering/platform/lexis/lex-entities:
       alwaysApply: false
       description: "When designing persistent resources, include entity_id, entity_type, version, created_at, updated_at per spec."
+    engineering/platform/lexis/lex-entity-naming:
+      alwaysApply: false
+      description: "When naming domain entities, follow the Guardia naming conventions: singular PascalCase for types, snake_case for fields, and event.guardia.{module}.{entity_type}.{event_name} for CloudEvents types."
     engineering/platform/lexis/lex-idempotency:
       alwaysApply: false
       description: "When designing state-changing APIs or events, require Idempotency-Key and deduplicate by key/hash."

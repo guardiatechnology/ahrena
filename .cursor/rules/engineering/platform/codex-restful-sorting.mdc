@@ -1,5 +1,5 @@
 ---
-description: "Ordenação em listagens. Consultar ao desenhar order_by/sort."
+description: "When adding sort to list endpoints, use order_by and sort params from this codex."
 alwaysApply: false
 ---
 

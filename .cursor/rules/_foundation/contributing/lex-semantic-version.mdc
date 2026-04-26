@@ -1,5 +1,5 @@
 ---
-description: "Versionamento semântico (SemVer) para releases e tags. Consultar ao criar tag ou release."
+description: "When creating a release or tag, use MAJOR.MINOR.PATCH (SemVer); no other format allowed."
 alwaysApply: false
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: "Convenções de nomenclatura no .directives. Consultar ao nomear arquivos e diretórios."
+description: "When naming files or directories, apply conventions from .directives naming section (prefixes, extensions, casing)."
 alwaysApply: false
 ---
 

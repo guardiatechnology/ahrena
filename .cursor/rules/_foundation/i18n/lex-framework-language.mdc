@@ -1,5 +1,5 @@
 ---
-description: "Estrutura de idiomas no framework (primeiro nível = lang). Consultar ao criar ou posicionar artefatos i18n."
+description: "When creating or placing i18n artifacts, use language as first path segment (e.g. pt-BR/, en/)."
 alwaysApply: false
 ---
 

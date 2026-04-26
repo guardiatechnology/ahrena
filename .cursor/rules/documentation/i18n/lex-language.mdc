@@ -1,5 +1,5 @@
 ---
-description: "Regras transversais de tradução. Consultar ao traduzir documentação técnica."
+description: "When translating technical docs, preserve structure and semantics; apply cross-cutting translation rules."
 alwaysApply: false
 ---
 

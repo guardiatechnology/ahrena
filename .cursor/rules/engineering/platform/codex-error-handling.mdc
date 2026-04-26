@@ -1,5 +1,5 @@
 ---
-description: "Tratamento de erros (estrutura, retry, circuit breaker). Consultar ao implementar erros."
+description: "When implementing error responses, use standardized structure and Known Errors from this codex."
 alwaysApply: false
 ---
 

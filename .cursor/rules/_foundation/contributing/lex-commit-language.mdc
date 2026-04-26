@@ -1,5 +1,5 @@
 ---
-description: "Idioma do subject do commit (inglês) e tag de idioma no body. Consultar ao fazer commit."
+description: "When writing commit message: subject in English; use [lang] tag in body for local language."
 alwaysApply: false
 ---
 

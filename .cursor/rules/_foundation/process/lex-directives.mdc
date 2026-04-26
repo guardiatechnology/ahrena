@@ -1,5 +1,5 @@
 ---
-description: "Consulta obrigatória ao .directives. Todo agente deve ler .ahrena/.directives antes de produzir artefatos."
+description: "Read .ahrena/.directives before producing any artifact. Apply at session start."
 alwaysApply: true
 ---
 

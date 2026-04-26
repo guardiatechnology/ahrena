@@ -1,5 +1,5 @@
 ---
-description: "Checkpoint de sessão. Usado para salvar o contexto de uma sessão de trabalho com agentes IA."
+description: "Check .checkpoint at session start; save checkpoint when concluding activity or ending session."
 alwaysApply: true
 ---
 

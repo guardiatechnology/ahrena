@@ -1,5 +1,5 @@
 ---
-description: "Headers HTTP em APIs RESTful. Consultar ao definir ou validar headers."
+description: "When defining or validating HTTP headers (e.g. Idempotency-Key, X-Grd-Trace-Id), use this codex."
 alwaysApply: false
 ---
 

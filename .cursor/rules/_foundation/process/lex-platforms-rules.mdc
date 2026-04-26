@@ -1,5 +1,5 @@
 ---
-description: "Todo Lexis e Codex deve ter entrada em cursor.rules em platforms.yaml. Consultar ao criar lex/codex."
+description: "When creating or publishing a Lexis or Codex, add its rule key to cursor.rules in platforms.yaml with at least description."
 alwaysApply: false
 ---
 

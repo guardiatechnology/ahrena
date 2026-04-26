@@ -1,5 +1,5 @@
 ---
-description: "Manual do sistema de Pilares. Consultar para criação e validação de artefatos."
+description: "When creating or validating framework artifacts, follow Pilar system and creation flow from this codex."
 alwaysApply: false
 ---
 
@@ -57,7 +57,25 @@ Each Pilar can reference artifacts from other Pilars:
 |----------------|---------------------|
 | Cry | Only Kata(s) and/or Warrior(s) |
 | Warrior | Kata(s); may consult Lexis and Codex |
+| Orchestrator Warrior | Own Kata(s) **and** may delegate phases to other Warriors (via checkpoint handoff) |
 | Kata | No artifact as "invocation"; applies Lexis and consults Codex |
+
+### Orchestrator Warrior (special type)
+
+An **Orchestrator Warrior** is a Warrior whose role is to coordinate a multi-phase flow that involves other specialist Warriors. Unlike a regular Warrior, it may delegate specific phases to other Warriors via handoff documented in `.ahrena/workflow/.../checkpoint.md`.
+
+**Example:** `warrior-athena` (clade `engineering/workflow/`) orchestrates the 7-phase Issue-Driven Development flow, delegating:
+- Phase 3 (API) → `warrior-daedalus`
+- Phase 3 (events) → `warrior-kronos`
+- Phase 4 (Python implementation) → `warrior-apollo`
+
+**Rules for Orchestrator Warriors:**
+- Must have name, identity, and persona like any other Warrior
+- Delegation occurs only through checkpoint handoff (persisted state), not direct call
+- The Orchestrator Warrior remains responsible for the global integrity of the flow, even during delegation
+- Delegation must be explicitly documented in the "Delegated warriors" section of the Warrior itself
+
+This formalization avoids uncontrolled chaining between Warriors and preserves clarity of responsibilities.
 
 ### Creation Kit
 

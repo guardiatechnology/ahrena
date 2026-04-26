@@ -1,5 +1,5 @@
 ---
-description: "Paginação em listagens. Consultar ao desenhar listagens paginadas."
+description: "When designing list endpoints, use page_size, page_token, order_by per pagination codex."
 alwaysApply: false
 ---
 

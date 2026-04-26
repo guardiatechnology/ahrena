@@ -1,5 +1,5 @@
 ---
-description: "Conformidade RESTful (status, payload, headers, paginação). Consultar ao desenhar endpoints."
+description: "When designing HTTP endpoints, follow RESTful spec: status codes, payload, headers, pagination."
 alwaysApply: false
 ---
 
