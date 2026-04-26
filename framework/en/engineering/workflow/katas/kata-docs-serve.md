@@ -17,6 +17,7 @@ This Kata defines the procedure to **start a local documentation server** that s
 | Input | Required | Description |
 |-------|:--------:|-------------|
 | Project root | Yes | Directory where `.ahrena/.directives` and `mkdocs.yml` reside (current working directory by default) |
+| `docs_dir` | No | Path to the directory to serve. If provided, overrides the path derived from `.directives`. Useful when the documentation is not under `docs/` (e.g., `framework/` in the Ahrena repository itself) |
 | Port | No | Port to bind the server. Default: `8000` |
 
 ## Workflow
@@ -32,12 +33,13 @@ Progress:
 
 ### Step 1: Read Directives
 
-1. Read `.ahrena/.directives` to obtain:
+1. If `docs_dir` is provided as input, use it directly — skip to Step 2.
+2. Otherwise, read `.ahrena/.directives` to obtain:
    - `paths.domain` — domain model documents (e.g., `docs/domain`)
    - `paths.oas` — API specification and documents (e.g., `docs/oas`)
    - `paths.events` — events documents (e.g., `docs/events`)
-2. Derive `docs_dir` as the common parent directory of the three paths (e.g., `docs/` when all paths are `docs/{section}`)
-3. If paths diverge and no common parent exists, use `docs/` as the default and warn the user
+3. Derive `docs_dir` as the common parent directory of the three paths (e.g., `docs/` when all paths are `docs/{section}`)
+4. If paths diverge and no common parent exists, use `docs/` as the default and warn the user
 
 ### Step 2: Verify MkDocs Installation
 

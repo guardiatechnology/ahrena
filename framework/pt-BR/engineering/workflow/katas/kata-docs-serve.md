@@ -17,6 +17,7 @@ Este Kata define o procedimento para **iniciar um servidor local de documentaç�
 | Entrada | Obrigatória | Descrição |
 |---------|:-----------:|-----------|
 | Raiz do projeto | Sim | Diretório onde `.ahrena/.directives` e `mkdocs.yml` residem (diretório de trabalho atual por padrão) |
+| `docs_dir` | Não | Caminho do diretório a servir. Se fornecido, sobrepõe o caminho derivado de `.directives`. Útil quando a documentação não está em `docs/` (ex.: `framework/` no próprio repositório Ahrena) |
 | Porta | Não | Porta para o servidor. Padrão: `8000` |
 
 ## Fluxo de Trabalho
@@ -32,12 +33,13 @@ Progresso:
 
 ### Passo 1: Ler Diretivas
 
-1. Ler `.ahrena/.directives` para obter:
+1. Se `docs_dir` for fornecido como entrada, utilizá-lo diretamente — pular para o Passo 2.
+2. Caso contrário, ler `.ahrena/.directives` para obter:
    - `paths.domain` — documentos de modelo de domínio (ex.: `docs/domain`)
    - `paths.oas` — especificação e documentos de API (ex.: `docs/oas`)
    - `paths.events` — documentos de eventos (ex.: `docs/events`)
-2. Derivar `docs_dir` como o diretório pai comum dos três paths (ex.: `docs/` quando todos os paths são `docs/{seção}`)
-3. Se os paths divergirem e não houver pai comum, usar `docs/` como padrão e avisar o usuário
+3. Derivar `docs_dir` como o diretório pai comum dos três paths (ex.: `docs/` quando todos os paths são `docs/{seção}`)
+4. Se os paths divergirem e não houver pai comum, usar `docs/` como padrão e avisar o usuário
 
 ### Passo 2: Verificar Instalação do MkDocs
 
