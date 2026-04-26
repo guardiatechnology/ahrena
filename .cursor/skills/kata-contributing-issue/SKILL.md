@@ -21,8 +21,8 @@ Progress:
 ### Step 1: Resolve issue type
 
 1. If the type was passed explicitly (e.g., by the cry), use it.
-2. Otherwise, ask the user which type they want: feature request, epic, user story (API), or user story (frontend).
-3. Map to the template file name per the table above.
+2. Otherwise, ask the user which type they want: feature request, epic, user story (API), user story (frontend), or simple task.
+3. Map to the template file name and required labels per the table above.
 
 ### Step 2: Load template .md
 
@@ -39,13 +39,15 @@ Progress:
 
 ### Step 4: Create issue via GitHub MCP (or gh)
 
-1. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` optional.
-2. **Fallback:** If MCP is unavailable, use `gh issue create --title "..." --body "..."` (or body via temp file).
+1. Determine the required labels from the table above. For `simple-task`, ask the user which label applies if not clear from context.
+2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`.
+3. **Fallback:** If MCP is unavailable, use `gh issue create --title "..." --body "..." --label "label-name"` (or body via temp file).
 
 ### Step 5: Final verification
 
 - [ ] The issue was created successfully
 - [ ] Title and body reflect the filled template
+- [ ] Required labels were applied per `lex-issue-quality`
 - [ ] The issue link was presented to the user
 
 ## Outputs
@@ -57,6 +59,6 @@ Progress:
 
 ## Constraints
 
-- Always use one of the 4 types and the corresponding template; do not create an issue without the template when the type is one of the four.
+- Always use one of the 5 types and the corresponding template; do not create an issue without the template or without the required labels.
 - If neither `.ahrena/contributing_templates/` nor the fallback exists, inform the user and suggest running the Ahrena install or creating the template manually.
 - On MCP failure, present the error and suggest manual creation via `gh issue create` or the GitHub UI.
