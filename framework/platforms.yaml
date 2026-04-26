@@ -178,6 +178,9 @@ cursor:
     engineering/platform/codex/codex-error-handling:
       alwaysApply: false
       description: "When implementing error responses, use standardized structure and Known Errors from this codex."
+    engineering/platform/codex/codex-known-errors:
+      alwaysApply: false
+      description: "When emitting or handling errors, look up the canonical code/reason pair and suggested handling from this catalog."
     engineering/platform/codex/codex-cloudevents:
       alwaysApply: false
       description: "When implementing event publishers/consumers, use CloudEvents structure and type naming from this codex."
@@ -382,6 +385,9 @@ claude-code:
     engineering/frontend/codex/codex-frontend-architecture:
       essential: false
       description: "Reference for frontend architecture layers, state management, composition, and performance."
+    engineering/platform/codex/codex-known-errors:
+      essential: false
+      description: "Catalog of standardized code/reason pairs across the platform; consulted when emitting or handling errors."
     engineering/devops/lexis/lex-aws-security:
       essential: false
       description: "When provisioning AWS, enforce security laws on IAM, encryption, secrets, and public access."
