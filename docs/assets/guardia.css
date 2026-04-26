@@ -1,0 +1,218 @@
+/* =====================================================
+   Guardia Brand — MkDocs Material Theme Overrides
+   Abordagem direta: sem variáveis, sem cascata ambígua
+   ===================================================== */
+
+/* ── Poppins já é carregada via theme.font.text ──── */
+
+/* ── Palette variables (Guardia official) ─────────── */
+:root {
+  --grd-violet:        #4F186D;
+  --grd-violet-dark:   #3a1151;
+  --grd-violet-light:  #ede8f2;
+  --grd-orange:        #E07400;
+  --grd-orange-light:  rgba(224,116,0,.12);
+  --grd-yellow:        #FFC30A;
+  --grd-white:         #FDFDFD;
+  --grd-black:         #0E1016;
+  --grd-gray:          #3A3A44;
+}
+
+/* ══════════════════════════════════════════════════
+   HEADER — fundo Deep Violet
+   ══════════════════════════════════════════════════ */
+.md-header {
+  background-color: var(--grd-violet) !important;
+  box-shadow: 0 2px 12px rgba(14,16,22,.4) !important;
+}
+
+/* ── Logo ── */
+.md-header__button.md-logo img,
+.md-nav__button.md-logo img {
+  height: 36px !important;
+  width: auto !important;
+}
+
+/* ── Título do site ── */
+.md-header__title {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+
+/* ── Busca ── */
+.md-search__input {
+  border-radius: 20px !important;
+}
+
+/* ══════════════════════════════════════════════════
+   TABS — fundo Violet escuro
+   ══════════════════════════════════════════════════ */
+.md-tabs {
+  background-color: var(--grd-violet-dark) !important;
+  height: 2.8rem !important;
+}
+
+.md-tabs__list {
+  height: 2.8rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.md-tabs__link {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: .78rem !important;
+  opacity: .82 !important;
+  margin-top: 0 !important;
+  line-height: 2.8rem !important;
+}
+
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  opacity: 1 !important;
+  color: var(--grd-orange) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   SIDEBAR / NAVEGAÇÃO
+   ══════════════════════════════════════════════════ */
+.md-nav__title {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: .72rem !important;
+  letter-spacing: .07em !important;
+  text-transform: uppercase !important;
+  color: var(--grd-violet) !important;
+}
+
+.md-nav__link--active,
+.md-nav__link:is(:focus, :hover) {
+  color: var(--grd-orange) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   CONTEÚDO — tipografia e títulos
+   ══════════════════════════════════════════════════ */
+body,
+.md-content__inner {
+  font-family: 'Poppins', 'Roboto', sans-serif !important;
+}
+
+/* Headings */
+.md-typeset h1 {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 700 !important;
+  color: var(--grd-violet) !important;
+}
+
+.md-typeset h2 {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  color: var(--grd-violet) !important;
+  border-bottom: 2px solid var(--grd-orange) !important;
+  padding-bottom: .2rem !important;
+}
+
+.md-typeset h3,
+.md-typeset h4 {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  color: var(--grd-violet) !important;
+}
+
+/* ── Links ── */
+.md-typeset a {
+  color: var(--grd-violet) !important;
+}
+.md-typeset a:hover {
+  color: var(--grd-orange) !important;
+}
+
+/* ── Cor de destaque (accent) em elementos do Material ── */
+[data-md-color-accent] .md-nav__link--active {
+  color: var(--grd-orange) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   TABELAS
+   ══════════════════════════════════════════════════ */
+.md-typeset table:not([class]) th {
+  background-color: var(--grd-violet) !important;
+  color: var(--grd-white) !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: .84rem !important;
+}
+
+.md-typeset table:not([class]) tr:nth-child(even) td {
+  background-color: var(--grd-violet-light) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   ADMONITIONS / call-outs
+   ══════════════════════════════════════════════════ */
+.md-typeset .admonition,
+.md-typeset details {
+  border-left: 4px solid var(--grd-orange) !important;
+}
+
+.md-typeset .admonition-title,
+.md-typeset summary {
+  background-color: var(--grd-orange-light) !important;
+  font-weight: 600 !important;
+}
+
+/* ══════════════════════════════════════════════════
+   BOTÕES
+   ══════════════════════════════════════════════════ */
+.md-typeset .md-button,
+.md-button {
+  background-color: var(--grd-violet) !important;
+  border-color: var(--grd-violet) !important;
+  color: var(--grd-white) !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+}
+.md-typeset .md-button:hover,
+.md-button:hover {
+  background-color: var(--grd-orange) !important;
+  border-color: var(--grd-orange) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   CODE inline
+   ══════════════════════════════════════════════════ */
+.md-typeset code:not(.highlight code) {
+  background-color: var(--grd-violet-light) !important;
+  color: var(--grd-violet-dark) !important;
+  border-radius: 3px !important;
+}
+
+/* ══════════════════════════════════════════════════
+   LANGUAGE SWITCHER — mostra código do idioma em vez do ícone 文A
+   ══════════════════════════════════════════════════ */
+.md-select__button > .md-icon svg {
+  display: none !important;
+}
+html[lang="pt-BR"] .md-select__button > .md-icon::after { content: "PT"; }
+html[lang="en"]    .md-select__button > .md-icon::after { content: "EN"; }
+html[lang="es"]    .md-select__button > .md-icon::after { content: "ES"; }
+.md-select__button > .md-icon::after {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: .72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+  color: var(--grd-white) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════ */
+.md-footer {
+  background-color: var(--grd-gray) !important;
+}
+.md-footer-meta {
+  background-color: var(--grd-black) !important;
+}
