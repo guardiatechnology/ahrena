@@ -1445,6 +1445,114 @@ def clean(target_dir: Path) -> None:
 # CLI
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+def install_rtk(agent_platform: str | None, dry_run: bool = False) -> None:
+    """Install RTK (Rust Token Killer) and initialize the agent hook.
+
+    RTK reduces LLM token consumption 60-90% by filtering command outputs.
+    https://github.com/rtk-ai/rtk
+
+    Platform support:
+      Linux/macOS : curl install script (or Homebrew on macOS)
+      Windows     : WSL > bash (Git Bash) > cargo; falls back to manual instructions
+    """
+    import shutil as _shutil
+    import subprocess as _subprocess
+
+    _INSTALL_URL = "https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh"
+    _REPO_URL = "https://github.com/rtk-ai/rtk"
+
+    if sys.platform.startswith("win"):
+        _os = "windows"
+    elif sys.platform == "darwin":
+        _os = "macos"
+    else:
+        _os = "linux"
+
+    already_installed = bool(_shutil.which("rtk"))
+
+    if not already_installed:
+        if dry_run:
+            print(f"  [DRY-RUN] Would install RTK on {_os}")
+        else:
+            print(f"  Installing RTK ({_os})...")
+            try:
+                if _os == "macos":
+                    brew = _shutil.which("brew")
+                    via_brew = False
+                    if brew:
+                        result = _subprocess.run([brew, "install", "rtk"], check=False)
+                        via_brew = result.returncode == 0
+                    if not via_brew:
+                        _subprocess.run(
+                            ["bash", "-c", f"curl -fsSL {_INSTALL_URL} | sh"],
+                            check=True,
+                        )
+
+                elif _os == "linux":
+                    _subprocess.run(
+                        ["bash", "-c", f"curl -fsSL {_INSTALL_URL} | sh"],
+                        check=True,
+                    )
+
+                else:  # windows
+                    installed = False
+                    for shell in (_shutil.which("wsl"), _shutil.which("bash")):
+                        if shell:
+                            result = _subprocess.run(
+                                [shell, "-c", f"curl -fsSL {_INSTALL_URL} | sh"],
+                                check=False,
+                            )
+                            installed = result.returncode == 0
+                            if installed:
+                                break
+                    if not installed:
+                        cargo = _shutil.which("cargo")
+                        if cargo:
+                            _subprocess.run(
+                                [cargo, "install", "--git", _REPO_URL],
+                                check=True,
+                            )
+                        else:
+                            print("  RTK: automatic install unavailable on native Windows without bash/cargo.")
+                            print("  Options:")
+                            print(f"    WSL (recommended) : wsl bash -c \"curl -fsSL {_INSTALL_URL} | sh\"")
+                            print(f"    Cargo             : cargo install --git {_REPO_URL}")
+                            print(f"    Binary download   : {_REPO_URL}/releases")
+                            return
+
+            except Exception as exc:
+                print(f"  WARNING: RTK installation failed ({exc}). Continuing without RTK.")
+                return
+    else:
+        print("  RTK already installed.")
+
+    hook_args = ["init", "-g"]
+    if agent_platform == "cursor":
+        hook_args += ["--agent", "cursor"]
+
+    if dry_run:
+        print(f"  [DRY-RUN] Would run: rtk {' '.join(hook_args)}")
+        return
+
+    rtk_bin = _shutil.which("rtk")
+    if not rtk_bin:
+        print("  WARNING: RTK not found in PATH. Ensure it is in PATH, then run:")
+        print(f"    rtk {' '.join(hook_args)}")
+        return
+
+    try:
+        result = _subprocess.run(
+            [rtk_bin, *hook_args],
+            capture_output=True, text=True,
+        )
+        if result.returncode == 0:
+            print(f"  RTK hook initialized (rtk {' '.join(hook_args)})")
+        else:
+            print(f"  WARNING: rtk {' '.join(hook_args)} failed: {result.stderr.strip()}")
+    except Exception as exc:
+        print(f"  WARNING: RTK hook initialization failed ({exc}).")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="install.py",
@@ -1463,6 +1571,7 @@ examples:
   %(prog)s --directives ./my-directives                   Use custom directives
   %(prog)s --clean                                        Remove installed files
   %(prog)s --dry-run --platform cursor                    Preview without changes
+  %(prog)s --platform claude-code --skip-rtk             Install without RTK
 
 offline (run this script directly from a cloned Ahrena repo):
   python scripts/install.py --self --target /path/to/project --platform cursor
@@ -1523,6 +1632,10 @@ offline (run this script directly from a cloned Ahrena repo):
     parser.add_argument(
         "--clean", action="store_true",
         help="remove all Ahrena-installed files from the project",
+    )
+    parser.add_argument(
+        "--skip-rtk", action="store_true",
+        help="skip RTK (Rust Token Killer) installation and hook initialization",
     )
     return parser
 
@@ -1623,6 +1736,11 @@ def main() -> None:
             print("  [DRY-RUN] Would generate .claude/ files and CLAUDE.md")
         else:
             install_claude_code(ahrena_dir, target_dir, dry_run=args.dry_run)
+
+    # Phase 3: RTK
+    if not args.skip_rtk:
+        print(f"\n--- Phase 3: RTK (Rust Token Killer) ---")
+        install_rtk(args.platform, dry_run=args.dry_run)
 
     print(f"\nDone!")
 
