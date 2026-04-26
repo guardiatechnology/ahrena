@@ -1,6 +1,6 @@
 ---
 name: kata-contributing-issue
-description: "Open issue in the repository (template by type). Create issue in the origin repository via GitHub MCP"
+description: "Set Issue Type (replace ISSUE_TYPE_ID with value from table below). Create issue in the origin repository via GitHub MCP"
 ---
 
 # Kata: Open issue in the repository (template by type)
@@ -15,14 +15,15 @@ Progress:
 - [ ] 2. Load template .md
 - [ ] 3. Fill sections/placeholders with the user
 - [ ] 4. Create issue via GitHub MCP (or gh)
-- [ ] 5. Final verification
+- [ ] 5. Set GitHub Issue Type via GraphQL
+- [ ] 6. Final verification
 ```
 
 ### Step 1: Resolve issue type
 
 1. If the type was passed explicitly (e.g., by the cry), use it.
 2. Otherwise, ask the user which type they want: feature request, epic, user story (API), user story (frontend), or simple task.
-3. Map to the template file name and required labels per the table above.
+3. Map to the template file name, required labels, and GitHub Issue Type per the table above.
 
 ### Step 2: Load template .md
 
@@ -40,14 +41,50 @@ Progress:
 ### Step 4: Create issue via GitHub MCP (or gh)
 
 1. Determine the required labels from the table above. For `simple-task`, ask the user which label applies if not clear from context.
-2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`.
-3. **Fallback:** If MCP is unavailable, use `gh issue create --title "..." --body "..." --label "label-name"` (or body via temp file).
+2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`; `assignees`: `["@me"]`.
+3. **Fallback:** If MCP is unavailable, use:
+   ```bash
+   gh issue create \
+     --title "..." \
+     --body "..." \
+     --label "label-name" \
+     --assignee "@me"
+   ```
+4. Record the issue number and node ID returned by the API — needed for Step 5.
 
-### Step 5: Final verification
+### Step 5: Set GitHub Issue Type via GraphQL
+
+The `gh issue create` CLI does not support `--type`. Set the Issue Type immediately after creation using the GraphQL API.
+
+```bash
+# Get the issue node ID (if not returned by Step 4)
+ISSUE_ID=$(gh issue view $ISSUE_NUMBER --repo $OWNER/$REPO --json id -q .id)
+
+# Set Issue Type (replace ISSUE_TYPE_ID with value from table below)
+gh api graphql -f query="
+  mutation {
+    updateIssue(input: {id: \"$ISSUE_ID\", issueTypeId: \"$ISSUE_TYPE_ID\"}) {
+      issue { number }
+    }
+  }
+"
+```
+
+**Issue Type IDs** (repository-specific — verify via `codex-labels`):
+
+| GitHub Issue Type | ID |
+|-------------------|----|
+| Task | `IT_kwDOED9Qy84B7pBh` |
+| Bug | `IT_kwDOED9Qy84B7pBi` |
+| Feature | `IT_kwDOED9Qy84B7pBj` |
+
+### Step 6: Final verification
 
 - [ ] The issue was created successfully
 - [ ] Title and body reflect the filled template
 - [ ] Required labels were applied per `lex-issue-quality`
+- [ ] The issue is assigned to the current user (`@me`)
+- [ ] The GitHub Issue Type is set (Task or Feature per template)
 - [ ] The issue link was presented to the user
 
 ## Outputs
@@ -60,5 +97,7 @@ Progress:
 ## Constraints
 
 - Always use one of the 5 types and the corresponding template; do not create an issue without the template or without the required labels.
+- Always self-assign the issue (`--assignee "@me"`) unless the user explicitly specifies a different assignee.
+- Always set the GitHub Issue Type in Step 5 immediately after creation.
 - If neither `.ahrena/contributing_templates/` nor the fallback exists, inform the user and suggest running the Ahrena install or creating the template manually.
 - On MCP failure, present the error and suggest manual creation via `gh issue create` or the GitHub UI.
