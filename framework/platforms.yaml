@@ -87,6 +87,15 @@ cursor:
     _foundation/contributing/codex/codex-semantic-version:
       alwaysApply: false
       description: "When versioning or defining pre-release/build metadata, use SemVer 2.0 rules from this codex."
+    _foundation/contributing/lexis/lex-git-branches:
+      alwaysApply: false
+      description: "When creating a branch, use format {type}/{issue-number}-{kebab-slug}; type must be a Conventional Commits type; issue number is mandatory."
+    _foundation/contributing/lexis/lex-issue-first:
+      alwaysApply: false
+      description: "When starting any code change, ensure a GitHub Issue exists first; PR body must include Closes #N or Refs #N."
+    _foundation/contributing/codex/codex-git-workflow:
+      alwaysApply: false
+      description: "When contributing, follow the complete Issue → Branch → Commits → PR → Review → Merge workflow from this codex."
     _foundation/i18n/lexis/lex-framework-language:
       alwaysApply: false
       description: "When creating or placing i18n artifacts, use language as first path segment (e.g. pt-BR/, en/)."

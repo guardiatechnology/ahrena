@@ -1,0 +1,87 @@
+# Lexis: Desenvolvimento Issue-First
+
+> **Prefixo:** `lex-` | **Tipo:** Lei Inquebrantável | **Escopo:** Todas as mudanças de código em repositórios Guardia
+
+## Lei
+
+> **Toda mudança de código — feature, bugfix, refatoração, atualização de dependência ou mudança de configuração — DEVE originar-se de uma Issue do GitHub existente. Nenhum branch PODE ser criado e nenhum PR PODE ser aberto sem uma Issue associada. O corpo do PR DEVE referenciar a Issue com `Closes #N` (resolve completamente) ou `Refs #N` (endereça parcialmente). PRs sem referência a uma Issue são PROIBIDOS. A única exceção é para correções triviais (erros de digitação, pontuação ou formatação sem nenhuma mudança de lógica), que PODEM ser submetidas sem uma Issue prévia usando o tipo `docs:` ou `style:` do Conventional Commits.**
+
+## Cobertura
+
+- **Aplica-se a:** todas as contribuições de código em todos os repositórios Guardia.
+- **Agentes vinculados:** desenvolvedores, agentes de IA (warrior-athena, warrior-apollo, warrior-hephaestus).
+- **Exceções:** correções triviais (apenas tipo `docs:` ou `style:`, sem mudança de lógica). Todas as outras exceções exigem justificativa explícita registrada na Issue.
+
+## Regras
+
+### 1. Issue antes do branch
+
+Antes de criar um branch:
+
+1. Verifique se existe uma Issue do GitHub para o trabalho planejado.
+2. Se não existir: abra uma usando `kata-contributing-issue` com: **o quê** (descrição clara do objetivo), **por quê** (motivação e impacto), **resultado esperado** (critérios de aceitação ou definição de pronto).
+3. Somente então crie o branch seguindo `lex-git-branches`: `{type}/{issue-number}-{slug}`.
+
+### 2. Qualidade da Issue
+
+Uma Issue DEVE conter no mínimo:
+
+- Um título claro que resume o objetivo.
+- Um corpo descrevendo o problema ou objetivo, contexto e resultado esperado.
+- Um tipo atribuído via template em `.ahrena/contributing_templates/` (`feature-request`, `epic`, `user-story-for-api` ou `user-story-for-frontend`).
+
+### 3. PR referencia a Issue
+
+Todo corpo de PR DEVE incluir um dos seguintes:
+
+- `Closes #N` — o PR resolve completamente a Issue (GitHub a fecha automaticamente ao fazer merge).
+- `Refs #N` — o PR endereça parcialmente a Issue (a Issue permanece aberta).
+
+PRs sem referência a uma Issue são rejeitados durante a revisão.
+
+### 4. Exceção: correções triviais
+
+Mudanças limitadas exclusivamente a erros de digitação, pontuação ou formatação (sem mudança de comportamento ou lógica) PODEM ser submetidas diretamente como PR sem uma Issue prévia. Estas DEVEM usar o tipo `docs:` ou `style:` do Conventional Commits.
+
+## Exemplos
+
+### Corretos
+
+```
+# Issue #42 existe: "Adicionar autenticação OAuth2"
+Branch: feat/42-oauth2-authentication
+Corpo do PR inclui: "Closes #42"
+```
+
+```
+# Issue #123 existe: "Null pointer no processamento de transações"
+Branch: fix/123-null-pointer-in-transaction
+Corpo do PR inclui: "Closes #123"
+```
+
+```
+# Correção trivial — sem Issue necessária
+Commit: docs: fix typo in CONTRIBUTING guide
+```
+
+### Incorretos
+
+```
+# ❌ Branch criado sem uma Issue
+Branch: feat/new-payment-dashboard
+# Não existe Issue correspondente
+
+# ❌ Corpo do PR sem referência à Issue
+Corpo do PR: "Este PR adiciona a nova funcionalidade de pagamento."
+# Sem "Closes #N" ou "Refs #N"
+
+# ❌ Mudança não trivial submetida sem uma Issue
+Commit: refactor: restructure entire auth module
+# Refatoração não é uma correção trivial
+```
+
+## Validação Automatizada
+
+- **Ferramenta:** template de PR com campo obrigatório `Closes #` ou `Refs #`; verificação do GitHub Actions no corpo do PR para referência à Issue.
+- **Quando:** na criação e atualização do PR.
+- **Métrica:** 0 PRs mesclados (excluindo exceções triviais) sem uma Issue associada.
