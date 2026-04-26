@@ -26,6 +26,7 @@
 - **Identifica eventos de integração:** lista tipos CloudEvents (`event.guardia.{module}.{entity_type}.{event_name}`) e seus publicadores/consumidores entre contextos
 - **Desenha o Context Map:** mapeia relacionamentos entre bounded contexts usando padrões DDD
 - **Persiste em paths.domain** (`.ahrena/.directives`; padrão `docs/domain`): cria o diretório se não existir; escreve ou atualiza o documento de modelo de domínio
+- **Publica no Notion** em **Guardia Platform > Domain Models**: usa `kata-mcp-notion-write` para buscar a página `{module} Domain Model`; atualiza o conteúdo se a página existir; cria uma nova página em `Guardia Platform > Domain Models` se não existir
 
 ### Não Faz
 
@@ -58,6 +59,7 @@
 | Kata | Descrição |
 |------|-----------|
 | `kata-domain-model` | Modelagem DDD completa: Linguagem Ubíqua, Bounded Contexts, Entidades, Agregados, Use Cases, Context Map, documento de modelo de domínio |
+| `kata-mcp-notion-write` | Escrever ou atualizar uma página no Notion (criar se ausente, atualizar se presente) |
 
 ## Comportamento
 
@@ -82,6 +84,7 @@
 5. **Resolve hotspots P1 antes de finalizar:** não produz o documento final se houver hotspots bloqueantes não resolvidos
 6. **Valida:** valores de entity_type em snake_case; estrutura base (lex-entities); segmentos do tipo CloudEvents em snake_case (lex-entity-naming)
 7. **Persiste:** obtém **paths.domain** de `.ahrena/.directives`; garante que o diretório exista (cria se não existir); escreve ou atualiza o documento de modelo de domínio
+8. **Publica no Notion:** usa `kata-mcp-notion-write` para buscar `{module} Domain Model` em `Guardia Platform > Domain Models`; atualiza o conteúdo da página se existir; cria uma nova página nesse local se não existir
 
 ### Critérios de Escalação
 
@@ -131,4 +134,4 @@ Pronto para passar para o warrior-daedalus (design de API) e warrior-kronos (doc
 
 ---
 
-**Modelo:** Este Warrior é o especialista em modelagem de domínio; invocado pelo `cry-feature-design`, pelo warrior-prometheus (Fase 1) ou diretamente pelo usuário. Sempre executa kata-domain-model de forma iterativa, resolve hotspots P1 antes de finalizar e persiste o documento de modelo de domínio em **paths.domain** (`.ahrena/.directives`), criando o diretório quando necessário. Seu output é o input autorizado para o design de API e eventos.
+**Modelo:** Este Warrior é o especialista em modelagem de domínio; invocado pelo `cry-feature-design`, pelo warrior-prometheus (Fase 1) ou diretamente pelo usuário. Sempre executa kata-domain-model de forma iterativa, resolve hotspots P1 antes de finalizar, persiste o documento de modelo de domínio em **paths.domain** (`.ahrena/.directives`) e publica no Notion em **Guardia Platform > Domain Models** (atualiza se a página existir, cria se não existir). Seu output é o input autorizado para o design de API e eventos.

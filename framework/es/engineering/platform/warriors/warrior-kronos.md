@@ -24,6 +24,7 @@
 - Consulta lex-directives, lex-cloudevents, lex-entities, lex-idempotency y los Codex correspondientes en ambas fases
 - **Crea o actualiza en el path definido en paths.events** (`.ahrena/.directives`; predeterminado `docs/events`): si el directorio no existe, lo crea; persiste el documento de event storm y la documentación de eventos en ese path
 - Garantiza que todos los outputs cumplan lex-cloudevents (estructura CloudEvents, tipo catalogado, tamaño < 12KB, idempotencykey obligatorio)
+- **Publica en Notion** bajo **Guardia Platform > Events**: usa `kata-mcp-notion-write` para buscar la página `{module} Events`; actualiza el contenido si la página existe; crea una nueva página en `Guardia Platform > Events` si no existe
 
 ### No Hace
 
@@ -59,6 +60,7 @@
 |------|-------------|
 | `kata-event-storm` | Fase 1 — Descubrimiento: eventos de dominio, comandos, agregados, políticas, bounded contexts, catálogo CloudEvents |
 | `kata-events-doc` | Fase 2 — Documentación: documento formal de CloudEvents (Markdown) en paths.events |
+| `kata-mcp-notion-write` | Escribir o actualizar una página en Notion (crear si ausente, actualizar si presente) |
 
 ## Comportamiento
 
@@ -85,6 +87,7 @@
    - Genera o actualiza el documento formal de eventos en paths.events
 5. **Valida:** conformidad con lex-cloudevents y codex-cloudevents antes de entregar
 6. **Persiste:** obtiene **paths.events** en `.ahrena/.directives`; garantiza que el directorio exista (crea si no existe); escribe o actualiza ambos artefactos (documento de descubrimiento cuando se ejecutó la Fase 1; documento formal de eventos siempre)
+7. **Publica en Notion:** usa `kata-mcp-notion-write` para buscar `{module} Events` en `Guardia Platform > Events`; actualiza el contenido de la página si existe; crea una nueva página en esa ubicación si no existe
 
 ### Criterios de Escalación
 
@@ -146,4 +149,4 @@ Cuando responda, mapearé eventos de dominio, comandos, agregados y hotspots —
 
 ---
 
-**Modelo:** Este Warrior es el agente especializado en Event Storm; invocado por `cry-event-storm`, `cry-full-design` o directamente por el usuario. Orquesta dos fases — **Descubrimiento** (kata-event-storm) y **Documentación** (kata-events-doc) — entrando en la fase adecuada según el contexto. Siempre persiste los outputs en **paths.events** (`.ahrena/.directives`), creando el directorio cuando sea necesario.
+**Modelo:** Este Warrior es el agente especializado en Event Storm; invocado por `cry-event-storm`, `cry-full-design` o directamente por el usuario. Orquesta dos fases — **Descubrimiento** (kata-event-storm) y **Documentación** (kata-events-doc) — entrando en la fase adecuada según el contexto. Siempre persiste los outputs en **paths.events** (`.ahrena/.directives`) y publica el documento de eventos en Notion bajo **Guardia Platform > Events** (actualiza si la página existe, crea si no existe), creando el directorio cuando sea necesario.

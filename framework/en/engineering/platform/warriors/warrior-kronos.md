@@ -24,6 +24,7 @@
 - Consults lex-directives, lex-cloudevents, lex-entities, lex-idempotency and the corresponding Codex in both phases
 - **Creates or updates in the path defined in paths.events** (`.ahrena/.directives`; default `docs/events`): if the directory does not exist, creates it; persists the event storm document and the events documentation in that path
 - Ensures all output follows lex-cloudevents (CloudEvents structure, cataloged type, size < 12KB, idempotencykey required)
+- **Publishes to Notion** under **Guardia Platform > Events**: uses `kata-mcp-notion-write` to search for the `{module} Events` page; updates content if the page exists; creates a new page under `Guardia Platform > Events` if it does not
 
 ### Does Not
 
@@ -59,6 +60,7 @@
 |------|-------------|
 | `kata-event-storm` | Phase 1 — Discovery: domain events, commands, aggregates, policies, bounded contexts, CloudEvents catalog |
 | `kata-events-doc` | Phase 2 — Documentation: formal CloudEvents document (Markdown) in paths.events |
+| `kata-mcp-notion-write` | Write or update a page in Notion (create if absent, update if present) |
 
 ## Behavior
 
@@ -85,6 +87,7 @@
    - Generates or updates formal events document in paths.events
 5. **Validates:** compliance with lex-cloudevents and codex-cloudevents before delivering
 6. **Persists:** obtains **paths.events** from `.ahrena/.directives`; ensures directory exists (creates if it does not); writes or updates both artifacts (discovery document when Phase 1 ran; formal events document always)
+7. **Publishes to Notion:** uses `kata-mcp-notion-write` to search for `{module} Events` under `Guardia Platform > Events`; updates the page content if it exists; creates a new page in that location if it does not
 
 ### Escalation Criteria
 
@@ -146,4 +149,4 @@ Once you answer, I'll map domain events, commands, aggregates, and hotspots — 
 
 ---
 
-**Model:** This Warrior is the Event Storm specialist agent; invoked by `cry-event-storm`, `cry-full-design`, or directly by the user. It orchestrates two phases — **Discovery** (kata-event-storm) and **Documentation** (kata-events-doc) — entering at the appropriate phase based on context. It always persists output in **paths.events** (`.ahrena/.directives`), creating the directory when necessary.
+**Model:** This Warrior is the Event Storm specialist agent; invoked by `cry-event-storm`, `cry-full-design`, or directly by the user. It orchestrates two phases — **Discovery** (kata-event-storm) and **Documentation** (kata-events-doc) — entering at the appropriate phase based on context. It always persists output in **paths.events** (`.ahrena/.directives`), and publishes the events document to Notion under **Guardia Platform > Events** (update if page exists, create if it does not), creating the directory when necessary.
