@@ -4,7 +4,7 @@
 
 ## Objective
 
-This Kata defines the standardized procedure for opening an issue in the project's origin repository using one of the 5 issue templates (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task). The agent resolves the template in `.ahrena/contributing_templates/`, fills the sections with the user, applies the required labels per `lex-issue-quality`, and creates the issue **via GitHub MCP** (fallback to `gh` CLI when unavailable). It follows the flow in `codex-contributing`.
+This Kata defines the standardized procedure for opening an issue in the project's origin repository using one of the 5 issue templates (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task). The agent resolves the template in `.ahrena/contributing_templates/`, fills the sections with the user, applies required labels per `lex-issue-quality`, sets the GitHub Issue Type, self-assigns the issue, and creates it **via GitHub MCP** (fallback to `gh` CLI when unavailable). It follows the flow in `codex-contributing`.
 
 ## When to Use
 
@@ -20,15 +20,15 @@ This Kata defines the standardized procedure for opening an issue in the project
 | Title (summary) | No | Brief issue summary. If omitted, the agent composes it from context. |
 | User context | No | Additional information to fill template placeholders. |
 
-### Table: type → template → required labels
+### Table: type → template → required labels → Issue Type
 
-| Type | Template file | Required labels |
-|------|---------------|----------------|
-| feature-request | `feature-request.md` | `feature request ➕` |
-| epic | `epic.md` | `epic` |
-| user-story-for-api | `user-story-for-api.md` | `api`, `user story 🎯` |
-| user-story-for-frontend | `user-story-for-frontend.md` | `frontend`, `user story 🎯` |
-| simple-task | `simple-task.md` | At least one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
+| Type | Template file | Required labels | GitHub Issue Type |
+|------|---------------|----------------|-------------------|
+| feature-request | `feature-request.md` | `feature request ➕` | Feature |
+| epic | `epic.md` | `epic` | Feature |
+| user-story-for-api | `user-story-for-api.md` | `api`, `user story 🎯` | Feature |
+| user-story-for-frontend | `user-story-for-frontend.md` | `frontend`, `user story 🎯` | Feature |
+| simple-task | `simple-task.md` | At least one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` | Task |
 
 ## Workflow
 
@@ -38,14 +38,15 @@ Progress:
 - [ ] 2. Load template .md
 - [ ] 3. Fill sections/placeholders with the user
 - [ ] 4. Create issue via GitHub MCP (or gh)
-- [ ] 5. Final verification
+- [ ] 5. Set GitHub Issue Type via GraphQL
+- [ ] 6. Final verification
 ```
 
 ### Step 1: Resolve issue type
 
 1. If the type was passed explicitly (e.g., by the cry), use it.
 2. Otherwise, ask the user which type they want: feature request, epic, user story (API), user story (frontend), or simple task.
-3. Map to the template file name and required labels per the table above.
+3. Map to the template file name, required labels, and GitHub Issue Type per the table above.
 
 ### Step 2: Load template .md
 
@@ -63,14 +64,50 @@ Progress:
 ### Step 4: Create issue via GitHub MCP (or gh)
 
 1. Determine the required labels from the table above. For `simple-task`, ask the user which label applies if not clear from context.
-2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`.
-3. **Fallback:** If MCP is unavailable, use `gh issue create --title "..." --body "..." --label "label-name"` (or body via temp file).
+2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`; `assignees`: `["@me"]`.
+3. **Fallback:** If MCP is unavailable, use:
+   ```bash
+   gh issue create \
+     --title "..." \
+     --body "..." \
+     --label "label-name" \
+     --assignee "@me"
+   ```
+4. Record the issue number and node ID returned by the API — needed for Step 5.
 
-### Step 5: Final verification
+### Step 5: Set GitHub Issue Type via GraphQL
+
+The `gh issue create` CLI does not support `--type`. Set the Issue Type immediately after creation using the GraphQL API.
+
+```bash
+# Get the issue node ID (if not returned by Step 4)
+ISSUE_ID=$(gh issue view $ISSUE_NUMBER --repo $OWNER/$REPO --json id -q .id)
+
+# Set Issue Type (replace ISSUE_TYPE_ID with value from table below)
+gh api graphql -f query="
+  mutation {
+    updateIssue(input: {id: \"$ISSUE_ID\", issueTypeId: \"$ISSUE_TYPE_ID\"}) {
+      issue { number }
+    }
+  }
+"
+```
+
+**Issue Type IDs** (repository-specific — verify via `codex-labels`):
+
+| GitHub Issue Type | ID |
+|-------------------|----|
+| Task | `IT_kwDOED9Qy84B7pBh` |
+| Bug | `IT_kwDOED9Qy84B7pBi` |
+| Feature | `IT_kwDOED9Qy84B7pBj` |
+
+### Step 6: Final verification
 
 - [ ] The issue was created successfully
 - [ ] Title and body reflect the filled template
 - [ ] Required labels were applied per `lex-issue-quality`
+- [ ] The issue is assigned to the current user (`@me`)
+- [ ] The GitHub Issue Type is set (Task or Feature per template)
 - [ ] The issue link was presented to the user
 
 ## Outputs
@@ -83,12 +120,15 @@ Progress:
 ## Constraints
 
 - Always use one of the 5 types and the corresponding template; do not create an issue without the template or without the required labels.
+- Always self-assign the issue (`--assignee "@me"`) unless the user explicitly specifies a different assignee.
+- Always set the GitHub Issue Type in Step 5 immediately after creation.
 - If neither `.ahrena/contributing_templates/` nor the fallback exists, inform the user and suggest running the Ahrena install or creating the template manually.
 - On MCP failure, present the error and suggest manual creation via `gh issue create` or the GitHub UI.
 
 ## References
 
 - `lex-issue-quality` — Law governing templates, labels, and Why/What/How content
+- `codex-labels` — Full label taxonomy and GitHub Issue Type definitions
 - `codex-contributing` — Guardia contribution flow
 - `.ahrena/contributing_templates/` — Issue templates (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md, simple-task.md)
 - GitHub MCP (e.g., issue_write for issue creation)

@@ -1,105 +1,136 @@
 # Kata: Contribuir via Pull Request
 
-> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Criação de Pull Request no repositório origin via MCP
+> **Prefix:** `kata-` | **Type:** Skill Repetível | **Scope:** Criar Pull Request no repositório de origem via GitHub MCP ou CLI gh
 
 ## Objetivo
 
-Este Kata define o procedimento padronizado para abrir um Pull Request no repositório origin do projeto, usando as ferramentas MCP do GitKraken e o template em `.ahrena/contributing_templates/pull_request_template.md` (ou `.github/pull_request_template.md`). Ele garante que toda contribuição siga o fluxo unificado definido no `codex-contributing`. Alinha-se ao `kata-contribute` existente.
+Esta Kata define o procedimento padronizado para abrir um Pull Request no repositório de origem do projeto usando o template em `.ahrena/contributing_templates/pull_request_template.md` (ou `.github/pull_request_template.md`). O agente espelha os labels do issue associado, auto-atribui o PR e garante que toda contribuição siga o fluxo unificado definido em `codex-contributing`. Alinha-se com a `kata-contribute` existente.
 
 ## Quando Usar
 
-- Quando mudanças estão prontas para submissão ao repositório
+- Quando as mudanças estão prontas para submissão ao repositório
 - Quando o usuário solicita criar um PR
-- Quando invocado pelo cry-new-pr ou pelo cry-contribute com ação pr
+- Quando invocada por cry-new-pr ou por cry-contribute com ação de pr
 
-## Inputs
+## Entradas
 
-| Input | Obrigatório | Descrição |
-|-------|:-----------:|-----------|
-| Mudanças commitadas | Sim | Commits prontos no branch local (já validados pelo `kata-commit`) |
-| Título | Não | Título do PR em Conventional Commits. Se omitido, o agente infere dos commits |
-| Issue relacionada | Não | Número da issue que o PR resolve. Se omitido, o agente pergunta |
+| Entrada | Obrigatório | Descrição |
+|---------|:-----------:|-----------|
+| Commits realizados | Sim | Commits prontos na branch local (já validados por `kata-commit`) |
+| Título | Não | Título do PR no formato Conventional Commits. Se omitido, o agente infere a partir dos commits |
+| Issue relacionado | Não | Número do issue que o PR resolve. Se omitido, o agente pergunta |
 
-## Workflow
+## Fluxo de Trabalho
 
 ```
 Progresso:
-- [ ] 1. Analisar mudanças
-- [ ] 2. Preparar branch
-- [ ] 3. Push ao remote
-- [ ] 4. Compor PR (template em .ahrena/contributing_templates/)
-- [ ] 5. Criar PR via MCP (GitKraken: pull_request_create)
-- [ ] 6. Verificação final
+- [ ] 1. Analisar as mudanças
+- [ ] 2. Preparar a branch
+- [ ] 3. Push para o remoto
+- [ ] 4. Compor o PR (template em .ahrena/contributing_templates/)
+- [ ] 5. Criar PR via GitHub MCP (ou gh)
+- [ ] 6. Aplicar labels e assignee
+- [ ] 7. Verificação final
 ```
 
-### Passo 1: Analisar mudanças
+### Passo 1: Analisar as mudanças
 
-1. Executar `git status` para verificar o estado do repositório
-2. Executar `git log main..HEAD --oneline` para listar os commits a serem incluídos
-3. Verificar que todos os commits seguem as Lexis (`lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language`)
-4. Se houver mudanças não-commitadas, invocar `kata-commit` primeiro
+1. Executar `git status` para verificar o estado do repositório.
+2. Executar `git log main..HEAD --oneline` para listar os commits a serem incluídos.
+3. Verificar que todos os commits seguem as Lexis (`lex-conventional-commits`, `lex-signed-commits`, `lex-small-commits`, `lex-commit-language`).
+4. Se houver mudanças não commitadas, invocar `kata-commit` primeiro.
 
-### Passo 2: Preparar branch
+### Passo 2: Preparar a branch
 
-1. Verificar o nome do branch atual: `git branch --show-current`
-2. Se estiver em `main`, criar branch seguindo a convenção: `feat/{nome}`, `fix/{nome}`, `docs/{nome}` (nome inferido do escopo dos commits)
-3. Usar MCP `git_branch` com `action: create` e `branch_name`; MCP `git_checkout` para trocar para o novo branch
+1. Verificar o nome da branch atual: `git branch --show-current`.
+2. A branch DEVE seguir o formato `{type}/{issue-number}-{slug}` conforme `lex-git-branches`. Se não seguir, renomeá-la antes de continuar.
+3. Confirmar que o issue associado existe e está completo conforme `lex-issue-quality`.
 
-### Passo 3: Push ao remote
+### Passo 3: Push para o remoto
 
-1. Executar push via MCP `git_push` com `directory` apontando para o repositório
-2. Se o push falhar por branch não existir no remote, o git criará automaticamente
+1. Fazer push da branch:
+   ```bash
+   git push -u origin $(git branch --show-current)
+   ```
+2. Se o push falhar (branch não existe no remoto), `git push` a cria automaticamente.
 
-### Passo 4: Compor PR (template)
+### Passo 4: Compor o PR (template)
 
-1. Extrair `repository_organization` e `repository_name` do remote (ex.: `git remote get-url origin`)
-2. Compor o título em Conventional Commits (em inglês): um commit → subject do commit; vários commits → título que resume a mudança
-3. **Template:** Ler `.ahrena/contributing_templates/pull_request_template.md`; se não existir, usar `.github/pull_request_template.md`
-4. Preencher o body: Description, Type of Change, Prerequisites, How Has This Been Tested, Checklist, Related Issues (`Closes #N` ou `Related to #N`); Breaking Changes, Security, Performance quando aplicável
+1. Extrair `owner` e `repo` da URL remota (por exemplo, `git remote get-url origin`).
+2. Compor o título em Conventional Commits (em inglês): um commit → assunto do commit; múltiplos commits → um título resumindo o conjunto de mudanças.
+3. **Template:** Ler `.ahrena/contributing_templates/pull_request_template.md`; se não existir, usar `.github/pull_request_template.md`.
+4. Preencher o corpo: Descrição, Tipo de Mudança, Pré-requisitos, Como Foi Testado, Checklist, Issues Relacionados (`Closes #N` ou `Refs #N`); Breaking Changes, Segurança, Performance quando aplicável.
 
-### Passo 5: Criar PR via MCP
+### Passo 5: Criar PR via GitHub MCP (ou gh)
 
-Invocar MCP `pull_request_create` (server: `user-GitKraken`) com:
+**Preferencial:** Usar a ferramenta GitHub MCP `pull_request_create` (ou `issue_write` com método `create_pr`) com: `owner`; `repo`; `title`; `source_branch`; `target_branch`: `main`; `body`; `assignees`: `["@me"]`; `is_draft` conforme necessário.
 
-| Parâmetro | Valor |
-|-----------|-------|
-| `provider` | `github` |
-| `repository_name` | Extraído do remote (ex.: `ahrena`) |
-| `repository_organization` | Extraído do remote (ex.: `guardiafinance`) |
-| `title` | Título em Conventional Commits |
-| `source_branch` | Branch atual |
-| `target_branch` | `main` |
-| `body` | Template preenchido |
-| `is_draft` | `false` (ou `true` se o usuário solicitar) |
+**Fallback (CLI gh):**
+```bash
+gh pr create \
+  --title "..." \
+  --base main \
+  --body "..." \
+  --assignee "@me"
+```
 
-### Passo 6: Verificação final
+Registrar o número do PR retornado — necessário para o Passo 6.
+
+### Passo 6: Aplicar labels e assignee
+
+Labels de tamanho são aplicados **automaticamente** pelo GitHub Actions — não os aplique manualmente.
+
+Aplicar labels manualmente:
+
+1. **Obter labels do issue associado:**
+   ```bash
+   gh issue view $ISSUE_NUMBER --repo $OWNER/$REPO \
+     --json labels --jq '[.labels[].name] | join(",")'
+   ```
+2. **Espelhar cada label no PR:**
+   ```bash
+   gh pr edit $PR_NUMBER --repo $OWNER/$REPO \
+     --add-label "label1" --add-label "label2"
+   ```
+3. **Aplicar labels específicos de PR quando aplicável** (ver `codex-labels`):
+   - `breaking change 💥` — se algum commit introduz uma mudança incompatível de API
+   - `security 🛡️` — se o PR resolve um problema de segurança
+
+### Passo 7: Verificação final
 
 - [ ] O PR foi criado com sucesso
 - [ ] O título segue Conventional Commits em inglês
-- [ ] O body está preenchido com o template do repositório
-- [ ] A issue está referenciada no PR
-- [ ] Todos os commits estão assinados (GPG verified)
-- [ ] O branch source está correto
+- [ ] O corpo está preenchido com o template do repositório
+- [ ] O issue é referenciado com `Closes #N` ou `Refs #N`
+- [ ] Todos os labels do issue estão espelhados no PR
+- [ ] Labels específicos de PR aplicados quando aplicável (`breaking change 💥`, `security 🛡️`)
+- [ ] O PR está auto-atribuído (`@me`)
+- [ ] Todos os commits estão assinados (verificação GPG)
+- [ ] A branch de origem segue o formato `lex-git-branches`
 
-## Outputs
+## Saídas
 
-| Output | Formato | Destino |
-|--------|---------|---------|
-| Pull Request | GitHub PR | Repositório origin |
+| Saída | Formato | Destino |
+|-------|---------|---------|
+| Pull Request | GitHub PR | Repositório de origem |
 | URL do PR | Link | Apresentado ao usuário |
 
 ## Restrições
 
-- Nunca criar PR sem que os commits estejam conformes com as 4 Lexis de commit
-- Nunca criar PR diretamente em `main` (sempre usar branch)
-- Se não houver template em `.ahrena/` nem em `.github/`, usar formato padrão (Description + Related Issues)
-- Se o MCP `pull_request_create` falhar, apresentar o erro e sugerir criação manual via `gh pr create`
+- Não criar um PR a menos que os commits estejam em conformidade com as 4 Lexis de commit.
+- Não criar um PR diretamente em `main` (sempre usar uma branch seguindo `lex-git-branches`).
+- Não aplicar labels `size/*` manualmente — eles são auto-aplicados pelo GitHub Actions.
+- Se não houver template em `.ahrena/` ou `.github/`, usar o formato padrão (Descrição + Issues Relacionados).
+- Sempre auto-atribuir o PR (`--assignee "@me"`), a menos que o usuário especifique explicitamente um assignee diferente.
 
 ## Referências
 
 - `codex-contributing` — Fluxo de contribuição Guardia
-- `codex-commit-standards` — Standards de mensagem de commit
-- `kata-commit` — Procedimento para fazer commits conformes
-- `kata-contribute` — Procedimento canônico de PR (este kata alinha ou reutiliza)
-- `cry-new-pr`, `cry-contribute` — Atalhos que invocam este Kata
-- `.ahrena/contributing_templates/pull_request_template.md` — Template de PR (fonte canônica após install)
+- `codex-labels` — Taxonomia completa de labels: regras de espelhamento, limites de tamanho, labels específicos de PR
+- `lex-issue-quality` — Requisitos de qualidade do issue (template, labels, Why/What/How)
+- `lex-git-branches` — Nomenclatura de branch: `{type}/{issue-number}-{slug}`
+- `codex-commit-standards` — Padrões de mensagem de commit
+- `kata-commit` — Procedimento para realizar commits em conformidade
+- `kata-contribute` — Procedimento canônico de PR (esta Kata se alinha ou reutiliza ele)
+- cry-new-pr, cry-contribute — Atalhos que invocam esta Kata
+- `.ahrena/contributing_templates/pull_request_template.md` — Template de PR (fonte canônica após o install)

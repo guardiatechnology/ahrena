@@ -99,6 +99,9 @@ cursor:
     _foundation/contributing/lexis/lex-issue-quality:
       alwaysApply: false
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
+    _foundation/contributing/codex/codex-labels:
+      alwaysApply: false
+      description: "When creating issues or PRs, consult this codex for the full label taxonomy, GitHub Issue Types, size thresholds, and mirroring rules."
     _foundation/i18n/lexis/lex-framework-language:
       alwaysApply: false
       description: "When creating or placing i18n artifacts, use language as first path segment (e.g. pt-BR/, en/)."
