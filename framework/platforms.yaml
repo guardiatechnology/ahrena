@@ -321,6 +321,18 @@ cursor:
     engineering/data/codex/codex-data-modeling:
       alwaysApply: false
       description: "When modeling data, follow entity/value object/aggregate patterns, normalization, indexing, and DB-choice guidance from this codex."
+    design/brand/lexis/lex-brand-colors:
+      alwaysApply: false
+      description: "When applying color, use only the official Guardia palette and meet WCAG 2.1 AA; the Yellow 500 + White combination is forbidden."
+    design/brand/lexis/lex-brand-typography:
+      alwaysApply: false
+      description: "When typesetting, use Poppins as the everyday face; Lastica only in official logo files; Roboto as fallback."
+    design/brand/lexis/lex-brand-voice:
+      alwaysApply: false
+      description: "When writing on Guardia's behalf, follow the four voice pillars (direct, strategic, affirmative, clear); say 'agentic accounting', not 'fintech'; avoid buzzwords."
+    design/brand/lexis/lex-brand-logo:
+      alwaysApply: false
+      description: "When placing the Guardia logo, use only official files and pick the right variant per background; never recolor or distort."
     engineering/mobile/lexis/lex-mobile-platform-parity:
       alwaysApply: false
       description: "Mobile features ship in iOS and Android same release; functional parity mandatory; UI follows HIG/Material; deviation needs ADR."
@@ -421,6 +433,18 @@ claude-code:
     engineering/data/codex/codex-data-modeling:
       essential: false
       description: "Reference for entity/value object/aggregate patterns and DB choice."
+    design/brand/lexis/lex-brand-colors:
+      essential: false
+      description: "When applying color, use only the official Guardia palette and meet WCAG 2.1 AA; Yellow 500 + White is forbidden."
+    design/brand/lexis/lex-brand-typography:
+      essential: false
+      description: "Poppins is the everyday typeface; Lastica only in official logo files; Roboto as fallback."
+    design/brand/lexis/lex-brand-voice:
+      essential: true
+      description: "Voice rules for any Guardia-facing text: direct, strategic, affirmative, clear; 'agentic accounting' positioning; no buzzwords."
+    design/brand/lexis/lex-brand-logo:
+      essential: false
+      description: "Use only official Guardia logo files and pick the variant matching the background."
     engineering/mobile/lexis/lex-mobile-offline-first:
       essential: false
       description: "Mobile apps operate in 3 network states; cache reads, queue mutations."
