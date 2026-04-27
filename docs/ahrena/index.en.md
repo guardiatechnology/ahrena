@@ -77,7 +77,7 @@ Ahrena is platform-agnostic. The installer (`scripts/install.py`) generates IDE-
 
 Warrior `warrior-athena` orchestrates a complete 7-phase development flow — from reading a GitHub issue to opening a reviewed PR — with 2 mandatory gates (Scope and Quality), full AC↔test traceability, and ADR creation for architectural decisions.
 
-[→ lex-issue-driven](../../framework/en/engineering/workflow/lexis/lex-issue-driven.md)
+[→ lex-issue-driven](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/workflow/lexis/lex-issue-driven.md)
 
 ### Platform Design Cycle
 
@@ -87,7 +87,7 @@ Warriors `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, and `warri
 
 Lexis `lex-ai-first-experience` mandates that every human-facing interface at Guardia uses Isac (the AI agent) as the primary interaction surface — not a feature sidebar.
 
-[→ lex-ai-first-experience](../../framework/en/design/system/lexis/lex-ai-first-experience.md)
+[→ lex-ai-first-experience](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/design/system/lexis/lex-ai-first-experience.md)
 
 ### Multilingual by Default
 

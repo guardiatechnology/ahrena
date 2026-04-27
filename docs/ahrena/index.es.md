@@ -77,7 +77,7 @@ Ahrena es agnóstico de plataforma. El instalador (`scripts/install.py`) genera 
 
 El Warrior `warrior-athena` orquesta un flujo de desarrollo completo en 7 fases — desde la lectura de una issue en GitHub hasta la apertura de un PR revisado — con 2 gates obligatorios (Scope y Quality), trazabilidad completa entre criterios de aceptación y pruebas, y creación de ADRs para decisiones arquitectónicas.
 
-[→ lex-issue-driven](../../framework/en/engineering/workflow/lexis/lex-issue-driven.md)
+[→ lex-issue-driven](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/workflow/lexis/lex-issue-driven.md)
 
 ### Ciclo de Diseño de Plataforma
 
@@ -87,7 +87,7 @@ Los Warriors `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus` y `warr
 
 La Lexis `lex-ai-first-experience` establece que toda interfaz orientada al usuario en Guardia debe utilizar a Isac (el agente de AI) como superficie principal de interacción — no una barra lateral de funcionalidades.
 
-[→ lex-ai-first-experience](../../framework/en/design/system/lexis/lex-ai-first-experience.md)
+[→ lex-ai-first-experience](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/design/system/lexis/lex-ai-first-experience.md)
 
 ### Multilingüe por defecto
 

@@ -10,7 +10,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-translator` | Translates Ahrena artifacts to all required languages following `lex-language-*` rules | `kata-translate` | [en](../../framework/en/documentation/i18n/warriors/warrior-translator.md) |
+| `warrior-translator` | Translates Ahrena artifacts to all required languages following `lex-language-*` rules | `kata-translate` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/documentation/i18n/warriors/warrior-translator.md) |
 
 ---
 
@@ -18,7 +18,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-apollo` | Senior Python Engineer — backend design, implementation, testing, and maintenance of Python services | `kata-python-implement`, `kata-python-review`, `kata-python-debug`, `kata-python-refactor` | [en](../../framework/en/engineering/backend/warriors/warrior-apollo.md) |
+| `warrior-apollo` | Senior Python Engineer — backend design, implementation, testing, and maintenance of Python services | `kata-python-implement`, `kata-python-review`, `kata-python-debug`, `kata-python-refactor` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/warriors/warrior-apollo.md) |
 
 ---
 
@@ -26,7 +26,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-demeter` | Senior Data / Database Architect — data modeling, schema design, migrations, and retention policies | `kata-schema-design` | [en](../../framework/en/engineering/data/warriors/warrior-demeter.md) |
+| `warrior-demeter` | Senior Data / Database Architect — data modeling, schema design, migrations, and retention policies | `kata-schema-design` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/data/warriors/warrior-demeter.md) |
 
 ---
 
@@ -34,7 +34,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-atlas` | Senior AWS Solutions Architect — architecture design, IaC, security reviews, and cost optimization | `kata-aws-design`, `kata-aws-review` | [en](../../framework/en/engineering/devops/warriors/warrior-atlas.md) |
+| `warrior-atlas` | Senior AWS Solutions Architect — architecture design, IaC, security reviews, and cost optimization | `kata-aws-design`, `kata-aws-review` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/devops/warriors/warrior-atlas.md) |
 
 ---
 
@@ -42,7 +42,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-hephaestus` | Senior Frontend Engineer — UI implementation, component development, accessibility, and performance | `kata-frontend-implement`, `kata-frontend-review` | [en](../../framework/en/engineering/frontend/warriors/warrior-hephaestus.md) |
+| `warrior-hephaestus` | Senior Frontend Engineer — UI implementation, component development, accessibility, and performance | `kata-frontend-implement`, `kata-frontend-review` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/warriors/warrior-hephaestus.md) |
 
 ---
 
@@ -50,7 +50,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-iris` | Senior Mobile Engineer — iOS and Android implementation with mandatory platform parity | `kata-mobile-implement` | [en](../../framework/en/engineering/mobile/warriors/warrior-iris.md) |
+| `warrior-iris` | Senior Mobile Engineer — iOS and Android implementation with mandatory platform parity | `kata-mobile-implement` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/mobile/warriors/warrior-iris.md) |
 
 ---
 
@@ -58,10 +58,10 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-daedalus` | API Design Specialist — RESTful API design, OAS documentation, and design review | `kata-api-design-doc`, `kata-api-design-oas`, `kata-api-design-review` | [en](../../framework/en/engineering/platform/warriors/warrior-daedalus.md) |
-| `warrior-kronos` | Event Storm Specialist — event storming sessions and CloudEvents documentation | `kata-event-storm`, `kata-events-doc` | [en](../../framework/en/engineering/platform/warriors/warrior-kronos.md) |
-| `warrior-prometheus` | Technical Product Manager — orchestrates the complete feature design cycle | `kata-api-design-doc`, `kata-domain-model`, `kata-events-doc` (via Theseus, Daedalus, Kronos) | [en](../../framework/en/engineering/platform/warriors/warrior-prometheus.md) |
-| `warrior-theseus` | Domain Modeling Specialist — DDD domain discovery, modeling, and documentation | `kata-domain-model` | [en](../../framework/en/engineering/platform/warriors/warrior-theseus.md) |
+| `warrior-daedalus` | API Design Specialist — RESTful API design, OAS documentation, and design review | `kata-api-design-doc`, `kata-api-design-oas`, `kata-api-design-review` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/platform/warriors/warrior-daedalus.md) |
+| `warrior-kronos` | Event Storm Specialist — event storming sessions and CloudEvents documentation | `kata-event-storm`, `kata-events-doc` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/platform/warriors/warrior-kronos.md) |
+| `warrior-prometheus` | Technical Product Manager — orchestrates the complete feature design cycle | `kata-api-design-doc`, `kata-domain-model`, `kata-events-doc` (via Theseus, Daedalus, Kronos) | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/platform/warriors/warrior-prometheus.md) |
+| `warrior-theseus` | Domain Modeling Specialist — DDD domain discovery, modeling, and documentation | `kata-domain-model` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/platform/warriors/warrior-theseus.md) |
 
 ---
 
@@ -69,7 +69,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-hera` | Senior QA / Test Strategy Engineer — test strategy, coverage plans, suite quality audits | `kata-test-plan-design` | [en](../../framework/en/engineering/quality/warriors/warrior-hera.md) |
+| `warrior-hera` | Senior QA / Test Strategy Engineer — test strategy, coverage plans, suite quality audits | `kata-test-plan-design` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/quality/warriors/warrior-hera.md) |
 
 ---
 
@@ -77,7 +77,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-hestia` | Senior SRE / On-Call — SLO design, monitoring, alerting, incident response, post-mortems | `kata-incident-triage` | [en](../../framework/en/engineering/sre/warriors/warrior-hestia.md) |
+| `warrior-hestia` | Senior SRE / On-Call — SLO design, monitoring, alerting, incident response, post-mortems | `kata-incident-triage` | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/sre/warriors/warrior-hestia.md) |
 
 ---
 
@@ -85,7 +85,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Papel | Orquesta | Framework |
 |---|---|---|---|
-| `warrior-athena` | Issue-Driven Flow Orchestrator — end-to-end development from GitHub issue to reviewed, merged PR | All workflow katas + delegates to Apollo, Hephaestus, Daedalus, Kronos, Atlas, Hera, Hestia, Demeter, Iris | [en](../../framework/en/engineering/workflow/warriors/warrior-athena.md) |
+| `warrior-athena` | Issue-Driven Flow Orchestrator — end-to-end development from GitHub issue to reviewed, merged PR | All workflow katas + delegates to Apollo, Hephaestus, Daedalus, Kronos, Atlas, Hera, Hestia, Demeter, Iris | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/workflow/warriors/warrior-athena.md) |
 
 ---
 
@@ -93,7 +93,7 @@ Todos los **14** agentes especializados del framework Ahrena (incluida la planti
 
 | Artefacto | Descripción | Framework |
 |---|---|---|
-| `warrior-sample` | Official template for creating new Warriors — structure, frontmatter, and authoring guidelines | [en](../../framework/en/engineering/workflow/warriors/warrior-sample.md) |
+| `warrior-sample` | Official template for creating new Warriors — structure, frontmatter, and authoring guidelines | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/workflow/warriors/warrior-sample.md) |
 
 ---
 

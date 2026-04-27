@@ -8,7 +8,7 @@ Documentation for the Ahrena framework and Guardia's engineering practices.
 
 | Document | Description |
 |---|---|
-| [Overview](ahrena/README.md) | What Ahrena is, its purpose, and portfolio positioning |
+| [Overview](ahrena/index.md) | What Ahrena is, its purpose, and portfolio positioning |
 | [Concepts](ahrena/concepts.md) | Pilars, Clades, Subclades, and taxonomy |
 | [Clades & Subclades](ahrena/clades.md) | Full catalog of clades with subclades and pilar coverage |
 | [Lexis Catalog](ahrena/lexis.md) | All unbreakable laws with descriptions and framework links |
