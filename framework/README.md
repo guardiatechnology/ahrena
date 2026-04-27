@@ -1,9 +1,34 @@
-# Framework — Guia do Desenvolvedor
+# Ahrena Framework
 
-O Guia do Desenvolvedor está disponível por idioma (idioma como primeiro nível de navegação):
+> Artefatos canônicos do framework Ahrena — Lexis, Codex, Katas, Warriors e Cries.
 
-- **[Português (pt-BR)](pt-BR/README.md)**
-- **[English (en)](en/README.md)**
-- **[Español (es)](es/README.md)**
+## Documentação
 
-Para uso do framework em projetos, consulte o [README principal](../README.md) na raiz do repositório.
+A documentação oficial está em **[guardiafinance.github.io/ahrena](https://guardiafinance.github.io/ahrena/)**.
+
+Para rodar localmente: veja o [Getting Started](https://guardiafinance.github.io/ahrena/getting-started/).
+
+## Estrutura
+
+```
+framework/
+├── pt-BR/    ← idioma padrão (fonte de verdade)
+├── en/
+└── es/
+```
+
+Cada idioma replica a mesma árvore de clades:
+
+```
+{lang}/
+├── _foundation/    ← authoring, contributing, tooling, process, quality
+├── design/         ← brand, system
+├── documentation/  ← i18n
+└── engineering/    ← backend, data, devops, frontend, mobile, platform, quality, sre, workflow
+```
+
+## Navegação
+
+- **[pt-BR](pt-BR/README.md)** — Português (padrão)
+- **[en](en/README.md)** — English
+- **[es](es/README.md)** — Español

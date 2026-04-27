@@ -1,0 +1,90 @@
+site_name: Ahrena — AI-First Capability Framework
+site_description: Documentação oficial do Ahrena, o framework de capacidades AI-first da Guardia.
+site_author: Guardia Technology
+site_url: https://guardiafinance.github.io/ahrena/
+repo_url: https://github.com/guardiafinance/ahrena
+repo_name: guardiafinance/ahrena
+docs_dir: docs
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/favico.svg
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: orange
+  font:
+    text: Poppins
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+nav:
+  - Primeiros Passos: getting-started.md
+  - Framework:
+    - Visão Geral: ahrena/index.md
+    - Conceitos: ahrena/concepts.md
+    - Clades & Subclades: ahrena/clades.md
+    - Lexis: ahrena/lexis.md
+    - Codex: ahrena/codex.md
+    - Katas: ahrena/katas.md
+    - Warriors: ahrena/warriors.md
+    - Cries: ahrena/cries.md
+
+extra_css:
+  - assets/guardia.css
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: pt-BR
+          default: true
+          name: Português (pt-BR)
+          build: true
+        - locale: en
+          name: English
+          build: true
+          nav_translations:
+            Getting Started: Getting Started
+            Framework: Framework
+            Visão Geral: Overview
+            Conceitos: Concepts
+            Clades & Subclades: Clades & Subclades
+            Lexis: Lexis
+            Codex: Codex
+            Katas: Katas
+            Warriors: Warriors
+            Cries: Cries
+        - locale: es
+          name: Español
+          build: true
+          nav_translations:
+            Getting Started: Inicio rápido
+            Framework: Framework
+            Visão Geral: Visión general
+            Conceitos: Conceptos
+            Clades & Subclades: Clades y Subclades
+            Lexis: Lexis
+            Codex: Codex
+            Katas: Katas
+            Warriors: Warriors
+            Cries: Comandos
+
+extra:
+  generator: false
+
+copyright: "&copy; 2024 Guardia Technology. Todos os direitos reservados."
