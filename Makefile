@@ -4,6 +4,7 @@ TARGET ?= .
 REPO ?= https://github.com/guardiafinance/ahrena
 PLATFORM ?=
 LANGUAGE ?=
+LANGUAGES ?=
 DIRECTIVES ?=
 CLADES ?=
 SOURCE ?=
@@ -37,6 +38,9 @@ endif
 ifdef LANGUAGE
     SHARED_FLAGS += --language $(LANGUAGE)
 endif
+ifdef LANGUAGES
+    SHARED_FLAGS += --languages $(LANGUAGES)
+endif
 ifdef DIRECTIVES
     SHARED_FLAGS += --directives $(DIRECTIVES)
 endif
@@ -55,6 +59,9 @@ LOCAL_OPTS += --platform $(PLATFORM)
 endif
 ifdef LANGUAGE
 LOCAL_OPTS += --language $(LANGUAGE)
+endif
+ifdef LANGUAGES
+LOCAL_OPTS += --languages $(LANGUAGES)
 endif
 ifdef DIRECTIVES
 LOCAL_OPTS += --directives $(DIRECTIVES)
@@ -100,6 +107,7 @@ help:
 	@echo "  dev-install   Install from local source (run from Ahrena repo root)"
 	@echo "  install-to    Offline install FROM this repo TO any target (no network)"
 	@echo "                  make install-to TARGET=/path/to/project PLATFORM=cursor"
+	@echo "                  make install-to TARGET=. PLATFORM=claude-code LANGUAGES=en  # lean, single language"
 	@echo "  update        Update installation (default: remote). After dev-install use update LOCAL=1 or SOURCE=..."
 	@echo "  sync-cursor   Regenerate .cursor/ from .ahrena/framework/ and .ahrena/artifacts/ (no download)"
 	@echo "  sync-claude-code  Regenerate .claude/ + CLAUDE.md from .ahrena/ (no download)"
@@ -113,7 +121,9 @@ help:
 	@echo "  REPO         GitHub repo URL"
 	@echo "  SOURCE       Path to local Ahrena repo (install/update from local)"
 	@echo "  LOCAL        If set (e.g. LOCAL=1), install/update from current dir as source"
-	@echo "  LANGUAGE     Override default language (e.g. pt-BR, en, es)"
+	@echo "  LANGUAGE     Override default language.default in .directives (e.g. pt-BR, en, es)"
+	@echo "  LANGUAGES    Comma-separated language dirs to copy into .ahrena/framework/ (default: all)"
+	@echo "                 Use to shrink .ahrena/ size when only one language is needed."
 	@echo "  DIRECTIVES   Path or URL to custom .directives file"
 	@echo "  CLADES       Comma-separated clades to install (default: all)"
 
