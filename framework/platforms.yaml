@@ -242,7 +242,15 @@ cursor:
     engineering/backend/lexis/lex-python-error-handling:
       alwaysApply: false
       globs: ["**/*.py"]
-      description: "When writing Python code, use typed exceptions; never silently swallow errors."
+      description: "When writing Python code, no bare except; specific exceptions only; top-level boundary handlers must log original and translate into an Error."
+    engineering/backend/lexis/lex-python-result-type:
+      alwaysApply: false
+      globs: ["**/*.py"]
+      description: "When writing Python code, expected fallible operations must return Result[T, Error] from the returns package instead of raising exceptions."
+    engineering/backend/lexis/lex-python-error-object:
+      alwaysApply: false
+      globs: ["**/*.py"]
+      description: "When producing Python error values, use a frozen dataclass Error with exactly code, reason, message; subclasses pin code and reason."
     engineering/backend/codex/codex-python-architecture:
       alwaysApply: false
       globs: ["**/*.py"]
