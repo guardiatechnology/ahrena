@@ -10,7 +10,7 @@ Esta Lexis existe para garantir que **toda implementação tenha rastreabilidade
 
 ## Lei
 
-> **Toda implementação conduzida por `warrior-athena` DEVE partir de uma issue existente, passar por ambos os Gates (Escopo e Qualidade), respeitar a rastreabilidade bidirecional entre critérios de aceitação e testes, registrar decisões arquiteturais relevantes como ADRs em `docs/adr/`, e produzir toda documentação pública do fluxo em `docs/issues/issue-{n}/`.**
+> **Toda implementação conduzida por `warrior-athena` DEVE partir de uma issue existente, passar pelos três Gates (Escopo, Qualidade e Comportamental), respeitar a rastreabilidade bidirecional entre critérios de aceitação, cenários BDD e testes, registrar decisões arquiteturais relevantes como ADRs em `docs/adr/`, e produzir toda documentação pública do fluxo em `docs/issues/issue-{n}/`.**
 
 ## Regras
 
@@ -28,15 +28,19 @@ O agente **NÃO PODE**:
 
 1. Avançar da Fase 3 para a Fase 4 sem aprovação explícita humana no Gate 1 (escopo).
 2. Criar o PR na Fase 7 se o Gate 2 (qualidade) não resultou em `go`.
-3. Marcar itens do Gate 2 como atendidos sem execução real da verificação (ex.: não pode declarar "testes passam" sem rodar `pytest`).
+3. Criar o PR na Fase 7 se o Gate 3 (comportamental) não resultou em `go` — i.e., se `08-bdd-validation-report.md` reporta cenários `missing` ou `partial`, ou se há acoplamento a step-runner BDD.
+4. Marcar itens do Gate 2 ou Gate 3 como atendidos sem execução real da verificação (ex.: não pode declarar "testes passam" sem rodar `pytest`; não pode declarar "cenários cobrem ACs" sem o relatório do `kata-bdd-validate-implementation`).
 
-### 3. Rastreabilidade bidirecional AC ↔ teste
+### 3. Rastreabilidade tripla AC ↔ Cenário ↔ Teste
 
-Para que o Gate 2 passe:
+Para que o Gate 2 e o Gate 3 passem:
 
-1. **Cada critério de aceitação** numerado na Fase 2 **DEVE** ter pelo menos um teste que o cobre.
-2. **Cada teste novo** introduzido na Fase 4 **DEVE** estar ligado a pelo menos um AC via convenção `AC-{N}` no nome ou docstring do teste.
-3. Testes novos sem AC correspondente são tratados como **scope creep** e bloqueiam o gate.
+1. **Cada critério de aceitação** numerado na Fase 2 **DEVE** ter pelo menos um teste que o cobre (rastreabilidade Gate 2).
+2. **Cada teste novo** introduzido na Fase 4 **DEVE** estar ligado a pelo menos um AC via convenção `AC-{N}` no nome ou docstring (rastreabilidade Gate 2).
+3. **Cada AC DEVE** ter pelo menos um cenário Gherkin `SCN-{N}` com tag `@AC-{N}` em `07-bdd-scenarios.md` (rastreabilidade Gate 3, per `lex-bdd-gherkin-format`).
+4. **Cada cenário `SCN-{N}` DEVE** ter pelo menos um teste-padrão referenciando-o por nome ou docstring (rastreabilidade Gate 3, per `lex-bdd-no-framework-coupling`).
+5. Testes novos sem AC correspondente são tratados como **scope creep** e bloqueiam o Gate 2.
+6. Cenários sem teste correspondente são tratados como **gap comportamental** e bloqueiam o Gate 3.
 
 ### 4. ADRs obrigatórios para decisões arquiteturais relevantes
 
@@ -58,7 +62,9 @@ O agente **DEVE** estruturar toda documentação pública do fluxo em `docs/`:
 3. `docs/issues/issue-{n}/03-architecture.md` — design (Fase 3)
 4. `docs/issues/issue-{n}/05-security-review.md` — revisão de segurança (Fase 5)
 5. `docs/issues/issue-{n}/06-quality-report.md` — relatório do Gate 2 (Fase 6)
-6. `docs/adr/ADR-{n}-*.md` — ADRs quando aplicáveis
+6. `docs/issues/issue-{n}/07-bdd-scenarios.md` — cenários Gherkin (Fase 8.1)
+7. `docs/issues/issue-{n}/08-bdd-validation-report.md` — relatório do Gate 3 (Fase 8.2)
+8. `docs/adr/ADR-{n}-*.md` — ADRs quando aplicáveis
 
 Estado efêmero de orquestração (checkpoint entre fases) pode ir em `.ahrena/workflow/issue-{n}/checkpoint.md`, **nunca** em `docs/`. O checkpoint **DEVE** usar front-matter YAML versionado (ver Regra 7).
 
@@ -142,6 +148,19 @@ Quando detectado, o agente **DEVE** apresentar duas opções ao usuário:
 - Ampliar os ACs (nova iteração do Gate 1) para cobrir o código adicional.
 - Remover o código além do escopo do PR atual e abrir nova issue para ele.
 
+### 10. Fase 8 (Validação Comportamental) e Gate 3
+
+Após o Gate 2 resultar em `go`, `warrior-athena` **DEVE** delegar a Fase 8 a `warrior-themis` antes de invocar `kata-pr-prepare`:
+
+1. **Fase 8.1** — `kata-bdd-scenarios-design` produz `07-bdd-scenarios.md` derivando cenários **exclusivamente** das fontes de especificação (per `lex-bdd-spec-only-sources`). Leitura de código é PROIBIDA nesta sub-fase.
+2. **Fase 8.2** — `kata-bdd-validate-implementation` produz `08-bdd-validation-report.md` mapeando cada `SCN-{N}` a testes existentes (leitura de testes é permitida nesta sub-fase) e verifica ausência de step-runner BDD nos manifestos.
+3. **Gate 3 (Comportamental)** — passa quando:
+   - Todos os ACs têm pelo menos um cenário (`@AC-{N}` presente).
+   - Todos os cenários têm pelo menos um teste-padrão referenciando `SCN-{N}`.
+   - Nenhum manifesto declara step-runner BDD proibido (per `lex-bdd-no-framework-coupling`).
+   - Nenhuma AC permanece com `status: BLOCKED` por ambiguidade da Issue.
+4. Quando o Gate 3 dá `no-go`, `warrior-athena` **DEVE** delegar os gaps reportados ao warrior responsável (Apollo, Hephaestus, Iris) antes de avançar para a Fase 7.
+
 ## Abrangência
 
 - **Aplica-se a:** qualquer invocação de `/cry-implement-issue` e qualquer atividade conduzida por `warrior-athena`.
@@ -199,6 +218,6 @@ Quando detectado, o agente **DEVE** apresentar duas opções ao usuário:
 
 ## Validação Automatizada
 
-- **Ferramenta:** `kata-quality-gate` (Gate 2) executa a verificação de rastreabilidade, scope creep e best practices antes do PR; `scripts/validate.py` verifica a presença obrigatória de artefatos em `docs/issues/issue-{n}/` quando o fluxo é concluído.
-- **Momento:** Gate 1 (antes da Fase 4), Gate 2 (antes da Fase 7).
-- **Métrica:** 100% das issues passam por ambos os gates; 100% dos ACs têm pelo menos um teste; 0 testes sem AC correspondente; 100% das decisões arquiteturais relevantes têm ADR em `docs/adr/`.
+- **Ferramenta:** `kata-quality-gate` (Gate 2 e Check 8 do Gate 3) executa a verificação de rastreabilidade, scope creep, best practices, cobertura de cenários BDD e acoplamento a framework antes do PR; `kata-bdd-validate-implementation` produz o relatório consumido pelo Check 8; `scripts/validate.py` verifica a presença obrigatória de artefatos em `docs/issues/issue-{n}/` quando o fluxo é concluído.
+- **Momento:** Gate 1 (antes da Fase 4), Gate 2 (antes da Fase 8), Gate 3 (antes da Fase 7).
+- **Métrica:** 100% das issues passam pelos três gates; 100% dos ACs têm pelo menos um teste; 0 testes sem AC correspondente; 100% dos ACs têm pelo menos um cenário `SCN-{N}`; 0 cenários `missing` ou `partial` no Gate 3; 100% das decisões arquiteturais relevantes têm ADR em `docs/adr/`.

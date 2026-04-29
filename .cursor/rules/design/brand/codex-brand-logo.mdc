@@ -1,7 +1,22 @@
 ---
 description: "Reference for Guardia logo variants and background-based selection."
 alwaysApply: false
-globs: '["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]'
+globs:
+  - **/*.tsx
+  - **/*.jsx
+  - **/*.ts
+  - **/*.js
+  - **/*.vue
+  - **/*.svelte
+  - **/*.html
+  - **/*.css
+  - **/*.scss
+  - **/*.sass
+  - **/*.less
+  - **/*.styl
+  - **/*.pcss
+  - **/*.md
+  - **/*.mdx
 ---
 
 # Codex: Logo, Standalone Marks, and Background Application

@@ -1,12 +1,12 @@
-# Kata: Gate de Calidad (Gate 2)
+# Kata: Gate de Calidad (Gate 2 + Gate 3)
 
-> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Fase 6 del flujo Issue-Driven — validación final con 7 checks que incluyen trazabilidad AC↔prueba, scope creep, best practices, pruebas, cobertura, tipos y performance budget
+> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Fase 6 del flujo Issue-Driven — validación con 8 checks: trazabilidad AC↔prueba, scope creep, best practices, pruebas, cobertura, tipos, performance budget y cobertura BDD/Gate 3
 
 ## Objetivo
 
-Ejecutar el Gate 2 del flujo Issue-Driven: 7 verificaciones stack-aware sobre la implementación completada en la Fase 4 (y revisada por la Fase 5). Produce informe `go`/`no-go`/`unverifiable` en `docs/issues/issue-{n}/06-quality-report.md`. Cualquier falla regresa a la Fase 4 con contexto detallado; solo `go` permite avanzar a la Fase 7. Los checks que no puedan ejecutarse en el entorno actual (herramienta ausente, sin archivos aplicables) reportan `unverifiable` y se presentan al humano en lugar de pasar silenciosamente.
+Ejecutar los Gates 2 y 3 del flujo Issue-Driven: 8 verificaciones stack-aware sobre la implementación completada en la Fase 4 (y revisada por la Fase 5). Produce informe `go`/`no-go`/`unverifiable` en `docs/issues/issue-{n}/06-quality-report.md`. Cualquier falla regresa a la Fase 4 con contexto detallado; solo `go` permite avanzar a la Fase 7. Los checks que no puedan ejecutarse en el entorno actual (herramienta ausente, sin archivos aplicables) reportan `unverifiable` y se presentan al humano en lugar de pasar silenciosamente.
 
-Esta kata es la **guardiana de la calidad** del flujo — garantiza que la implementación cubre todos los ACs, no sobrepasó el alcance, aplicó las best practices definidas en las Lexis y no regresó la performance más allá de los budgets declarados.
+Esta kata es la **guardiana de la calidad** del flujo — garantiza que la implementación cubre todos los ACs, no sobrepasó el alcance, aplicó las best practices definidas en las Lexis, no regresó la performance más allá de los budgets declarados, y que **toda AC tiene escenario Gherkin con prueba correspondiente** (Check 8 consume `08-bdd-validation-report.md` producido por `kata-bdd-validate-implementation`).
 
 ## Cuándo Usar
 
@@ -21,6 +21,7 @@ Esta kata es la **guardiana de la calidad** del flujo — garantiza que la imple
 | Arquitectura Fase 3 | Sí | `docs/issues/issue-{n}/03-architecture.md` (tabla de componentes — alcance) |
 | Implementación Fase 4 | Sí | Código + pruebas en el working tree |
 | Revisión Fase 5 | Sí | `docs/issues/issue-{n}/05-security-review.md` (debe estar `approved`) |
+| Validación BDD Fase 8 | Sí (para Check 8) | `docs/issues/issue-{n}/08-bdd-validation-report.md` producido por `kata-bdd-validate-implementation` |
 | Coverage threshold | No | `quality.coverage_threshold` en `.directives` (por defecto: 80) |
 | Stack | Sí | Lenguaje del código implementado (detectado vía archivos tocados) |
 
@@ -36,9 +37,10 @@ Progreso:
 - [ ] 6. Check 5 — Cobertura
 - [ ] 7. Check 6 — Tipos
 - [ ] 8. Check 7 — Performance budget
-- [ ] 9. Consolidar resultado go/no-go/unverifiable
-- [ ] 10. Persistir en docs/issues/issue-{n}/06-quality-report.md
-- [ ] 11. Actualizar checkpoint
+- [ ] 9. Check 8 — Cobertura BDD (Gate 3)
+- [ ] 10. Consolidar resultado go/no-go/unverifiable
+- [ ] 11. Persistir en docs/issues/issue-{n}/06-quality-report.md
+- [ ] 12. Actualizar checkpoint
 ```
 
 ### Paso 1: Recolectar contexto
@@ -123,9 +125,26 @@ Registrar violaciones con archivo/línea. Cualquier violación → ❌ `Check 3 
 3. Errores nuevos (en archivos modificados en este PR) → ❌ `Check 6 — Types`.
 4. Errores preexistentes en archivos no modificados → no bloquear (registrar como nota).
 
-### Paso 8: Consolidar resultado go/no-go
+### Paso 8.b: Check 8 — Cobertura BDD (Gate 3)
 
-1. Si todos los 6 checks ✅ → resultado `go`.
+Este check consume el resultado de `kata-bdd-validate-implementation` (Fase 8.2 del flujo Issue-Driven), producido por `warrior-themis` antes de la consolidación final.
+
+1. Verificar la presencia de `docs/issues/issue-{n}/08-bdd-validation-report.md`.
+   - Ausente → `unverifiable` ❓ `Check 8 — BDD report not produced` (con instrucción para invocar `cry-bdd-validate` o `warrior-themis`).
+2. Leer el frontmatter del reporte:
+   - `gate_3_decision: go` → ✅ `Check 8 — BDD coverage`.
+   - `gate_3_decision: no-go` → ❌ `Check 8 — BDD coverage` con la tabla de gaps copiada a la sección "Detalles de Fallas".
+3. Verificar `framework_coupling`:
+   - `clean` → sigue el resultado del `gate_3_decision`.
+   - `violations` → ❌ `Check 8 — BDD framework coupling` (independiente del resto, pues `lex-bdd-no-framework-coupling` es Lexis sin excepción).
+4. Verificar `ac_coverage` en `07-bdd-scenarios.md`:
+   - Cualquier AC con `status: BLOCKED` → ❌ `Check 8 — AC blocked` (la Issue debe complementarse).
+
+Resultado del Check 8: ✅ si `gate_3_decision: go` y `framework_coupling: clean` y ninguna AC bloqueada; ❌ en caso contrario.
+
+### Paso 9: Consolidar resultado go/no-go
+
+1. Si todos los 8 checks ✅ → resultado `go`.
 2. Si cualquier check ❌ → resultado `no-go`.
 
 Para cada ❌, registrar:
@@ -166,6 +185,8 @@ Estructura:
 | 4 | Pruebas Ejecutadas | {✅/❌} | {resumen} |
 | 5 | Cobertura | {✅/❌} | {actual}% / {threshold}% |
 | 6 | Tipos | {✅/❌} | {resumen} |
+| 7 | Performance Budget | {✅/❌} | {resumen} |
+| 8 | Cobertura BDD (Gate 3) | {✅/❌} | {decisión go/no-go + acoplamiento framework} |
 
 ## Detalles de las Fallas
 
@@ -211,5 +232,8 @@ Estructura:
 ## Referencias
 
 - `lex-issue-driven` — leyes del flujo, en particular las reglas de trazabilidad y scope creep
-- `codex-issue-workflow` — detallado completo de los 6 checks
+- `codex-issue-workflow` — detallado completo de los checks
 - `lex-python-typing`, `lex-python-testing`, `lex-python-security`, `lex-python-immutability`, `lex-python-error-handling`, `lex-conventional-commits` — Lexis verificadas en el Check 3
+- `lex-bdd-spec-only-sources`, `lex-bdd-gherkin-format`, `lex-bdd-no-framework-coupling` — Lexis verificadas en el Check 8
+- `kata-bdd-validate-implementation` — produce el `08-bdd-validation-report.md` consumido por el Check 8
+- `warrior-themis` — ejecuta la Fase 8 antes del Check 8 de este Kata

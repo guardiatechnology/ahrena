@@ -10,7 +10,7 @@ This Lexis exists to guarantee that **every implementation has traceability from
 
 ## Law
 
-> **Every implementation conducted by `warrior-athena` MUST originate from an existing issue, pass through both Gates (Scope and Quality), respect bidirectional traceability between acceptance criteria and tests, record relevant architectural decisions as ADRs in `docs/adr/`, and produce all public flow documentation in `docs/issues/issue-{n}/`.**
+> **Every implementation conducted by `warrior-athena` MUST originate from an existing issue, pass through all three Gates (Scope, Quality, and Behavioral), respect bidirectional traceability among acceptance criteria, BDD scenarios, and tests, record relevant architectural decisions as ADRs in `docs/adr/`, and produce all public flow documentation in `docs/issues/issue-{n}/`.**
 
 ## Rules
 
@@ -28,15 +28,19 @@ The agent **MUST NOT**:
 
 1. Advance from Phase 3 to Phase 4 without explicit human approval at Gate 1 (scope).
 2. Create the PR in Phase 7 if Gate 2 (quality) did not result in `go`.
-3. Mark Gate 2 items as met without actually running the verification (e.g., cannot claim "tests pass" without running `pytest`).
+3. Create the PR in Phase 7 if Gate 3 (behavioral) did not result in `go` — i.e., if `08-bdd-validation-report.md` reports `missing` or `partial` scenarios, or if BDD step-runner coupling exists.
+4. Mark Gate 2 or Gate 3 items as met without actually running the verification (e.g., cannot claim "tests pass" without running `pytest`; cannot claim "scenarios cover ACs" without the `kata-bdd-validate-implementation` report).
 
-### 3. Bidirectional AC ↔ test traceability
+### 3. Triple AC ↔ Scenario ↔ Test traceability
 
-For Gate 2 to pass:
+For Gate 2 and Gate 3 to pass:
 
-1. **Each numbered acceptance criterion** from Phase 2 **MUST** have at least one test that covers it.
-2. **Each new test** introduced in Phase 4 **MUST** be linked to at least one AC via the convention `AC-{N}` in the test name or docstring.
-3. New tests without a corresponding AC are treated as **scope creep** and block the gate.
+1. **Each numbered acceptance criterion** from Phase 2 **MUST** have at least one test that covers it (Gate 2 traceability).
+2. **Each new test** introduced in Phase 4 **MUST** be linked to at least one AC via the convention `AC-{N}` in the test name or docstring (Gate 2 traceability).
+3. **Each AC MUST** have at least one Gherkin scenario `SCN-{N}` tagged `@AC-{N}` in `07-bdd-scenarios.md` (Gate 3 traceability, per `lex-bdd-gherkin-format`).
+4. **Each scenario `SCN-{N}` MUST** have at least one standard test referencing it by name or docstring (Gate 3 traceability, per `lex-bdd-no-framework-coupling`).
+5. New tests without a corresponding AC are treated as **scope creep** and block Gate 2.
+6. Scenarios without a corresponding test are treated as a **behavioral gap** and block Gate 3.
 
 ### 4. Mandatory ADRs for relevant architectural decisions
 
@@ -58,7 +62,9 @@ The agent **MUST** structure all public flow documentation under `docs/`:
 3. `docs/issues/issue-{n}/03-architecture.md` — design (Phase 3)
 4. `docs/issues/issue-{n}/05-security-review.md` — security review (Phase 5)
 5. `docs/issues/issue-{n}/06-quality-report.md` — Gate 2 report (Phase 6)
-6. `docs/adr/ADR-{n}-*.md` — ADRs when applicable
+6. `docs/issues/issue-{n}/07-bdd-scenarios.md` — Gherkin scenarios (Phase 8.1)
+7. `docs/issues/issue-{n}/08-bdd-validation-report.md` — Gate 3 report (Phase 8.2)
+8. `docs/adr/ADR-{n}-*.md` — ADRs when applicable
 
 Ephemeral orchestration state (checkpoint between phases) may go to `.ahrena/workflow/issue-{n}/checkpoint.md`, **never** under `docs/`. The checkpoint **MUST** use versioned YAML front-matter (see Rule 7).
 
@@ -142,6 +148,19 @@ When detected, the agent **MUST** present two options to the user:
 - Expand the ACs (new Gate 1 iteration) to cover the additional code.
 - Remove the out-of-scope code from the current PR and open a new issue for it.
 
+### 10. Phase 8 (Behavioral Validation) and Gate 3
+
+After Gate 2 returns `go`, `warrior-athena` **MUST** delegate Phase 8 to `warrior-themis` before invoking `kata-pr-prepare`:
+
+1. **Phase 8.1** — `kata-bdd-scenarios-design` produces `07-bdd-scenarios.md` deriving scenarios **exclusively** from specification sources (per `lex-bdd-spec-only-sources`). Reading code is FORBIDDEN in this sub-phase.
+2. **Phase 8.2** — `kata-bdd-validate-implementation` produces `08-bdd-validation-report.md` mapping each `SCN-{N}` to existing tests (test reading is allowed in this sub-phase) and verifies the absence of a BDD step-runner in the manifests.
+3. **Gate 3 (Behavioral)** — passes when:
+   - Every AC has at least one scenario (`@AC-{N}` present).
+   - Every scenario has at least one standard test referencing `SCN-{N}`.
+   - No manifest declares a forbidden BDD step-runner (per `lex-bdd-no-framework-coupling`).
+   - No AC remains with `status: BLOCKED` due to Issue ambiguity.
+4. When Gate 3 returns `no-go`, `warrior-athena` **MUST** delegate the reported gaps to the responsible warrior (Apollo, Hephaestus, Iris) before advancing to Phase 7.
+
 ## Applicability
 
 - **Applies to:** every invocation of `/cry-implement-issue` and any activity conducted by `warrior-athena`.
@@ -199,6 +218,6 @@ When detected, the agent **MUST** present two options to the user:
 
 ## Automated Validation
 
-- **Tool:** `kata-quality-gate` (Gate 2) runs traceability, scope creep, and best practices checks before the PR; `scripts/validate.py` verifies the mandatory presence of artifacts under `docs/issues/issue-{n}/` when the flow completes.
-- **Timing:** Gate 1 (before Phase 4), Gate 2 (before Phase 7).
-- **Metric:** 100% of issues pass both gates; 100% of ACs have at least one test; 0 tests without a corresponding AC; 100% of relevant architectural decisions have an ADR under `docs/adr/`.
+- **Tool:** `kata-quality-gate` (Gate 2 and Gate 3 Check 8) runs traceability, scope creep, best practices, BDD scenario coverage, and framework coupling checks before the PR; `kata-bdd-validate-implementation` produces the report consumed by Check 8; `scripts/validate.py` verifies the mandatory presence of artifacts under `docs/issues/issue-{n}/` when the flow completes.
+- **Timing:** Gate 1 (before Phase 4), Gate 2 (before Phase 8), Gate 3 (before Phase 7).
+- **Metric:** 100% of issues pass all three gates; 100% of ACs have at least one test; 0 tests without a corresponding AC; 100% of ACs have at least one `SCN-{N}` scenario; 0 `missing` or `partial` scenarios at Gate 3; 100% of relevant architectural decisions have an ADR under `docs/adr/`.

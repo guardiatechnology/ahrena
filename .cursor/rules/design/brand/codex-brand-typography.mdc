@@ -1,7 +1,22 @@
 ---
 description: "Reference for Guardia typography: Poppins hierarchy, Lastica for logos, Roboto fallback, and CSS declaration."
 alwaysApply: false
-globs: '["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]'
+globs:
+  - **/*.tsx
+  - **/*.jsx
+  - **/*.ts
+  - **/*.js
+  - **/*.vue
+  - **/*.svelte
+  - **/*.html
+  - **/*.css
+  - **/*.scss
+  - **/*.sass
+  - **/*.less
+  - **/*.styl
+  - **/*.pcss
+  - **/*.md
+  - **/*.mdx
 ---
 
 # Codex: Guardia Typography — Poppins, Lastica, and Roboto

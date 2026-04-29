@@ -10,7 +10,7 @@ Esta Lexis existe para garantizar que **toda implementación tenga trazabilidad 
 
 ## Ley
 
-> **Toda implementación conducida por `warrior-athena` DEBE partir de una issue existente, pasar por ambos Gates (Alcance y Calidad), respetar la trazabilidad bidireccional entre criterios de aceptación y pruebas, registrar decisiones arquitectónicas relevantes como ADRs en `docs/adr/`, y producir toda la documentación pública del flujo en `docs/issues/issue-{n}/`.**
+> **Toda implementación conducida por `warrior-athena` DEBE partir de una issue existente, pasar por los tres Gates (Alcance, Calidad y Comportamental), respetar la trazabilidad bidireccional entre criterios de aceptación, escenarios BDD y pruebas, registrar decisiones arquitectónicas relevantes como ADRs en `docs/adr/`, y producir toda la documentación pública del flujo en `docs/issues/issue-{n}/`.**
 
 ## Reglas
 
@@ -28,15 +28,19 @@ El agente **NO PUEDE**:
 
 1. Avanzar de la Fase 3 a la Fase 4 sin aprobación humana explícita en el Gate 1 (alcance).
 2. Crear el PR en la Fase 7 si el Gate 2 (calidad) no resultó en `go`.
-3. Marcar ítems del Gate 2 como atendidos sin ejecutar realmente la verificación (ej.: no puede declarar "pruebas pasan" sin ejecutar `pytest`).
+3. Crear el PR en la Fase 7 si el Gate 3 (comportamental) no resultó en `go` — i.e., si `08-bdd-validation-report.md` reporta escenarios `missing` o `partial`, o si hay acoplamiento a step-runner BDD.
+4. Marcar ítems del Gate 2 o Gate 3 como atendidos sin ejecutar realmente la verificación (ej.: no puede declarar "pruebas pasan" sin ejecutar `pytest`; no puede declarar "los escenarios cubren los ACs" sin el reporte de `kata-bdd-validate-implementation`).
 
-### 3. Trazabilidad bidireccional AC ↔ prueba
+### 3. Trazabilidad triple AC ↔ Escenario ↔ Prueba
 
-Para que el Gate 2 pase:
+Para que el Gate 2 y el Gate 3 pasen:
 
-1. **Cada criterio de aceptación** numerado en la Fase 2 **DEBE** tener al menos una prueba que lo cubra.
-2. **Cada prueba nueva** introducida en la Fase 4 **DEBE** estar vinculada a al menos un AC mediante la convención `AC-{N}` en el nombre o docstring de la prueba.
-3. Las pruebas nuevas sin AC correspondiente se tratan como **scope creep** y bloquean el gate.
+1. **Cada criterio de aceptación** numerado en la Fase 2 **DEBE** tener al menos una prueba que lo cubra (trazabilidad Gate 2).
+2. **Cada prueba nueva** introducida en la Fase 4 **DEBE** estar vinculada a al menos un AC mediante la convención `AC-{N}` en el nombre o docstring (trazabilidad Gate 2).
+3. **Cada AC DEBE** tener al menos un escenario Gherkin `SCN-{N}` con etiqueta `@AC-{N}` en `07-bdd-scenarios.md` (trazabilidad Gate 3, per `lex-bdd-gherkin-format`).
+4. **Cada escenario `SCN-{N}` DEBE** tener al menos una prueba estándar que lo referencie por nombre o docstring (trazabilidad Gate 3, per `lex-bdd-no-framework-coupling`).
+5. Las pruebas nuevas sin AC correspondiente se tratan como **scope creep** y bloquean el Gate 2.
+6. Los escenarios sin prueba correspondiente se tratan como **gap de comportamiento** y bloquean el Gate 3.
 
 ### 4. ADRs obligatorios para decisiones arquitectónicas relevantes
 
@@ -58,7 +62,9 @@ El agente **DEBE** estructurar toda la documentación pública del flujo en `doc
 3. `docs/issues/issue-{n}/03-architecture.md` — diseño (Fase 3)
 4. `docs/issues/issue-{n}/05-security-review.md` — revisión de seguridad (Fase 5)
 5. `docs/issues/issue-{n}/06-quality-report.md` — informe del Gate 2 (Fase 6)
-6. `docs/adr/ADR-{n}-*.md` — ADRs cuando corresponda
+6. `docs/issues/issue-{n}/07-bdd-scenarios.md` — escenarios Gherkin (Fase 8.1)
+7. `docs/issues/issue-{n}/08-bdd-validation-report.md` — informe del Gate 3 (Fase 8.2)
+8. `docs/adr/ADR-{n}-*.md` — ADRs cuando corresponda
 
 El estado efímero de orquestación (checkpoint entre fases) puede ir en `.ahrena/workflow/issue-{n}/checkpoint.md`, **nunca** en `docs/`. El checkpoint **DEBE** usar front-matter YAML versionado (ver Regla 7).
 
@@ -142,6 +148,19 @@ Cuando se detecte, el agente **DEBE** presentar dos opciones al usuario:
 - Ampliar los ACs (nueva iteración del Gate 1) para cubrir el código adicional.
 - Eliminar el código fuera de alcance del PR actual y abrir una nueva issue para él.
 
+### 10. Fase 8 (Validación Comportamental) y Gate 3
+
+Luego de que el Gate 2 resulte en `go`, `warrior-athena` **DEBE** delegar la Fase 8 a `warrior-themis` antes de invocar `kata-pr-prepare`:
+
+1. **Fase 8.1** — `kata-bdd-scenarios-design` produce `07-bdd-scenarios.md` derivando escenarios **exclusivamente** de las fuentes de especificación (per `lex-bdd-spec-only-sources`). Leer código está PROHIBIDO en esta sub-fase.
+2. **Fase 8.2** — `kata-bdd-validate-implementation` produce `08-bdd-validation-report.md` mapeando cada `SCN-{N}` a las pruebas existentes (la lectura de pruebas está permitida en esta sub-fase) y verifica la ausencia de step-runner BDD en los manifiestos.
+3. **Gate 3 (Comportamental)** — pasa cuando:
+   - Todos los ACs tienen al menos un escenario (`@AC-{N}` presente).
+   - Todos los escenarios tienen al menos una prueba estándar referenciando `SCN-{N}`.
+   - Ningún manifiesto declara un step-runner BDD prohibido (per `lex-bdd-no-framework-coupling`).
+   - Ninguna AC permanece con `status: BLOCKED` por ambigüedad de la Issue.
+4. Cuando el Gate 3 da `no-go`, `warrior-athena` **DEBE** delegar los gaps reportados al warrior responsable (Apollo, Hephaestus, Iris) antes de avanzar a la Fase 7.
+
 ## Alcance
 
 - **Se aplica a:** toda invocación de `/cry-implement-issue` y toda actividad conducida por `warrior-athena`.
@@ -199,6 +218,6 @@ Cuando se detecte, el agente **DEBE** presentar dos opciones al usuario:
 
 ## Validación Automatizada
 
-- **Herramienta:** `kata-quality-gate` (Gate 2) ejecuta la verificación de trazabilidad, scope creep y best practices antes del PR; `scripts/validate.py` verifica la presencia obligatoria de artefactos en `docs/issues/issue-{n}/` cuando el flujo concluye.
-- **Momento:** Gate 1 (antes de la Fase 4), Gate 2 (antes de la Fase 7).
-- **Métrica:** 100% de las issues pasan por ambos gates; 100% de los ACs tienen al menos una prueba; 0 pruebas sin AC correspondiente; 100% de las decisiones arquitectónicas relevantes tienen ADR en `docs/adr/`.
+- **Herramienta:** `kata-quality-gate` (Gate 2 y Check 8 del Gate 3) ejecuta la verificación de trazabilidad, scope creep, best practices, cobertura de escenarios BDD y acoplamiento a framework antes del PR; `kata-bdd-validate-implementation` produce el reporte consumido por el Check 8; `scripts/validate.py` verifica la presencia obligatoria de artefactos en `docs/issues/issue-{n}/` cuando el flujo concluye.
+- **Momento:** Gate 1 (antes de la Fase 4), Gate 2 (antes de la Fase 8), Gate 3 (antes de la Fase 7).
+- **Métrica:** 100% de las issues pasan por los tres gates; 100% de los ACs tienen al menos una prueba; 0 pruebas sin AC correspondiente; 100% de los ACs tienen al menos un escenario `SCN-{N}`; 0 escenarios `missing` o `partial` en el Gate 3; 100% de las decisiones arquitectónicas relevantes tienen ADR en `docs/adr/`.

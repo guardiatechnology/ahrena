@@ -1,0 +1,135 @@
+# Lexis: BDD Tests Without BDD Framework Coupling
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Quality. Implementation of tests that validate Gherkin scenarios.
+
+## Law
+
+> **Tests that validate a Gherkin scenario MUST be regular tests (unit/integration/E2E) written in the test framework the project already uses (pytest, vitest, jest, junit, go test, etc.). Use of any BDD step-runner (behave, pytest-bdd, cucumber, jest-cucumber, lettuce, godog, specflow, gauge) is FORBIDDEN. Each scenario maps to one or more standard tests via a `SCN-{N}` reference in the test name or docstring; the scenario file is documentation, not executable glue.**
+
+## Rules
+
+### 1. Where the scenario lives
+
+Scenarios live in **one** of the following formats, both as documentation not consumed by a runner:
+
+- `docs/issues/issue-{n}/07-bdd-scenarios.md` (consolidated, preferred format).
+- `docs/issues/issue-{n}/scenarios/*.feature` (one file per `Feature`, when volume warrants it).
+
+No runner consumes these files. They are just Markdown/feature files read by humans and by `kata-bdd-validate-implementation`.
+
+### 2. Where the test lives
+
+Tests that validate scenarios live **in the project's normal suite**:
+
+- `tests/unit/`, `tests/integration/`, `tests/e2e/` (or stack equivalent), per `lex-test-pyramid`.
+- **NOT** in `features/`, `steps/`, `step_definitions/`, or any parallel BDD-dedicated directory.
+
+### 3. Mandatory traceability
+
+Every test that validates a scenario **MUST** reference the `SCN-{N}` id in at least one of these places:
+
+- Function/`it`/`describe` name:
+  - Python: `def test_scn_1_customer_schedules_valid_transfer():`
+  - JS/TS: `it("SCN-1 customer schedules a valid transfer", () => { ... })`
+  - Go: `func TestSCN1CustomerSchedulesValidTransfer(t *testing.T) { ... }`
+- Or test docstring/JSDoc, when the name would become unwieldy:
+
+```python
+def test_scheduling_with_insufficient_funds():
+    """Validates SCN-2 (AC-2): customer attempts to schedule without funds."""
+```
+
+A test **MAY** validate more than one scenario (e.g., `"Validates SCN-3 and SCN-4"`); a scenario **MAY** be validated by more than one test (e.g., SCN-1 unit + SCN-1 integration).
+
+### 4. Forbidden dependencies
+
+Project manifests (`pyproject.toml`, `requirements*.txt`, `package.json`, `go.mod`, `pom.xml`, `*.csproj`, etc.) **MUST NOT** declare:
+
+- `behave`, `pytest-bdd`, `lettuce`, `radish-bdd`
+- `cucumber`, `cucumber-js`, `@cucumber/cucumber`, `jest-cucumber`
+- `specflow`, `reqnroll`
+- `godog`
+- `gauge`
+- Any other BDD step-runner
+
+### 5. Forbidden artifacts
+
+The following **MUST NOT** exist in the repository:
+
+- `features/*.feature` files consumed by a runner (scenarios as documentation live under `docs/issues/...`).
+- `steps/`, `step_definitions/`, `support/world.js`, etc. directories with scenario glue.
+- `@given`, `@when`, `@then`, `@step` decorators/annotations bound to scenarios.
+- `behave.ini`, `cucumber.json`, `cypress-cucumber-preprocessor` and similar config files.
+
+### 6. Legacy projects
+
+Pre-existing projects with a BDD framework already entrenched **MUST**:
+
+1. Register an ADR with a removal plan (per `kata-adr-write`).
+2. Freeze creation of new runner-executed scenarios.
+3. Incrementally migrate to standard tests with `SCN-{N}` reference.
+
+For new code (PRs after this Lexis takes effect), Gate 3 blocks imports of the forbidden runners.
+
+### 7. Where the test style lives
+
+The choice of level (unit/integration/E2E) and style (mock, fixture, container) follows `lex-test-pyramid`, `lex-test-isolation`, `lex-python-testing`, `lex-frontend-testing`, and the applicable Codex. This Lexis does not mandate a level — it only requires that, whatever test is chosen, it is **a regular test in the project's framework** with a `SCN-{N}` reference.
+
+## Coverage
+
+- **Applies to:** every test added or changed during Phase 8 of the Issue-Driven flow, and every new test created in projects under this Lexis.
+- **Bound agents:** `warrior-themis` (maps scenario↔test), `warrior-apollo`/`warrior-hephaestus`/`warrior-iris` (when implementing tests to fill a detected gap).
+- **Exceptions:** None. Legacy projects register a removal ADR; new code does not import a BDD runner.
+
+## Examples
+
+### Correct
+
+```python
+# tests/integration/test_transfer_scheduling.py
+import pytest
+
+@pytest.mark.asyncio
+async def test_scn_1_customer_schedules_valid_transfer(client, db_session):
+    """Validates SCN-1 (AC-1): customer with funds schedules a valid transfer."""
+    customer = await create_active_customer(db_session, balance=1000_00)
+    response = await client.post("/v1/transfers", json={
+        "amount": 100_00, "scheduled_for": "2026-04-30"
+    })
+    assert response.status_code == 201
+    assert response.json()["data"]["status"] == "scheduled"
+```
+
+```
+docs/issues/issue-42/07-bdd-scenarios.md   # SCN-1 scenario documented
+tests/integration/test_transfer_scheduling.py   # standard test with reference
+pyproject.toml   # no behave / pytest-bdd
+```
+
+### Incorrect
+
+```
+# pyproject.toml
+[project.optional-dependencies]
+test = ["pytest-bdd>=7.0"]   # ❌ forbidden BDD runner
+
+# features/transfer.feature   # ❌ feature consumed by runner
+
+# tests/steps/transfer_steps.py
+from pytest_bdd import given, when, then, scenario
+
+@scenario("../../features/transfer.feature", "Customer schedules a valid transfer")
+def test_schedule(): pass
+
+@given("the available balance is $ 1,000.00")
+def balance_thousand(db): ...   # ❌ parallel glue
+
+@when("the customer schedules a transfer of $ 100.00 for tomorrow")
+def schedule(client): ...   # ❌ regex matchers
+```
+
+## Automated Validation
+
+- **Tool:** dependency lint scanning `pyproject.toml`/`requirements*.txt`/`package.json`/`go.mod`/etc. against the forbidden list; test lint ensuring `SCN-{N}` reference; `kata-bdd-validate-implementation` produces `08-bdd-validation-report.md` with the mapping; `kata-quality-gate` Check 8 fails the gate on violation.
+- **When:** Phase 8 of the Issue-Driven flow (pre-PR), CI on every PR that adds/changes tests or manifests.
+- **Metric:** 0 BDD step-runner dependencies; 100% of scenarios with at least one test referencing `SCN-{N}`.

@@ -1,0 +1,138 @@
+# Lexis: Mandatory Declarative Gherkin Format
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Quality. Format and writing style of every Gherkin scenario produced for BDD validation.
+
+## Law
+
+> **Every Gherkin scenario produced for BDD validation MUST follow strict declarative Gherkin: structured with `Feature`/`Background`/`Scenario`/`Scenario Outline` using `Given`/`When`/`Then`/`And` steps; written in business (ubiquitous) language; free of UI selectors, HTTP status codes, function names, table/column names, file paths, and any other implementation detail. Imperative scenarios that narrate UI clicks or technical artifacts are FORBIDDEN. Each scenario MUST be independent (no execution order dependency) and tagged with at least one AC tag (`@AC-{N}`) and one type tag (`@happy-path` | `@alternative` | `@edge` | `@error` | `@nfr`).**
+
+## Rules
+
+### 1. Mandatory structure
+
+Every scenarios file **MUST** contain:
+
+```gherkin
+# language: en (or es/pt-BR per chosen language)
+Feature: <business-language title>
+
+  Background:
+    Given <shared business precondition>
+
+  @AC-1 @happy-path
+  Scenario: SCN-1 <one-sentence business behavior>
+    Given <initial state>
+    When <business action>
+    Then <observable outcome>
+
+  @AC-2 @edge
+  Scenario Outline: SCN-2 <parametric variation>
+    Given the balance is <balance>
+    When the user requests <amount>
+    Then the system responds with <result>
+
+    Examples:
+      | balance | amount | result                   |
+      | 100     | 50     | approved                 |
+      | 100     | 200    | rejected for low balance |
+```
+
+The first line **MAY** declare the Gherkin language (`# language: en`); when absent, `en` is assumed.
+
+### 2. Ubiquitous, not technical, language
+
+Steps describe **what the business observes**, not how the system executes.
+
+| Allowed (declarative) | Forbidden (imperative/technical) |
+|---|---|
+| "the customer requests a refund of $ 50.00" | "POST /api/refunds with payload {amount: 5000}" |
+| "the system rejects the refund as duplicate" | "the response has status code 409" |
+| "the customer receives confirmation that the transfer was scheduled" | "the email is sent by the function `send_email_async`" |
+| "the available balance is insufficient" | "the column `available_balance` has value < amount" |
+| "the operation is recorded in the customer's history" | "a row is inserted into `audit_log`" |
+
+### 3. Forbidden patterns inside `Given`/`When`/`Then`
+
+The lint **MUST** reject scenarios containing:
+
+- CSS/XPath selectors: `#id`, `.class`, `input[name=...]`, `//div[...]`
+- UI verbs: "clicks", "fills the field", "waits for the selector", "scrolls to"
+- HTTP methods and status: `POST`, `GET`, `PUT`, `DELETE`, `200`, `201`, `400`, `404`, `409`, `500`
+- Function/method names: `calculate_fee()`, `processPayment(...)`, any identifier with parentheses
+- Table/column names in snake_case or SQL references: `SELECT ... FROM`, `INSERT INTO`, `UPDATE ... SET`
+- File or module paths: `src/`, `app/`, `.py`, `.ts`, `.java`
+- HTTP headers, literal JSON payloads, raw bytes, hashes
+
+### 4. Identification and traceability
+
+Each `Scenario` or `Scenario Outline` **MUST**:
+
+1. Have a unique id `SCN-{N}` in the title (or in a comment immediately above).
+2. Have at least one `@AC-{N}` tag referencing a numbered acceptance criterion in `02-requirements.md`.
+3. Have exactly one type tag: `@happy-path`, `@alternative`, `@edge`, `@error`, or `@nfr`.
+
+This triple (id + AC + type) is what `kata-bdd-validate-implementation` uses to map scenarios to tests.
+
+### 5. Independence
+
+Scenarios in the same file **MUST NOT** depend on execution order. Each scenario starts from the state declared in `Background` plus its own `Given`. A scenario that assumes "after the previous scenario, ..." is a violation.
+
+### 6. `Background` only for business preconditions
+
+`Background` **MUST** declare shared preconditions in business language (e.g., "Given an active customer in wallet X"). Technical setup (empty database, purged queue, configured mock) **MUST NOT** appear in `Background` — it belongs to the test code, not to the scenario.
+
+### 7. Gherkin language
+
+The step language follows `language.default` in `.ahrena/.directives` for projects whose team speaks that language. Multi-team projects **MAY** write scenarios in `en`. The chosen language **MUST** be consistent within the same `.feature` (or `07-bdd-scenarios.md`) file.
+
+## Coverage
+
+- **Applies to:** every `.feature` or `07-bdd-scenarios.md` file produced in Phase 8 of the Issue-Driven flow; also applies to BDD scenarios produced outside the flow (e.g., domain discovery).
+- **Bound agents:** `warrior-themis` (produces), any agent editing scenarios, `kata-bdd-scenarios-design`, `kata-bdd-validate-implementation`.
+- **Exceptions:** None. Scenarios that fail the format are regenerated, not patched.
+
+## Examples
+
+### Correct
+
+```gherkin
+# language: en
+Feature: Transfer scheduling
+
+  Background:
+    Given an active customer with a checking account in the "Operations" wallet
+
+  @AC-1 @happy-path
+  Scenario: SCN-1 Customer schedules a valid transfer
+    Given the available balance is $ 1,000.00
+    When the customer schedules a transfer of $ 100.00 for tomorrow
+    Then the transfer is recorded as scheduled
+    And the customer receives confirmation with the expected execution date
+
+  @AC-2 @error
+  Scenario: SCN-2 Customer attempts to schedule a transfer without funds
+    Given the available balance is $ 50.00
+    When the customer attempts to schedule a transfer of $ 100.00
+    Then the system rejects the scheduling for insufficient funds
+    And no transfer is recorded
+```
+
+### Incorrect
+
+```gherkin
+Feature: Transfer scheduling
+
+  Scenario: Success
+    Given a POST to /api/transfers with {"amount": 10000, "scheduled_for": "2026-04-30"}
+    When the user clicks #btn-confirm
+    Then the response has status code 201
+    And the status column in the transfers table is "scheduled"
+```
+
+Violations: status code, HTTP method, JSON payload, UI selector, table and column names, missing `@AC-{N}` and type tags, missing `SCN-{N}` id, no observable business behavior.
+
+## Automated Validation
+
+- **Tool:** scenarios lint (regex set) rejecting the forbidden patterns enumerated in Rule 3; mandatory check for `@AC-{N}` + type tag on every scenario; manual review at Gate 3 (`kata-quality-gate` Check 8).
+- **When:** when saving `07-bdd-scenarios.md` in `kata-bdd-scenarios-design` and again at Gate 3 before `kata-pr-prepare`.
+- **Metric:** 0 scenarios containing forbidden technical patterns; 100% of scenarios with `@AC-{N}` and type tags; 100% of scenarios with a unique `SCN-{N}` id.

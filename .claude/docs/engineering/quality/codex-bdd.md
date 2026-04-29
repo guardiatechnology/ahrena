@@ -1,0 +1,143 @@
+# Codex: Behavior-Driven Development at Guardia
+
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Engineering — Quality. BDD principles and practice applied in Phase 8 of the Issue-Driven flow.
+
+## Content
+
+### 1. Why BDD at Guardia
+
+The AC↔test traceability required by `lex-issue-driven` Rule 3 ensures every AC has a test and every test has an AC. But it does not guarantee **the test validates the right behavior**: an ambiguous AC can receive a test that passes without demonstrating the business rule.
+
+BDD closes that gap:
+
+| Without BDD | With BDD |
+|---|---|
+| AC: "must validate balance" → test: `assert response.status_code == 422` | AC: "must validate balance" → SCN-1: "given balance X, when requesting Y > X, then reject for insufficient funds" → test validates the observable business rule |
+
+The difference is simple: **scenario describes behavior; test validates scenario**. If the scenario was written without looking at the code (`lex-bdd-spec-only-sources`), divergence between request and delivery shows up in the mapping.
+
+### 2. Source hierarchy
+
+`warrior-themis` consults sources in this order (always blind to `src/`):
+
+```
+1. docs/issues/issue-{n}/02-requirements.md   ← numbered ACs
+2. docs/issues/issue-{n}/01-brief.md          ← issue context
+3. GitHub Issue #{n}                          ← title, body, comments
+4. Referenced Notion pages                    ← detailed specification
+5. docs/issues/issue-{n}/03-architecture.md   ← constraints, contracts
+6. ADRs in docs/adr/                          ← when referenced
+```
+
+If those sources aren't enough, **the Issue is incomplete** — the agent stops and returns to source (per `lex-bdd-spec-only-sources` Rule 4). Never resort to the code as a shortcut.
+
+### 3. Three Amigos in our context
+
+The classic ritual (PM + Dev + QA in a room) is asynchronous and distributed here:
+
+| Role | Who | Where they talk |
+|---|---|---|
+| PM (request author) | Issue author | Issue body + Notion pages |
+| Tech Lead (feasibility) | author of `03-architecture.md` | `03-architecture.md` and Issue comments |
+| Validator (scenarios) | `warrior-themis` | `07-bdd-scenarios.md` + Issue comments for ambiguities |
+
+When a scenario can't be written from the sources, `warrior-themis` opens an Issue comment listing the ambiguities. PM and Tech Lead respond; the scenario is written when all three voices converge in writing. No synchronous meeting — evidence stays in the history.
+
+### 4. Scenario taxonomy
+
+Each scenario carries **one** type tag. Use this table as a guide:
+
+| Tag | When | Coverage rule |
+|---|---|---|
+| `@happy-path` | Main path: valid input, success flow | **Every AC** needs at least 1 |
+| `@alternative` | Alternative success path (same intent, different branch) | When the AC mentions "or", "if already exists", "when the user has profile X" |
+| `@edge` | Limits, boundaries, valid extreme data | ACs with numeric limits, ranges, dates, max sizes |
+| `@error` | Expected failure with defined handling | ACs with explicit negative requirement ("rejects when", "rejects if") |
+| `@nfr` | Observable non-functional requirement (latency, idempotency, availability) | When NFRs are part of the AC or `03-architecture.md` |
+
+**Minimum acceptable per AC:** 1 happy-path + (1 error if there is a negative requirement) + (1 edge if there is a numeric/temporal boundary). Full coverage requires every applicable type.
+
+### 5. From AC to SCN
+
+Pattern for transforming a numbered AC into scenarios:
+
+```
+AC-3: The system must reject scheduling a transfer when the
+       available balance is less than the requested amount,
+       informing the customer of the reason.
+```
+
+Decompose into observable behaviors:
+
+```
+SCN-3.1 @AC-3 @error
+  Insufficient balance for the exact amount → rejects with reason
+
+SCN-3.2 @AC-3 @edge
+  Balance equal to amount (including fee) → rejects at the boundary
+
+SCN-3.3 @AC-3 @happy-path
+  Sufficient balance → accepts (covers "must reject" by contrast)
+```
+
+Use the Issue template axis (Why/What/How) as a compass: the **What** becomes the scenario `When`; the observable **How** becomes the `Then`; the **Why** usually stays as context in the Feature description.
+
+### 6. Ubiquitous language
+
+Scenarios touching core domain (transfer, reconciliation, ledger entry, accounting event) **MUST** use the domain model terms produced by `warrior-theseus` or by Event Storm (`kata-event-storm`). Divergent terms in scenarios cause drift between design and implementation.
+
+| Good | Bad |
+|---|---|
+| "the customer schedules a transfer" | "the user creates a transfer record" |
+| "the reconciliation is approved" | "the reconcile status flips to 'approved'" |
+| "the ledger entry is reversed" | "the ledger entry row is deleted" |
+
+When a domain term doesn't yet exist, **the scenario raises an explicit doubt** on the Issue (per Three Amigos) before inventing terminology.
+
+### 7. Definition of Done for the scenario set
+
+`07-bdd-scenarios.md` is ready when:
+
+1. **Every AC has ≥ 1 scenario** (basic coverage).
+2. **Every AC with a negative requirement has ≥ 1 `@error`**.
+3. **Every AC with a numeric/temporal boundary has ≥ 1 `@edge`**.
+4. **Frontmatter declares only allowed sources** (per `lex-bdd-spec-only-sources` Rule 3).
+5. **Format lint passes** (per `lex-bdd-gherkin-format` validation).
+6. **`SCN-{N}` ids are unique** within the file.
+7. **No pending ambiguities** — Issue comments resolved or scenarios removed.
+
+### 8. Anti-patterns
+
+| Anti-pattern | Why it's bad | Symptom |
+|---|---|---|
+| Imperative scenario ("clicks on ...", "POST /api/...") | Couples to UI/protocol, ages badly | `lex-bdd-gherkin-format` lint rejects it |
+| Scenario per screen | Covers layout, not behavior | Multiple screens with the same scenario running — Background is the right place |
+| Scenario per function | A unit test already exists; the scenario adds nothing | SCN cites a function name |
+| "Logged in" boilerplate in every scenario's Given | Repetition that masks the real `When` | Move to `Background` |
+| `Then` with no observable outcome | Scenario tests nothing | `Then the operation happens` (no declared effect) |
+| Scenario with implicit order ("after SCN-1, ...") | Breaks the independence required by `lex-bdd-gherkin-format` Rule 5 | Refactor with explicit Background or Given |
+
+### 9. Relationship with `kata-test-plan-design`
+
+Scenario and test are **complementary**:
+
+| Artifact | Question it answers |
+|---|---|
+| Scenario (BDD) | "**What** behavior must the system have?" |
+| Test plan | "**At which level** do we validate each behavior?" |
+| Implemented test | "**How** do we validate it in test code?" |
+
+A SCN may map to 1 test (simple path), 2 tests (unit + integration), or N tests (unit + integration + E2E for critical journeys). `kata-bdd-validate-implementation` produces the map in `08-bdd-validation-report.md`.
+
+### 10. Glossary
+
+| Term | Definition at Guardia |
+|---|---|
+| **Feature** | Gherkin block grouping scenarios for a feature or epic |
+| **Background** | Shared precondition across scenarios in the same Feature, in business language |
+| **Scenario** | Observable behavior; a concrete Given/When/Then case |
+| **Scenario Outline + Examples** | Parametric scenario; one structure, multiple examples in a table |
+| **SCN-{N}** | Unique scenario identifier, used for ↔ test traceability |
+| **Ubiquitous language** | Domain vocabulary shared between business, design, and engineering |
+| **Three Amigos** | PM + Tech Lead + Validator conversing about each scenario (asynchronous at Guardia) |
+| **Black-box validation** | Validation that ignores how the system is built, only observes what it does |

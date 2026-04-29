@@ -1,7 +1,12 @@
 ---
 description: "When building UI, meet WCAG 2.1 AA as minimum; semantic HTML, keyboard navigation, labels, contrast, dynamic content announcements."
 alwaysApply: false
-globs: '["**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte", "**/*.html"]'
+globs:
+  - **/*.tsx
+  - **/*.jsx
+  - **/*.vue
+  - **/*.svelte
+  - **/*.html
 ---
 
 # Lexis: Frontend Accessibility (WCAG 2.1 AA)

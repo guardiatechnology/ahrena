@@ -1,7 +1,10 @@
 ---
 description: "When writing frontend code, prevent XSS, never bundle secrets, validate inputs in two tiers, configure CSP, rel=noopener on external links."
 alwaysApply: false
-globs: '["**/*.ts", "**/*.tsx", "**/*.vue"]'
+globs:
+  - **/*.ts
+  - **/*.tsx
+  - **/*.vue
 ---
 
 # Lexis: Frontend Security

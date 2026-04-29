@@ -1,7 +1,10 @@
 ---
 description: "When designing or implementing API access, apply OAuth 2.0/JWT/RBAC per Guardia auth spec."
 alwaysApply: false
-globs: '["**/openapi/**", "**/oas/**", "**/api/**"]'
+globs:
+  - **/openapi/**
+  - **/oas/**
+  - **/api/**
 ---
 
 # Lexis: Authentication and Authorization for Guardia APIs

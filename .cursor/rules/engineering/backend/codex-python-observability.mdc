@@ -1,7 +1,8 @@
 ---
 description: "When adding observability, use OpenTelemetry traces, metrics, and structured logging from this codex."
 alwaysApply: false
-globs: '["**/*.py"]'
+globs:
+  - **/*.py
 ---
 
 # Codex: Python Observability

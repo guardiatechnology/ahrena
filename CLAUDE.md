@@ -66,6 +66,8 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/engineering\platform\codex-restful-payload.md`
 - `.claude/docs/engineering\platform\codex-restful-sorting.md`
 - `.claude/docs/engineering\platform\codex-restful-status-codes.md`
+- `.claude/docs/engineering\quality\codex-bdd.md`
+- `.claude/docs/engineering\quality\codex-gherkin.md`
 - `.claude/docs/engineering\quality\codex-test-strategy.md`
 - `.claude/docs/engineering\sre\codex-incident-response.md`
 - `.claude/docs/engineering\workflow\codex-issue-workflow.md`

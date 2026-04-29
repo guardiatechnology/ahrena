@@ -1,7 +1,10 @@
 ---
 description: "When building FastAPI endpoints, follow route structure, dependency injection, and response models from this codex."
 alwaysApply: false
-globs: '["**/*.py", "**/routers/**", "**/api/**"]'
+globs:
+  - **/*.py
+  - **/routers/**
+  - **/api/**
 ---
 
 # Codex: FastAPI Patterns

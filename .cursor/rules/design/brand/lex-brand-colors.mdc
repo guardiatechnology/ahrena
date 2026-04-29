@@ -1,7 +1,22 @@
 ---
 description: "When applying color, use only the official Guardia palette and meet WCAG 2.1 AA; the Yellow 500 + White combination is forbidden."
 alwaysApply: false
-globs: '["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]'
+globs:
+  - **/*.tsx
+  - **/*.jsx
+  - **/*.ts
+  - **/*.js
+  - **/*.vue
+  - **/*.svelte
+  - **/*.html
+  - **/*.css
+  - **/*.scss
+  - **/*.sass
+  - **/*.less
+  - **/*.styl
+  - **/*.pcss
+  - **/*.md
+  - **/*.mdx
 ---
 
 # Lexis: Approved Color Palette and WCAG Combinations

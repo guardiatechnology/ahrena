@@ -1,7 +1,20 @@
 ---
 description: "When designing Guardia product UI, follow the AI-First pattern: Isac-led conversation + live workspace; no module sidebar as primary architecture."
 alwaysApply: false
-globs: '["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]'
+globs:
+  - **/*.tsx
+  - **/*.jsx
+  - **/*.ts
+  - **/*.js
+  - **/*.vue
+  - **/*.svelte
+  - **/*.html
+  - **/*.css
+  - **/*.scss
+  - **/*.sass
+  - **/*.less
+  - **/*.styl
+  - **/*.pcss
 ---
 
 # Lexis: AI-First Experience by Default
