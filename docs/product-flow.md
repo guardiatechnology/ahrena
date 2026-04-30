@@ -64,7 +64,7 @@ flowchart TB
     class Start,Cliente terminal
 ```
 
-**Leitura:** Calíope abre PRD/Capability Spec → Prometheus faz design técnico (com Hécate Modo B condicional para agentes da plataforma) → Eos faz design visual quando UI → **DoR HARD-GATE** valida pacote pronto e Calíope cria a Issue no GitHub → **Athena** orquestra implementação (Apolo/Hephaestus/Iris) através das 7 fases do Issue-Driven → **DoD Validation HARD-GATE** ([kata-quality-gate](framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) + `kata-dod-validate`) gate o merge → handoff para Niké em Delivery.
+**Leitura:** Calíope abre PRD/Capability Spec → Prometheus faz design técnico (com Hécate Modo B condicional para agentes da plataforma) → Eos faz design visual quando UI → **DoR HARD-GATE** valida pacote pronto e Calíope cria a Issue no GitHub → **Athena** orquestra implementação (Apolo/Hephaestus/Iris) através das 7 fases do Issue-Driven → **DoD Validation HARD-GATE** ([kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) + `kata-dod-validate`) gate o merge → handoff para Niké em Delivery.
 
 ---
 
@@ -73,8 +73,8 @@ flowchart TB
 | Fase | Warrior orquestrador | Warriors especialistas | Output canônico |
 |---|---|---|---|
 | **Discovery** | [Calíope](product-discovery.md#55-warrior-calliope--narrativa-final-orquestrador) | [Argos](product-discovery.md#51-warrior-argos--coleta-de-sinais-novo) (coleta) · [Métis](product-discovery.md#52-warrior-metis--síntese-de-problema-novo) (síntese) · [Têmis](product-discovery.md#53-warrior-themis--priorização-novo) (priorização) · [Asclépio](product-discovery.md#54-warrior-asclepius--validação-novo) (validação) | `docs/discovery/{topic}/insights.md` |
-| **Development** | [Calíope](product-development.md#41-warrior-calliope--product-manager-orquestrador-master) | [Prometheus](product-development.md#42-warrior-prometheus--feature-design-lead-reposicionado) (Theseus + Daedalus + Kronos) · [Eos](product-development.md#44-warrior-eos--design-visual-novo) (visual) · [Hécate](product-development.md#46-warrior-hecate--meta-engenharia-de-agentes-novo) (agente plataforma) · [Mômos](product-development.md#43-warrior-momos--validador-adversarial-novo) (validador) · [Athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (implementação) · Apolo/Hephaestus/Iris/Hera/Atlas/Demeter | `docs/product/{feature}/` + `docs/agents/{agent}/` + PR mergeado |
-| **Delivery** | [Niké](product-delivery.md#41-warrior-nike--delivery-orchestrator-refinado) | [Mômos](product-development.md#43-warrior-momos--validador-adversarial-novo) (validador) · [Hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) (incidentes) · [Translator](framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) (release notes) | `docs/releases/{feature}/` |
+| **Development** | [Calíope](product-development.md#41-warrior-calliope--product-manager-orquestrador-master) | [Prometheus](product-development.md#42-warrior-prometheus--feature-design-lead-reposicionado) (Theseus + Daedalus + Kronos) · [Eos](product-development.md#44-warrior-eos--design-visual-novo) (visual) · [Hécate](product-development.md#46-warrior-hecate--meta-engenharia-de-agentes-novo) (agente plataforma) · [Mômos](product-development.md#43-warrior-momos--validador-adversarial-novo) (validador) · [Athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (implementação) · Apolo/Hephaestus/Iris/Hera/Atlas/Demeter | `docs/product/{feature}/` + `docs/agents/{agent}/` + PR mergeado |
+| **Delivery** | [Niké](product-delivery.md#41-warrior-nike--delivery-orchestrator-refinado) | [Mômos](product-development.md#43-warrior-momos--validador-adversarial-novo) (validador) · [Hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) (incidentes) · [Translator](../framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) (release notes) | `docs/releases/{feature}/` |
 
 ---
 
@@ -153,7 +153,7 @@ flowchart TB
 | 1 | **Gate D1** — problema aprovado | Discovery, entre D2 e D3 | Owner do tema + Product | Problem framing tem evidência rastreável |
 | 2 | **Gate D2** — insight aprovado | Discovery, entre D4 e D5 | Owner do tema + Product | Premissas validadas; recomendação fundamentada |
 | 3 | **DoR HARD-GATE** | Development, antes da issue | Calíope formaliza, humano confirma | 8 critérios canônicos atendidos |
-| 4 | **DoD HARD-GATE** | Development, antes do merge | [kata-quality-gate](framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) + `kata-dod-validate` | 7+1 checks aprovados |
+| 4 | **DoD HARD-GATE** | Development, antes do merge | [kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) + `kata-dod-validate` | 7+1 checks aprovados |
 | 5 | **Gate E1** — plan approved | Delivery, antes do rollout | Product + Engineering Lead | Release plan robusto, rollback claro |
 | 6 | **Gate E2** — GA approved | Delivery, antes de fechar rollout | Product + Engineering Lead (+ SRE em tier-1) | Métricas saudáveis em 50% por tempo mínimo |
 
@@ -250,7 +250,7 @@ flowchart LR
 | Conformidade automatizada | [lex-*-pattern](product-development.md#61-lex-hard-gate-pattern-meta-lex) HARD-GATE | Bloqueio textual nas Lexis (`<HARD-GATE>...</HARD-GATE>`) |
 | Implementação técnica | Apolo / Hephaestus / Iris (delegados por Athena) | Fase 5 do Development, dentro do Issue-Driven |
 | Operacional de rollout | Niké automatizada + halt automático | `kata-rollout-monitor` + dashboards |
-| Incidente em produção | Hestia (escalada por Niké) | [kata-incident-triage](framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) |
+| Incidente em produção | Hestia (escalada por Niké) | [kata-incident-triage](../framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) |
 | Evolução do framework | Hécate Modo A (humano dispara) | Quando Lexis/Codex/Warrior precisa nascer ou evoluir |
 | Spec de agente da plataforma | Hécate Modo B (humano dispara via Calíope) | Fase 2.5 do Development, condicional |
 
@@ -262,7 +262,7 @@ Estes padrões se repetem em todas as 3 fases — entender 1 vez é entender 3 v
 
 ### 9.1 Orquestrador master + warriors especialistas
 
-Cada fase tem 1 orquestrador e N especialistas. Mesma mecânica de [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) hoje:
+Cada fase tem 1 orquestrador e N especialistas. Mesma mecânica de [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) hoje:
 
 | Fase | Orquestrador | Especialistas |
 |---|---|---|
@@ -314,7 +314,7 @@ flowchart LR
     class B,FB,SpecB modeB
 ```
 
-[Hécate](product-development.md#46-warrior-hecate--meta-engenharia-de-agentes-novo) é o único warrior que opera nessa fronteira. Lexis técnica (ex.: [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md)) reusa entre Modo A (regra do team) e Modo B (guard-rail de runtime).
+[Hécate](product-development.md#46-warrior-hecate--meta-engenharia-de-agentes-novo) é o único warrior que opera nessa fronteira. Lexis técnica (ex.: [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md)) reusa entre Modo A (regra do team) e Modo B (guard-rail de runtime).
 
 ---
 
@@ -325,8 +325,8 @@ flowchart LR
 | Como Discovery funciona em detalhe | [product-discovery.md](product-discovery.md) |
 | Como Development funciona em detalhe | [product-development.md](product-development.md) |
 | Como Delivery funciona em detalhe | [product-delivery.md](product-delivery.md) |
-| Como warriors são especificados | [framework/pt-BR/_foundation/authoring/codex/codex-warriors.md](framework/pt-BR/_foundation/authoring/codex/codex-warriors.md) |
-| Como o fluxo Issue-Driven existente opera | [framework/pt-BR/engineering/workflow/codex/codex-issue-workflow.md](framework/pt-BR/engineering/workflow/codex/codex-issue-workflow.md) |
+| Como warriors são especificados | [framework/pt-BR/_foundation/authoring/codex/codex-warriors.md](../framework/pt-BR/_foundation/authoring/codex/codex-warriors.md) |
+| Como o fluxo Issue-Driven existente opera | [framework/pt-BR/engineering/workflow/codex/codex-issue-workflow.md](../framework/pt-BR/engineering/workflow/codex/codex-issue-workflow.md) |
 | Lei base de Discovery before PRD | [Discovery seção 7.2](product-discovery.md#72-lex-discovery-before-prd-novo) |
 | Lei base de DoR | [Development seção 6.2](product-development.md#62-lex-dor-criteria) |
 | Lei base de DoD | [Development seção 6.6](product-development.md#66-lex-dod-criteria) |

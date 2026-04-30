@@ -8,7 +8,7 @@
 
 Cobre tudo que acontece **antes** de uma issue de implementação existir. Entrada: dor/oportunidade não estruturada. Saída: insight evidenciado pronto para virar PRD/Capability Spec na fase [Product Development](product-development.md).
 
-**Mudança vs. v1:** Discovery agora é **fase composta** com 5 sub-fases (D1–D5), 2 Gates de aprovação humana, e 4 warriors especialistas orquestrados por Calíope. O motivo: o ciclo é longo demais e tem decisões estratégicas demais para concentrar em um único agente. O padrão segue [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (orquestra → delega → 2 Gates) e [warrior-prometheus](framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) (Theseus → Daedalus → Kronos).
+**Mudança vs. v1:** Discovery agora é **fase composta** com 5 sub-fases (D1–D5), 2 Gates de aprovação humana, e 4 warriors especialistas orquestrados por Calíope. O motivo: o ciclo é longo demais e tem decisões estratégicas demais para concentrar em um único agente. O padrão segue [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (orquestra → delega → 2 Gates) e [warrior-prometheus](../framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) (Theseus → Daedalus → Kronos).
 
 ---
 
@@ -39,7 +39,7 @@ Adotados dos estudos de [obra/superpowers](https://github.com/obra/superpowers) 
 | ⛔ **Gate D2** | **Insight aprovado** (humano) | (decisão humana) | aprovação para virar PRD |
 | **D5** | Narrativa final | [warrior-calliope](#55-warrior-calliope--narrativa-final-orquestrador) | `docs/discovery/{topic}/insights.md` |
 
-**Por que apenas 2 Gates e não 5:** segue o mesmo padrão de [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (7 fases, 2 Gates). Concentra decisão humana onde realmente importa (problema bem definido / hipótese validada), evita reunião-fadiga, e permite execução fluida dentro de cada bloco.
+**Por que apenas 2 Gates e não 5:** segue o mesmo padrão de [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (7 fases, 2 Gates). Concentra decisão humana onde realmente importa (problema bem definido / hipótese validada), evita reunião-fadiga, e permite execução fluida dentro de cada bloco.
 
 **Gate D1 — Problema aprovado** (entre D2 e D3):
 - Apresenta ao humano: corpus de evidência + problem framing + JTBD + personas
@@ -114,9 +114,9 @@ Adotados dos estudos de [obra/superpowers](https://github.com/obra/superpowers) 
 **Persona:** rigoroso, paralelo, agnóstico — coleta tudo o que cabe, deixa interpretação para Métis.
 
 **Conexão com o framework atual:**
-- Consulta [lex-mcp](framework/pt-BR/_foundation/tooling/lexis/lex-mcp.md), [codex-mcp-common](framework/pt-BR/_foundation/tooling/codex/codex-mcp-common.md), [codex-mcp-notion](framework/pt-BR/_foundation/tooling/codex/codex-mcp-notion.md), [codex-mcp-github](framework/pt-BR/_foundation/tooling/codex/codex-mcp-github.md)
+- Consulta [lex-mcp](../framework/pt-BR/_foundation/tooling/lexis/lex-mcp.md), [codex-mcp-common](../framework/pt-BR/_foundation/tooling/codex/codex-mcp-common.md), [codex-mcp-notion](../framework/pt-BR/_foundation/tooling/codex/codex-mcp-notion.md), [codex-mcp-github](../framework/pt-BR/_foundation/tooling/codex/codex-mcp-github.md)
 - Aplica [lex-evidence-required](#71-lex-evidence-required-novo) na atribuição de fonte
-- Persiste checkpoint per [lex-checkpoint](framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md)
+- Persiste checkpoint per [lex-checkpoint](../framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md)
 
 ---
 
@@ -229,7 +229,7 @@ Adotados dos estudos de [obra/superpowers](https://github.com/obra/superpowers) 
 - Decide o escopo da discovery (quais katas Argos deve rodar, se Têmis precisa fazer rubrica completa, etc.)
 - Coordena handoffs entre Argos → Métis → Têmis → Asclépio
 - Aplica os 2 Gates (D1, D2) com humano
-- Mantém checkpoint em `.ahrena/workflow/discovery-{topic}/checkpoint.md` per [lex-checkpoint](framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md)
+- Mantém checkpoint em `.ahrena/workflow/discovery-{topic}/checkpoint.md` per [lex-checkpoint](../framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md)
 - Escala para humano em hotspots ou inconsistências entre fases
 
 **Como executora (D5):**
@@ -244,7 +244,7 @@ Calíope **continua** orquestrando após Discovery — em [Product Development](
 **Persona:** narradora estratégica + orquestradora rigorosa — formaliza decisão e narrativa, defende rigor de evidência, aplica gates sem exceção.
 
 **Conexão com o framework atual:**
-- Posicionamento idêntico a [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (orquestrador master de fluxo) e [warrior-prometheus](framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) (orquestrador master de design técnico)
+- Posicionamento idêntico a [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (orquestrador master de fluxo) e [warrior-prometheus](../framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) (orquestrador master de design técnico)
 - **Hierarquia inversa interessante:** mitologicamente Métis é mãe de Atena. No framework, Calíope (musa) coordena Métis (titânide). Não há contradição — são contextos distintos
 - **Continua em Development:** ver [Product Development → seção 4.1](product-development.md#41-warrior-calliope--product-manager-novo)
 
@@ -252,7 +252,7 @@ Calíope **continua** orquestrando após Discovery — em [Product Development](
 
 ## 6. Katas
 
-Organizados por fase. **Todos** os katas seguem [lex-template-usage](framework/pt-BR/_foundation/quality/lexis/lex-template-usage.md) e produzem artefato com path canônico.
+Organizados por fase. **Todos** os katas seguem [lex-template-usage](../framework/pt-BR/_foundation/quality/lexis/lex-template-usage.md) e produzem artefato com path canônico.
 
 ### 6.1 Katas da fase D1 (executados por Argos)
 
@@ -337,7 +337,7 @@ percepção de "óbvio".
 
 > Nenhum PRD ou Capability Spec MAY ser iniciado sem fase de discovery declarada e documentada em `docs/discovery/{topic}/`. A discovery pode ser mínima (uma única evidência rastreável) mas MUST existir.
 
-**Conexão:** estende [lex-issue-quality](framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md).
+**Conexão:** estende [lex-issue-quality](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md).
 
 ### 7.3 `lex-discovery-gates` (novo)
 
@@ -430,39 +430,39 @@ digraph discovery {
 
 | Lexis existente | Como Discovery se conecta |
 |---|---|
-| [lex-directives](framework/pt-BR/_foundation/process/lexis/lex-directives.md) | Calíope lê `.ahrena/.directives` (paths, language, mcp.servers) |
-| [lex-mcp](framework/pt-BR/_foundation/tooling/lexis/lex-mcp.md) | Argos consome MCPs declarados (firecrawl, exa, GitHub, Notion) |
-| [lex-issue-quality](framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md) | Estendida: campo "Why" passa a exigir link para `insights.md` quando feature |
-| [lex-tone](framework/pt-BR/_foundation/quality/lexis/lex-tone.md) | Saídas seguem tom Guardia |
-| [lex-template-usage](framework/pt-BR/_foundation/quality/lexis/lex-template-usage.md) | Todo kata produz artefato baseado em template |
-| [lex-brand-voice](framework/pt-BR/design/brand/lexis/lex-brand-voice.md) | Insights destinados a uso público seguem voz Guardia |
-| [lex-language](framework/pt-BR/documentation/i18n/lexis/lex-language.md) | Saídas em `language.default`; tradução por demanda |
-| [lex-platforms-rules](framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md) | Cada novo lex/codex entra em `framework/platforms.yaml` |
-| [lex-checkpoint](framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md) | Calíope persiste checkpoint em `.ahrena/workflow/discovery-{topic}/checkpoint.md` |
+| [lex-directives](../framework/pt-BR/_foundation/process/lexis/lex-directives.md) | Calíope lê `.ahrena/.directives` (paths, language, mcp.servers) |
+| [lex-mcp](../framework/pt-BR/_foundation/tooling/lexis/lex-mcp.md) | Argos consome MCPs declarados (firecrawl, exa, GitHub, Notion) |
+| [lex-issue-quality](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md) | Estendida: campo "Why" passa a exigir link para `insights.md` quando feature |
+| [lex-tone](../framework/pt-BR/_foundation/quality/lexis/lex-tone.md) | Saídas seguem tom Guardia |
+| [lex-template-usage](../framework/pt-BR/_foundation/quality/lexis/lex-template-usage.md) | Todo kata produz artefato baseado em template |
+| [lex-brand-voice](../framework/pt-BR/design/brand/lexis/lex-brand-voice.md) | Insights destinados a uso público seguem voz Guardia |
+| [lex-language](../framework/pt-BR/documentation/i18n/lexis/lex-language.md) | Saídas em `language.default`; tradução por demanda |
+| [lex-platforms-rules](../framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md) | Cada novo lex/codex entra em `framework/platforms.yaml` |
+| [lex-checkpoint](../framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md) | Calíope persiste checkpoint em `.ahrena/workflow/discovery-{topic}/checkpoint.md` |
 
 ### 11.2 Codex existentes que esta fase referencia
 
 | Codex existente | Uso em Discovery |
 |---|---|
-| [codex-mcp-common](framework/pt-BR/_foundation/tooling/codex/codex-mcp-common.md) | Padrões de uso e fallback de MCPs |
-| [codex-mcp-notion](framework/pt-BR/_foundation/tooling/codex/codex-mcp-notion.md) | Argos via `kata-content-explorer` |
-| [codex-mcp-github](framework/pt-BR/_foundation/tooling/codex/codex-mcp-github.md) | Argos via `kata-oss-feature-discovery` |
-| [codex-tone](framework/pt-BR/_foundation/quality/codex/codex-tone.md) | Manual de aplicação do tom Guardia |
-| [codex-ai-first-experience](framework/pt-BR/design/system/codex/codex-ai-first-experience.md) | Insights destinados ao produto consideram restrições agênticas |
+| [codex-mcp-common](../framework/pt-BR/_foundation/tooling/codex/codex-mcp-common.md) | Padrões de uso e fallback de MCPs |
+| [codex-mcp-notion](../framework/pt-BR/_foundation/tooling/codex/codex-mcp-notion.md) | Argos via `kata-content-explorer` |
+| [codex-mcp-github](../framework/pt-BR/_foundation/tooling/codex/codex-mcp-github.md) | Argos via `kata-oss-feature-discovery` |
+| [codex-tone](../framework/pt-BR/_foundation/quality/codex/codex-tone.md) | Manual de aplicação do tom Guardia |
+| [codex-ai-first-experience](../framework/pt-BR/design/system/codex/codex-ai-first-experience.md) | Insights destinados ao produto consideram restrições agênticas |
 
 ### 11.3 Warriors existentes — interação detalhada
 
 | Warrior existente | Relação com Discovery |
 |---|---|
-| [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) | **Downstream.** Recebe issue de Calíope após DoR atendido em Development |
-| [warrior-prometheus](framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) | **Downstream.** Consome Capability Spec produzido em Development (que usa `insights.md` como input) |
-| [warrior-translator](framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) | **Sob demanda.** Traduz `insights.md` para outros idiomas quando aplicável |
-| [warrior-apollo](framework/pt-BR/engineering/backend/warriors/warrior-apollo.md), [warrior-hephaestus](framework/pt-BR/engineering/frontend/warriors/warrior-hephaestus.md), [warrior-iris](framework/pt-BR/engineering/mobile/warriors/warrior-iris.md), [warrior-demeter](framework/pt-BR/engineering/data/warriors/warrior-demeter.md), [warrior-atlas](framework/pt-BR/engineering/devops/warriors/warrior-atlas.md), [warrior-hera](framework/pt-BR/engineering/quality/warriors/warrior-hera.md), [warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md), [warrior-theseus](framework/pt-BR/engineering/platform/warriors/warrior-theseus.md), [warrior-daedalus](framework/pt-BR/engineering/platform/warriors/warrior-daedalus.md), [warrior-kronos](framework/pt-BR/engineering/platform/warriors/warrior-kronos.md) | Sem interação direta — atuam em [Product Development](product-development.md) ou [Product Delivery](product-delivery.md) |
+| [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) | **Downstream.** Recebe issue de Calíope após DoR atendido em Development |
+| [warrior-prometheus](../framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) | **Downstream.** Consome Capability Spec produzido em Development (que usa `insights.md` como input) |
+| [warrior-translator](../framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) | **Sob demanda.** Traduz `insights.md` para outros idiomas quando aplicável |
+| [warrior-apollo](../framework/pt-BR/engineering/backend/warriors/warrior-apollo.md), [warrior-hephaestus](../framework/pt-BR/engineering/frontend/warriors/warrior-hephaestus.md), [warrior-iris](../framework/pt-BR/engineering/mobile/warriors/warrior-iris.md), [warrior-demeter](../framework/pt-BR/engineering/data/warriors/warrior-demeter.md), [warrior-atlas](../framework/pt-BR/engineering/devops/warriors/warrior-atlas.md), [warrior-hera](../framework/pt-BR/engineering/quality/warriors/warrior-hera.md), [warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md), [warrior-theseus](../framework/pt-BR/engineering/platform/warriors/warrior-theseus.md), [warrior-daedalus](../framework/pt-BR/engineering/platform/warriors/warrior-daedalus.md), [warrior-kronos](../framework/pt-BR/engineering/platform/warriors/warrior-kronos.md) | Sem interação direta — atuam em [Product Development](product-development.md) ou [Product Delivery](product-delivery.md) |
 
 ### 11.4 Cries existentes que ganham contexto
 
-- [cry-new-feature-request](framework/pt-BR/_foundation/contributing/cries/cry-new-feature-request.md), [cry-new-epic](framework/pt-BR/_foundation/contributing/cries/cry-new-epic.md), [cry-new-user-story-api](framework/pt-BR/_foundation/contributing/cries/cry-new-user-story-api.md), [cry-new-user-story-frontend](framework/pt-BR/_foundation/contributing/cries/cry-new-user-story-frontend.md): templates passam a aceitar campo `discovery: docs/discovery/{topic}/insights.md`. Quando feature relevante, campo torna-se obrigatório por [lex-discovery-before-prd](#72-lex-discovery-before-prd-novo).
-- **Busca anti-duplicação embutida:** todos os cries de criação de issue acima passam a embutir verificação automática por issues existentes (abertas e recém-fechadas) cobrindo o mesmo escopo, antes de criar a issue, per cláusula anti-duplicação de [lex-issue-first](framework/pt-BR/_foundation/contributing/lexis/lex-issue-first.md). Quando issue compatível é encontrada, o cry recomenda usá-la como anchor (`Closes #N` / `Refs #N`) em vez de criar nova. Calíope ([Product Development](product-development.md#41-warrior-calliope--product-manager-orquestrador-master)) é a invocadora primária desses cries no fluxo de Discovery → Development.
+- [cry-new-feature-request](../framework/pt-BR/_foundation/contributing/cries/cry-new-feature-request.md), [cry-new-epic](../framework/pt-BR/_foundation/contributing/cries/cry-new-epic.md), [cry-new-user-story-api](../framework/pt-BR/_foundation/contributing/cries/cry-new-user-story-api.md), [cry-new-user-story-frontend](../framework/pt-BR/_foundation/contributing/cries/cry-new-user-story-frontend.md): templates passam a aceitar campo `discovery: docs/discovery/{topic}/insights.md`. Quando feature relevante, campo torna-se obrigatório por [lex-discovery-before-prd](#72-lex-discovery-before-prd-novo).
+- **Busca anti-duplicação embutida:** todos os cries de criação de issue acima passam a embutir verificação automática por issues existentes (abertas e recém-fechadas) cobrindo o mesmo escopo, antes de criar a issue, per cláusula anti-duplicação de [lex-issue-first](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-first.md). Quando issue compatível é encontrada, o cry recomenda usá-la como anchor (`Closes #N` / `Refs #N`) em vez de criar nova. Calíope ([Product Development](product-development.md#41-warrior-calliope--product-manager-orquestrador-master)) é a invocadora primária desses cries no fluxo de Discovery → Development.
 
 ---
 
@@ -624,9 +624,9 @@ docs/
 |---|---|---|
 | D1 | 5 fases ou 4? (mesclar D3+D4 em uma) | **5 fases.** Gates explícitos entre priorização e validação evitam validar oportunidade errada |
 | D2 | Têmis recomenda 1 oportunidade ou 3? | **1 oportunidade.** Discovery em paralelo bagunça o ciclo. Se sobra capacidade, abrir nova discovery |
-| D3 | Calíope orquestra E executa D5, ou warrior dedicado para D5? | **Calíope faz ambos** — segue padrão Athena (orquestra + invoca [kata-pr-prepare](framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) na fase 7 ela mesma) |
+| D3 | Calíope orquestra E executa D5, ou warrior dedicado para D5? | **Calíope faz ambos** — segue padrão Athena (orquestra + invoca [kata-pr-prepare](../framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) na fase 7 ela mesma) |
 | D4 | `kata-deep-research` requer firecrawl + exa MCP. Vamos contratar? | Decisão de produto/custo. Sem MCPs, kata escala fallback ao usuário |
-| D5 | Onde fica `docs/discovery/`: repo do produto ou repo separado? | Mesmo repo — coerente com [lex-issue-driven](framework/pt-BR/engineering/workflow/lexis/lex-issue-driven.md) |
+| D5 | Onde fica `docs/discovery/`: repo do produto ou repo separado? | Mesmo repo — coerente com [lex-issue-driven](../framework/pt-BR/engineering/workflow/lexis/lex-issue-driven.md) |
 | D6 | Quem aprova encerramento da discovery? | Owner do tema + sign-off do Product (Calíope formaliza, humano aprova nos Gates D1, D2, e final) |
 | D7 | Discovery mínima — quão mínima? | Pelo menos 1 evidência rastreável + 1 contraprova + Gate D2 (mesmo que fundido com D1) |
 | D8 | Asclépio conduz entrevista ou só prepara humano? | **Prepara humano** por default (entrevista exige presença); pode conduzir quando agente conversacional já está em produção |
@@ -638,8 +638,8 @@ docs/
 1. **Validar D1–D8** com time de produto.
 2. **Rascunhar [lex-evidence-required](#71-lex-evidence-required-novo)** como protótipo.
 3. **Implementar `kata-deep-research` + `kata-market-research`** como Onda 2.1 (Argos isolado, sem warrior dedicado ainda — provando o valor antes de formalizar).
-4. **Atualizar [lex-issue-quality](framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md)** para referenciar `docs/discovery/{topic}/insights.md` no campo "Why".
+4. **Atualizar [lex-issue-quality](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md)** para referenciar `docs/discovery/{topic}/insights.md` no campo "Why".
 
 ---
 
-> **Próximo documento:** [Product Development](product-development.md) — Calíope continua orquestrando (PRD → Capability Spec → DoR), [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) entra para o fluxo Issue-Driven, e [warrior-prometheus](framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) faz design técnico quando aplicável.
+> **Próximo documento:** [Product Development](product-development.md) — Calíope continua orquestrando (PRD → Capability Spec → DoR), [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) entra para o fluxo Issue-Driven, e [warrior-prometheus](../framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) faz design técnico quando aplicável.

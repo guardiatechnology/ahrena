@@ -42,6 +42,12 @@ nav:
     - Katas: ahrena/katas.md
     - Warriors: ahrena/warriors.md
     - Cries: ahrena/cries.md
+  - Produto:
+    - Visão Geral do Fluxo: product-flow.md
+    - Discovery: product-discovery.md
+    - Development: product-development.md
+    - Delivery: product-delivery.md
+    - Plano de Trabalho: product-work-plan.md
 
 extra_css:
   - assets/guardia.css
@@ -69,6 +75,12 @@ plugins:
             Katas: Katas
             Warriors: Warriors
             Cries: Cries
+            Produto: Product
+            Visão Geral do Fluxo: Flow Overview
+            Discovery: Discovery
+            Development: Development
+            Delivery: Delivery
+            Plano de Trabalho: Work Plan
         - locale: es
           name: Español
           build: true
@@ -83,6 +95,12 @@ plugins:
             Katas: Katas
             Warriors: Warriors
             Cries: Comandos
+            Produto: Producto
+            Visão Geral do Fluxo: Visión General del Flujo
+            Discovery: Discovery
+            Development: Desarrollo
+            Delivery: Entrega
+            Plano de Trabalho: Plan de Trabajo
 
 extra:
   generator: false

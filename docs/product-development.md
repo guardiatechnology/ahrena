@@ -27,8 +27,8 @@ Cobre tudo que acontece **entre** insights de [Product Discovery](product-discov
 2. **Validação adversarial em loop limitado.** Design técnico passa por crítico dedicado (Mômos) que aponta desvios. Loop de até 3 iterações. Após 3, escala para humano com relatório.
 3. **DoR é HARD-GATE.** Sem DoR atendido, a issue não é criada e Athena não inicia fluxo.
 4. **Wireframe LF antes de HF.** Markdown ASCII/estruturado precede pixel-perfect — economia de iteração.
-5. **AI-First por default.** Todo design visual respeita [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) — Isac é interface primária, workspace é reativo.
-6. **DS é não-negociável.** Componentes consomem [@guardia/design-system](framework/pt-BR/design/system/lexis/lex-design-system-library.md). Reimplementar primitivo é violação.
+5. **AI-First por default.** Todo design visual respeita [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) — Isac é interface primária, workspace é reativo.
+6. **DS é não-negociável.** Componentes consomem [@guardia/design-system](../framework/pt-BR/design/system/lexis/lex-design-system-library.md). Reimplementar primitivo é violação.
 7. **Spec self-review antes do review humano.** Reduz iteração.
 
 ---
@@ -122,8 +122,8 @@ Cobre tudo que acontece **entre** insights de [Product Discovery](product-discov
 | Delega Fase 3 a [warrior-eos](#44-warrior-eos--design-visual-novo) quando feature tem UI | Desenha wireframe (delega para Eos) |
 | Desenha ACs via `kata-acceptance-criteria-design` na Fase 4 | Implementa código (Athena → Apolo/Hephaestus) |
 | Valida DoR via `kata-dor-validate` antes de criar issue | Pula gates sob pressão de prazo |
-| Verifica issues existentes (abertas e recém-fechadas) cobrindo o mesmo escopo antes de criar nova, per cláusula anti-duplicação de [lex-issue-first](framework/pt-BR/_foundation/contributing/lexis/lex-issue-first.md) | Cria issue paralela quando issue ativa já cobre o escopo |
-| Cria a issue via [kata-contributing-issue](framework/pt-BR/_foundation/contributing/katas/kata-contributing-issue.md) com TUDO linkado | Modifica artefatos depois que Athena começou |
+| Verifica issues existentes (abertas e recém-fechadas) cobrindo o mesmo escopo antes de criar nova, per cláusula anti-duplicação de [lex-issue-first](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-first.md) | Cria issue paralela quando issue ativa já cobre o escopo |
+| Cria a issue via [kata-contributing-issue](../framework/pt-BR/_foundation/contributing/katas/kata-contributing-issue.md) com TUDO linkado | Modifica artefatos depois que Athena começou |
 
 **Persona:** narradora estratégica + orquestradora rigorosa.
 
@@ -133,7 +133,7 @@ Cobre tudo que acontece **entre** insights de [Product Discovery](product-discov
 
 **Mudança vs. estado atual:**
 
-[warrior-prometheus](framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) hoje se intitula "Technical Product Manager" e opera **durante** a fase 3 do Athena. Mudanças propostas:
+[warrior-prometheus](../framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) hoje se intitula "Technical Product Manager" e opera **durante** a fase 3 do Athena. Mudanças propostas:
 
 | Antes | Depois |
 |---|---|
@@ -161,7 +161,7 @@ Cobre tudo que acontece **entre** insights de [Product Discovery](product-discov
 10. Entrega pacote técnico ao Calíope
 ```
 
-**Conexão com framework existente:** mantém [lex-entity-naming](framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md), [lex-entities](framework/pt-BR/engineering/platform/lexis/lex-entities.md), [lex-restful-apis](framework/pt-BR/engineering/platform/lexis/lex-restful-apis.md), [lex-cloudevents](framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md), [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-error-handling](framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-auth](framework/pt-BR/engineering/platform/lexis/lex-auth.md) como leis aplicadas. Mômos verifica conformidade.
+**Conexão com framework existente:** mantém [lex-entity-naming](../framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md), [lex-entities](../framework/pt-BR/engineering/platform/lexis/lex-entities.md), [lex-restful-apis](../framework/pt-BR/engineering/platform/lexis/lex-restful-apis.md), [lex-cloudevents](../framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md), [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-error-handling](../framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-auth](../framework/pt-BR/engineering/platform/lexis/lex-auth.md) como leis aplicadas. Mômos verifica conformidade.
 
 ---
 
@@ -201,7 +201,7 @@ Iteração 3:
                    abrir ADR justificando o desvio, ou rejeitar feature)
 ```
 
-**Persona:** crítico construtivo, busca falsificação, prefere binário (aprovado / com desvios) a "quase aprovado". Inspirado no padrão de [obra/superpowers](https://github.com/obra/superpowers) `verification-before-completion` e nas verificações de [kata-quality-gate](framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md).
+**Persona:** crítico construtivo, busca falsificação, prefere binário (aprovado / com desvios) a "quase aprovado". Inspirado no padrão de [obra/superpowers](https://github.com/obra/superpowers) `verification-before-completion` e nas verificações de [kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md).
 
 **Katas que executa:**
 
@@ -209,7 +209,7 @@ Iteração 3:
 |---|---|
 | `kata-design-validation` | Validação canônica, parametrizado por tipo de artefato (domínio / API / eventos / wireframe / componente) |
 
-**Conexão com framework existente:** Mômos consulta TODAS as Lexis técnicas aplicáveis ao artefato. Para domínio: [lex-entity-naming](framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md), [lex-entities](framework/pt-BR/engineering/platform/lexis/lex-entities.md). Para API: [lex-restful-apis](framework/pt-BR/engineering/platform/lexis/lex-restful-apis.md), [lex-error-handling](framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-auth](framework/pt-BR/engineering/platform/lexis/lex-auth.md). Para eventos: [lex-cloudevents](framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md). Para wireframes: [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md), [lex-design-system-library](framework/pt-BR/design/system/lexis/lex-design-system-library.md), [lex-brand-colors](framework/pt-BR/design/brand/lexis/lex-brand-colors.md), [lex-brand-typography](framework/pt-BR/design/brand/lexis/lex-brand-typography.md), [lex-brand-logo](framework/pt-BR/design/brand/lexis/lex-brand-logo.md), [lex-brand-voice](framework/pt-BR/design/brand/lexis/lex-brand-voice.md), [lex-frontend-accessibility](framework/pt-BR/engineering/frontend/lexis/lex-frontend-accessibility.md).
+**Conexão com framework existente:** Mômos consulta TODAS as Lexis técnicas aplicáveis ao artefato. Para domínio: [lex-entity-naming](../framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md), [lex-entities](../framework/pt-BR/engineering/platform/lexis/lex-entities.md). Para API: [lex-restful-apis](../framework/pt-BR/engineering/platform/lexis/lex-restful-apis.md), [lex-error-handling](../framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-auth](../framework/pt-BR/engineering/platform/lexis/lex-auth.md). Para eventos: [lex-cloudevents](../framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md). Para wireframes: [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md), [lex-design-system-library](../framework/pt-BR/design/system/lexis/lex-design-system-library.md), [lex-brand-colors](../framework/pt-BR/design/brand/lexis/lex-brand-colors.md), [lex-brand-typography](../framework/pt-BR/design/brand/lexis/lex-brand-typography.md), [lex-brand-logo](../framework/pt-BR/design/brand/lexis/lex-brand-logo.md), [lex-brand-voice](../framework/pt-BR/design/brand/lexis/lex-brand-voice.md), [lex-frontend-accessibility](../framework/pt-BR/engineering/frontend/lexis/lex-frontend-accessibility.md).
 
 ---
 
@@ -231,8 +231,8 @@ Iteração 3:
 | Escala para wireframe HF via `kata-wireframe-high-fidelity` (Claude Design / Canva MCP) | Define modelo de domínio (Theseus) |
 | Desenha widgets do Copilot/Isac via `kata-copilot-widget-design` | Decide priorização de feature |
 | Desenha telas conversacionais e dashboards via `kata-dashboard-design` | Pula validação de Mômos |
-| Aplica [@guardia/design-system](framework/pt-BR/design/system/lexis/lex-design-system-library.md) — não reimplementa primitivo | Inventa componente novo sem ADR |
-| Garante conformidade com [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) | Trata feature como SaaS clássico (sidebar de módulos, modal bloqueante) |
+| Aplica [@guardia/design-system](../framework/pt-BR/design/system/lexis/lex-design-system-library.md) — não reimplementa primitivo | Inventa componente novo sem ADR |
+| Garante conformidade com [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) | Trata feature como SaaS clássico (sidebar de módulos, modal bloqueante) |
 | Invoca Mômos após cada artefato para validação | Aceita "ok" do humano sem validação técnica de brand/DS |
 
 **Fluxo interno:**
@@ -254,17 +254,17 @@ Iteração 3:
 
 **Persona:** primeira luz — desbasta antes de polir, prefere markdown rabiscado ao Figma travado, defende AI-First Experience contra UI clássica.
 
-**Conexão com framework existente:** consulta [codex-ai-first-experience](framework/pt-BR/design/system/codex/codex-ai-first-experience.md), [codex-design-system](framework/pt-BR/design/system/codex/codex-design-system.md), [codex-design-system-components](framework/pt-BR/design/system/codex/codex-design-system-components.md), [codex-brand-colors](framework/pt-BR/design/brand/codex/codex-brand-colors.md), [codex-brand-typography](framework/pt-BR/design/brand/codex/codex-brand-typography.md), [codex-brand-logo](framework/pt-BR/design/brand/codex/codex-brand-logo.md), [codex-brand-voice](framework/pt-BR/design/brand/codex/codex-brand-voice.md), [codex-brand-essence](framework/pt-BR/design/brand/codex/codex-brand-essence.md). Output alimenta [warrior-hephaestus](framework/pt-BR/engineering/frontend/warriors/warrior-hephaestus.md) e [warrior-iris](framework/pt-BR/engineering/mobile/warriors/warrior-iris.md) na Fase 5.
+**Conexão com framework existente:** consulta [codex-ai-first-experience](../framework/pt-BR/design/system/codex/codex-ai-first-experience.md), [codex-design-system](../framework/pt-BR/design/system/codex/codex-design-system.md), [codex-design-system-components](../framework/pt-BR/design/system/codex/codex-design-system-components.md), [codex-brand-colors](../framework/pt-BR/design/brand/codex/codex-brand-colors.md), [codex-brand-typography](../framework/pt-BR/design/brand/codex/codex-brand-typography.md), [codex-brand-logo](../framework/pt-BR/design/brand/codex/codex-brand-logo.md), [codex-brand-voice](../framework/pt-BR/design/brand/codex/codex-brand-voice.md), [codex-brand-essence](../framework/pt-BR/design/brand/codex/codex-brand-essence.md). Output alimenta [warrior-hephaestus](../framework/pt-BR/engineering/frontend/warriors/warrior-hephaestus.md) e [warrior-iris](../framework/pt-BR/engineering/mobile/warriors/warrior-iris.md) na Fase 5.
 
 ---
 
 ### 4.5 `warrior-athena` — Implementation Orchestrator (sem mudança de papel, com novos pré-requisitos)
 
-[warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) continua orquestrando o fluxo Issue-Driven. Mudanças:
+[warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) continua orquestrando o fluxo Issue-Driven. Mudanças:
 
 - **Pré-condição reforçada (HARD-GATE):** issue MUST referenciar `docs/product/{feature}/capability-spec.md`, pacote técnico aprovado por Mômos, e wireframes aprovados (quando UI). Sem isso, recusa e devolve.
 - **Fase 3 do Athena (Architecture Brief) muda:** em vez de **gerar** design técnico, agora apenas **valida** que o pacote produzido por Prometheus continua coerente com decisões emergentes da implementação. Caso surja conflito, escala para Calíope (não modifica Capability Spec sozinha).
-- **Gate 2 ampliado:** [kata-quality-gate](framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) ganha 8º check via `kata-dod-validate`.
+- **Gate 2 ampliado:** [kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) ganha 8º check via `kata-dod-validate`.
 
 ---
 
@@ -295,13 +295,13 @@ A spec **é executável**:
 | `lex-{regra}.md` (HARD-GATE, MUST/MUST NOT) | Guard-rail de runtime — o agente recusa ações que violem |
 | `codex-{domínio}.md` (manual de referência) | Knowledge base que o agente consulta em runtime |
 
-Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-error-handling](framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-auth](framework/pt-BR/engineering/platform/lexis/lex-auth.md), [lex-data-retention](framework/pt-BR/engineering/data/lexis/lex-data-retention.md) — pode ser reaproveitada como guard-rail dos agentes da plataforma. **Linguagem comum entre quem desenha o produto e o produto.**
+Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-error-handling](../framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-auth](../framework/pt-BR/engineering/platform/lexis/lex-auth.md), [lex-data-retention](../framework/pt-BR/engineering/data/lexis/lex-data-retention.md) — pode ser reaproveitada como guard-rail dos agentes da plataforma. **Linguagem comum entre quem desenha o produto e o produto.**
 
 **Quando Hécate é invocada no fluxo de feature:**
 
 | Caso | Quem invoca | Quando |
 |---|---|---|
-| Modo A — novo warrior do framework | [cry-new-warrior](framework/pt-BR/_foundation/authoring/cries/cry-new-warrior.md) etc. | Fora do fluxo de feature, quando framework evolui |
+| Modo A — novo warrior do framework | [cry-new-warrior](../framework/pt-BR/_foundation/authoring/cries/cry-new-warrior.md) etc. | Fora do fluxo de feature, quando framework evolui |
 | Modo B — feature inclui agente novo na plataforma | Calíope na **Fase 2.5** | Após design técnico (Prometheus) e antes de design visual (Eos), quando a feature envolve Isac ou sub-agente |
 | Modo B — feature modifica agente existente | Calíope na **Fase 2.5** | Idem, quando a mudança afeta papel, procedimentos ou guard-rails do agente |
 
@@ -309,21 +309,21 @@ Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempo
 
 | Faz | Não faz |
 |---|---|
-| **Modo A:** cria warriors/katas/lexis/codex do framework via [kata-create-*](framework/pt-BR/_foundation/authoring/katas/) | Implementa runtime do agente (delega para [warrior-apollo](framework/pt-BR/engineering/backend/warriors/warrior-apollo.md) na Fase 5) |
+| **Modo A:** cria warriors/katas/lexis/codex do framework via [kata-create-*](../framework/pt-BR/_foundation/authoring/katas/) | Implementa runtime do agente (delega para [warrior-apollo](../framework/pt-BR/engineering/backend/warriors/warrior-apollo.md) na Fase 5) |
 | **Modo B:** spec agentes da plataforma via `kata-platform-agent-spec` | Decide priorização de produto |
-| Lista tools/MCPs que o agente usa em runtime via `kata-platform-agent-tools` | Cria pilar novo (definidos em [lex-pilars](framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md)) |
+| Lista tools/MCPs que o agente usa em runtime via `kata-platform-agent-tools` | Cria pilar novo (definidos em [lex-pilars](../framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md)) |
 | Lista lexis aplicáveis como guard-rail de runtime via `kata-platform-agent-guardrails` | Modifica Lexis em status `accepted` sem ADR |
-| Garante registro em `framework/platforms.yaml` per [lex-platforms-rules](framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md) | Pula validação de Mômos sobre suas saídas |
-| Aplica [kata-push-to-framework](framework/pt-BR/_foundation/authoring/katas/kata-push-to-framework.md) ao final | Cria artefato em idioma único quando `language.i18n` exige múltiplos |
-| Invoca [warrior-translator](framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) para localização obrigatória | Cria spec de agente sem Capability Spec aprovado por Calíope |
+| Garante registro em `framework/platforms.yaml` per [lex-platforms-rules](../framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md) | Pula validação de Mômos sobre suas saídas |
+| Aplica [kata-push-to-framework](../framework/pt-BR/_foundation/authoring/katas/kata-push-to-framework.md) ao final | Cria artefato em idioma único quando `language.i18n` exige múltiplos |
+| Invoca [warrior-translator](../framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) para localização obrigatória | Cria spec de agente sem Capability Spec aprovado por Calíope |
 
 **Persona:** mística das fronteiras — opera entre framework e produto, conhece a anatomia dos pilares, prefere reusar Lexis existentes a criar novas.
 
 **Conexão com framework existente:**
 
-- Consulta todo o clade [_foundation/authoring/](framework/pt-BR/_foundation/authoring/) e [_foundation/quality/](framework/pt-BR/_foundation/quality/)
-- Usa [kata-create-warrior](framework/pt-BR/_foundation/authoring/katas/kata-create-warrior.md), [kata-create-kata](framework/pt-BR/_foundation/authoring/katas/kata-create-kata.md), [kata-create-lexis](framework/pt-BR/_foundation/authoring/katas/kata-create-lexis.md), [kata-create-codex](framework/pt-BR/_foundation/authoring/katas/kata-create-codex.md), [kata-create-cry](framework/pt-BR/_foundation/authoring/katas/kata-create-cry.md) como toolbox base
-- É invocada por [cry-new-warrior](framework/pt-BR/_foundation/authoring/cries/cry-new-warrior.md), [cry-new-kata](framework/pt-BR/_foundation/authoring/cries/cry-new-kata.md), [cry-new-lex](framework/pt-BR/_foundation/authoring/cries/cry-new-lex.md), [cry-new-codex](framework/pt-BR/_foundation/authoring/cries/cry-new-codex.md), [cry-new-cry](framework/pt-BR/_foundation/authoring/cries/cry-new-cry.md) (Modo A) e por novo `cry-new-platform-agent` (Modo B)
+- Consulta todo o clade [_foundation/authoring/](../framework/pt-BR/_foundation/authoring/) e [_foundation/quality/](../framework/pt-BR/_foundation/quality/)
+- Usa [kata-create-warrior](../framework/pt-BR/_foundation/authoring/katas/kata-create-warrior.md), [kata-create-kata](../framework/pt-BR/_foundation/authoring/katas/kata-create-kata.md), [kata-create-lexis](../framework/pt-BR/_foundation/authoring/katas/kata-create-lexis.md), [kata-create-codex](../framework/pt-BR/_foundation/authoring/katas/kata-create-codex.md), [kata-create-cry](../framework/pt-BR/_foundation/authoring/katas/kata-create-cry.md) como toolbox base
+- É invocada por [cry-new-warrior](../framework/pt-BR/_foundation/authoring/cries/cry-new-warrior.md), [cry-new-kata](../framework/pt-BR/_foundation/authoring/cries/cry-new-kata.md), [cry-new-lex](../framework/pt-BR/_foundation/authoring/cries/cry-new-lex.md), [cry-new-codex](../framework/pt-BR/_foundation/authoring/cries/cry-new-codex.md), [cry-new-cry](../framework/pt-BR/_foundation/authoring/cries/cry-new-cry.md) (Modo A) e por novo `cry-new-platform-agent` (Modo B)
 - Suas saídas no Modo B são validadas por Mômos antes de virarem input do DoR
 
 **Aplicação imediata (Modo A):** quando esta proposta v3 for aceita, Hécate é o warrior que materializa todos os artefatos novos (Calíope, Argos, Métis, Têmis, Asclépio, Eos, Mômos + katas / lexis / codex de cada um).
@@ -338,24 +338,24 @@ Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempo
 
 | Kata | Função | Saída |
 |---|---|---|
-| `kata-prd-creation` | PRD focado em WHAT/WHY; respeita [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) | `docs/product/{feature}/prd.md` |
+| `kata-prd-creation` | PRD focado em WHAT/WHY; respeita [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) | `docs/product/{feature}/prd.md` |
 | `kata-capability-spec` | 8 seções rígidas (CAPABILITY / CONSTRAINTS / IMPLEMENTATION CONTRACT / NON-GOALS / OPEN QUESTIONS / HANDOFF / ALTERNATIVES / EVIDENCE) | `docs/product/{feature}/capability-spec.md` |
 | `kata-success-metrics-define` | Métrica leading + lagging | seção do PRD |
 | `kata-acceptance-criteria-design` | ACs numeradas (AC-1, ...) testáveis | seção do Capability Spec |
 | `kata-feature-map` | Relacionamentos entre features | `docs/product/feature-map.md` |
 | `kata-dor-validate` | Checagem automatizada do DoR canônico | inline; bloqueia ou aprova |
-| [kata-contributing-issue](framework/pt-BR/_foundation/contributing/katas/kata-contributing-issue.md) (existente) | Cria issue no GitHub com tudo linkado | issue criada |
+| [kata-contributing-issue](../framework/pt-BR/_foundation/contributing/katas/kata-contributing-issue.md) (existente) | Cria issue no GitHub com tudo linkado | issue criada |
 
 ### 5.2 Katas orquestrados por Prometheus
 
 | Kata | Executor | Função |
 |---|---|---|
-| [kata-domain-model](framework/pt-BR/engineering/platform/katas/kata-domain-model.md) (existente) | Theseus | Modelagem de domínio DDD |
-| [kata-event-storm](framework/pt-BR/engineering/platform/katas/kata-event-storm.md) (existente) | Theseus | Event storming |
-| [kata-api-design-oas](framework/pt-BR/engineering/platform/katas/kata-api-design-oas.md) (existente) | Daedalus | OpenAPI Spec |
-| [kata-api-design-doc](framework/pt-BR/engineering/platform/katas/kata-api-design-doc.md) (existente) | Daedalus | Documento estruturado de API |
-| [kata-api-design-review](framework/pt-BR/engineering/platform/katas/kata-api-design-review.md) (existente) | Daedalus / Mômos | Review de contrato HTTP existente |
-| [kata-events-doc](framework/pt-BR/engineering/platform/katas/kata-events-doc.md) (existente) | Kronos | CloudEvents Documentation |
+| [kata-domain-model](../framework/pt-BR/engineering/platform/katas/kata-domain-model.md) (existente) | Theseus | Modelagem de domínio DDD |
+| [kata-event-storm](../framework/pt-BR/engineering/platform/katas/kata-event-storm.md) (existente) | Theseus | Event storming |
+| [kata-api-design-oas](../framework/pt-BR/engineering/platform/katas/kata-api-design-oas.md) (existente) | Daedalus | OpenAPI Spec |
+| [kata-api-design-doc](../framework/pt-BR/engineering/platform/katas/kata-api-design-doc.md) (existente) | Daedalus | Documento estruturado de API |
+| [kata-api-design-review](../framework/pt-BR/engineering/platform/katas/kata-api-design-review.md) (existente) | Daedalus / Mômos | Review de contrato HTTP existente |
+| [kata-events-doc](../framework/pt-BR/engineering/platform/katas/kata-events-doc.md) (existente) | Kronos | CloudEvents Documentation |
 | `kata-design-validation` (novo) | **Mômos** | Validação adversarial canônica, parametrizada por tipo de artefato |
 
 ### 5.3 Katas executados por Eos
@@ -364,7 +364,7 @@ Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempo
 |---|---|---|
 | `kata-wireframe-low-fidelity` | Wireframe em Markdown ASCII / estruturado; foco em fluxo, não em pixel | `docs/design/{feature}/wireframe-lf.md` |
 | `kata-wireframe-high-fidelity` | HF via Claude Design ou Canva MCP; brand + DS aplicados | `docs/design/{feature}/wireframe-hf/` (imagens + spec) |
-| `kata-copilot-widget-design` | Widgets reativos do Isac/Copilot per [codex-ai-first-experience](framework/pt-BR/design/system/codex/codex-ai-first-experience.md) | `docs/design/{feature}/widgets.md` |
+| `kata-copilot-widget-design` | Widgets reativos do Isac/Copilot per [codex-ai-first-experience](../framework/pt-BR/design/system/codex/codex-ai-first-experience.md) | `docs/design/{feature}/widgets.md` |
 | `kata-conversational-screen-design` | Telas onde Isac é interface primária (chat + workspace reativo) | `docs/design/{feature}/screens.md` |
 | `kata-dashboard-design` | Dashboards on-demand (não permanentes — gerados por intenção do usuário) | `docs/design/{feature}/dashboards.md` |
 | `kata-component-spec` | Especificação de componente novo quando DS não cobre (raro — gera ADR) | `docs/design/{feature}/components.md` + ADR |
@@ -411,13 +411,13 @@ Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempo
 
 | Kata existente | Mudança |
 |---|---|
-| [kata-create-warrior](framework/pt-BR/_foundation/authoring/katas/kata-create-warrior.md) | Invocado por Hécate em vez de direto |
-| [kata-create-kata](framework/pt-BR/_foundation/authoring/katas/kata-create-kata.md) | Idem |
-| [kata-create-lexis](framework/pt-BR/_foundation/authoring/katas/kata-create-lexis.md) | Idem |
-| [kata-create-codex](framework/pt-BR/_foundation/authoring/katas/kata-create-codex.md) | Idem |
-| [kata-create-cry](framework/pt-BR/_foundation/authoring/katas/kata-create-cry.md) | Idem |
-| [kata-diff-artifacts](framework/pt-BR/_foundation/authoring/katas/kata-diff-artifacts.md) (existente) | Hécate roda antes de aceitar artefato |
-| [kata-push-to-framework](framework/pt-BR/_foundation/authoring/katas/kata-push-to-framework.md) (existente) | Hécate roda ao final |
+| [kata-create-warrior](../framework/pt-BR/_foundation/authoring/katas/kata-create-warrior.md) | Invocado por Hécate em vez de direto |
+| [kata-create-kata](../framework/pt-BR/_foundation/authoring/katas/kata-create-kata.md) | Idem |
+| [kata-create-lexis](../framework/pt-BR/_foundation/authoring/katas/kata-create-lexis.md) | Idem |
+| [kata-create-codex](../framework/pt-BR/_foundation/authoring/katas/kata-create-codex.md) | Idem |
+| [kata-create-cry](../framework/pt-BR/_foundation/authoring/katas/kata-create-cry.md) | Idem |
+| [kata-diff-artifacts](../framework/pt-BR/_foundation/authoring/katas/kata-diff-artifacts.md) (existente) | Hécate roda antes de aceitar artefato |
+| [kata-push-to-framework](../framework/pt-BR/_foundation/authoring/katas/kata-push-to-framework.md) (existente) | Hécate roda ao final |
 
 #### Modo B — Plataforma Guardia (agentes que rodam em produção)
 
@@ -431,14 +431,14 @@ Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempo
 | `kata-platform-agent-tools` | Lista MCPs e tools que o agente usa em runtime | seção do `warrior-{name}.md` |
 | `kata-platform-agent-deploy-spec` | Empacota a spec em formato deployável (system prompt + tools + guard-rails) | `docs/agents/{agent}/deploy.json` ou similar |
 
-**Reuso entre Modo A e Modo B:** Lexis do framework podem ser reaproveitadas como guard-rails de agentes da plataforma sem duplicação. Exemplo: um agente de pagamento da Guardia pode ter como guard-rail `lex-no-payment-without-confirmation` (nova, modo B) **e** [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md) (existente, framework). A spec do agente referencia ambas via path relativo.
+**Reuso entre Modo A e Modo B:** Lexis do framework podem ser reaproveitadas como guard-rails de agentes da plataforma sem duplicação. Exemplo: um agente de pagamento da Guardia pode ter como guard-rail `lex-no-payment-without-confirmation` (nova, modo B) **e** [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md) (existente, framework). A spec do agente referencia ambas via path relativo.
 
 ### 5.6 Cross-fase
 
 | Kata | Função |
 |---|---|
 | `kata-artifact-self-review` | Scan de placeholders, contradições, ambiguidade. Inspirado em [obra/superpowers](https://github.com/obra/superpowers) `brainstorming`. Invocado antes de submeter qualquer artefato a humano |
-| `kata-dod-validate` | Estende [kata-quality-gate](framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) com 8º check (métricas instrumentadas) |
+| `kata-dod-validate` | Estende [kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) com 8º check (métricas instrumentadas) |
 
 ---
 
@@ -450,7 +450,7 @@ Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempo
 
 ### 6.2 `lex-dor-criteria`
 
-> Toda issue de feature MUST atender DoR canônico antes de existir. DoR atendido é pré-condição inviolável para [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md).
+> Toda issue de feature MUST atender DoR canônico antes de existir. DoR atendido é pré-condição inviolável para [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md).
 
 **Critérios canônicos:**
 
@@ -462,7 +462,7 @@ Isso significa que toda Lexis técnica que hoje vale para o team — [lex-idempo
 6. ACs numeradas presentes
 7. Métricas leading + lagging declaradas e instrumentação planejada
 8. Dependências mapeadas
-9. **Busca anti-duplicação executada** — Calíope verificou issues abertas e recém-fechadas (`gh issue list --search "<termos>"` ou UI) e nenhuma issue ativa cobre o mesmo escopo, per cláusula anti-duplicação de [lex-issue-first](framework/pt-BR/_foundation/contributing/lexis/lex-issue-first.md). Caso contrário, usa issue existente como anchor (`Closes #N` / `Refs #N`) em vez de criar nova
+9. **Busca anti-duplicação executada** — Calíope verificou issues abertas e recém-fechadas (`gh issue list --search "<termos>"` ou UI) e nenhuma issue ativa cobre o mesmo escopo, per cláusula anti-duplicação de [lex-issue-first](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-first.md). Caso contrário, usa issue existente como anchor (`Closes #N` / `Refs #N`) em vez de criar nova
 
 **HARD-GATE:**
 
@@ -501,11 +501,11 @@ humana explícita registrada no checkpoint.
 
 > Toda feature com superfície renderizada (web, mobile, e-mail, embed) MUST ter wireframe LF em Markdown antes da issue ser criada, e wireframe HF antes da implementação iniciar. Implementar UI sem wireframe aprovado é FORBIDDEN.
 
-**Conexão:** estende [lex-frontend-accessibility](framework/pt-BR/engineering/frontend/lexis/lex-frontend-accessibility.md), [lex-design-system-library](framework/pt-BR/design/system/lexis/lex-design-system-library.md), [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md). Wireframes são input para [warrior-hephaestus](framework/pt-BR/engineering/frontend/warriors/warrior-hephaestus.md) e [warrior-iris](framework/pt-BR/engineering/mobile/warriors/warrior-iris.md).
+**Conexão:** estende [lex-frontend-accessibility](../framework/pt-BR/engineering/frontend/lexis/lex-frontend-accessibility.md), [lex-design-system-library](../framework/pt-BR/design/system/lexis/lex-design-system-library.md), [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md). Wireframes são input para [warrior-hephaestus](../framework/pt-BR/engineering/frontend/warriors/warrior-hephaestus.md) e [warrior-iris](../framework/pt-BR/engineering/mobile/warriors/warrior-iris.md).
 
 ### 6.5 `lex-ai-first-component-pattern` (novo)
 
-> Componentes que aparecem em superfícies AI-First (workspace reativo, widgets do Copilot, telas conversacionais) MUST seguir o padrão Conversa + Workspace definido em [codex-ai-first-experience](framework/pt-BR/design/system/codex/codex-ai-first-experience.md): renderizados como resposta do agente, reativos ao diálogo, sem viver como menu permanente.
+> Componentes que aparecem em superfícies AI-First (workspace reativo, widgets do Copilot, telas conversacionais) MUST seguir o padrão Conversa + Workspace definido em [codex-ai-first-experience](../framework/pt-BR/design/system/codex/codex-ai-first-experience.md): renderizados como resposta do agente, reativos ao diálogo, sem viver como menu permanente.
 
 **HARD-GATE:**
 
@@ -528,13 +528,13 @@ Brand owner designado.
 
 **Critérios:**
 
-1. [kata-quality-gate](framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) retorna `go` (7 checks atuais)
+1. [kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) retorna `go` (7 checks atuais)
 2. Métricas de sucesso instrumentadas em produção e emitindo
-3. Observabilidade per [lex-observability-required](framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md) plugada
+3. Observabilidade per [lex-observability-required](../framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md) plugada
 4. Release plan rascunhado (input para [Product Delivery](product-delivery.md))
 5. Documentação de cliente atualizada quando feature visível
 6. ADRs gerados quando aplicável
-7. Componentes UI consomem [@guardia/design-system](framework/pt-BR/design/system/lexis/lex-design-system-library.md) — 0 reimplementação de primitivo
+7. Componentes UI consomem [@guardia/design-system](../framework/pt-BR/design/system/lexis/lex-design-system-library.md) — 0 reimplementação de primitivo
 
 ### 6.7 `lex-capability-spec-required`
 
@@ -542,11 +542,11 @@ Brand owner designado.
 
 ### 6.8 `lex-success-metrics`
 
-> Toda feature relevante MUST declarar métrica leading + lagging antes de implementar, e a métrica MUST estar instrumentada em produção como pré-condição de mergear o PR. Estende [lex-observability-required](framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md).
+> Toda feature relevante MUST declarar métrica leading + lagging antes de implementar, e a métrica MUST estar instrumentada em produção como pré-condição de mergear o PR. Estende [lex-observability-required](../framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md).
 
 ### 6.9 `lex-meta-engineering-via-hecate` (novo)
 
-> Toda criação ou evolução de warrior, kata, lexis, codex ou cry — seja no **framework Ahrena** (warriors do dev workflow) ou na **plataforma Guardia** (agentes que rodam em produção) — MUST ser orquestrada por [warrior-hecate](#46-warrior-hecate--meta-engenharia-de-agentes-novo). Invocação direta de [kata-create-*](framework/pt-BR/_foundation/authoring/katas/) sem Hécate é FORBIDDEN para evitar artefatos fora do padrão dos pilares.
+> Toda criação ou evolução de warrior, kata, lexis, codex ou cry — seja no **framework Ahrena** (warriors do dev workflow) ou na **plataforma Guardia** (agentes que rodam em produção) — MUST ser orquestrada por [warrior-hecate](#46-warrior-hecate--meta-engenharia-de-agentes-novo). Invocação direta de [kata-create-*](../framework/pt-BR/_foundation/authoring/katas/) sem Hécate é FORBIDDEN para evitar artefatos fora do padrão dos pilares.
 
 ### 6.10 `lex-platform-agent-via-ahrena` (novo)
 
@@ -576,7 +576,7 @@ existente que afete papel, procedimentos ou guard-rails.
 
 > Toda Lexis aplicável a um agente da plataforma MUST ser referenciada na spec do agente (`docs/agents/{agent}/warrior-*.md` na seção "Guard-rails"). O runtime do agente MUST verificar conformidade antes de executar ação que potencialmente viola a Lexis. Lexis em design-time = guard-rail em runtime.
 
-**Conexão:** isso transforma Lexis existentes em **comportamento do produto**. Por exemplo, [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md) hoje é regra que o team segue ao desenhar API — passa também a ser regra que um agente da plataforma respeita ao chamar API externa em runtime.
+**Conexão:** isso transforma Lexis existentes em **comportamento do produto**. Por exemplo, [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md) hoje é regra que o team segue ao desenhar API — passa também a ser regra que um agente da plataforma respeita ao chamar API externa em runtime.
 
 ---
 
@@ -608,14 +608,14 @@ existente que afete papel, procedimentos ou guard-rails.
 | `cry-new-capability-spec` | Calíope | "Capability Spec a partir do PRD" |
 | `cry-validate-dor` | `kata-dor-validate` direto | "Esta issue está pronta?" |
 | `cry-validate-dod` | `kata-dod-validate` direto | "Este PR está pronto para merge?" |
-| `cry-design-feature` (renomeação de [cry-feature-design](framework/pt-BR/engineering/platform/cries/cry-feature-design.md) atual) | Prometheus | "Design técnico da feature X" |
+| `cry-design-feature` (renomeação de [cry-feature-design](../framework/pt-BR/engineering/platform/cries/cry-feature-design.md) atual) | Prometheus | "Design técnico da feature X" |
 | `cry-design-visual` (novo) | Eos | "Design visual da feature X" |
 | `cry-validate-design` (novo) | Mômos direto | "Valida este artefato isolado" |
 | `cry-new-warrior` (existente, atualizada) | Hécate em Modo A | "Cria warrior do framework" |
 | `cry-new-kata`, `cry-new-lex`, `cry-new-codex`, `cry-new-cry` (existentes, atualizadas) | Hécate em Modo A | Idem |
 | `cry-new-platform-agent` (novo) | Hécate em Modo B | "Spec novo agente da plataforma Guardia (ex.: sub-agente de fechamento mensal)" |
 | `cry-update-platform-agent` (novo) | Hécate em Modo B | "Atualiza papel/procedimentos/guard-rails de agente existente" |
-| [cry-implement-issue](framework/pt-BR/engineering/workflow/cries/cry-implement-issue.md) (existente, sem mudança) | Athena | Continua sendo entrada do Issue-Driven, agora com pré-condição DoR |
+| [cry-implement-issue](../framework/pt-BR/engineering/workflow/cries/cry-implement-issue.md) (existente, sem mudança) | Athena | Continua sendo entrada do Issue-Driven, agora com pré-condição DoR |
 
 ---
 
@@ -694,58 +694,58 @@ digraph development {
 
 | Lexis existente | Como Development se conecta |
 |---|---|
-| [lex-issue-driven](framework/pt-BR/engineering/workflow/lexis/lex-issue-driven.md) | Pré-condição nova: issue MUST ter Capability Spec + design técnico aprovado por Mômos + wireframes (quando UI) |
-| [lex-issue-first](framework/pt-BR/_foundation/contributing/lexis/lex-issue-first.md) | Sem mudança |
-| [lex-issue-quality](framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md) | Estendida pelo [lex-dor-criteria](#62-lex-dor-criteria) |
-| [lex-pr-quality](framework/pt-BR/_foundation/contributing/lexis/lex-pr-quality.md) | Estendida pelo [lex-dod-criteria](#66-lex-dod-criteria) |
-| [lex-entity-naming](framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md), [lex-entities](framework/pt-BR/engineering/platform/lexis/lex-entities.md) | Verificadas por Mômos sobre output de Theseus |
-| [lex-restful-apis](framework/pt-BR/engineering/platform/lexis/lex-restful-apis.md), [lex-error-handling](framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-auth](framework/pt-BR/engineering/platform/lexis/lex-auth.md) | Verificadas por Mômos sobre output de Daedalus |
-| [lex-cloudevents](framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md) | Verificada por Mômos sobre output de Kronos |
-| [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) | Verificada por Mômos sobre output de Eos |
-| [lex-design-system-library](framework/pt-BR/design/system/lexis/lex-design-system-library.md) | Idem |
-| [lex-brand-colors](framework/pt-BR/design/brand/lexis/lex-brand-colors.md), [lex-brand-typography](framework/pt-BR/design/brand/lexis/lex-brand-typography.md), [lex-brand-logo](framework/pt-BR/design/brand/lexis/lex-brand-logo.md), [lex-brand-voice](framework/pt-BR/design/brand/lexis/lex-brand-voice.md) | Idem (Mômos sobre Eos) |
-| [lex-frontend-accessibility](framework/pt-BR/engineering/frontend/lexis/lex-frontend-accessibility.md), [lex-frontend-security](framework/pt-BR/engineering/frontend/lexis/lex-frontend-security.md), [lex-frontend-typing](framework/pt-BR/engineering/frontend/lexis/lex-frontend-typing.md), [lex-frontend-testing](framework/pt-BR/engineering/frontend/lexis/lex-frontend-testing.md) | Verificadas por Mômos no wireframe HF / spec de componente; verificadas no Gate 2 sobre código de Hephaestus |
-| [lex-mobile-platform-parity](framework/pt-BR/engineering/mobile/lexis/lex-mobile-platform-parity.md), [lex-mobile-offline-first](framework/pt-BR/engineering/mobile/lexis/lex-mobile-offline-first.md) | Verificadas no wireframe quando feature é mobile |
-| [lex-observability-required](framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md) | Estendida por [lex-success-metrics](#68-lex-success-metrics) |
-| [lex-template-usage](framework/pt-BR/_foundation/quality/lexis/lex-template-usage.md) | Aplicada a todos os novos templates |
-| [lex-pilars](framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md) | Aplicada por Hécate ao criar artefatos do framework |
-| [lex-platforms-rules](framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md) | Aplicada por Hécate em cada novo lex/codex |
-| [lex-checkpoint](framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md) | Calíope persiste checkpoint em `.ahrena/workflow/feature-{slug}/checkpoint.md` |
+| [lex-issue-driven](../framework/pt-BR/engineering/workflow/lexis/lex-issue-driven.md) | Pré-condição nova: issue MUST ter Capability Spec + design técnico aprovado por Mômos + wireframes (quando UI) |
+| [lex-issue-first](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-first.md) | Sem mudança |
+| [lex-issue-quality](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md) | Estendida pelo [lex-dor-criteria](#62-lex-dor-criteria) |
+| [lex-pr-quality](../framework/pt-BR/_foundation/contributing/lexis/lex-pr-quality.md) | Estendida pelo [lex-dod-criteria](#66-lex-dod-criteria) |
+| [lex-entity-naming](../framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md), [lex-entities](../framework/pt-BR/engineering/platform/lexis/lex-entities.md) | Verificadas por Mômos sobre output de Theseus |
+| [lex-restful-apis](../framework/pt-BR/engineering/platform/lexis/lex-restful-apis.md), [lex-error-handling](../framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-auth](../framework/pt-BR/engineering/platform/lexis/lex-auth.md) | Verificadas por Mômos sobre output de Daedalus |
+| [lex-cloudevents](../framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md) | Verificada por Mômos sobre output de Kronos |
+| [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) | Verificada por Mômos sobre output de Eos |
+| [lex-design-system-library](../framework/pt-BR/design/system/lexis/lex-design-system-library.md) | Idem |
+| [lex-brand-colors](../framework/pt-BR/design/brand/lexis/lex-brand-colors.md), [lex-brand-typography](../framework/pt-BR/design/brand/lexis/lex-brand-typography.md), [lex-brand-logo](../framework/pt-BR/design/brand/lexis/lex-brand-logo.md), [lex-brand-voice](../framework/pt-BR/design/brand/lexis/lex-brand-voice.md) | Idem (Mômos sobre Eos) |
+| [lex-frontend-accessibility](../framework/pt-BR/engineering/frontend/lexis/lex-frontend-accessibility.md), [lex-frontend-security](../framework/pt-BR/engineering/frontend/lexis/lex-frontend-security.md), [lex-frontend-typing](../framework/pt-BR/engineering/frontend/lexis/lex-frontend-typing.md), [lex-frontend-testing](../framework/pt-BR/engineering/frontend/lexis/lex-frontend-testing.md) | Verificadas por Mômos no wireframe HF / spec de componente; verificadas no Gate 2 sobre código de Hephaestus |
+| [lex-mobile-platform-parity](../framework/pt-BR/engineering/mobile/lexis/lex-mobile-platform-parity.md), [lex-mobile-offline-first](../framework/pt-BR/engineering/mobile/lexis/lex-mobile-offline-first.md) | Verificadas no wireframe quando feature é mobile |
+| [lex-observability-required](../framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md) | Estendida por [lex-success-metrics](#68-lex-success-metrics) |
+| [lex-template-usage](../framework/pt-BR/_foundation/quality/lexis/lex-template-usage.md) | Aplicada a todos os novos templates |
+| [lex-pilars](../framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md) | Aplicada por Hécate ao criar artefatos do framework |
+| [lex-platforms-rules](../framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md) | Aplicada por Hécate em cada novo lex/codex |
+| [lex-checkpoint](../framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md) | Calíope persiste checkpoint em `.ahrena/workflow/feature-{slug}/checkpoint.md` |
 
 ### 10.2 Codex existentes — uso
 
 | Codex existente | Uso em Development |
 |---|---|
-| [codex-issue-workflow](framework/pt-BR/engineering/workflow/codex/codex-issue-workflow.md) | Calíope conhece o fluxo Athena para preparar input adequado |
-| [codex-contributing](framework/pt-BR/_foundation/contributing/codex/codex-contributing.md), [codex-labels](framework/pt-BR/_foundation/contributing/codex/codex-labels.md) | Calíope segue ao criar issue |
-| [codex-ai-first-experience](framework/pt-BR/design/system/codex/codex-ai-first-experience.md) | Manual consultado por Eos |
-| [codex-design-system](framework/pt-BR/design/system/codex/codex-design-system.md), [codex-design-system-components](framework/pt-BR/design/system/codex/codex-design-system-components.md) | Manual consultado por Eos |
-| [codex-brand-colors](framework/pt-BR/design/brand/codex/codex-brand-colors.md), [codex-brand-typography](framework/pt-BR/design/brand/codex/codex-brand-typography.md), [codex-brand-logo](framework/pt-BR/design/brand/codex/codex-brand-logo.md), [codex-brand-voice](framework/pt-BR/design/brand/codex/codex-brand-voice.md), [codex-brand-essence](framework/pt-BR/design/brand/codex/codex-brand-essence.md) | Manuais consultados por Eos e por Mômos na validação |
-| [codex-restful-apis](framework/pt-BR/engineering/platform/codex/codex-restful-apis.md), [codex-cloudevents](framework/pt-BR/engineering/platform/codex/codex-cloudevents.md), [codex-entities](framework/pt-BR/engineering/platform/codex/codex-entities.md), [codex-error-handling](framework/pt-BR/engineering/platform/codex/codex-error-handling.md), [codex-idempotency](framework/pt-BR/engineering/platform/codex/codex-idempotency.md), [codex-auth](framework/pt-BR/engineering/platform/codex/codex-auth.md), [codex-known-errors](framework/pt-BR/engineering/platform/codex/codex-known-errors.md), [codex-oas-structure](framework/pt-BR/engineering/platform/codex/codex-oas-structure.md), [codex-restful-headers](framework/pt-BR/engineering/platform/codex/codex-restful-headers.md), [codex-restful-pagination](framework/pt-BR/engineering/platform/codex/codex-restful-pagination.md), [codex-restful-payload](framework/pt-BR/engineering/platform/codex/codex-restful-payload.md), [codex-restful-sorting](framework/pt-BR/engineering/platform/codex/codex-restful-sorting.md), [codex-restful-status-codes](framework/pt-BR/engineering/platform/codex/codex-restful-status-codes.md) | Consultados por Daedalus/Kronos/Theseus e por Mômos |
-| [codex-frontend-architecture](framework/pt-BR/engineering/frontend/codex/codex-frontend-architecture.md), [codex-mobile-architecture](framework/pt-BR/engineering/mobile/codex/codex-mobile-architecture.md) | Consultados por Eos e por Mômos |
+| [codex-issue-workflow](../framework/pt-BR/engineering/workflow/codex/codex-issue-workflow.md) | Calíope conhece o fluxo Athena para preparar input adequado |
+| [codex-contributing](../framework/pt-BR/_foundation/contributing/codex/codex-contributing.md), [codex-labels](../framework/pt-BR/_foundation/contributing/codex/codex-labels.md) | Calíope segue ao criar issue |
+| [codex-ai-first-experience](../framework/pt-BR/design/system/codex/codex-ai-first-experience.md) | Manual consultado por Eos |
+| [codex-design-system](../framework/pt-BR/design/system/codex/codex-design-system.md), [codex-design-system-components](../framework/pt-BR/design/system/codex/codex-design-system-components.md) | Manual consultado por Eos |
+| [codex-brand-colors](../framework/pt-BR/design/brand/codex/codex-brand-colors.md), [codex-brand-typography](../framework/pt-BR/design/brand/codex/codex-brand-typography.md), [codex-brand-logo](../framework/pt-BR/design/brand/codex/codex-brand-logo.md), [codex-brand-voice](../framework/pt-BR/design/brand/codex/codex-brand-voice.md), [codex-brand-essence](../framework/pt-BR/design/brand/codex/codex-brand-essence.md) | Manuais consultados por Eos e por Mômos na validação |
+| [codex-restful-apis](../framework/pt-BR/engineering/platform/codex/codex-restful-apis.md), [codex-cloudevents](../framework/pt-BR/engineering/platform/codex/codex-cloudevents.md), [codex-entities](../framework/pt-BR/engineering/platform/codex/codex-entities.md), [codex-error-handling](../framework/pt-BR/engineering/platform/codex/codex-error-handling.md), [codex-idempotency](../framework/pt-BR/engineering/platform/codex/codex-idempotency.md), [codex-auth](../framework/pt-BR/engineering/platform/codex/codex-auth.md), [codex-known-errors](../framework/pt-BR/engineering/platform/codex/codex-known-errors.md), [codex-oas-structure](../framework/pt-BR/engineering/platform/codex/codex-oas-structure.md), [codex-restful-headers](../framework/pt-BR/engineering/platform/codex/codex-restful-headers.md), [codex-restful-pagination](../framework/pt-BR/engineering/platform/codex/codex-restful-pagination.md), [codex-restful-payload](../framework/pt-BR/engineering/platform/codex/codex-restful-payload.md), [codex-restful-sorting](../framework/pt-BR/engineering/platform/codex/codex-restful-sorting.md), [codex-restful-status-codes](../framework/pt-BR/engineering/platform/codex/codex-restful-status-codes.md) | Consultados por Daedalus/Kronos/Theseus e por Mômos |
+| [codex-frontend-architecture](../framework/pt-BR/engineering/frontend/codex/codex-frontend-architecture.md), [codex-mobile-architecture](../framework/pt-BR/engineering/mobile/codex/codex-mobile-architecture.md) | Consultados por Eos e por Mômos |
 
 ### 10.3 Warriors existentes — interação detalhada
 
 | Warrior existente | Relação |
 |---|---|
-| [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) | **Downstream.** Recebe issue de Calíope com tudo pronto, recusa se DoR não atendido |
-| [warrior-prometheus](framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) | **Reposicionado.** Agora é Fase 2 (antes da issue), não fase 3 do Athena. Coordena Theseus/Daedalus/Kronos + Mômos |
-| [warrior-theseus](framework/pt-BR/engineering/platform/warriors/warrior-theseus.md), [warrior-daedalus](framework/pt-BR/engineering/platform/warriors/warrior-daedalus.md), [warrior-kronos](framework/pt-BR/engineering/platform/warriors/warrior-kronos.md) | Sem mudança de papel — operam dentro de Prometheus, agora com Mômos como crítico em loop 3x |
-| [warrior-apollo](framework/pt-BR/engineering/backend/warriors/warrior-apollo.md), [warrior-hephaestus](framework/pt-BR/engineering/frontend/warriors/warrior-hephaestus.md), [warrior-iris](framework/pt-BR/engineering/mobile/warriors/warrior-iris.md), [warrior-demeter](framework/pt-BR/engineering/data/warriors/warrior-demeter.md), [warrior-atlas](framework/pt-BR/engineering/devops/warriors/warrior-atlas.md), [warrior-hera](framework/pt-BR/engineering/quality/warriors/warrior-hera.md) | Indireto — invocados por Athena depois da issue criada. Hephaestus e Iris recebem wireframes HF + spec de componentes de Eos |
-| [warrior-translator](framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) | Sob demanda — tradução de PRD/Capability Spec/wireframes |
-| [warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) | Sem interação direta nesta fase |
+| [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) | **Downstream.** Recebe issue de Calíope com tudo pronto, recusa se DoR não atendido |
+| [warrior-prometheus](../framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) | **Reposicionado.** Agora é Fase 2 (antes da issue), não fase 3 do Athena. Coordena Theseus/Daedalus/Kronos + Mômos |
+| [warrior-theseus](../framework/pt-BR/engineering/platform/warriors/warrior-theseus.md), [warrior-daedalus](../framework/pt-BR/engineering/platform/warriors/warrior-daedalus.md), [warrior-kronos](../framework/pt-BR/engineering/platform/warriors/warrior-kronos.md) | Sem mudança de papel — operam dentro de Prometheus, agora com Mômos como crítico em loop 3x |
+| [warrior-apollo](../framework/pt-BR/engineering/backend/warriors/warrior-apollo.md), [warrior-hephaestus](../framework/pt-BR/engineering/frontend/warriors/warrior-hephaestus.md), [warrior-iris](../framework/pt-BR/engineering/mobile/warriors/warrior-iris.md), [warrior-demeter](../framework/pt-BR/engineering/data/warriors/warrior-demeter.md), [warrior-atlas](../framework/pt-BR/engineering/devops/warriors/warrior-atlas.md), [warrior-hera](../framework/pt-BR/engineering/quality/warriors/warrior-hera.md) | Indireto — invocados por Athena depois da issue criada. Hephaestus e Iris recebem wireframes HF + spec de componentes de Eos |
+| [warrior-translator](../framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) | Sob demanda — tradução de PRD/Capability Spec/wireframes |
+| [warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) | Sem interação direta nesta fase |
 
 ### 10.4 Katas existentes que ganham contexto
 
 | Kata existente | Mudança |
 |---|---|
-| [kata-architecture-brief](framework/pt-BR/engineering/workflow/katas/kata-architecture-brief.md) | Em vez de gerar design técnico, agora **lê** o pacote produzido por Prometheus. Se Athena detecta conflito durante implementação, escala para Calíope |
-| [kata-issue-analysis](framework/pt-BR/engineering/workflow/katas/kata-issue-analysis.md) | Lê Capability Spec linkado em vez de partir só do corpo da issue |
-| [kata-requirements-brief](framework/pt-BR/engineering/workflow/katas/kata-requirements-brief.md) | Considera ACs já desenhadas em `kata-acceptance-criteria-design`; valida e formaliza |
-| [kata-quality-gate](framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) | Ganha 8º check via `kata-dod-validate` |
-| [kata-pr-prepare](framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) | Body do PR referencia automaticamente PRD + Capability Spec + design técnico + wireframes + insights |
-| [kata-contributing-issue](framework/pt-BR/_foundation/contributing/katas/kata-contributing-issue.md) | Calíope é invocador principal; passa pacote completo |
-| [kata-adr-write](framework/pt-BR/engineering/workflow/katas/kata-adr-write.md) | Continua para decisões puramente técnicas; também usado quando Mômos detecta desvio aceito como justificável |
+| [kata-architecture-brief](../framework/pt-BR/engineering/workflow/katas/kata-architecture-brief.md) | Em vez de gerar design técnico, agora **lê** o pacote produzido por Prometheus. Se Athena detecta conflito durante implementação, escala para Calíope |
+| [kata-issue-analysis](../framework/pt-BR/engineering/workflow/katas/kata-issue-analysis.md) | Lê Capability Spec linkado em vez de partir só do corpo da issue |
+| [kata-requirements-brief](../framework/pt-BR/engineering/workflow/katas/kata-requirements-brief.md) | Considera ACs já desenhadas em `kata-acceptance-criteria-design`; valida e formaliza |
+| [kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) | Ganha 8º check via `kata-dod-validate` |
+| [kata-pr-prepare](../framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) | Body do PR referencia automaticamente PRD + Capability Spec + design técnico + wireframes + insights |
+| [kata-contributing-issue](../framework/pt-BR/_foundation/contributing/katas/kata-contributing-issue.md) | Calíope é invocador principal; passa pacote completo |
+| [kata-adr-write](../framework/pt-BR/engineering/workflow/katas/kata-adr-write.md) | Continua para decisões puramente técnicas; também usado quando Mômos detecta desvio aceito como justificável |
 
 ### 10.5 Ahrena dual-use — implicação para o framework atual
 
@@ -753,21 +753,21 @@ A introdução do Modo B de Hécate (spec de agentes da plataforma) tem implica�
 
 | Artefato existente | Como passa a ser usado |
 |---|---|
-| Toda Lexis técnica ([lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-error-handling](framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-auth](framework/pt-BR/engineering/platform/lexis/lex-auth.md), [lex-data-retention](framework/pt-BR/engineering/data/lexis/lex-data-retention.md), [lex-cloudevents](framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md), etc.) | **Reusável como guard-rail de runtime de agente da plataforma**, sem reescrita. Hécate referencia por path |
-| Codex de domínio ([codex-entities](framework/pt-BR/engineering/platform/codex/codex-entities.md), [codex-restful-apis](framework/pt-BR/engineering/platform/codex/codex-restful-apis.md), [codex-known-errors](framework/pt-BR/engineering/platform/codex/codex-known-errors.md), [codex-aws-services](framework/pt-BR/engineering/devops/codex/codex-aws-services.md)) | **Reusável como knowledge base de agente** que consulta em runtime |
-| [warrior-translator](framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) | Padrão de "warrior implementado" — pode virar referência arquitetural para warriors da plataforma (skill agente isolada com I/O claro) |
-| [lex-pilars](framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md) | Continua sendo a lei estrutural — agentes da plataforma respeitam os mesmos 5 pilares |
-| Templates em [paths.samples](framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md) | Servem para artefatos de framework **e** de plataforma sem mudança |
+| Toda Lexis técnica ([lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-error-handling](../framework/pt-BR/engineering/platform/lexis/lex-error-handling.md), [lex-auth](../framework/pt-BR/engineering/platform/lexis/lex-auth.md), [lex-data-retention](../framework/pt-BR/engineering/data/lexis/lex-data-retention.md), [lex-cloudevents](../framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md), etc.) | **Reusável como guard-rail de runtime de agente da plataforma**, sem reescrita. Hécate referencia por path |
+| Codex de domínio ([codex-entities](../framework/pt-BR/engineering/platform/codex/codex-entities.md), [codex-restful-apis](../framework/pt-BR/engineering/platform/codex/codex-restful-apis.md), [codex-known-errors](../framework/pt-BR/engineering/platform/codex/codex-known-errors.md), [codex-aws-services](../framework/pt-BR/engineering/devops/codex/codex-aws-services.md)) | **Reusável como knowledge base de agente** que consulta em runtime |
+| [warrior-translator](../framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) | Padrão de "warrior implementado" — pode virar referência arquitetural para warriors da plataforma (skill agente isolada com I/O claro) |
+| [lex-pilars](../framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md) | Continua sendo a lei estrutural — agentes da plataforma respeitam os mesmos 5 pilares |
+| Templates em [paths.samples](../framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md) | Servem para artefatos de framework **e** de plataforma sem mudança |
 
 **Princípio:** o investimento que o team já fez em Lexis e Codex do framework é **alavancado duas vezes** — uma vez na qualidade do design técnico (Mômos valida), outra na conformidade dos agentes em runtime. Cada nova Lexis técnica é potencialmente um guard-rail novo para agentes da plataforma.
 
 ### 10.6 Cries existentes — destino atualizado
 
-- [cry-implement-issue](framework/pt-BR/engineering/workflow/cries/cry-implement-issue.md): sem mudança de invocação, mas agora pré-condicionado a DoR atendido.
-- [cry-feature-design](framework/pt-BR/engineering/platform/cries/cry-feature-design.md): renomear destino — invoca Prometheus com loop Mômos.
-- [cry-full-design](framework/pt-BR/engineering/platform/cries/cry-full-design.md): atualizar para invocar Prometheus + Eos quando UI.
-- [cry-api-design](framework/pt-BR/engineering/platform/cries/cry-api-design.md), [cry-event-storm](framework/pt-BR/engineering/platform/cries/cry-event-storm.md): continuam invocando katas direto (uso isolado fora do fluxo Calíope).
-- [cry-new-warrior](framework/pt-BR/_foundation/authoring/cries/cry-new-warrior.md), [cry-new-kata](framework/pt-BR/_foundation/authoring/cries/cry-new-kata.md), [cry-new-lex](framework/pt-BR/_foundation/authoring/cries/cry-new-lex.md), [cry-new-codex](framework/pt-BR/_foundation/authoring/cries/cry-new-codex.md), [cry-new-cry](framework/pt-BR/_foundation/authoring/cries/cry-new-cry.md): invocam Hécate, que orquestra os katas atuais com validação adicional.
+- [cry-implement-issue](../framework/pt-BR/engineering/workflow/cries/cry-implement-issue.md): sem mudança de invocação, mas agora pré-condicionado a DoR atendido.
+- [cry-feature-design](../framework/pt-BR/engineering/platform/cries/cry-feature-design.md): renomear destino — invoca Prometheus com loop Mômos.
+- [cry-full-design](../framework/pt-BR/engineering/platform/cries/cry-full-design.md): atualizar para invocar Prometheus + Eos quando UI.
+- [cry-api-design](../framework/pt-BR/engineering/platform/cries/cry-api-design.md), [cry-event-storm](../framework/pt-BR/engineering/platform/cries/cry-event-storm.md): continuam invocando katas direto (uso isolado fora do fluxo Calíope).
+- [cry-new-warrior](../framework/pt-BR/_foundation/authoring/cries/cry-new-warrior.md), [cry-new-kata](../framework/pt-BR/_foundation/authoring/cries/cry-new-kata.md), [cry-new-lex](../framework/pt-BR/_foundation/authoring/cries/cry-new-lex.md), [cry-new-codex](../framework/pt-BR/_foundation/authoring/cries/cry-new-codex.md), [cry-new-cry](../framework/pt-BR/_foundation/authoring/cries/cry-new-cry.md): invocam Hécate, que orquestra os katas atuais com validação adicional.
 
 ---
 
@@ -907,7 +907,7 @@ docs/
 | **3** | `kata-capability-spec` + [codex-capability-spec](#7-codex) + [lex-capability-spec-required](#67-lex-capability-spec-required) | Substitui PRD+TRD informais por artefato canônico |
 | **4** | `kata-prd-creation` + `kata-success-metrics-define` + [lex-success-metrics](#68-lex-success-metrics) | PRD formal — depende da Onda 3 estável |
 | **5** | [warrior-momos](#43-warrior-momos--validador-adversarial-novo) + `kata-design-validation` + [lex-design-validation-loop](#63-lex-design-validation-loop-novo) | Loop validador 3x sobre os outputs de Theseus / Daedalus / Kronos atuais |
-| **6** | Reposicionamento de [warrior-prometheus](framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) — antes da issue, com Mômos integrado | Cosmético + integração de Mômos. Depende da Onda 5 |
+| **6** | Reposicionamento de [warrior-prometheus](../framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) — antes da issue, com Mômos integrado | Cosmético + integração de Mômos. Depende da Onda 5 |
 | **7** | [warrior-eos](#44-warrior-eos--design-visual-novo) + katas LF/HF + [lex-wireframe-required](#64-lex-wireframe-required-novo) + [lex-ai-first-component-pattern](#65-lex-ai-first-component-pattern-novo) | Design visual entra quando há volume de features com UI |
 | **8** | [warrior-calliope](#41-warrior-calliope--product-manager-orquestrador-master) (orquestrador full Discovery + Development) | Orquestrador master entra quando todas as peças anteriores existem |
 | **9** | `kata-dod-validate` + [lex-dod-criteria](#66-lex-dod-criteria) + 8º check no Gate 2 | Fecha o ciclo Development; depende de [lex-success-metrics](#68-lex-success-metrics) instrumentável |
@@ -920,9 +920,9 @@ docs/
 |---|---|---|
 | D1 | Capability Spec único vs PDR + TRD | **Único** — alinha com ECC |
 | D2 | DoR/DoD configuráveis por projeto via `.directives`? | **Critérios canônicos fixos.** Apenas thresholds configuráveis |
-| D3 | Calíope cria a issue ou só prepara o body? | **Cria via [kata-contributing-issue](framework/pt-BR/_foundation/contributing/katas/kata-contributing-issue.md)** após DoR ✅ |
+| D3 | Calíope cria a issue ou só prepara o body? | **Cria via [kata-contributing-issue](../framework/pt-BR/_foundation/contributing/katas/kata-contributing-issue.md)** após DoR ✅ |
 | D4 | Hotfix de incidente — como tratar DoR? | Exceção: `incident:p0` skip do DoR com Capability Spec retroativo em 5 dias |
-| D5 | Prometheus passa a vir antes da issue — quebra invocações existentes? | **Não quebra.** [cry-feature-design](framework/pt-BR/engineering/platform/cries/cry-feature-design.md) continua existindo; agora Calíope o invoca antes de criar a issue |
+| D5 | Prometheus passa a vir antes da issue — quebra invocações existentes? | **Não quebra.** [cry-feature-design](../framework/pt-BR/engineering/platform/cries/cry-feature-design.md) continua existindo; agora Calíope o invoca antes de criar a issue |
 | D6 | Mômos é warrior dedicado ou kata reusável? | **Warrior dedicado.** Tem máquina de estados (3 iterações + escalonamento) e responsabilidade clara — justifica warrior |
 | D7 | Loop 3x — número fixo ou configurável? | **3 fixo** por default. Configurável via `.directives` para projetos específicos |
 | D8 | Eos cria Figma ou só Markdown + Claude Design? | **Markdown LF + Claude Design / Canva MCP HF.** Figma fica para sync manual com time externo via export |
@@ -931,8 +931,8 @@ docs/
 | D11 | Spec de agente da plataforma fica em `docs/agents/` (este repo) ou em repo do produto? | **Repo do produto Guardia** quando spec for deployável; `docs/agents/` é placeholder até estrutura definitiva existir |
 | D12 | `deploy.json` (formato deployável) — schema canônico? | A definir conforme runtime de agentes evolui. Recomendo começar com {system_prompt: warrior.md, tools: [], guardrails: [lex-paths]} |
 | D13 | Agente da plataforma referencia Lexis do framework por path absoluto ou via cópia? | **Path absoluto** (ex.: `framework/pt-BR/engineering/platform/lexis/lex-idempotency.md`). Cópia drift; path mantém single source of truth |
-| D14 | E quando o agente da plataforma precisa de Lexis específica que **não existe** no framework? | Hécate cria nova Lexis no `docs/agents/{agent}/lexis/`. Se a Lexis tem aplicabilidade ampla, é promovida para o framework via [kata-push-to-framework](framework/pt-BR/_foundation/authoring/katas/kata-push-to-framework.md) |
-| D15 | Como Mômos valida agente em runtime (não só design)? | **Fora do escopo de Development.** Validação design-time = Mômos no Modo B. Validação runtime = monitoração via [lex-observability-required](framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md) e [lex-runbook-for-every-alert](framework/pt-BR/engineering/sre/lexis/lex-runbook-for-every-alert.md). Tema futuro: agente "Mômos runtime" auditando outras agentes em produção |
+| D14 | E quando o agente da plataforma precisa de Lexis específica que **não existe** no framework? | Hécate cria nova Lexis no `docs/agents/{agent}/lexis/`. Se a Lexis tem aplicabilidade ampla, é promovida para o framework via [kata-push-to-framework](../framework/pt-BR/_foundation/authoring/katas/kata-push-to-framework.md) |
+| D15 | Como Mômos valida agente em runtime (não só design)? | **Fora do escopo de Development.** Validação design-time = Mômos no Modo B. Validação runtime = monitoração via [lex-observability-required](../framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md) e [lex-runbook-for-every-alert](../framework/pt-BR/engineering/sre/lexis/lex-runbook-for-every-alert.md). Tema futuro: agente "Mômos runtime" auditando outras agentes em produção |
 
 ---
 

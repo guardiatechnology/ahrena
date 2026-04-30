@@ -10,7 +10,7 @@ Cobre tudo que acontece **depois** que o PR é mergeado e **até** a feature est
 
 **Mudanças vs. v2:**
 
-1. **6 sub-fases (E1–E6) + 2 Gates internos.** Mesmo padrão de [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (7 fases / 2 gates) e [Product Discovery](product-discovery.md) (5 fases / 2 gates) — concentra decisão humana onde realmente importa.
+1. **6 sub-fases (E1–E6) + 2 Gates internos.** Mesmo padrão de [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) (7 fases / 2 gates) e [Product Discovery](product-discovery.md) (5 fases / 2 gates) — concentra decisão humana onde realmente importa.
 2. **Mômos valida release plan e PLR** em loop 3x antes de submeter a humano. Mesmo padrão de Development.
 3. **Delivery diferenciado para agentes da plataforma.** Quando a feature criou ou alterou agente via Hécate Modo B, Delivery aplica checks adicionais (verificação de guard-rails em runtime, métricas específicas).
 4. **Auto-schedule é first-class.** Niké agenda PLR (D+14), cleanup (D+30) e — quando agente — Mômos runtime audit (D+7) via `/schedule` no momento E2 (Setup).
@@ -39,7 +39,7 @@ Cobre tudo que acontece **depois** que o PR é mergeado e **até** a feature est
 | **E1** | Plan | Niké | `docs/releases/{feature}/plan.md` (validado por Mômos) |
 | **E2** | Setup | Niké | feature flag criada + auto-schedule de PLR / cleanup |
 | ⛔ **Gate E1** | **Plan approved** (humano) | (decisão humana) | autorização para iniciar rollout |
-| **E3** | Rollout | Niké + [warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) (incidentes) | `docs/releases/{feature}/rollout-log.md` (append-only) |
+| **E3** | Rollout | Niké + [warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) (incidentes) | `docs/releases/{feature}/rollout-log.md` (append-only) |
 | **E4** | GA | Niké | feature em 100% + tag de release |
 | ⛔ **Gate E2** | **GA approved** (humano) | (decisão humana) | autorização para fechar rollout |
 | **E5** | PLR + Feedback | Niké | `docs/releases/{feature}/plr.md` (validado por Mômos) |
@@ -63,9 +63,9 @@ Cobre tudo que acontece **depois** que o PR é mergeado e **até** a feature est
 
 **Mitologia:** Niké = vitória. Encaixa com "delivery bem-sucedido". Não confundir com Atena (sabedoria/processo) — Niké é o desfecho.
 
-**Posicionamento:** orquestrador master de Delivery. Acionada quando PR é mergeado em `main` com label `delivery:pending` (aplicada por [kata-pr-prepare](framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) atualizado).
+**Posicionamento:** orquestrador master de Delivery. Acionada quando PR é mergeado em `main` com label `delivery:pending` (aplicada por [kata-pr-prepare](../framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) atualizado).
 
-**Não confundir com [warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md):** Hestia é SRE/incident response (atua **reativamente** quando algo quebra). Niké é Delivery (atua **proativamente** durante o rollout). Cooperam: Niké monitora SLO durante rollout; se quebra, escala para Hestia via [kata-incident-triage](framework/pt-BR/engineering/sre/katas/kata-incident-triage.md).
+**Não confundir com [warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md):** Hestia é SRE/incident response (atua **reativamente** quando algo quebra). Niké é Delivery (atua **proativamente** durante o rollout). Cooperam: Niké monitora SLO durante rollout; se quebra, escala para Hestia via [kata-incident-triage](../framework/pt-BR/engineering/sre/katas/kata-incident-triage.md).
 
 **Não confundir com [warrior-momos](product-development.md#43-warrior-momos--validador-adversarial-novo):** Mômos valida artefatos de Niké (release plan, PLR) antes de submeter a humano. Mesma máquina de loop 3x usada em Development.
 
@@ -74,11 +74,11 @@ Cobre tudo que acontece **depois** que o PR é mergeado e **até** a feature est
 | Faz | Não faz |
 |---|---|
 | Orquestra as 6 sub-fases (E1–E6) e aplica Gates E1, E2 | Implementa código (PR já está mergeado) |
-| E1 — coordena release plan via `kata-release-plan` | Faz incident response (delega para [warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md)) |
+| E1 — coordena release plan via `kata-release-plan` | Faz incident response (delega para [warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md)) |
 | E2 — configura feature flag via `kata-feature-flag-setup` + auto-schedules via `/schedule` | Decide priorização de novas features (volta para Calíope) |
 | E3 — monitora rollout via `kata-rollout-monitor` (1% → 10% → 50% → 100%) | Pula etapas de rollout sob pressão de prazo |
 | E3 — escala para Hestia em halt automático | Aprova GA sem PLR registrado |
-| E4 — gera changelog via `kata-changelog-write` e tag via [kata-tag](framework/pt-BR/_foundation/contributing/katas/kata-tag.md) | Mantém flag indefinidamente |
+| E4 — gera changelog via `kata-changelog-write` e tag via [kata-tag](../framework/pt-BR/_foundation/contributing/katas/kata-tag.md) | Mantém flag indefinidamente |
 | E4 — gera release notes via `kata-release-notes` (pt-BR/en/es) | Pula Mômos sobre release plan ou PLR |
 | E5 — faz PLR via `kata-post-launch-review` | Modifica artefatos depois de fechar |
 | E5 — coleta feedback via `kata-customer-feedback-loop` | |
@@ -96,9 +96,9 @@ Mesmo warrior definido em [Product Development → seção 4.3](product-developm
 
 | Artefato | Quando | Lexis verificadas |
 |---|---|---|
-| Release plan (E1) | Antes de Gate E1 | [lex-feature-flag-required](#61-lex-feature-flag-required-novo), [lex-staged-rollout](#62-lex-staged-rollout-novo), [lex-slo-required](framework/pt-BR/engineering/sre/lexis/lex-slo-required.md), [lex-aws-cost](framework/pt-BR/engineering/devops/lexis/lex-aws-cost.md) |
+| Release plan (E1) | Antes de Gate E1 | [lex-feature-flag-required](#61-lex-feature-flag-required-novo), [lex-staged-rollout](#62-lex-staged-rollout-novo), [lex-slo-required](../framework/pt-BR/engineering/sre/lexis/lex-slo-required.md), [lex-aws-cost](../framework/pt-BR/engineering/devops/lexis/lex-aws-cost.md) |
 | PLR (E5) | Antes de submeter humano | [lex-post-launch-review-required](#63-lex-post-launch-review-required-novo), [lex-success-metrics](product-development.md#68-lex-success-metrics), [lex-evidence-required](product-discovery.md#71-lex-evidence-required-novo) |
-| Release notes (E4) | Antes de publicar | [lex-release-notes-required](#64-lex-release-notes-required-novo), [lex-brand-voice](framework/pt-BR/design/brand/lexis/lex-brand-voice.md), [lex-language](framework/pt-BR/documentation/i18n/lexis/lex-language.md) |
+| Release notes (E4) | Antes de publicar | [lex-release-notes-required](#64-lex-release-notes-required-novo), [lex-brand-voice](../framework/pt-BR/design/brand/lexis/lex-brand-voice.md), [lex-language](../framework/pt-BR/documentation/i18n/lexis/lex-language.md) |
 
 **Loop 3x canônico:** mesma máquina de Development. Após 3ª iteração com desvios remanescentes, escala humano com relatório consolidado.
 
@@ -106,7 +106,7 @@ Mesmo warrior definido em [Product Development → seção 4.3](product-developm
 
 ### 4.3 `warrior-hestia` — SRE / Incident Response (existente, sem mudança de papel)
 
-[warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) é invocada por Niké quando halt automático é acionado em E3. Continua atuando per [kata-incident-triage](framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) e [codex-incident-response](framework/pt-BR/engineering/sre/codex/codex-incident-response.md). Decisão de continuar rollout ou rollback é dela em conjunto com Niké.
+[warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) é invocada por Niké quando halt automático é acionado em E3. Continua atuando per [kata-incident-triage](../framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) e [codex-incident-response](../framework/pt-BR/engineering/sre/codex/codex-incident-response.md). Decisão de continuar rollout ou rollback é dela em conjunto com Niké.
 
 ---
 
@@ -138,7 +138,7 @@ Mesmo warrior definido em [Product Development → seção 4.3](product-developm
 |---|---|---|
 | `kata-rollout-progress` | Promove rollout entre etapas (1% → 10% → 50% → 100%) com verificação de SLO | append em `rollout-log.md` |
 | `kata-rollout-monitor` | Monitora SLOs e métricas de sucesso continuamente; decide promoção ou halt | leitura contínua + decisão |
-| [kata-incident-triage](framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) (existente) | Invocado em halt automático; entrega para [warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) | `docs/incidents/INC-{n}.md` |
+| [kata-incident-triage](../framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) (existente) | Invocado em halt automático; entrega para [warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) | `docs/incidents/INC-{n}.md` |
 
 ### 5.4 E4 — GA (executados por Niké)
 
@@ -146,7 +146,7 @@ Mesmo warrior definido em [Product Development → seção 4.3](product-developm
 |---|---|---|
 | `kata-changelog-write` | Gera changelog técnico a partir dos commits da release | `CHANGELOG.md` atualizado |
 | `kata-release-notes` | Release notes para cliente (pt-BR/en/es) — tom de produto | `docs/releases/{feature}/notes-{lang}.md` |
-| [kata-tag](framework/pt-BR/_foundation/contributing/katas/kata-tag.md) (existente) | Tag semver | tag pushada |
+| [kata-tag](../framework/pt-BR/_foundation/contributing/katas/kata-tag.md) (existente) | Tag semver | tag pushada |
 | `kata-customer-comms` | Anúncio interno (Slack) e externo (blog/e-mail) — opcional | mensagens publicadas |
 
 **Mômos valida** release notes antes de publicar.
@@ -189,7 +189,7 @@ Mesmo warrior definido em [Product Development → seção 4.3](product-developm
 - Mudanças em fluxos visíveis ao cliente externo
 - Migrações de dados que tocam produção
 - Integrações com sistemas externos críticos
-- Features cobertas por [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md)
+- Features cobertas por [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md)
 - **Mudanças em agente da plataforma** (system prompt, tools, guard-rails) — adicionado em v3
 
 **HARD-GATE textual:**
@@ -213,7 +213,7 @@ Esta regra se aplica independentemente de:
 
 ### 6.2 `lex-staged-rollout` (novo)
 
-> Features que afetam >5% da base ativa (ou são tier-1/2 per [lex-slo-required](framework/pt-BR/engineering/sre/lexis/lex-slo-required.md)) MUST seguir rollout gradual: 1% → 10% → 50% → 100%, com gate de SLO entre etapas. Tempo mínimo entre etapas: 24h. Halt automático se error budget consome >20% durante a etapa.
+> Features que afetam >5% da base ativa (ou são tier-1/2 per [lex-slo-required](../framework/pt-BR/engineering/sre/lexis/lex-slo-required.md)) MUST seguir rollout gradual: 1% → 10% → 50% → 100%, com gate de SLO entre etapas. Tempo mínimo entre etapas: 24h. Halt automático se error budget consome >20% durante a etapa.
 
 **Para agentes da plataforma:** rollout mais conservador — 0.5% → 5% → 25% → 100%, com tempo mínimo de 48h entre etapas. Razão: mudança de prompt/guard-rail tem efeito sutil e difícil de detectar via SLO técnico.
 
@@ -235,7 +235,7 @@ Esta regra se aplica independentemente de:
 
 > Toda feature visível ao cliente externo MUST ter release notes em todos os idiomas listados em `language.i18n` em `.ahrena/.directives` (atualmente pt-BR, en, es) antes de iniciar rollout >10%.
 
-**Conexão:** estende [lex-language](framework/pt-BR/documentation/i18n/lexis/lex-language.md) e usa [warrior-translator](framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) para tradução automatizada com revisão humana.
+**Conexão:** estende [lex-language](../framework/pt-BR/documentation/i18n/lexis/lex-language.md) e usa [warrior-translator](../framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) para tradução automatizada com revisão humana.
 
 ### 6.5 `lex-flag-cleanup-deadline` (novo)
 
@@ -277,7 +277,7 @@ docs/releases/{feature}/plr.md (seção "Runtime Guard-rail Audit").
 > 2. **Transparência do raciocínio** — usuário visualizou plano/fontes em pelo menos 70% das execuções
 > 3. **Controle graduado** — % de ações irreversíveis que tiveram confirmação explícita
 
-**Conexão com [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md):** lei design-time exige experiência agêntica; lei delivery-time exige medir aderência em produção.
+**Conexão com [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md):** lei design-time exige experiência agêntica; lei delivery-time exige medir aderência em produção.
 
 ---
 
@@ -290,8 +290,8 @@ docs/releases/{feature}/plr.md (seção "Runtime Guard-rail Audit").
 | `codex-post-launch-review` | Formato e cadência de PLRs; templates por tipo de feature |
 | `codex-customer-feedback` | Canais (NPS, CSAT, in-app, suporte) e estruturação; ligação com discovery futura |
 | `codex-feature-flag-providers` | Padrões da Guardia para LaunchDarkly / Unleash / in-house; convenção de nomenclatura |
-| `codex-changelog-format` | Formato canônico do `CHANGELOG.md`; agrupamento por tipo de [lex-conventional-commits](framework/pt-BR/_foundation/contributing/lexis/lex-conventional-commits.md) |
-| `codex-release-notes-tone` | Tom de release notes para cliente — segue [lex-brand-voice](framework/pt-BR/design/brand/lexis/lex-brand-voice.md) |
+| `codex-changelog-format` | Formato canônico do `CHANGELOG.md`; agrupamento por tipo de [lex-conventional-commits](../framework/pt-BR/_foundation/contributing/lexis/lex-conventional-commits.md) |
+| `codex-release-notes-tone` | Tom de release notes para cliente — segue [lex-brand-voice](../framework/pt-BR/design/brand/lexis/lex-brand-voice.md) |
 | `codex-ai-first-metrics` (novo) | Como medir uso de conversa, transparência, controle graduado em produção |
 | `codex-runtime-guardrail-audit` (novo) | Como audit funciona; padrões de violação; remediação |
 | `codex-platform-agent-rollout` (novo) | Rollout específico de mudança em agente; por que é mais conservador; o que monitorar |
@@ -309,7 +309,7 @@ docs/releases/{feature}/plr.md (seção "Runtime Guard-rail Audit").
 | `cry-flag-cleanup` | `kata-feature-flag-cleanup` | "Remover flag da feature X" |
 | `cry-release-notes` | `kata-release-notes` | "Gerar release notes para feature X" |
 | `cry-runtime-audit` (novo) | `kata-runtime-guardrail-audit` | "Audita guard-rails do agente X em produção" |
-| [cry-tag](framework/pt-BR/_foundation/contributing/cries/cry-tag.md) (existente) | [kata-tag](framework/pt-BR/_foundation/contributing/katas/kata-tag.md) | Continua para tags semver |
+| [cry-tag](../framework/pt-BR/_foundation/contributing/cries/cry-tag.md) (existente) | [kata-tag](../framework/pt-BR/_foundation/contributing/katas/kata-tag.md) | Continua para tags semver |
 
 ---
 
@@ -377,44 +377,44 @@ digraph delivery {
 
 | Lexis existente | Como Delivery se conecta |
 |---|---|
-| [lex-slo-required](framework/pt-BR/engineering/sre/lexis/lex-slo-required.md) | Error budget é a moeda do staged rollout. [lex-staged-rollout](#62-lex-staged-rollout-novo) aplica concretamente |
-| [lex-runbook-for-every-alert](framework/pt-BR/engineering/sre/lexis/lex-runbook-for-every-alert.md) | `kata-rollout-monitor` consulta runbooks ao detectar degradação; halt invoca [kata-incident-triage](framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) |
-| [lex-observability-required](framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md) | Métricas instrumentadas durante DoD são consumidas por `kata-rollout-monitor` |
-| [lex-conventional-commits](framework/pt-BR/_foundation/contributing/lexis/lex-conventional-commits.md) | `kata-changelog-write` agrupa commits por type |
-| [lex-semantic-version](framework/pt-BR/_foundation/contributing/lexis/lex-semantic-version.md) | Tag de release segue semver |
-| [lex-signed-commits](framework/pt-BR/_foundation/contributing/lexis/lex-signed-commits.md) | Commits de cleanup e tag seguem GPG signing |
-| [lex-brand-voice](framework/pt-BR/design/brand/lexis/lex-brand-voice.md) | `kata-release-notes` aplica tom Guardia; Mômos verifica |
-| [lex-language](framework/pt-BR/documentation/i18n/lexis/lex-language.md) + [lex-language-en](framework/pt-BR/documentation/i18n/lexis/lex-language-en.md) + [lex-language-es](framework/pt-BR/documentation/i18n/lexis/lex-language-es.md) + [lex-language-ptbr](framework/pt-BR/documentation/i18n/lexis/lex-language-ptbr.md) | `kata-release-notes` produz nos 3 idiomas; usa [warrior-translator](framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) |
-| [lex-data-retention](framework/pt-BR/engineering/data/lexis/lex-data-retention.md) | Logs de rollout (`rollout-log.md`) seguem retenção de operational-logs (90 dias mínimo) |
-| [lex-aws-cost](framework/pt-BR/engineering/devops/lexis/lex-aws-cost.md) | Decisão de feature flag provider tem impacto declarado |
-| [lex-ai-first-experience](framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) | Verificada em runtime via [lex-ai-first-success-metrics](#67-lex-ai-first-success-metrics-novo) |
+| [lex-slo-required](../framework/pt-BR/engineering/sre/lexis/lex-slo-required.md) | Error budget é a moeda do staged rollout. [lex-staged-rollout](#62-lex-staged-rollout-novo) aplica concretamente |
+| [lex-runbook-for-every-alert](../framework/pt-BR/engineering/sre/lexis/lex-runbook-for-every-alert.md) | `kata-rollout-monitor` consulta runbooks ao detectar degradação; halt invoca [kata-incident-triage](../framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) |
+| [lex-observability-required](../framework/pt-BR/_foundation/quality/lexis/lex-observability-required.md) | Métricas instrumentadas durante DoD são consumidas por `kata-rollout-monitor` |
+| [lex-conventional-commits](../framework/pt-BR/_foundation/contributing/lexis/lex-conventional-commits.md) | `kata-changelog-write` agrupa commits por type |
+| [lex-semantic-version](../framework/pt-BR/_foundation/contributing/lexis/lex-semantic-version.md) | Tag de release segue semver |
+| [lex-signed-commits](../framework/pt-BR/_foundation/contributing/lexis/lex-signed-commits.md) | Commits de cleanup e tag seguem GPG signing |
+| [lex-brand-voice](../framework/pt-BR/design/brand/lexis/lex-brand-voice.md) | `kata-release-notes` aplica tom Guardia; Mômos verifica |
+| [lex-language](../framework/pt-BR/documentation/i18n/lexis/lex-language.md) + [lex-language-en](../framework/pt-BR/documentation/i18n/lexis/lex-language-en.md) + [lex-language-es](../framework/pt-BR/documentation/i18n/lexis/lex-language-es.md) + [lex-language-ptbr](../framework/pt-BR/documentation/i18n/lexis/lex-language-ptbr.md) | `kata-release-notes` produz nos 3 idiomas; usa [warrior-translator](../framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) |
+| [lex-data-retention](../framework/pt-BR/engineering/data/lexis/lex-data-retention.md) | Logs de rollout (`rollout-log.md`) seguem retenção de operational-logs (90 dias mínimo) |
+| [lex-aws-cost](../framework/pt-BR/engineering/devops/lexis/lex-aws-cost.md) | Decisão de feature flag provider tem impacto declarado |
+| [lex-ai-first-experience](../framework/pt-BR/design/system/lexis/lex-ai-first-experience.md) | Verificada em runtime via [lex-ai-first-success-metrics](#67-lex-ai-first-success-metrics-novo) |
 | [lex-success-metrics](product-development.md#68-lex-success-metrics) | Métrica definida em Development é input principal de PLR |
 | [lex-runtime-guardrail-from-lexis](product-development.md#611-lex-runtime-guardrail-from-lexis-novo) | Verificada por [lex-runtime-guardrail-audit](#66-lex-runtime-guardrail-audit-novo) em D+7 |
 | [lex-platform-agent-via-ahrena](product-development.md#610-lex-platform-agent-via-ahrena-novo) | Spec de agente em `docs/agents/{agent}/` é fonte da verdade durante rollout |
 | [lex-design-validation-loop](product-development.md#63-lex-design-validation-loop-novo) | Mômos aplica em Delivery sobre release plan e PLR |
-| [lex-platforms-rules](framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md) | Cada novo lex/codex desta fase entra em `framework/platforms.yaml` |
-| [lex-checkpoint](framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md) | Niké persiste checkpoint em `.ahrena/workflow/release-{feature}/checkpoint.md` |
+| [lex-platforms-rules](../framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md) | Cada novo lex/codex desta fase entra em `framework/platforms.yaml` |
+| [lex-checkpoint](../framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md) | Niké persiste checkpoint em `.ahrena/workflow/release-{feature}/checkpoint.md` |
 
 ### 10.2 Codex existentes — uso
 
 | Codex existente | Uso em Delivery |
 |---|---|
-| [codex-incident-response](framework/pt-BR/engineering/sre/codex/codex-incident-response.md) | Halt automático escala para [warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) |
-| [codex-aws-services](framework/pt-BR/engineering/devops/codex/codex-aws-services.md), [codex-aws-well-architected](framework/pt-BR/engineering/devops/codex/codex-aws-well-architected.md) | Release plan considera região, AZ, blast radius |
-| [codex-language-en](framework/pt-BR/documentation/i18n/codex/codex-language-en.md), [codex-language-es](framework/pt-BR/documentation/i18n/codex/codex-language-es.md), [codex-language-ptbr](framework/pt-BR/documentation/i18n/codex/codex-language-ptbr.md) | Release notes traduzidas |
-| [codex-tone](framework/pt-BR/_foundation/quality/codex/codex-tone.md) | Aplicado em changelog, release notes e PLR |
-| [codex-brand-voice](framework/pt-BR/design/brand/codex/codex-brand-voice.md) | Aplicado em release notes destinadas ao cliente |
-| [codex-ai-first-experience](framework/pt-BR/design/system/codex/codex-ai-first-experience.md) | Manual consultado para validar métricas AI-First no PLR |
+| [codex-incident-response](../framework/pt-BR/engineering/sre/codex/codex-incident-response.md) | Halt automático escala para [warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) |
+| [codex-aws-services](../framework/pt-BR/engineering/devops/codex/codex-aws-services.md), [codex-aws-well-architected](../framework/pt-BR/engineering/devops/codex/codex-aws-well-architected.md) | Release plan considera região, AZ, blast radius |
+| [codex-language-en](../framework/pt-BR/documentation/i18n/codex/codex-language-en.md), [codex-language-es](../framework/pt-BR/documentation/i18n/codex/codex-language-es.md), [codex-language-ptbr](../framework/pt-BR/documentation/i18n/codex/codex-language-ptbr.md) | Release notes traduzidas |
+| [codex-tone](../framework/pt-BR/_foundation/quality/codex/codex-tone.md) | Aplicado em changelog, release notes e PLR |
+| [codex-brand-voice](../framework/pt-BR/design/brand/codex/codex-brand-voice.md) | Aplicado em release notes destinadas ao cliente |
+| [codex-ai-first-experience](../framework/pt-BR/design/system/codex/codex-ai-first-experience.md) | Manual consultado para validar métricas AI-First no PLR |
 
 ### 10.3 Warriors existentes — interação detalhada
 
 | Warrior existente | Relação com Niké |
 |---|---|
-| [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) | **Upstream.** Entrega PR mergeado com label `delivery:pending` |
-| [warrior-hestia](framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) | **Cooperação durante E3.** Niké monitora SLO; se quebra, escala para Hestia. Hestia decide rollback ou continuação |
+| [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) | **Upstream.** Entrega PR mergeado com label `delivery:pending` |
+| [warrior-hestia](../framework/pt-BR/engineering/sre/warriors/warrior-hestia.md) | **Cooperação durante E3.** Niké monitora SLO; se quebra, escala para Hestia. Hestia decide rollback ou continuação |
 | [warrior-momos](product-development.md#43-warrior-momos--validador-adversarial-novo) | **Crítico residente.** Valida release plan (E1), release notes (E4), PLR (E5) em loop 3x |
-| [warrior-translator](framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) | **Sob demanda.** Niké invoca para traduzir release notes |
-| [warrior-atlas](framework/pt-BR/engineering/devops/warriors/warrior-atlas.md) | **Sob demanda.** Niké invoca quando release plan exige mudança de infra |
+| [warrior-translator](../framework/pt-BR/documentation/i18n/warriors/warrior-translator.md) | **Sob demanda.** Niké invoca para traduzir release notes |
+| [warrior-atlas](../framework/pt-BR/engineering/devops/warriors/warrior-atlas.md) | **Sob demanda.** Niké invoca quando release plan exige mudança de infra |
 | [warrior-calliope](product-development.md#41-warrior-calliope--product-manager-orquestrador-master) | **Cooperação no PLR.** Feedback alimenta nova Discovery — fechando o ciclo |
 | [warrior-hecate](product-development.md#46-warrior-hecate--meta-engenharia-de-agentes-novo) | **Sob demanda.** Quando PLR identifica que agente precisa evoluir, Niké aciona Calíope que aciona Hécate Modo B |
 | Demais (Apollo, Hephaestus, Iris, Demeter, Daedalus, Theseus, Kronos, Hera, Prometheus, Eos) | Sem interação direta — feature já está mergeada |
@@ -423,14 +423,14 @@ digraph delivery {
 
 | Kata existente | Mudança |
 |---|---|
-| [kata-pr-prepare](framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) | Aplica label `delivery:pending` no PR ao merge para acionar Niké |
-| [kata-tag](framework/pt-BR/_foundation/contributing/katas/kata-tag.md) | Invocado por Niké após `kata-changelog-write` em E4 |
-| [kata-incident-triage](framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) | Invocado pelo halt automático em E3 |
-| [kata-create-codex](framework/pt-BR/_foundation/authoring/katas/kata-create-codex.md), [kata-create-lexis](framework/pt-BR/_foundation/authoring/katas/kata-create-lexis.md) | Quando PLR identifica novo padrão recorrente, Niké aciona Hécate para criar lexis ou codex novo |
+| [kata-pr-prepare](../framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) | Aplica label `delivery:pending` no PR ao merge para acionar Niké |
+| [kata-tag](../framework/pt-BR/_foundation/contributing/katas/kata-tag.md) | Invocado por Niké após `kata-changelog-write` em E4 |
+| [kata-incident-triage](../framework/pt-BR/engineering/sre/katas/kata-incident-triage.md) | Invocado pelo halt automático em E3 |
+| [kata-create-codex](../framework/pt-BR/_foundation/authoring/katas/kata-create-codex.md), [kata-create-lexis](../framework/pt-BR/_foundation/authoring/katas/kata-create-lexis.md) | Quando PLR identifica novo padrão recorrente, Niké aciona Hécate para criar lexis ou codex novo |
 
 ### 10.5 Cries existentes — destino atualizado
 
-- [cry-tag](framework/pt-BR/_foundation/contributing/cries/cry-tag.md): continua para tags semver, agora invocado tipicamente por Niké em E4.
+- [cry-tag](../framework/pt-BR/_foundation/contributing/cries/cry-tag.md): continua para tags semver, agora invocado tipicamente por Niké em E4.
 
 ### 10.6 Delivery diferenciado quando feature inclui agente da plataforma
 
@@ -662,7 +662,7 @@ Niké usa o `/schedule` (skill agendável do harness) para garantir que ações 
 | **Runtime audit D+7** | Quando feature inclui agente | Executa `kata-runtime-guardrail-audit` automaticamente; se >5% de violação inesperada, escala para humano via `cry-update-platform-agent` |
 | **Iteração no agente D+90** | Quando feature inclui agente novo | Re-avalia se spec do agente precisa evoluir baseado em padrões observados em 3 meses |
 
-**Conexão com framework atual:** já documentado em [lex-checkpoint](framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md) que sessões podem retomar via checkpoint. Auto-schedule é a versão proativa — Niké marca "volta aqui no D+14" ao invés de esperar humano lembrar.
+**Conexão com framework atual:** já documentado em [lex-checkpoint](../framework/pt-BR/_foundation/process/lexis/lex-checkpoint.md) que sessões podem retomar via checkpoint. Auto-schedule é a versão proativa — Niké marca "volta aqui no D+14" ao invés de esperar humano lembrar.
 
 ---
 
@@ -671,7 +671,7 @@ Niké usa o `/schedule` (skill agendável do harness) para garantir que ações 
 | Onda | Entrega | Justificativa |
 |---|---|---|
 | **A** | [lex-feature-flag-required](#61-lex-feature-flag-required-novo) + [codex-feature-flag-providers](#7-codex) + escolha de provedor | Sem flag, nada do resto funciona |
-| **B** | `kata-release-plan` + `kata-risk-categorize` + `kata-rollback-plan` + [codex-release-strategy](#7-codex) + label `delivery:pending` em [kata-pr-prepare](framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) | Plano formal antes de orquestrador |
+| **B** | `kata-release-plan` + `kata-risk-categorize` + `kata-rollback-plan` + [codex-release-strategy](#7-codex) + label `delivery:pending` em [kata-pr-prepare](../framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) | Plano formal antes de orquestrador |
 | **C** | `kata-rollout-monitor` + `kata-rollout-progress` + [lex-staged-rollout](#62-lex-staged-rollout-novo) + integração com dashboards existentes | Monitoramento ativo durante rollout |
 | **D** | Auto-schedule pattern (`kata-schedule-plr`, `kata-schedule-cleanup`) integrado a `/schedule` | Garante que cleanup e PLR não esqueçam — débito controlado |
 | **E** | [warrior-nike](#41-warrior-nike--delivery-orchestrator-refinado) (orquestrador) + Mômos sobre release plan | Orquestrador master |
@@ -688,7 +688,7 @@ Niké usa o `/schedule` (skill agendável do harness) para garantir que ações 
 
 | # | Decisão | Recomendação |
 |---|---|---|
-| D1 | Feature flag provider (LaunchDarkly vs. Unleash self-hosted vs. in-house) | Decisão de produto/custo. Impacta [lex-aws-cost](framework/pt-BR/engineering/devops/lexis/lex-aws-cost.md). ADR necessário |
+| D1 | Feature flag provider (LaunchDarkly vs. Unleash self-hosted vs. in-house) | Decisão de produto/custo. Impacta [lex-aws-cost](../framework/pt-BR/engineering/devops/lexis/lex-aws-cost.md). ADR necessário |
 | D2 | Threshold de "feature relevante" para PLR | **Toda feature com PRD** — chore/refactor isentos |
 | D3 | Halt automático ou apenas alerta? | **Halt automático** quando error budget consome >20% |
 | D4 | Release notes — Niké ou Calíope escreve? | **Niké orquestra, Calíope revisa** se feature tem implicação de produto |
@@ -708,7 +708,7 @@ Niké usa o `/schedule` (skill agendável do harness) para garantir que ações 
 1. **Validar D1–D12** com time de produto, engenharia e SRE.
 2. **Decidir D1** (feature flag provider) — bloqueia tudo o resto.
 3. **Rascunhar [lex-feature-flag-required](#61-lex-feature-flag-required-novo)** após D1 resolvido.
-4. **Atualizar [kata-pr-prepare](framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md)** para aplicar label `delivery:pending` no merge — pequena mudança que conecta Athena → Niké sem warrior dedicado ainda.
+4. **Atualizar [kata-pr-prepare](../framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md)** para aplicar label `delivery:pending` no merge — pequena mudança que conecta Athena → Niké sem warrior dedicado ainda.
 5. **Implementar Onda B + C** (release plan + rollout monitor) primeiro — entrega valor antes de Niké orquestrador.
 6. **Onda J + K** depois que Hécate Modo B estiver implementada — rollout específico de agentes da plataforma é a peça que diferencia delivery da Guardia de delivery convencional.
 

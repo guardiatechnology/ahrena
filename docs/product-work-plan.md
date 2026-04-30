@@ -29,9 +29,9 @@ O que estamos construindo: **um processo end-to-end de produto** orquestrado por
 | Categoria | Já temos | Cobertura |
 |---|---|---|
 | **Warriors** | Athena, Apollo, Hephaestus, Iris, Demeter, Atlas, Hera, Hestia, Theseus, Daedalus, Kronos, Prometheus, Translator | 100% de Implementação + Design Técnico + SRE |
-| **Lexis técnicas** | 50+ ([lex-issue-driven](framework/pt-BR/engineering/workflow/lexis/lex-issue-driven.md), [lex-entity-naming](framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md), [lex-restful-apis](framework/pt-BR/engineering/platform/lexis/lex-restful-apis.md), [lex-cloudevents](framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md), [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), etc.) | 100% de regras do dev workflow |
+| **Lexis técnicas** | 50+ ([lex-issue-driven](../framework/pt-BR/engineering/workflow/lexis/lex-issue-driven.md), [lex-entity-naming](../framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md), [lex-restful-apis](../framework/pt-BR/engineering/platform/lexis/lex-restful-apis.md), [lex-cloudevents](../framework/pt-BR/engineering/platform/lexis/lex-cloudevents.md), [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), etc.) | 100% de regras do dev workflow |
 | **Codex** | 30+ codex de domínio técnico | 100% de manuais técnicos |
-| **Katas** | 50+ ([kata-domain-model](framework/pt-BR/engineering/platform/katas/kata-domain-model.md), [kata-api-design-oas](framework/pt-BR/engineering/platform/katas/kata-api-design-oas.md), [kata-events-doc](framework/pt-BR/engineering/platform/katas/kata-events-doc.md), [kata-issue-analysis](framework/pt-BR/engineering/workflow/katas/kata-issue-analysis.md), etc.) | 100% de procedimentos técnicos |
+| **Katas** | 50+ ([kata-domain-model](../framework/pt-BR/engineering/platform/katas/kata-domain-model.md), [kata-api-design-oas](../framework/pt-BR/engineering/platform/katas/kata-api-design-oas.md), [kata-events-doc](../framework/pt-BR/engineering/platform/katas/kata-events-doc.md), [kata-issue-analysis](../framework/pt-BR/engineering/workflow/katas/kata-issue-analysis.md), etc.) | 100% de procedimentos técnicos |
 | **Cries** | 25+ entry points | 100% de uso interativo |
 
 ### O que falta (gaps mapeados)
@@ -130,8 +130,8 @@ flowchart LR
 |---|---|---|
 | `lex-hard-gate-pattern` | Lexis (meta) | `framework/{lang}/_foundation/quality/lexis/lex-hard-gate-pattern.md` |
 | `kata-artifact-self-review` | Kata cross-fase | `framework/{lang}/_foundation/quality/katas/kata-artifact-self-review.md` |
-| Atualização retroativa de [lex-issue-quality](framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md) | Edit | adicionar HARD-GATE textual |
-| Atualização retroativa de [lex-pr-quality](framework/pt-BR/_foundation/contributing/lexis/lex-pr-quality.md) | Edit | adicionar HARD-GATE textual |
+| Atualização retroativa de [lex-issue-quality](../framework/pt-BR/_foundation/contributing/lexis/lex-issue-quality.md) | Edit | adicionar HARD-GATE textual |
+| Atualização retroativa de [lex-pr-quality](../framework/pt-BR/_foundation/contributing/lexis/lex-pr-quality.md) | Edit | adicionar HARD-GATE textual |
 
 **Critério de aceitação:**
 - HARD-GATE pattern aplicado em pelo menos 2 lexis existentes (issue-quality, pr-quality)
@@ -158,12 +158,12 @@ flowchart LR
 | `warrior-hecate` | Warrior (criação manual) |
 | `lex-meta-engineering-via-hecate` | Lexis |
 | `codex-meta-engineering` | Codex (Modo A) |
-| Atualização de [cry-new-warrior](framework/pt-BR/_foundation/authoring/cries/cry-new-warrior.md), [cry-new-kata](framework/pt-BR/_foundation/authoring/cries/cry-new-kata.md), [cry-new-lex](framework/pt-BR/_foundation/authoring/cries/cry-new-lex.md), [cry-new-codex](framework/pt-BR/_foundation/authoring/cries/cry-new-codex.md), [cry-new-cry](framework/pt-BR/_foundation/authoring/cries/cry-new-cry.md) | Edit — passam a invocar Hécate |
+| Atualização de [cry-new-warrior](../framework/pt-BR/_foundation/authoring/cries/cry-new-warrior.md), [cry-new-kata](../framework/pt-BR/_foundation/authoring/cries/cry-new-kata.md), [cry-new-lex](../framework/pt-BR/_foundation/authoring/cries/cry-new-lex.md), [cry-new-codex](../framework/pt-BR/_foundation/authoring/cries/cry-new-codex.md), [cry-new-cry](../framework/pt-BR/_foundation/authoring/cries/cry-new-cry.md) | Edit — passam a invocar Hécate |
 
 **Critério de aceitação:**
-- Hécate consegue criar 1 warrior novo de teste de ponta a ponta usando apenas a si mesma + os katas existentes ([kata-create-*](framework/pt-BR/_foundation/authoring/katas/))
-- Validação automática via [kata-diff-artifacts](framework/pt-BR/_foundation/authoring/katas/kata-diff-artifacts.md) e [kata-push-to-framework](framework/pt-BR/_foundation/authoring/katas/kata-push-to-framework.md)
-- Conformidade verificada com [lex-pilars](framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md), [lex-template-usage](framework/pt-BR/_foundation/quality/lexis/lex-template-usage.md), [lex-platforms-rules](framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md)
+- Hécate consegue criar 1 warrior novo de teste de ponta a ponta usando apenas a si mesma + os katas existentes ([kata-create-*](../framework/pt-BR/_foundation/authoring/katas/))
+- Validação automática via [kata-diff-artifacts](../framework/pt-BR/_foundation/authoring/katas/kata-diff-artifacts.md) e [kata-push-to-framework](../framework/pt-BR/_foundation/authoring/katas/kata-push-to-framework.md)
+- Conformidade verificada com [lex-pilars](../framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md), [lex-template-usage](../framework/pt-BR/_foundation/quality/lexis/lex-template-usage.md), [lex-platforms-rules](../framework/pt-BR/_foundation/process/lexis/lex-platforms-rules.md)
 
 **Issue inicial sugerida:** "feat(framework): bootstrap warrior-hecate as meta-engineer (Onda 1)"
 
@@ -188,11 +188,11 @@ flowchart LR
 | `kata-dor-validate` | Kata |
 | `codex-dor-dod` | Codex |
 | `cry-validate-dor` | Cry |
-| Atualização de [lex-issue-driven](framework/pt-BR/engineering/workflow/lexis/lex-issue-driven.md) — pré-condição DoR | Edit |
+| Atualização de [lex-issue-driven](../framework/pt-BR/engineering/workflow/lexis/lex-issue-driven.md) — pré-condição DoR | Edit |
 
 **Critério de aceitação:**
 - `kata-dor-validate` retorna ✅/❌ por critério individual + decisão final
-- HARD-GATE bloqueia [warrior-athena](framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) quando DoR não atendido
+- HARD-GATE bloqueia [warrior-athena](../framework/pt-BR/engineering/workflow/warriors/warrior-athena.md) quando DoR não atendido
 - Critérios canônicos cobertos: Discovery referenciada, PRD aprovado, Capability Spec, ACs numeradas, métricas, design refs, dependências, busca anti-duplicação
 
 **Issue inicial:** "feat(framework): add lex-dor-criteria + kata-dor-validate (Onda 2)"
@@ -257,7 +257,7 @@ flowchart LR
 | `cry-validate-design` | Cry |
 
 **Critério de aceitação:**
-- Mômos aplicado sobre [kata-domain-model](framework/pt-BR/engineering/platform/katas/kata-domain-model.md) saída de teste — detecta violação de [lex-entity-naming](framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md) plantada propositalmente
+- Mômos aplicado sobre [kata-domain-model](../framework/pt-BR/engineering/platform/katas/kata-domain-model.md) saída de teste — detecta violação de [lex-entity-naming](../framework/pt-BR/engineering/platform/lexis/lex-entity-naming.md) plantada propositalmente
 - Loop 3x funciona: it.1 detecta, it.2 detecta menos, it.3 aprova ou escala
 - Relatório estruturado conforme template em [Development seção 5.4](product-development.md#54-katas-executados-por-mômos-cross-prometheus--eos)
 
@@ -296,7 +296,7 @@ flowchart LR
 **Critério de aceitação:**
 - Wireframe LF em Markdown produzido para 1 feature de teste com componentes AI-First
 - Wireframe HF gerado via ferramenta escolhida (D10) — Mômos verifica brand + DS + acessibilidade
-- 0 reimplementação de primitivo (consome [@guardia/design-system](framework/pt-BR/design/system/lexis/lex-design-system-library.md))
+- 0 reimplementação de primitivo (consome [@guardia/design-system](../framework/pt-BR/design/system/lexis/lex-design-system-library.md))
 
 **Bloqueio:** Decisão D10 ([Development seção 13](product-development.md#13-decisões-abertas)) — qual ferramenta exatamente é "Claude Design"? Sem isso, `kata-wireframe-high-fidelity` fica em hold.
 
@@ -320,8 +320,8 @@ flowchart LR
 |---|---|
 | `warrior-calliope` | Warrior |
 | `kata-feature-map` | Kata |
-| Reposicionamento de [warrior-prometheus](framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) — título + missão | Edit |
-| Atualização de [kata-architecture-brief](framework/pt-BR/engineering/workflow/katas/kata-architecture-brief.md) — passa a ler Capability Spec em vez de gerar design | Edit |
+| Reposicionamento de [warrior-prometheus](../framework/pt-BR/engineering/platform/warriors/warrior-prometheus.md) — título + missão | Edit |
+| Atualização de [kata-architecture-brief](../framework/pt-BR/engineering/workflow/katas/kata-architecture-brief.md) — passa a ler Capability Spec em vez de gerar design | Edit |
 | `cry-discover` (entry point unificado) | Cry |
 
 **Critério de aceitação:**
@@ -449,7 +449,7 @@ flowchart LR
 **Critério de aceitação:**
 - 1 agente real spec'ado: **Isac** (warrior + katas + lexis + codex em `docs/agents/isac/`)
 - `deploy.json` gerado e validado conforme schema (D12)
-- Lexis técnicas existentes (ex.: [lex-idempotency](framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-error-handling](framework/pt-BR/engineering/platform/lexis/lex-error-handling.md)) referenciadas como guard-rails sem reescrita
+- Lexis técnicas existentes (ex.: [lex-idempotency](../framework/pt-BR/engineering/platform/lexis/lex-idempotency.md), [lex-error-handling](../framework/pt-BR/engineering/platform/lexis/lex-error-handling.md)) referenciadas como guard-rails sem reescrita
 
 **Bloqueio:** Decisão D11 ([Development seção 13](product-development.md#13-decisões-abertas)) — `docs/agents/` aqui ou em repo do produto Guardia?
 
@@ -502,7 +502,7 @@ flowchart LR
 | `kata-post-launch-review`, `kata-customer-feedback-loop` | Katas |
 | `kata-feature-flag-cleanup`, `kata-debt-tracking` | Katas |
 | `kata-schedule-plr`, `kata-schedule-cleanup` (auto-schedule via `/schedule`) | Katas |
-| Atualização de [kata-pr-prepare](framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) — aplica label `delivery:pending` no merge | Edit |
+| Atualização de [kata-pr-prepare](../framework/pt-BR/engineering/workflow/katas/kata-pr-prepare.md) — aplica label `delivery:pending` no merge | Edit |
 
 ### 9.4 Niké orquestradora
 
@@ -571,7 +571,7 @@ flowchart LR
 |---|---|
 | `lex-dod-criteria` | Lexis |
 | `kata-dod-validate` (8º check no Gate 2) | Kata |
-| Atualização de [kata-quality-gate](framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) — adiciona 8º check | Edit |
+| Atualização de [kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) — adiciona 8º check | Edit |
 | `cry-validate-dod` | Cry |
 | Loop de retroalimentação Delivery → Discovery formalizado em [codex-customer-feedback](#9-codex) | Codex |
 
@@ -589,7 +589,7 @@ Estas decisões abertas precisam ser tomadas para destravar ondas específicas:
 
 | # | Decisão | Bloqueia | Recomendação |
 |---|---|---|---|
-| **D1** | Provider de feature flag (LaunchDarkly / Unleash / in-house) | Onda 9 | ADR específico — impacta [lex-aws-cost](framework/pt-BR/engineering/devops/lexis/lex-aws-cost.md) |
+| **D1** | Provider de feature flag (LaunchDarkly / Unleash / in-house) | Onda 9 | ADR específico — impacta [lex-aws-cost](../framework/pt-BR/engineering/devops/lexis/lex-aws-cost.md) |
 | **D2 (Discovery)** | Contratar firecrawl + exa MCPs? | Onda 7.2 (parcial — `kata-deep-research`) | Sem MCPs, kata escala fallback ao usuário; pode adiar |
 | **D10 (Development)** | Qual ferramenta exatamente é "Claude Design"? | Onda 5 (parcial — `kata-wireframe-high-fidelity`) | Opções: Claude Artifacts/Canvas, Canva via MCP, ferramenta interna |
 | **D11 (Development)** | `docs/agents/` neste repo ou em repo do produto Guardia? | Onda 8 | Recomendo repo do produto quando estrutura definitiva existir |
@@ -691,6 +691,6 @@ Após esta onda, é possível spec'ar Isac e sub-agentes. **Onda 8 é a peça qu
 | [Product Development](product-development.md) | Detalhe das 6 fases + Mômos loop 3x + Hécate dual-use + DoR HARD-GATE |
 | [Product Delivery](product-delivery.md) | Detalhe das 6 sub-fases + 2 Gates + delivery diferenciado para agentes |
 | [Product Flow](product-flow.md) | Diagramas Mermaid macro/detalhado + tabelas mestre |
-| [framework/pt-BR/](framework/pt-BR/) | Todos os warriors, lexis, codex, katas e cries existentes |
-| [framework/pt-BR/_foundation/authoring/codex/codex-warriors.md](framework/pt-BR/_foundation/authoring/codex/codex-warriors.md) | Como warriors são especificados |
-| [lex-pilars](framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md) | Estrutura inviolável dos pilares |
+| [framework/pt-BR/](../framework/pt-BR/) | Todos os warriors, lexis, codex, katas e cries existentes |
+| [framework/pt-BR/_foundation/authoring/codex/codex-warriors.md](../framework/pt-BR/_foundation/authoring/codex/codex-warriors.md) | Como warriors são especificados |
+| [lex-pilars](../framework/pt-BR/_foundation/authoring/lexis/lex-pilars.md) | Estrutura inviolável dos pilares |
