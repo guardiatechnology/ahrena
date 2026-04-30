@@ -1,0 +1,74 @@
+name: "Simple Task ♻️"
+description: "Well-defined small task: chore, refactoring, maintenance, documentation fix, CI change"
+title: "{{ brief task summary }}"
+type: Task
+labels:
+  - "evolvability ♻️"
+projects:
+  - "guardiafinance/3"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for small, well-scoped tasks that do not justify a full feature request, epic, or user story.
+        Per `lex-issue-quality`, every issue must answer **Why**, **What**, and **How**.
+
+  - type: textarea
+    id: why
+    attributes:
+      label: "Why"
+      description: "State the motivation. What problem does this solve, what gap does it close, what risk does it remove?"
+      placeholder: "e.g. The simple-task template is referenced by lex-issue-quality but does not exist, blocking contributors from following the Lex."
+      value: |
+        Why is this task needed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: "What"
+      description: "State the objective and scope. What changes? What stays out? Be specific enough that a reviewer can tell when the task is done."
+      placeholder: "e.g. Add simple-task.yml under .github/ISSUE_TEMPLATE/ with Why/What/How sections; do not change existing templates."
+      value: |
+        What needs to change?
+    validations:
+      required: true
+
+  - type: textarea
+    id: how
+    attributes:
+      label: "How"
+      description: "State the implementation approach or definition of done. List concrete steps, files involved, or success criteria."
+      placeholder: "e.g. Create the markdown source under framework/templates/contributing_templates/, then the GitHub Issue Form .yml."
+      value: |
+        How will this be implemented or verified?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: "Task Type"
+      description: "Select the dominant type of this task (a label will be applied accordingly per lex-issue-quality)."
+      options:
+        - "evolvability ♻️ — refactoring, clean code, framework maintenance"
+        - "documentation 📃 — docs improvements or additions"
+        - "ci 🏗️ — CI/CD pipeline enhancements"
+        - "enhancement 🔝 — incremental improvement to existing feature"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Screenshots, links, related issues, or any other relevant context."
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        > To track progress, follow this issue right here on GitHub.
