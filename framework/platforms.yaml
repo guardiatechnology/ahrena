@@ -325,6 +325,9 @@ cursor:
     engineering/quality/lexis/lex-test-isolation:
       alwaysApply: false
       description: "Tests must be deterministic, order-independent, parallelizable; flaky is a P1 bug — no retries as cure."
+    engineering/quality/lexis/lex-dry:
+      alwaysApply: false
+      description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
     engineering/quality/codex/codex-test-strategy:
       alwaysApply: false
       description: "When deciding test level/tool/scope, consult decision tree, per-stack tooling, and anti-patterns from this codex."
@@ -454,6 +457,8 @@ claude-code:
       description: "Python logging uses loguru with centralized setup, JSON sink with redaction, and the @logged decorator."
     engineering/quality/lexis/lex-test-pyramid:
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
+    engineering/quality/lexis/lex-dry:
+      description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
     engineering/sre/lexis/lex-slo-required:
       description: "Tier-1/2 services require SLO pre go-live; error budget guides priorization."
     engineering/data/lexis/lex-migrations-reversible:
