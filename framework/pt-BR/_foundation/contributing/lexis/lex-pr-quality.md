@@ -4,7 +4,7 @@
 
 ## Lei
 
-> **Todo PR em um repositório Guardia DEVE: (1) espelhar todas as labels da issue associada; (2) ter exatamente uma label de tamanho (`size/XS` a `size/XXL`), aplicada automaticamente pelo GitHub Actions ou manualmente quando a automação ainda não estiver configurada; (3) aplicar labels específicos de PR quando aplicável (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) ser atribuído ao autor com `--assignee @me`. PRs que não atendam a esses requisitos NÃO DEVEM ser mesclados.**
+> **Todo PR em um repositório Guardia DEVE: (1) espelhar todas as labels da issue associada; (2) ter exatamente uma label de tamanho (`size/XS` a `size/XXL`), aplicada automaticamente pelo GitHub Actions ou manualmente quando a automação ainda não estiver configurada; (3) aplicar labels específicos de PR quando aplicável (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) ser atribuído ao autor com `--assignee @me`; (5) ter reviewers solicitados a partir do `.github/CODEOWNERS` do repositório — automaticamente pelo GitHub quando a auto-request estiver habilitada, ou manualmente via `gh pr edit --add-reviewer` antes do merge. O repositório DEVE ter um arquivo `.github/CODEOWNERS` com pelo menos um owner default (`* @{team}`). PRs que não atendam a esses requisitos NÃO DEVEM ser mesclados.**
 
 ## Cobertura
 
@@ -73,15 +73,38 @@ gh pr create ... --assignee "@me"
 gh pr edit $PR_NUMBER --add-assignee "@me"
 ```
 
-### 5. Pré-requisitos antes de criar o PR
+### 5. Reviewers via CODEOWNERS
+
+Todo PR DEVE ter reviewers solicitados a partir do `.github/CODEOWNERS` do repositório:
+
+1. **Pré-condição (configuração do repo):** o repositório DEVE ter `.github/CODEOWNERS` com pelo menos um owner default (`* @org/team`) e a configuração de Branch Protection com auto-request de review dos code owners habilitada.
+2. **Quando a auto-request está habilitada:** o GitHub solicita automaticamente os reviewers do CODEOWNERS ao criar o PR. O agente DEVE verificar (`gh pr view $PR --json reviewRequests`) que pelo menos um reviewer foi solicitado.
+3. **Quando não há reviewers solicitados após a criação:** o agente DEVE aplicar manualmente antes de marcar o PR como pronto:
+
+```bash
+# Verificar reviewers atuais
+gh pr view $PR_NUMBER --json reviewRequests --jq '[.reviewRequests[].login]'
+
+# Solicitar manualmente o team default do CODEOWNERS
+gh pr edit $PR_NUMBER --add-reviewer "org/team"
+```
+
+PRs sem nenhum reviewer solicitado (após criação e fallback manual) NÃO DEVEM ser mesclados.
+
+### 6. Pré-requisitos antes de criar o PR
 
 O agente DEVE verificar, nesta ordem, antes de executar `gh pr create`:
 
 1. Issue associada existe e está em conformidade com `lex-issue-quality`.
 2. Branch segue o formato definido em `lex-git-branches`.
 3. PR body inclui `Closes #N` ou `Refs #N` conforme `lex-issue-first`.
-4. Labels da issue foram espelhadas.
-5. Label de tamanho foi aplicada (manualmente se necessário).
+4. Repositório tem `.github/CODEOWNERS` configurado.
+
+E verificar, **imediatamente após** `gh pr create`:
+
+5. Labels da issue foram espelhadas.
+6. Label de tamanho foi aplicada (manualmente se necessário).
+7. Pelo menos um reviewer foi solicitado (auto via CODEOWNERS ou manual via `--add-reviewer`).
 
 ## Exemplos
 
@@ -113,6 +136,6 @@ gh pr create --title "docs: add site" --body "Closes #42"
 
 ## Validação Automatizada
 
-- **Ferramenta:** GitHub Actions PR size labeler (auto-aplica `size/*`); checklist de revisão verifica labels espelhadas e assignee; `kata-contributing-pr` aplica todas as regras desta Lexis ao criar PRs.
-- **Quando:** na criação e atualização do PR; no checklist de revisão.
-- **Métrica:** 0 PRs mesclados sem label de tamanho; 0 PRs mesclados sem espelhamento das labels da issue; 0 PRs sem assignee.
+- **Ferramenta:** GitHub Actions PR size labeler (auto-aplica `size/*`); GitHub Branch Protection com `required_pull_request_reviews` exigindo aprovação de code owners; checklist de revisão verifica labels espelhadas, assignee e reviewers; `kata-contributing-pr` aplica todas as regras desta Lexis ao criar PRs.
+- **Quando:** na criação e atualização do PR; no checklist de revisão; auditoria mensal do CODEOWNERS dos repositórios.
+- **Métrica:** 0 PRs mesclados sem label de tamanho; 0 PRs mesclados sem espelhamento das labels da issue; 0 PRs sem assignee; 0 PRs mesclados sem nenhum reviewer solicitado; 100% dos repositórios Guardia com `.github/CODEOWNERS` configurado.

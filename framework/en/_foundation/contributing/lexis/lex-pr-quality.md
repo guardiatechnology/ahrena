@@ -4,7 +4,7 @@
 
 ## Law
 
-> **Every PR in a Guardia repository MUST: (1) mirror all labels from the associated issue; (2) carry exactly one size label (`size/XS` to `size/XXL`), applied automatically by GitHub Actions or manually when automation is not yet configured; (3) apply PR-specific labels when applicable (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) be assigned to the author with `--assignee @me`. PRs that do not satisfy these requirements MUST NOT be merged.**
+> **Every PR in a Guardia repository MUST: (1) mirror all labels from the associated issue; (2) carry exactly one size label (`size/XS` to `size/XXL`), applied automatically by GitHub Actions or manually when automation is not yet configured; (3) apply PR-specific labels when applicable (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) be assigned to the author with `--assignee @me`; (5) have reviewers requested from the repository's `.github/CODEOWNERS` — automatically by GitHub when auto-request is enabled, or manually via `gh pr edit --add-reviewer` before merge. The repository MUST have a `.github/CODEOWNERS` file with at least one default owner (`* @{team}`). PRs that do not satisfy these requirements MUST NOT be merged.**
 
 ## Coverage
 
@@ -73,15 +73,38 @@ gh pr create ... --assignee "@me"
 gh pr edit $PR_NUMBER --add-assignee "@me"
 ```
 
-### 5. Prerequisites before creating the PR
+### 5. Reviewers via CODEOWNERS
+
+Every PR MUST have reviewers requested from the repository's `.github/CODEOWNERS`:
+
+1. **Precondition (repo configuration):** the repository MUST have `.github/CODEOWNERS` with at least one default owner (`* @org/team`) and Branch Protection settings with code-owner review auto-request enabled.
+2. **When auto-request is enabled:** GitHub automatically requests CODEOWNERS reviewers on PR creation. The agent MUST verify (`gh pr view $PR --json reviewRequests`) that at least one reviewer was requested.
+3. **When no reviewers are requested after creation:** the agent MUST apply manually before marking the PR as ready:
+
+```bash
+# Check current reviewers
+gh pr view $PR_NUMBER --json reviewRequests --jq '[.reviewRequests[].login]'
+
+# Manually request the default CODEOWNERS team
+gh pr edit $PR_NUMBER --add-reviewer "org/team"
+```
+
+PRs without any requested reviewer (after creation and manual fallback) MUST NOT be merged.
+
+### 6. Prerequisites before creating the PR
 
 The agent MUST verify, in this order, before running `gh pr create`:
 
 1. The associated issue exists and complies with `lex-issue-quality`.
 2. The branch follows the format defined in `lex-git-branches`.
 3. The PR body includes `Closes #N` or `Refs #N` per `lex-issue-first`.
-4. Labels from the issue have been mirrored.
-5. The size label has been applied (manually if needed).
+4. The repository has `.github/CODEOWNERS` configured.
+
+And verify, **immediately after** `gh pr create`:
+
+5. Labels from the issue have been mirrored.
+6. The size label has been applied (manually if needed).
+7. At least one reviewer has been requested (auto via CODEOWNERS or manual via `--add-reviewer`).
 
 ## Examples
 
@@ -113,6 +136,6 @@ gh pr create --title "docs: add site" --body "Closes #42"
 
 ## Automated Validation
 
-- **Tool:** GitHub Actions PR size labeler (auto-applies `size/*`); review checklist verifies mirrored labels and assignee; `kata-contributing-pr` applies every rule from this Lexis when creating PRs.
-- **When:** on PR creation and update; during the review checklist.
-- **Metric:** 0 PRs merged without a size label; 0 PRs merged without mirrored issue labels; 0 PRs without an assignee.
+- **Tool:** GitHub Actions PR size labeler (auto-applies `size/*`); GitHub Branch Protection with `required_pull_request_reviews` requiring code-owner approval; review checklist verifies mirrored labels, assignee, and reviewers; `kata-contributing-pr` applies every rule from this Lexis when creating PRs.
+- **When:** on PR creation and update; during the review checklist; monthly audit of repository CODEOWNERS files.
+- **Metric:** 0 PRs merged without a size label; 0 PRs merged without mirrored issue labels; 0 PRs without an assignee; 0 PRs merged without any requested reviewer; 100% of Guardia repositories with `.github/CODEOWNERS` configured.
