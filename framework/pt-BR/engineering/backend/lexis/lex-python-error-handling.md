@@ -1,51 +1,61 @@
-# Lexis: Tratamento de Erros Python
+# Lexis: Tratamento de Erros em Python
 
-> **Prefix:** `lex-` | **Type:** Lei Inquebrantável | **Scope:** Engineering — Backend: padrões de tratamento de erros para código Python
+> **Prefix:** `lex-` | **Type:** Lei Inquebrantável | **Scope:** Engineering — Backend: padrões de tratamento de erros para código Python, complementar a `lex-python-result-type` e `lex-python-error-object`
 
 ## Purpose
 
-Garantir que o código Python trate erros de forma explícita, específica e rastreável. Exceções nuas engolem bugs. Catches genéricos mascaram causas raiz. Falhas silenciosas corrompem dados. Todo erro deve ser tratado com intenção ou propagado com contexto.
+Falhas esperadas e recuperáveis trafegam como valores via `Result[T, Error]` (`lex-python-result-type`). Esta Lei governa os casos residuais em que exceções continuam em jogo: erros de programação, falhas de infraestrutura que atravessam até handlers de fronteira de nível superior, e integrações que exigem contratos baseados em exceção. Nesses casos, as exceções DEVEM ser específicas, nunca silenciadas, nunca devem vazar dados sensíveis e DEVEM sempre ser traduzidas em um `Error` na fronteira para que o payload de resposta permaneça estável.
 
 ## Law
 
-> **NUNCA usar `except:` nu ou `except Exception:` sem re-lançar ou logar com contexto completo. Todas as exceções DEVEM ser específicas ao modo de falha. Exceções de domínio customizadas DEVEM herdar de uma exceção base do projeto. Mensagens de erro NÃO DEVEM expor dados sensíveis (credenciais, tokens, PII).**
+> **`except:` nu e `except Exception:` são PROIBIDOS, exceto quando combinados com logging via `logger.exception(...)` e com re-lançamento ou tradução em um `Error` tipado (conforme `lex-python-error-object`). Exceções customizadas lançadas nos casos permitidos (conforme `lex-python-result-type`) DEVEM ser específicas ao modo de falha e DEVEM herdar de uma exceção base do projeto. Mensagens de exceção NÃO DEVEM expor dados sensíveis (credenciais, tokens, PII). Handlers de fronteira de nível superior (exception handlers do FastAPI, entry points de CLI, entry points de consumidor de mensagens) DEVEM logar a exceção original com contexto completo e traduzi-la em um `Error` antes de produzir o payload de resposta.**
 
 ## Scope
 
-- **Applies to:** todos os arquivos fonte Python — código de aplicação, código de infraestrutura, scripts.
+- **Applies to:** todos os arquivos fonte Python — código de aplicação, infraestrutura e scripts — nos casos residuais em que exceções são permitidas por `lex-python-result-type`.
 - **Bound agents:** todos os agentes e implementadores que escrevem ou modificam código Python.
-- **Exceptions:** handlers de erro de nível superior (exception handlers do FastAPI, entry points de CLI) podem capturar exceções amplas para degradação elegante, mas DEVEM logar a exceção original.
+- **Exceptions:** Nenhuma. Handlers de fronteira que capturam exceções amplas para degradação elegante não são exceção a esta Lei — são a fronteira definida pela própria Lei e DEVEM logar + traduzir.
 
 ## Consequences of Violation
 
 1. **Corrupção silenciosa:** exceções engolidas permitem que estado inválido se propague.
 2. **Custo de depuração:** catches genéricos sem contexto tornam impossível a análise de causa raiz.
-3. **Vazamento de segurança:** mensagens de erro contendo credenciais ou PII são uma vulnerabilidade de divulgação de informação.
-4. **Remediação:** exceções nuas devem ser substituídas por handlers específicos antes do merge.
+3. **Vazamento de segurança:** mensagens de exceção contendo credenciais ou PII são vulnerabilidade de divulgação de informação.
+4. **Quebra de contrato:** exceções que chegam à resposta sem tradução produzem payloads de erro fora do padrão (conforme `lex-error-handling`).
+5. **Remediação:** converter o caminho de exceção em `Result[T, Error]` quando esperado; caso contrário, adicionar cláusulas `except` específicas com logging e tradução em `Error`.
 
 ## Examples
 
 ### Correct
 
 ```python
-from app.exceptions import TransactionNotFoundError, InsufficientFundsError
+import logging
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
-# Exceção específica com contexto
-async def transfer(source_id: UUID, target_id: UUID, amount: int) -> Transfer:
-    source = await repository.get_by_id(source_id)
-    if source is None:
-        raise TransactionNotFoundError(entity_id=source_id)
-    if source.balance < amount:
-        raise InsufficientFundsError(
-            available=source.balance, requested=amount
-        )
-    ...
+from app.errors import Error, InternalError
 
-# Handler de nível superior — captura amplo, loga o original
+logger = logging.getLogger(__name__)
+app = FastAPI()
+
+# Handler de fronteira de nível superior — loga original, traduz em Error
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     logger.exception("Unhandled exception", exc_info=exc)
-    return JSONResponse(status_code=500, content={"errors": [{"code": "INTERNAL_ERROR"}]})
+    error = InternalError(message="An unexpected error occurred")
+    return JSONResponse(
+        status_code=500,
+        content={"errors": [{"code": error.code, "reason": error.reason, "message": error.message}]},
+    )
+
+
+# Exceção específica, except estreito, sem vazar PII
+async def load_external_payload(url: str) -> bytes:
+    try:
+        return await http_client.get_bytes(url)
+    except TimeoutError:
+        logger.warning("External call timed out", extra={"url": url})
+        raise  # propaga até a fronteira; será logada + traduzida
 ```
 
 ### Incorrect
@@ -55,27 +65,29 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 try:
     await process_payment()
 except:
-    pass
+    pass  # ❌
 
-# Catch genérico sem re-lançar ou logar
+# Catch genérico sem logging nem tradução
 try:
     result = await repository.save(entity)
 except Exception:
-    return None  # retorna None silenciosamente, o caller não sabe que o save falhou
+    return None  # ❌ quem chama não sabe que o save falhou
 
 # Vazando dados sensíveis
 except AuthenticationError as e:
-    raise HTTPException(status_code=401, detail=f"Auth failed for token {e.token}")
+    raise HTTPException(status_code=401, detail=f"Auth failed for token {e.token}")  # ❌ token na mensagem
 ```
 
 ## Automated Validation
 
-- **Tool:** Regras Ruff (E722 bare except, BLE001 blind exception); revisão de código.
+- **Tool:** Regras Ruff (E722 bare except, BLE001 blind exception); revisão de código exigindo logging + tradução para `Error` nos handlers de fronteira.
 - **When:** cada commit (pre-commit) e cada PR (CI).
-- **Metric:** 0 exceções nuas; 0 catches genéricos sem logging/re-raise.
+- **Metric:** 0 exceções nuas; 0 catches genéricos sem logging; 0 handlers de fronteira retornando payload que não seja construído a partir de uma instância de `Error`.
 
 ## References
 
-- [PEP 8 — Programming Recommendations (exceptions)](https://peps.python.org/pep-0008/#programming-recommendations)
+- lex-python-result-type (engineering/backend)
+- lex-python-error-object (engineering/backend)
+- lex-error-handling (engineering/platform)
 - [Ruff E722](https://docs.astral.sh/ruff/rules/bare-except/)
-- codex-python-architecture (engineering/backend)
+- [Ruff BLE001](https://docs.astral.sh/ruff/rules/blind-except/)
