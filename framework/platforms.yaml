@@ -93,6 +93,9 @@ cursor:
     _foundation/contributing/lexis/lex-issue-first:
       alwaysApply: false
       description: "When starting any code change, ensure a GitHub Issue exists first; PR body must include Closes #N or Refs #N."
+    _foundation/contributing/lexis/lex-protected-trunk:
+      alwaysApply: false
+      description: "Trunk branches (main, master, release/*) MUST be protected against direct writes; code reaches trunk only through merged PRs from feature branches."
     _foundation/contributing/codex/codex-git-workflow:
       alwaysApply: false
       description: "When contributing, follow the complete Issue → Branch → Commits → PR → Review → Merge workflow from this codex."
@@ -448,6 +451,8 @@ claude-code:
       description: "When an MCP server is active for the current operation, use MCP tool over CLI. Credentials via env vars only."
     engineering/workflow/lexis/lex-issue-driven:
       description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
+    _foundation/contributing/lexis/lex-protected-trunk:
+      description: "Trunk branches (main, master, release/*) are protected; never start dev on trunk — always create a feature branch first and reach trunk only via merged PR."
     engineering/frontend/lexis/lex-frontend-typing:
       paths: ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.svelte"]
       description: "When writing frontend code, TypeScript strict mode and typed contracts are mandatory."

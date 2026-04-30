@@ -8,7 +8,7 @@
 
 ## Cobertura
 
-- **Aplica-se a:** todos os branches em todos os repositórios Guardia (exceto `main` e `release/*`, gerenciados pelos mantenedores).
+- **Aplica-se a:** todos os branches de trabalho em todos os repositórios Guardia. As branches trunk (`main`, `master`, `release/*`) **não são branches de trabalho** — são alvos protegidos governados por `lex-protected-trunk` e recebem código apenas via PR mergeado a partir de uma branch nomeada conforme esta Lei.
 - **Agentes vinculados:** desenvolvedores, agentes de IA que criam branches (warrior-athena, warrior-apollo, warrior-hephaestus).
 - **Exceções:** Nenhuma. Branches fora do formato válido são rejeitados no push.
 
@@ -30,7 +30,11 @@
 
 Um branch NÃO DEVE ser criado antes de existir a Issue correspondente. Consulte `lex-issue-first`.
 
-### 3. Um branch por Issue (padrão)
+### 3. Trabalho nunca inicia em trunk
+
+Antes de qualquer commit, o desenvolvedor (humano ou IA) **DEVE** verificar a branch ativa via `git rev-parse --abbrev-ref HEAD`. Se for `main`, `master` ou começar com `release/`, **DEVE** criar uma branch de trabalho conforme esta Lei (`git checkout -b {type}/{N}-{slug}`) antes de produzir qualquer mudança. Editar arquivos com a working copy posicionada em trunk é PROIBIDO. Detalhes do regime de proteção em `lex-protected-trunk`.
+
+### 4. Um branch por Issue (padrão)
 
 Cada Issue corresponde tipicamente a um branch. Exceções (múltiplos branches para uma única Issue complexa) exigem justificativa explícita nos comentários da Issue.
 
