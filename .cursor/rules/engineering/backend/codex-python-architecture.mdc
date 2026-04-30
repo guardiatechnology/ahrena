@@ -1,7 +1,8 @@
 ---
 description: "When structuring Python projects, use Clean Architecture layers (domain, application, infrastructure)."
 alwaysApply: false
-globs: '["**/*.py"]'
+globs:
+  - **/*.py
 ---
 
 # Codex: Python Application Architecture

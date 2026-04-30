@@ -1,7 +1,22 @@
 ---
 description: "When placing the Guardia logo, use only official files and pick the right variant per background; never recolor or distort."
 alwaysApply: false
-globs: '["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]'
+globs:
+  - **/*.tsx
+  - **/*.jsx
+  - **/*.ts
+  - **/*.js
+  - **/*.vue
+  - **/*.svelte
+  - **/*.html
+  - **/*.css
+  - **/*.scss
+  - **/*.sass
+  - **/*.less
+  - **/*.styl
+  - **/*.pcss
+  - **/*.md
+  - **/*.mdx
 ---
 
 # Lexis: Correct Use of the Guardia Logo

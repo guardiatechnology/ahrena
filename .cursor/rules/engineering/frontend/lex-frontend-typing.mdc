@@ -1,7 +1,11 @@
 ---
 description: "When writing frontend code, enforce TypeScript strict mode; no implicit or unjustified any; contracts typed via OAS or Zod."
 alwaysApply: false
-globs: '["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.svelte"]'
+globs:
+  - **/*.ts
+  - **/*.tsx
+  - **/*.vue
+  - **/*.svelte
 ---
 
 # Lexis: Strict Typing in Frontend

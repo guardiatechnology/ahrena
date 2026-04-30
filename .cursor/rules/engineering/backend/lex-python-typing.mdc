@@ -1,7 +1,8 @@
 ---
 description: "When writing Python code, require strict type annotations (mypy strict) for all functions and variables."
 alwaysApply: false
-globs: '["**/*.py"]'
+globs:
+  - **/*.py
 ---
 
 # Lexis: Python Type Safety
