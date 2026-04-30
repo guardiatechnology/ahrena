@@ -17,8 +17,9 @@ O que estamos construindo: **um processo end-to-end de produto** orquestrado por
 | Onda 3 (Capability Spec) | Substitui PRD/TRD informais por artefato canônico — reduz reuniões |
 | Onda 4 (Mômos) | Validação adversarial sobre Theseus/Daedalus/Kronos existentes — 0 issues novos artefatos, ROI imediato |
 | Onda 9 (Delivery foundation) | Feature flag + rollout estruturado evita big bangs e regressões |
+| Onda 12 (Notification & Approval) | Notifica humanos no Slack, aprovação canônica no GitHub, sync em Notion — destrava gates sem chat-ping manual |
 
-**Investimento:** 11 ondas. Cada uma é entregável e gera valor isolada. Não há "ciclo completo ou nada" — adoção incremental é first-class.
+**Investimento:** 12 ondas. Cada uma é entregável e gera valor isolada. Não há "ciclo completo ou nada" — adoção incremental é first-class.
 
 ---
 
@@ -75,6 +76,7 @@ flowchart LR
     O9[Onda 9<br/>Delivery foundation + Niké]
     O10[Onda 10<br/>Delivery de agentes]
     O11[Onda 11<br/>DoD + Closure]
+    O12[Onda 12<br/>Notification &<br/>Approval]
 
     O0 --> O1
     O1 --> O2
@@ -97,20 +99,27 @@ flowchart LR
     O9 --> O11
     O3 --> O11
 
+    O1 --> O12
+    O2 -.gate D1/D2.-> O12
+    O6 -.orquestra notificação.-> O12
+    O9 -.gate E1/E2.-> O12
+
     classDef foundation fill:#FFC30A,stroke:#0E1016,color:#0E1016
     classDef bootstrap fill:#E07400,stroke:#0E1016,color:#FDFDFD
     classDef product fill:#FDFDFD,stroke:#3A3A44,color:#0E1016
     classDef closure fill:#4F186D,stroke:#0E1016,color:#FDFDFD
+    classDef integration fill:#DB6286,stroke:#0E1016,color:#0E1016
 
     class O0 foundation
     class O1 bootstrap
     class O2,O3,O4,O5,O6,O7,O8,O9,O10 product
     class O11 closure
+    class O12 integration
 ```
 
 **Caminho crítico (depende uma da outra):** O0 → O1 → (O2 + O3 + O4) → O6 → ... → O11
 
-**Paralelizável após O1:** Ondas 2, 3, 4, 5, 7, 8, 9 podem rodar em paralelo (apenas dependem de Hécate existir).
+**Paralelizável após O1:** Ondas 2, 3, 4, 5, 7, 8, 9, 12 podem rodar em paralelo (apenas dependem de Hécate existir; O12 ganha utilidade real assim que O2 ou O9 entregarem o primeiro gate humano).
 
 ---
 
@@ -583,7 +592,66 @@ flowchart LR
 
 ---
 
-## 17. Decisões bloqueantes
+## 17. Onda 12 — Notification & Approval Layer
+
+> **Objetivo:** notificar humanos no Slack quando um gate humano fica pendente, registrar a aprovação canônica no GitHub, e sincronizar o estado em Notion como source of truth de artefatos de produto.
+
+| Dependência | Onda 1 (Hécate) + pelo menos um gate humano existente (Ondas 2, 6 ou 9) |
+|---|---|
+| **Bloqueia** | — (transversal; melhora ergonomia dos gates já existentes) |
+| **Desbloqueio paralelo** | Pode rodar a partir do momento em que **Onda 2** ou **Onda 9** entregam o primeiro gate humano |
+| **Owner** | Hécate Modo A |
+| **Validador** | Mômos |
+
+**Princípio canônico:** **notifica no Slack, aprova no GitHub, atualiza no Notion.** Slack é canal de notificação (efêmero); GitHub é record de aprovação (auditável, programaticamente legível); Notion é sync de artefato de produto (PRD/Capability Spec/PLR como source of truth do PM).
+
+**Entregáveis:**
+
+| Artefato | Tipo | Path destino |
+|---|---|---|
+| `lex-gate-approval-channel` | Lexis | `framework/{lang}/_foundation/process/lexis/lex-gate-approval-channel.md` |
+| `lex-notification-required` | Lexis | `framework/{lang}/_foundation/process/lexis/lex-notification-required.md` |
+| `codex-gate-notification-flow` | Codex | `framework/{lang}/_foundation/tooling/codex/codex-gate-notification-flow.md` |
+| `codex-mcp-slack` | Codex | `framework/{lang}/_foundation/tooling/codex/codex-mcp-slack.md` |
+| `kata-notify-gate-pending` | Kata | `framework/{lang}/_foundation/process/katas/kata-notify-gate-pending.md` |
+| `kata-observe-gate-approval` | Kata | `framework/{lang}/_foundation/process/katas/kata-observe-gate-approval.md` |
+| `kata-sync-notion-on-gate` | Kata | `framework/{lang}/_foundation/process/katas/kata-sync-notion-on-gate.md` |
+| `cry-notify-gate` | Cry | `framework/{lang}/_foundation/process/cries/cry-notify-gate.md` |
+| Atualização de [product-flow.md](product-flow.md) seção 5 — coluna "Como aprova" explícita por gate | Edit | adicionar fluxo notify→approve→sync |
+| Atualização de Calíope (Onda 6), Niké (Onda 9) — passam a invocar `kata-notify-gate-pending` em D1/D2/E1/E2 | Edit | wire-up |
+
+**Convenção canônica de aprovação no GitHub:**
+
+| Gate | Mecanismo de registro |
+|---|---|
+| **Gate D1, D2** (Discovery) | Comment com frase mágica `/approve gate-D1` ou `/approve gate-D2` no Issue de Discovery + label `gate/D1-approved` ou `gate/D2-approved` |
+| **Gate E1, E2** (Delivery) | PR review aprovado **+** label `gate/E1-approved` ou `gate/E2-approved` no PR de release plan / GA-checklist |
+| **Gate 1 do Athena** (Scope) | Comment `/approve scope` no Issue de implementação + label `scope-approved` |
+
+A label é o sinal mecanicamente legível pelo agente; a frase mágica é a forma humana de aplicar a label sem mexer em UI.
+
+**Convenção canônica de sync em Notion:**
+
+- Cada artefato de produto (PRD, Capability Spec, Discovery Insight, PLR) tem uma página Notion correspondente. ID Notion fica registrado em frontmatter do artefato Markdown (`notion_page_id: ...`).
+- Após aprovação no GitHub, agente lê o estado e atualiza propriedades da página Notion: `gate_status`, `gate_decision`, `approver`, `approved_at`, `github_link`.
+- Notion **NÃO** é fonte de aprovação — é réplica downstream.
+
+**Critério de aceitação:**
+- 1 gate humano (Gate D1 ou Gate E1) testado fim-a-fim: agente posta no Slack → humano aprova via label/frase no GitHub → agente lê estado → agente atualiza Notion → fluxo destrava
+- `kata-observe-gate-approval` retorna estado estruturado (`pending` / `approved` / `rejected`) com `approver` e `approved_at`
+- `lex-gate-approval-channel` referenciado em pelo menos 4 gates (D1, D2, E1, E2) com convenção declarada
+- Mômos valida que Slack **não** é tratado como source of truth em nenhum kata
+
+**Issue inicial sugerida:** "feat(framework): notification & approval layer (Slack notify → GitHub approve → Notion sync) — Onda 12"
+
+**Decisões bloqueantes específicas:**
+- **D13** — Quais workspaces Slack? (Guardia + canal por feature ou canal único `#product-gates`?)
+- **D14** — Quais databases Notion? (uma por tipo de artefato — PRDs, Capability Specs, PLRs — ou única "Product Artifacts" com tag de tipo?)
+- **D15** — Frase mágica `/approve gate-X` é processada por GitHub Action ou pelo próprio agente em polling?
+
+---
+
+## 18. Decisões bloqueantes
 
 Estas decisões abertas precisam ser tomadas para destravar ondas específicas:
 
@@ -597,7 +665,7 @@ Estas decisões abertas precisam ser tomadas para destravar ondas específicas:
 
 ---
 
-## 18. Métricas de progresso
+## 19. Métricas de progresso
 
 Para medir avanço do plano:
 
@@ -614,12 +682,15 @@ Para medir avanço do plano:
 | **Cobertura de PLR** | PLRs em D+14 / features que foram para GA | >90% |
 | **Débito de feature flag** | flags pendentes >30 dias / total de flags ativas | <10% |
 | **Reuso de Lexis em runtime** | lexis do framework referenciadas em `docs/agents/*/warrior-*.md` | aumenta com Onda 8 |
+| **Cobertura de notificação de gate** | gates humanos que invocam `kata-notify-gate-pending` / total de gates humanos | 100% após Onda 12 |
+| **Aprovação no canal canônico** | aprovações registradas no GitHub (label/PR review/comment) / total de aprovações de gate | 100% (Slack nunca é record) |
+| **Sync Notion pós-aprovação** | artefatos com Notion atualizado em D+0 da aprovação / artefatos aprovados | >95% |
 
 ---
 
-## 19. Ordem recomendada de execução
+## 20. Ordem recomendada de execução
 
-### 19.1 Caminho rápido (MVP do framework — entrega valor em ~3 ondas)
+### 20.1 Caminho rápido (MVP do framework — entrega valor em ~3 ondas)
 
 > Foco: dar a Athena um filtro de qualidade na entrada e melhorar design técnico existente.
 
@@ -630,7 +701,7 @@ Para medir avanço do plano:
 
 Após estas 3 ondas, o ciclo atual já melhora significativamente sem precisar criar Calíope, Eos, Niké, etc.
 
-### 19.2 Caminho crítico de Produto (Discovery → Issue)
+### 20.2 Caminho crítico de Produto (Discovery → Issue)
 
 > Foco: ter Calíope orquestrando Discovery → Capability Spec → Issue.
 
@@ -642,7 +713,7 @@ Após estas 3 ondas, o ciclo atual já melhora significativamente sem precisar c
 
 Após estas 4 ondas, o lado **upstream** do produto está completo — features chegam ao Athena com Discovery + PRD + Capability Spec + DoR validado.
 
-### 19.3 Caminho crítico de Plataforma (agentes da Guardia)
+### 20.3 Caminho crítico de Plataforma (agentes da Guardia)
 
 > Foco: spec executável de agentes em produção.
 
@@ -651,7 +722,7 @@ Após estas 4 ondas, o lado **upstream** do produto está completo — features 
 
 Após esta onda, é possível spec'ar Isac e sub-agentes. **Onda 8 é a peça que diferencia a Guardia** — vale priorizar mesmo antes de fechar o ciclo de design completo.
 
-### 19.4 Caminho crítico de Delivery (DoD → cliente)
+### 20.4 Caminho crítico de Delivery (DoD → cliente)
 
 > Foco: fechar entrega com rollout monitorado e PLR.
 
@@ -661,29 +732,31 @@ Após esta onda, é possível spec'ar Isac e sub-agentes. **Onda 8 é a peça qu
 10. **Onda 10** — Delivery de agentes + AI-First metrics
 11. **Onda 11** — DoD + Closure
 
-### 19.5 Sugestão de roadmap em 3 horizontes
+### 20.5 Sugestão de roadmap em 3 horizontes
 
 | Horizonte | Ondas | Resultado |
 |---|---|---|
 | **Curto prazo** (próximo ciclo) | 0, 1, 4 | MVP do framework — Mômos validando design técnico atual |
-| **Médio prazo** | 2, 3, 6, 7, 8 | Calíope orquestra produto fim-a-fim + Hécate Modo B para Isac |
+| **Médio prazo** | 2, 3, 6, 7, 8, 12 | Calíope orquestra produto fim-a-fim + Hécate Modo B para Isac + gates humanos com notify→approve→sync |
 | **Longo prazo** | 5, 9, 10, 11 | Design visual + Delivery completo + closure |
 
 **Onda 8 é candidata a "puxar para curto prazo"** se a Guardia quiser materializar Isac como warrior antes do resto.
 
+**Onda 12 entra no médio prazo** porque ganha sentido a partir do momento em que existe pelo menos um gate humano para notificar (Onda 2 entrega o primeiro: DoR HARD-GATE não conta, mas Gate D1/D2 sim quando Onda 7 + Onda 6 aterrarem). Pode ser puxada para curto prazo se a fricção de chat-ping manual já for dor real hoje em PRs do Athena.
+
 ---
 
-## 20. Próximos passos imediatos
+## 21. Próximos passos imediatos
 
-1. **Validar este plano** com time de produto e engenharia (decisões D1, D2, D10, D11, D12).
+1. **Validar este plano** com time de produto e engenharia (decisões D1, D2, D10, D11, D12, D13, D14, D15).
 2. **Onda 0** — abrir issue mãe para Foundation (criação manual; não depende de Hécate).
 3. **Onda 1** — abrir issue mãe para Bootstrap Hécate (criação manual; primeira invocação).
 4. Após Onda 1 estável, **abrir issues para Ondas 2, 3, 4 em paralelo** — todas dependem só de Hécate.
-5. Em paralelo às issues técnicas, **decidir D10 (Claude Design)** para destravar Onda 5.
+5. Em paralelo às issues técnicas, **decidir D10 (Claude Design)** para destravar Onda 5 e **D13/D14/D15 (Slack/Notion conventions)** para destravar Onda 12.
 
 ---
 
-## 21. Referências
+## 22. Referências
 
 | Documento | Conteúdo |
 |---|---|
