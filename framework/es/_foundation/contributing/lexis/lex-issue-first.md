@@ -4,7 +4,7 @@
 
 ## Ley
 
-> **Todo cambio de código — funcionalidad, corrección de bug, refactorización, actualización de dependencia o cambio de configuración — DEBE originarse en un Issue de GitHub existente. No se PUEDE crear ninguna rama ni abrir ningún PR sin un Issue asociado. El cuerpo del PR DEBE referenciar el Issue con `Closes #N` (lo resuelve completamente) o `Refs #N` (lo aborda parcialmente). Los PRs sin referencia a un Issue están PROHIBIDOS. La única excepción es para correcciones triviales (errores tipográficos, puntuación o formato sin ningún cambio de lógica), que PUEDEN enviarse sin un Issue previo usando el tipo `docs:` o `style:` de Conventional Commits.**
+> **Todo cambio de código — funcionalidad, corrección de bug, refactorización, actualización de dependencia o cambio de configuración — DEBE originarse en un Issue de GitHub existente. Antes de abrir un Issue nuevo, el contribuyente DEBE verificar si ya existe un Issue (abierto o recién cerrado) que cubra el tópico; el primer Issue coincidente es dueño del trabajo, e Issues paralelos para el mismo alcance están PROHIBIDOS. No se PUEDE crear ninguna rama ni abrir ningún PR sin un Issue asociado. El cuerpo del PR DEBE referenciar el Issue con `Closes #N` (lo resuelve completamente) o `Refs #N` (lo aborda parcialmente). Los PRs sin referencia a un Issue están PROHIBIDOS. La única excepción es para correcciones triviales (errores tipográficos, puntuación o formato sin ningún cambio de lógica), que PUEDEN enviarse sin un Issue previo usando el tipo `docs:` o `style:` de Conventional Commits.**
 
 ## Cobertura
 
@@ -18,9 +18,10 @@
 
 Antes de crear una rama:
 
-1. Verifique que existe un Issue de GitHub para el trabajo planificado.
-2. Si no existe: abra uno usando `kata-contributing-issue` con: **qué** (descripción clara del objetivo), **por qué** (motivación e impacto), **resultado esperado** (criterios de aceptación o definición de listo).
-3. Solo entonces cree la rama siguiendo `lex-git-branches`: `{type}/{issue-number}-{slug}`.
+1. **Busque Issues existentes** (abiertos y recién cerrados) que ya cubran el trabajo planificado — por título, label, alcance o discusión relacionada. Use `gh issue list --search "<términos>"` o la búsqueda de la UI de GitHub. El primer Issue compatible es dueño del trabajo.
+2. **Si ya existe un Issue** para el tópico: úselo como anchor — referencie mediante `Closes #N` (resolución total) o `Refs #N` (resolución parcial). No abra un Issue paralelo cubriendo el mismo alcance. Casos válidos para un Issue nuevo aun con tópico relacionado: (a) el trabajo actual es genuinamente independiente del Issue existente, (b) el alcance evolucionó y justifica un desdoblamiento documentado en los comentarios del Issue original.
+3. **Si no existe Issue**: abra uno usando `kata-contributing-issue` con: **qué** (descripción clara del objetivo), **por qué** (motivación e impacto), **resultado esperado** (criterios de aceptación o definición de listo).
+4. Solo entonces cree la rama siguiendo `lex-git-branches`: `{type}/{issue-number}-{slug}`.
 
 ### 2. Calidad del Issue
 

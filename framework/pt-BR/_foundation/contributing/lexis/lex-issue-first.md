@@ -4,7 +4,7 @@
 
 ## Lei
 
-> **Toda mudança de código — feature, bugfix, refatoração, atualização de dependência ou mudança de configuração — DEVE originar-se de uma Issue do GitHub existente. Nenhum branch PODE ser criado e nenhum PR PODE ser aberto sem uma Issue associada. O corpo do PR DEVE referenciar a Issue com `Closes #N` (resolve completamente) ou `Refs #N` (endereça parcialmente). PRs sem referência a uma Issue são PROIBIDOS. A única exceção é para correções triviais (erros de digitação, pontuação ou formatação sem nenhuma mudança de lógica), que PODEM ser submetidas sem uma Issue prévia usando o tipo `docs:` ou `style:` do Conventional Commits.**
+> **Toda mudança de código — feature, bugfix, refatoração, atualização de dependência ou mudança de configuração — DEVE originar-se de uma Issue do GitHub existente. Antes de abrir uma Issue nova, o contribuidor DEVE verificar se já existe uma Issue (aberta ou recém-fechada) cobrindo o tópico; a primeira Issue correspondente é dona do trabalho, e Issues paralelas para o mesmo escopo são PROIBIDAS. Nenhum branch PODE ser criado e nenhum PR PODE ser aberto sem uma Issue associada. O corpo do PR DEVE referenciar a Issue com `Closes #N` (resolve completamente) ou `Refs #N` (endereça parcialmente). PRs sem referência a uma Issue são PROIBIDOS. A única exceção é para correções triviais (erros de digitação, pontuação ou formatação sem nenhuma mudança de lógica), que PODEM ser submetidas sem uma Issue prévia usando o tipo `docs:` ou `style:` do Conventional Commits.**
 
 ## Cobertura
 
@@ -18,9 +18,10 @@
 
 Antes de criar um branch:
 
-1. Verifique se existe uma Issue do GitHub para o trabalho planejado.
-2. Se não existir: abra uma usando `kata-contributing-issue` com: **o quê** (descrição clara do objetivo), **por quê** (motivação e impacto), **resultado esperado** (critérios de aceitação ou definição de pronto).
-3. Somente então crie o branch seguindo `lex-git-branches`: `{type}/{issue-number}-{slug}`.
+1. **Procure Issues existentes** (abertas e recém-fechadas) que já cubram o trabalho planejado — por título, label, escopo ou discussão relacionada. Use `gh issue list --search "<termos>"` ou a busca da UI do GitHub. A primeira Issue compatível é dona do trabalho.
+2. **Se já existe Issue** para o tópico: use-a como anchor — referencie via `Closes #N` (resolução total) ou `Refs #N` (resolução parcial). Não abra Issue paralela cobrindo o mesmo escopo. Casos válidos para Issue nova mesmo com tópico relacionado: (a) o trabalho atual é genuinamente independente da Issue existente, (b) o escopo evoluiu e justifica desdobramento documentado nos comentários da Issue original.
+3. **Se não existe Issue**: abra uma usando `kata-contributing-issue` com: **o quê** (descrição clara do objetivo), **por quê** (motivação e impacto), **resultado esperado** (critérios de aceitação ou definição de pronto).
+4. Somente então crie o branch seguindo `lex-git-branches`: `{type}/{issue-number}-{slug}`.
 
 ### 2. Qualidade da Issue
 
