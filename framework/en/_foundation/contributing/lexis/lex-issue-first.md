@@ -4,7 +4,7 @@
 
 ## Law
 
-> **Every code change — feature, bugfix, refactoring, dependency update, or configuration change — MUST originate from an existing GitHub Issue. No branch MAY be created and no PR MAY be opened without an associated Issue. The PR body MUST reference the Issue with `Closes #N` (fully resolves it) or `Refs #N` (partially addresses it). PRs without an Issue reference are FORBIDDEN. The only exception is trivial corrections (typos, punctuation, or formatting with no logic change), which MAY be submitted without a prior Issue using the `docs:` or `style:` Conventional Commits type.**
+> **Every code change — feature, bugfix, refactoring, dependency update, or configuration change — MUST originate from an existing GitHub Issue. Before opening a new Issue, the contributor MUST verify whether one already exists (open or recently closed) covering the topic; the first matching Issue owns the work, and parallel Issues for the same scope are FORBIDDEN. No branch MAY be created and no PR MAY be opened without an associated Issue. The PR body MUST reference the Issue with `Closes #N` (fully resolves it) or `Refs #N` (partially addresses it). PRs without an Issue reference are FORBIDDEN. The only exception is trivial corrections (typos, punctuation, or formatting with no logic change), which MAY be submitted without a prior Issue using the `docs:` or `style:` Conventional Commits type.**
 
 ## Coverage
 
@@ -18,9 +18,10 @@
 
 Before creating a branch:
 
-1. Verify that a GitHub Issue exists for the planned work.
-2. If no Issue exists, open one using `kata-contributing-issue` with: **what** (clear description of the goal), **why** (motivation and impact), **expected outcome** (acceptance criteria or definition of done).
-3. Only then create the branch following `lex-git-branches`: `{type}/{issue-number}-{slug}`.
+1. **Search existing Issues** (open and recently closed) for one already covering the planned work — by title, label, scope, or related discussion. Use `gh issue list --search "<terms>"` or the GitHub UI search. The first matching Issue owns the work.
+2. **If a matching Issue exists** for the topic: use it as the anchor — reference it via `Closes #N` (full resolution) or `Refs #N` (partial). Do not open a parallel Issue covering the same scope. Valid cases for a new Issue even when a related topic exists: (a) the current work is genuinely independent of the existing Issue, (b) the scope evolved and warrants a documented split recorded in the original Issue's comments.
+3. **If no Issue exists**: open one using `kata-contributing-issue` with: **what** (clear description of the goal), **why** (motivation and impact), **expected outcome** (acceptance criteria or definition of done).
+4. Only then create the branch following `lex-git-branches`: `{type}/{issue-number}-{slug}`.
 
 ### 2. Issue quality
 
