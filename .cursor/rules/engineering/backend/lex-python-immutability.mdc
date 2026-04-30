@@ -1,7 +1,8 @@
 ---
 description: "When writing Python code, prefer immutable data structures; use frozen dataclasses and tuples."
 alwaysApply: false
-globs: '["**/*.py"]'
+globs:
+  - **/*.py
 ---
 
 # Lexis: Python Immutability by Default

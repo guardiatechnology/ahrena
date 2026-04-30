@@ -1,7 +1,8 @@
 ---
 description: "When writing Python code, use typed exceptions; never silently swallow errors."
 alwaysApply: false
-globs: '["**/*.py"]'
+globs:
+  - **/*.py
 ---
 
 # Lexis: Python Error Handling

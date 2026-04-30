@@ -1,7 +1,9 @@
 ---
 description: "When writing Python tests, use pytest fixtures, factories, and coverage thresholds from this codex."
 alwaysApply: false
-globs: '["**/*.py", "**/test_*.py"]'
+globs:
+  - **/*.py
+  - **/test_*.py
 ---
 
 # Codex: Python Testing Patterns

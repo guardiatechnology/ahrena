@@ -1,7 +1,8 @@
 ---
 description: "When writing Python code, follow security rules: no secrets in code, validate inputs, use parameterized queries."
 alwaysApply: false
-globs: '["**/*.py"]'
+globs:
+  - **/*.py
 ---
 
 # Lexis: Python Security Practices

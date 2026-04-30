@@ -44,6 +44,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/documentation\i18n\codex-language.md`
 - `.claude/docs/engineering\backend\codex-python-architecture.md`
 - `.claude/docs/engineering\backend\codex-python-fastapi.md`
+- `.claude/docs/engineering\backend\codex-python-logging.md`
 - `.claude/docs/engineering\backend\codex-python-observability.md`
 - `.claude/docs/engineering\backend\codex-python-sqlalchemy.md`
 - `.claude/docs/engineering\backend\codex-python-testing.md`

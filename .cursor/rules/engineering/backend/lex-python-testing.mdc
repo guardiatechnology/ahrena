@@ -1,7 +1,10 @@
 ---
 description: "When writing Python tests, use pytest with coverage; no untested public functions."
 alwaysApply: false
-globs: '["**/*.py", "**/test_*.py", "**/*_test.py"]'
+globs:
+  - **/*.py
+  - **/test_*.py
+  - **/*_test.py
 ---
 
 # Lexis: Python Testing Requirements

@@ -1,7 +1,11 @@
 ---
 description: "When writing frontend tests, test user behavior with accessible queries; mock only at external boundaries."
 alwaysApply: false
-globs: '["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]'
+globs:
+  - **/*.test.ts
+  - **/*.test.tsx
+  - **/*.spec.ts
+  - **/*.spec.tsx
 ---
 
 # Lexis: Behavioral Testing in Frontend

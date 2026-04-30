@@ -1,7 +1,10 @@
 ---
 description: "When using SQLAlchemy, use async sessions, mapped columns, and Alembic migrations per this codex."
 alwaysApply: false
-globs: '["**/*.py", "**/models/**", "**/repositories/**"]'
+globs:
+  - **/*.py
+  - **/models/**
+  - **/repositories/**
 ---
 
 # Codex: SQLAlchemy & Database Patterns
