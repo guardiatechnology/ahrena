@@ -113,15 +113,15 @@ Conforme [`lex-hard-gate-pattern`](framework/pt-BR/_foundation/quality/lexis/lex
 ```
 <HARD-GATE>
 warrior-athena, warrior-apollo, warrior-hephaestus e qualquer outro
-agente NÃO MAY mergear PR sem que ele satisfaça TODOS os critérios:
+agente NÃO DEVE mergear PR sem que ele satisfaça TODOS os critérios:
 
   (a) Issue associada está em conformidade com lex-issue-quality
   (b) Branch segue formato {type}/{issue-number}-{slug} per lex-git-branches
   (c) PR body inclui Closes #N ou Refs #N per lex-issue-first
   (d) Labels da issue espelhadas no PR
   (e) Exatamente uma label de tamanho (size/XS a size/XXL) aplicada
-  (f) Labels específicos de PR (breaking change, security, release)
-      aplicados quando aplicável
+  (f) Labels específicas de PR (breaking change, security, release)
+      aplicadas quando aplicável
   (g) Assignee = autor do PR
   (h) Pelo menos um reviewer solicitado a partir de .github/CODEOWNERS
 

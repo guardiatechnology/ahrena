@@ -116,7 +116,7 @@ Conforme [`lex-hard-gate-pattern`](framework/pt-BR/_foundation/quality/lexis/lex
 ```
 <HARD-GATE>
 warrior-athena, warrior-apollo, warrior-hephaestus e qualquer outro
-agente NÃO MAY criar branch ou abrir PR para uma issue sem que ela
+agente NÃO DEVE criar branch ou abrir PR para uma issue sem que ela
 satisfaça TODOS os 5 critérios canônicos:
 
   (a) Usa um dos templates aprovados (feature-request, epic,

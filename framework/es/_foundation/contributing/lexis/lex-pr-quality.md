@@ -113,7 +113,7 @@ Conforme [`lex-hard-gate-pattern`](framework/es/_foundation/quality/lexis/lex-ha
 ```
 <HARD-GATE>
 warrior-athena, warrior-apollo, warrior-hephaestus y cualquier otro
-agente NO MAY mergear PR sin que él satisfaga TODOS los criterios:
+agente NO DEBE mergear PR sin que él satisfaga TODOS los criterios:
 
   (a) Issue asociada está en conformidad con lex-issue-quality
   (b) Branch sigue formato {type}/{issue-number}-{slug} per lex-git-branches

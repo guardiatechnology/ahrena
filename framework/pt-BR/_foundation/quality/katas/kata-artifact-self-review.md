@@ -1,6 +1,6 @@
 # Kata: Auto-revisão de Artefato
 
-> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Auto-revisão pré-humano de qualquer artefato produzido por agente — Lexis, Codex, Kata, Warrior, Cry, PRD, Capability Spec, ADR, release plan, PLR, wireframes
+> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Auto-revisão pré-humana de qualquer artefato produzido por agente — Lexis, Codex, Kata, Warrior, Cry, PRD, Capability Spec, ADR, release plan, PLR, wireframes
 
 ## Objetivo
 
@@ -125,7 +125,7 @@ Submeta artefato a humano APENAS quando relatório indicar APROVADO.
 | Output | Formato | Destino |
 |--------|---------|---------|
 | Self-Review Report | Markdown estruturado | inline (chat) ou `docs/.review/{artefato}-{date}.md` |
-| Decisão APROVADO / DEVOLVIDO | Boolean explícito | parte do report |
+| Decisão APROVADO / DEVOLVIDO | Boolean explícito | parte do relatório |
 
 ## Exemplo de Execução
 
@@ -176,6 +176,6 @@ Template: framework/templates/lex-sample.md
 ## Restrições
 
 - Este Kata **detecta**, não **corrige** — correção é responsabilidade do agente que produziu o artefato.
-- Self-review **não substitui** revisão humana — é fase pré-humano, complementar.
+- Self-review **não substitui** revisão humana — é fase pré-humana, complementar.
 - Se o artefato falha em equivalência multilíngue, agente DEVE alinhar todos os idiomas antes de submeter — não submeter parcialmente.
 - Sempre que retornar DEVOLVIDO, o relatório DEVE ser preservado em `docs/.review/` para auditoria.
