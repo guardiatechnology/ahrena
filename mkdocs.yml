@@ -52,6 +52,18 @@ nav:
 extra_css:
   - assets/guardia.css
 
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
 plugins:
   - search
   - i18n:
