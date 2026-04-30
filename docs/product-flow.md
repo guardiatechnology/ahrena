@@ -62,6 +62,8 @@ flowchart TB
     class PDin,PDout,Cal,Prom,Hec,EosD,Ath,PDLin,PDLout step
     class DoR,DoD hardgate
     class Start,Cliente terminal
+    style Start color:#FDFDFD,fill:#4F186D,stroke:#0E1016
+    style Cliente color:#FDFDFD,fill:#4F186D,stroke:#0E1016
 ```
 
 **Leitura:** Calíope abre PRD/Capability Spec → Prometheus faz design técnico (com Hécate Modo B condicional para agentes da plataforma) → Eos faz design visual quando UI → **DoR HARD-GATE** valida pacote pronto e Calíope cria a Issue no GitHub → **Athena** orquestra implementação (Apolo/Hephaestus/Iris) através das 7 fases do Issue-Driven → **DoD Validation HARD-GATE** ([kata-quality-gate](../framework/pt-BR/engineering/workflow/katas/kata-quality-gate.md) + `kata-dod-validate`) gate o merge → handoff para Niké em Delivery.
