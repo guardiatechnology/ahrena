@@ -309,6 +309,13 @@ cursor:
     _foundation/quality/lexis/lex-observability-required:
       alwaysApply: false
       description: "When adding HTTP endpoint/event consumer/job, emit trace + metric + structured log with correlation ID; no sensitive data in logs."
+    _foundation/quality/lexis/lex-logging-decorator:
+      alwaysApply: false
+      description: "When emitting logs in any language, use centralized bootstrap + decorator/wrapper; inline logger.info/console.log/print/fmt.Println calls in application code are forbidden."
+    engineering/backend/codex/codex-python-logging:
+      alwaysApply: false
+      globs: ["**/*.py"]
+      description: "When configuring logging in Python, use loguru with centralized setup, JSON sink with redaction, and the @logged decorator for instrumentation."
     _foundation/tooling/codex/codex-mcp-common:
       alwaysApply: false
       description: "Shared MCP patterns (auth, config, fallback, failure signals) — preamble consumed by all codex-mcp-{server} references."
@@ -440,6 +447,11 @@ claude-code:
       description: "When provisioning AWS, enforce security laws on IAM, encryption, secrets, and public access."
     _foundation/quality/lexis/lex-observability-required:
       description: "Every runtime surface emits trace + metric + structured log with correlation ID."
+    _foundation/quality/lexis/lex-logging-decorator:
+      description: "Logs come from centralized bootstrap + decorator/wrapper; inline logger.info/console.log/print are forbidden in application code."
+    engineering/backend/codex/codex-python-logging:
+      paths: ["**/*.py"]
+      description: "Python logging uses loguru with centralized setup, JSON sink with redaction, and the @logged decorator."
     engineering/quality/lexis/lex-test-pyramid:
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
     engineering/sre/lexis/lex-slo-required:
