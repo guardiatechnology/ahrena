@@ -114,6 +114,9 @@ cursor:
     _foundation/i18n/codex/codex-framework-language:
       alwaysApply: false
       description: "When organizing artifacts by language, follow framework language structure from this codex."
+    _foundation/quality/lexis/lex-hard-gate-pattern:
+      alwaysApply: false
+      description: "When a Lexis requires flow blocking (forbidden action with non-negotiable preconditions), apply the literal <HARD-GATE> block with subject, action, preconditions, scope, counter-pretexts, and declared exceptions."
     _foundation/quality/lexis/lex-template-usage:
       alwaysApply: false
       description: "When creating a Lexis, Codex, Kata, Warrior, or Cry, start from the official template in .directives paths.samples."
