@@ -1,163 +1,309 @@
 # Codex: Observabilidad en Python
 
-> **Prefix:** `codex-` | **Type:** Manual de Referencia | **Scope:** Engineering — Backend: patrones de observabilidad con OpenTelemetry, logging estructurado y métricas
+> **Prefix:** `codex-` | **Type:** Manual de Referencia | **Scope:** Engineering — Backend: traces y métricas en aplicaciones Python vía OpenTelemetry y decorators
 
-## Visión General
+## Overview
 
-Este manual define los patrones de observabilidad para aplicaciones Python de backend. La observabilidad es la capacidad de entender el estado interno de un sistema a partir de sus salidas externas: logs, trazas y métricas. Todo servicio DEBE estar instrumentado para permitir depuración, análisis de rendimiento y alertas en producción.
+Traces y métricas en backend Python. Los logs viven en `codex-python-logging`. Mismo principio: instrumentación por decorator, nunca inline. OpenTelemetry es la abstracción — el código de producto no conoce el backend (Prometheus, Datadog, OTLP). Un único decorator `@observe` combina log + métrica + span cuando tiene sentido.
 
-## Contexto
+## Context
 
-- **Dominio:** observabilidad para aplicaciones Python usando el stack OpenTelemetry.
-- **Audiencia objetivo:** implementadores y agentes de IA que instrumentan o mantienen servicios Python.
-- **Disparador de actualización:** cuando los patrones OpenTelemetry evolucionan o se adopta nueva instrumentación.
+- **Domain:** telemetría (traces + métricas) en servicios Python — APIs, workers, jobs.
+- **Target audience:** implementadores y agentes (warrior-apollo).
+- **Update trigger:** evolución del stack OpenTelemetry, cambio de backend, nuevas convenciones semánticas.
 
-## Contenido
+## Content
+
+### Principios
+
+1. Instrumentación por decorator — `tracer.start_as_current_span`, `counter.add`, `histogram.record`, `span.set_attribute` no aparecen en cuerpos de funciones de aplicación.
+2. OpenTelemetry como abstracción — backend intercambiable (Prometheus, Datadog, OTLP) sin alterar el código de producto; vendor lock-in restringido al bootstrap.
+3. Result Pattern como ciudadano de primera clase — cuando la función retorna `Result[T, E]`, el decorator inspecciona `Ok`/`Err` y clasifica `outcome`.
+4. Métricas globales centralizadas — `fn_calls_total` y `fn_duration_seconds` cubren cualquier función decorada; las métricas de dominio son adicionales.
+5. Métricas en endpoint dedicado — `/metrics` montado una sola vez, nunca acoplado a rutas de negocio.
 
 ### Stack
 
-| Componente | Librería | Propósito |
-|------------|---------|---------|
-| Trazabilidad | `opentelemetry-api`, `opentelemetry-sdk` | Trazabilidad distribuida |
-| Auto-instrumentación | `opentelemetry-instrumentation-fastapi` | Creación de spans HTTP |
-| Instrumentación de BD | `opentelemetry-instrumentation-asyncpg` | Creación de spans de base de datos |
-| Instrumentación de logs | `opentelemetry-instrumentation-logging` | Correlación traza-log |
-| Exportación | `opentelemetry-exporter-otlp` | Exportar trazas/métricas vía OTLP |
-| Logging estructurado | `structlog` o `logging` con formateador JSON | Logs legibles por máquina |
+| Componente | Biblioteca | Propósito |
+|------------|-----------|-----------|
+| Tracing | `opentelemetry-api`, `opentelemetry-sdk` | Traces distribuidos |
+| Métricas | `opentelemetry-sdk` + `opentelemetry-exporter-prometheus` | Portables (Prometheus, OTLP, Datadog) |
+| Result Pattern | `result` (rustedpy/result) | `Ok`/`Err` para clasificación de outcome |
+| Exposición | `prometheus-client` | Endpoint `/metrics` ASGI |
+| Auto-instrumentación | `opentelemetry-instrumentation-fastapi/asyncpg/logging` | Spans HTTP, BD y correlación |
 
-### Configuración de Trazabilidad
+### Bootstrap
 
 ```python
-from opentelemetry import trace
+# app/shared/observability/setup.py
+from opentelemetry import trace, metrics
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.sdk.resources import Resource
 
 
-def setup_tracing(service_name: str) -> None:
+def setup_observability(service_name: str) -> None:
     resource = Resource.create({"service.name": service_name})
-    provider = TracerProvider(resource=resource)
-    processor = BatchSpanProcessor(OTLPSpanExporter())
-    provider.add_span_processor(processor)
-    trace.set_tracer_provider(provider)
+    tp = TracerProvider(resource=resource)
+    tp.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+    trace.set_tracer_provider(tp)
+    metrics.set_meter_provider(MeterProvider(metric_readers=[PrometheusMetricReader()]))
 ```
 
-**Reglas:**
-- Configurar la trazabilidad al inicio de la aplicación (`main.py` o fábrica de app)
-- Usar `BatchSpanProcessor` para producción; `SimpleSpanProcessor` para testing
-- Nombre del servicio desde entorno o configuración
-- Endpoint OTLP desde variable de entorno (`OTEL_EXPORTER_OTLP_ENDPOINT`)
-
-### Auto-Instrumentación
-
 ```python
+# app/shared/observability/auto_instrument.py
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
 
-def setup_instrumentation(app: FastAPI) -> None:
+def instrument(app) -> None:
     FastAPIInstrumentor.instrument_app(app)
     AsyncPGInstrumentor().instrument()
     LoggingInstrumentor().instrument(set_logging_format=True)
 ```
 
-**Reglas:**
-- Instrumentar FastAPI para creación automática de spans HTTP
-- Instrumentar asyncpg para spans de consultas a la base de datos
-- Instrumentar logging para correlación traza-log (trace_id en registros de log)
+`BatchSpanProcessor` en producción; `SimpleSpanProcessor` en tests. Endpoint OTLP vía `OTEL_EXPORTER_OTLP_ENDPOINT`. Para Datadog, solo cambia el reader/exporter — la instrumentación se mantiene.
 
-### Spans Personalizados
+### Tipos de métricas
 
-```python
-from opentelemetry import trace
+| Tipo | Cuándo usar | Ejemplo |
+|------|-------------|---------|
+| `Counter` | Solo crece | `transactions_created_total` |
+| `UpDownCounter` | Sube y baja | `active_connections` |
+| `Histogram` | Distribución | `transaction_duration_seconds` |
+| `ObservableGauge` | Muestreado periódicamente | `queue_depth` |
 
-tracer = trace.get_tracer(__name__)
+`Summary` (percentiles del lado cliente) se evita: histogramas con buckets bien elegidos sirven al mismo caso y agregan entre instancias.
 
-
-async def process_payment(payment_id: UUID) -> PaymentResult:
-    with tracer.start_as_current_span(
-        "process_payment",
-        attributes={"payment.id": str(payment_id)},
-    ) as span:
-        result = await gateway.charge(payment_id)
-        span.set_attribute("payment.status", result.status.value)
-        if result.failed:
-            span.set_status(trace.StatusCode.ERROR, result.error_message)
-        return result
-```
-
-**Reglas:**
-- Agregar spans personalizados para operaciones críticas del negocio
-- Usar atributos semánticos (formato sustantivo.propiedad)
-- Establecer el estado del span en caso de errores
-- Nunca incluir PII ni secretos en los atributos de span
-
-### Logging Estructurado
+### Métricas globales
 
 ```python
-import logging
-import json
-
-
-class JSONFormatter(logging.Formatter):
-    def format(self, record: logging.LogRecord) -> str:
-        log_data = {
-            "timestamp": self.formatTime(record),
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-            "trace_id": getattr(record, "otelTraceID", ""),
-            "span_id": getattr(record, "otelSpanID", ""),
-        }
-        if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
-        return json.dumps(log_data)
-```
-
-**Reglas:**
-- Formato JSON en producción para parsing por máquina
-- Incluir `trace_id` y `span_id` para correlación log-traza
-- Niveles de log: DEBUG (solo desarrollo), INFO (eventos operacionales), WARNING (problemas recuperables), ERROR (fallos que requieren atención)
-- Nunca registrar secretos, tokens, contraseñas ni PII
-- Registrar en los límites: requests entrantes, llamadas salientes, errores, eventos de negocio
-
-### Métricas
-
-```python
+# app/shared/observability/metrics.py
 from opentelemetry import metrics
 
-meter = metrics.get_meter(__name__)
-
-transaction_counter = meter.create_counter(
-    "transactions.created",
-    description="Number of transactions created",
-)
-
-processing_duration = meter.create_histogram(
-    "transactions.processing_duration_ms",
-    description="Transaction processing duration in milliseconds",
-)
+meter = metrics.get_meter("app.shared.observability")
+calls_total = meter.create_counter("fn_calls_total", description="Llamadas a funciones decoradas")
+call_duration = meter.create_histogram("fn_duration_seconds", description="Duración", unit="s")
 ```
 
-**Reglas:**
-- Usar contadores para eventos (requests, errores, transacciones creadas)
-- Usar histogramas para duraciones y tamaños
-- Nombres de métricas: `sustantivo.verbo` o `sustantivo.propiedad` en snake_case
-- Exportar vía OTLP junto con las trazas
+Definidas una vez; importadas por los decorators. `fn` y `status` son labels Prometheus — mantener cardinalidad baja (sin UUIDs).
 
-## Glosario
+### Decorators
+
+Tres decorators atienden la mayoría de los casos. `@observe` es el default; los otros son especialización cuando una de las tres facetas (log, métrica, span) no aplica.
+
+```python
+# app/shared/observability/decorators.py
+import asyncio, functools, time
+from typing import Any, Callable, ParamSpec, TypeVar
+from loguru import logger
+from opentelemetry import trace
+from result import Result, Ok
+from app.shared.observability.metrics import calls_total, call_duration
+
+P = ParamSpec("P"); R = TypeVar("R")
+tracer = trace.get_tracer("app.shared.observability")
+
+
+def _classify(result: Any, exc: BaseException | None) -> str:
+    if exc is not None:
+        return "error"
+    if isinstance(result, Result) and not isinstance(result, Ok):
+        return "failure"
+    return "ok"
+
+
+def _record(operation, span, t0, result, exc):
+    dur = (time.perf_counter() - t0) * 1000
+    attrs = {"fn": operation}
+    if exc is not None:
+        span.set_status(trace.StatusCode.ERROR, str(exc)); span.record_exception(exc)
+        status = "error"
+    else:
+        status = _classify(result, None)
+        if status == "failure":
+            span.set_status(trace.StatusCode.ERROR, "result.err")
+    calls_total.add(1, {**attrs, "status": status})
+    call_duration.record(dur / 1000, attrs)
+    with logger.contextualize(operation=operation, outcome=status, duration_ms=dur):
+        if exc is not None:
+            logger.opt(exception=True).error("{} error", operation)
+        else:
+            logger.info("{} {}", operation, status)
+
+
+def observe(operation: str) -> Callable:
+    """Span + métrica + log en el mismo punto. Default para casos de uso."""
+    def deco(fn: Callable[P, R]) -> Callable[P, R]:
+        @functools.wraps(fn)
+        async def aw(*args: P.args, **kwargs: P.kwargs) -> R:
+            t0 = time.perf_counter()
+            with tracer.start_as_current_span(operation) as span, \
+                 logger.contextualize(operation=operation, outcome="enter"):
+                logger.info("{} enter", operation)
+                try:
+                    result = await fn(*args, **kwargs)
+                except Exception as exc:
+                    _record(operation, span, t0, None, exc); raise
+                _record(operation, span, t0, result, None); return result
+
+        @functools.wraps(fn)
+        def sw(*args: P.args, **kwargs: P.kwargs) -> R:
+            t0 = time.perf_counter()
+            with tracer.start_as_current_span(operation) as span, \
+                 logger.contextualize(operation=operation, outcome="enter"):
+                logger.info("{} enter", operation)
+                try:
+                    result = fn(*args, **kwargs)
+                except Exception as exc:
+                    _record(operation, span, t0, None, exc); raise
+                _record(operation, span, t0, result, None); return result
+
+        return aw if asyncio.iscoroutinefunction(fn) else sw  # type: ignore[return-value]
+    return deco
+
+
+def track_metrics(fn: Callable[P, R]) -> Callable[P, R]:
+    """Solo métricas. Inspecciona Result cuando está presente; si no, clasifica por excepción."""
+    @functools.wraps(fn)
+    def w(*args, **kwargs):
+        t0 = time.perf_counter(); attrs = {"fn": fn.__name__}
+        try:
+            result = fn(*args, **kwargs)
+        except Exception:
+            calls_total.add(1, {**attrs, "status": "error"})
+            call_duration.record(time.perf_counter() - t0, attrs); raise
+        status = _classify(result, None)
+        calls_total.add(1, {**attrs, "status": status})
+        call_duration.record(time.perf_counter() - t0, attrs)
+        return result
+    return w  # versión async análoga; omitida por brevedad
+
+
+def count(metric, attrs_fn):
+    """Cuenta una métrica de dominio con atributos derivados del retorno."""
+    def deco(fn):
+        @functools.wraps(fn)
+        def w(*args, **kwargs):
+            result = fn(*args, **kwargs); metric.add(1, attrs_fn(result)); return result
+        return w
+    return deco
+```
+
+Reglas:
+- `@observe` es el default para casos de uso y operaciones de dominio. `Err` se registra como `ERROR` en el span — el trace refleja la falla incluso sin excepción.
+- No combinar `@observe` con `@logged` o `@track_metrics` en la misma función (eventos duplicados).
+- `operation` sigue `domain.action` (ej.: `transfer.create`).
+
+### Uso
+
+```python
+from result import Ok, Err, Result
+from app.shared.observability import observe
+
+
+class CreateTransferUseCase:
+    @observe(operation="transfer.create")
+    async def execute(self, source_id, target_id, amount) -> Result[Transfer, TransferError]:
+        if amount <= 0:
+            return Err(TransferError.INVALID_AMOUNT)
+        transfer = await self._repository.create(source_id, target_id, amount)
+        return Ok(transfer)
+```
+
+`Ok` → `status=ok`; `Err` → `status=failure`; excepción → `status=error`. Cuerpo sin llamadas a `logger.*`, `counter.add`, `tracer.start_as_current_span`.
+
+### Métricas de dominio
+
+```python
+# app/domain/transfers/metrics.py
+from opentelemetry import metrics
+_meter = metrics.get_meter("app.domain.transfers")
+transfers_created_total = _meter.create_counter("transfers_created_total")
+```
+
+```python
+@observe(operation="transfer.create")
+@count(transfers_created_total, lambda r: {"currency": r.unwrap().currency} if r.is_ok() else {})
+async def execute(...): ...
+```
+
+### Exposición en FastAPI
+
+```python
+from fastapi import FastAPI
+from prometheus_client import make_asgi_app
+from app.shared.logging import setup_logging
+from app.shared.observability import setup_observability, instrument
+
+
+def create_app() -> FastAPI:
+    setup_logging("transfer-api")
+    setup_observability("transfer-api")
+    app = FastAPI()
+    instrument(app)
+    app.mount("/metrics", make_asgi_app())
+    return app
+```
+
+`/metrics` se monta una sola vez en el app factory; protegido a nivel de red (security group, ingress) — nunca expuesto públicamente sin auth.
+
+### Recomendación por escenario
+
+| Decisión | Elección |
+|----------|----------|
+| Instrumentación | `opentelemetry-sdk` (siempre — abstracción intercambiable) |
+| Self-hosted | Prometheus + Grafana |
+| Stack ya tiene Datadog | Exporter Datadog OTLP o SDK directo |
+| Cambiar backend en el futuro | OpenTelemetry con OTLP exporter |
+| Función pequeña, costo de span alto | `@logged` + `@track_metrics` por separado |
+
+OpenTelemetry con Prometheus es el camino más portable en producto nuevo. Si el stack ya tiene Datadog, ir directo — la capa extra no compensa.
+
+### Dónde aparecen llamadas directas
+
+La misma regla de `lex-logging-decorator` aplica a métricas y spans:
+
+| Módulo | Rol |
+|--------|-----|
+| `app/shared/observability/setup.py` | Bootstrap |
+| `app/shared/observability/metrics.py` | Métricas globales |
+| `app/shared/observability/decorators.py` | `@observe`, `@track_metrics`, `@count` |
+| `app/shared/observability/auto_instrument.py` | Auto-instrumentación |
+| `app/domain/<bc>/metrics.py` | Métricas del bounded context (solo declaración) |
+| Handlers globales de excepción | `span.record_exception` en handler top-level |
+
+Cualquier otro archivo que llame `tracer.start_as_current_span`, `counter.add`, `histogram.record`, `span.set_attribute` es violación.
+
+### Convenciones
+
+| Aspecto | Estándar | Ejemplo |
+|---------|----------|---------|
+| `operation` | `domain.action` en snake_case | `transfer.create` |
+| Nombres de métrica | `<sustantivo>_<verbo_pasado>_<unidad>` | `transfers_created_total`, `request_duration_seconds` |
+| Labels | Cardinalidad baja, sin PII, sin ID único | `currency`, `status` ✓ ; `entity_id` ✗ |
+| Histogramas | Buckets explícitos cuando el default no cubre | latencia `[0.005, 0.01, 0.025, ...]` |
+| Result Pattern | Errores esperados como `Err`; excepciones para invariantes violados | `return Err(TransferError.INVALID_AMOUNT)` |
+
+## Glossary
 
 | Término | Definición |
 |---------|------------|
-| Span | Unidad de trabajo dentro de una traza, con tiempo de inicio/fin y atributos |
-| Trace | Camino de un request de extremo a extremo entre servicios, compuesto de spans |
-| OTLP | Protocolo OpenTelemetry para exportar datos de telemetría |
-| Correlation | Vinculación de logs con trazas mediante trace_id/span_id |
+| Span | Unidad de trabajo dentro de un trace |
+| Trace | Camino punta a punta de un request, compuesto por spans |
+| OTLP | Protocolo OpenTelemetry para exportar telemetría |
+| Result | Tipo `Ok[T] | Err[E]` — sustituye excepción por retorno |
+| Outcome | `ok` (Ok), `failure` (Err), `error` (excepción) |
+| Cardinalidad | Número de valores distintos para un label; alto = costoso |
 
-## Referencias
+## References
 
-- [Documentación de OpenTelemetry Python](https://opentelemetry.io/docs/languages/python/)
-- [Convenciones Semánticas de OpenTelemetry](https://opentelemetry.io/docs/specs/semconv/)
+- [OpenTelemetry Python](https://opentelemetry.io/docs/languages/python/) — [Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/)
+- [prometheus-client](https://github.com/prometheus/client_python) — [rustedpy/result](https://github.com/rustedpy/result)
+- codex-python-logging (engineering/backend) — `@logged` + loguru
+- lex-logging-decorator, lex-observability-required (_foundation/quality)
 - codex-python-architecture (engineering/backend)
