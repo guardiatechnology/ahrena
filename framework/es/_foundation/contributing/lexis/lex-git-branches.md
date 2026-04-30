@@ -8,7 +8,7 @@
 
 ## Cobertura
 
-- **Se aplica a:** todas las ramas en todos los repositorios Guardia (excepto `main` y `release/*`, gestionadas por los mantenedores).
+- **Se aplica a:** todas las ramas de trabajo en todos los repositorios Guardia. Las ramas trunk (`main`, `master`, `release/*`) **no son ramas de trabajo** — son destinos protegidos gobernados por `lex-protected-trunk` y reciben código únicamente vía PR mergeado desde una rama nombrada según esta Ley.
 - **Agentes vinculados:** desarrolladores, agentes de IA que crean ramas (warrior-athena, warrior-apollo, warrior-hephaestus).
 - **Excepciones:** Ninguna. Las ramas fuera del formato válido son rechazadas al hacer push.
 
@@ -30,7 +30,11 @@
 
 Una rama NO DEBE crearse antes de que exista el Issue correspondiente. Consulte `lex-issue-first`.
 
-### 3. Una rama por Issue (por defecto)
+### 3. El trabajo nunca inicia en trunk
+
+Antes de cualquier commit, el desarrollador (humano o IA) **DEBE** verificar la rama activa mediante `git rev-parse --abbrev-ref HEAD`. Si es `main`, `master` o comienza con `release/`, **DEBE** crear una rama de trabajo conforme a esta Ley (`git checkout -b {type}/{N}-{slug}`) antes de producir cualquier cambio. Editar archivos con la working copy posicionada en trunk está PROHIBIDO. Los detalles del régimen de protección están en `lex-protected-trunk`.
+
+### 4. Una rama por Issue (por defecto)
 
 Cada Issue corresponde típicamente a una rama. Las excepciones (múltiples ramas para un único Issue complejo) requieren justificación explícita en los comentarios del Issue.
 
