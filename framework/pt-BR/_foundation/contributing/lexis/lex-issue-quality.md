@@ -109,6 +109,37 @@ Agentes de IA que criam issues (via MCP ou CLI) DEVEM:
 4. Aplicar pelo menos um assignee (default: `@me`)
 5. Preencher todas as seções obrigatórias (Por quê / O quê / Como) antes de submeter
 
+## HARD-GATE
+
+Conforme [`lex-hard-gate-pattern`](framework/pt-BR/_foundation/quality/lexis/lex-hard-gate-pattern.md), o bloqueio textual desta Lex é canonicamente expresso como:
+
+```
+<HARD-GATE>
+warrior-athena, warrior-apollo, warrior-hephaestus e qualquer outro
+agente NÃO DEVE criar branch ou abrir PR para uma issue sem que ela
+satisfaça TODOS os 5 critérios canônicos:
+
+  (a) Usa um dos templates aprovados (feature-request, epic,
+      user-story-for-api, user-story-for-frontend, simple-task)
+  (b) Tem pelo menos uma label obrigatória correspondente ao template
+  (c) Tem GitHub Issue Type definido (Feature, Task, Bug, Epic)
+      compatível com o template
+  (d) Tem pelo menos um assignee (default: autor da issue)
+  (e) Responde explicitamente Por quê, O quê e Como
+
+Esta regra se aplica a TODA issue, independentemente de:
+  - tamanho percebido ("é uma mudança trivial")
+  - urgência ("incêndio em produção")
+  - quem solicitou ("o CEO pediu")
+  - confiança do time ("já testamos")
+
+Exceção única declarada: issues geradas automaticamente pelo
+Dependabot ou ferramentas de varredura de segurança seguem seu
+próprio formato e estão isentas. Toda outra exceção exige
+justificativa explícita registrada na própria issue.
+</HARD-GATE>
+```
+
 ## Exemplos
 
 ### Corretos

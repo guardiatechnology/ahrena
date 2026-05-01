@@ -106,6 +106,37 @@ Y verificar, **inmediatamente después** de `gh pr create`:
 6. La label de tamaño fue aplicada (manualmente si es necesario).
 7. Al menos un reviewer fue solicitado (auto vía CODEOWNERS o manual vía `--add-reviewer`).
 
+## HARD-GATE
+
+Conforme [`lex-hard-gate-pattern`](framework/es/_foundation/quality/lexis/lex-hard-gate-pattern.md), el bloqueo textual de esta Lex se expresa canónicamente como:
+
+```
+<HARD-GATE>
+warrior-athena, warrior-apollo, warrior-hephaestus y cualquier otro
+agente NO DEBE mergear PR sin que él satisfaga TODOS los criterios:
+
+  (a) Issue asociada está en conformidad con lex-issue-quality
+  (b) Branch sigue formato {type}/{issue-number}-{slug} per lex-git-branches
+  (c) Cuerpo del PR incluye Closes #N o Refs #N per lex-issue-first
+  (d) Labels del issue reflejadas en el PR
+  (e) Exactamente una label de tamaño (size/XS a size/XXL) aplicada
+  (f) Labels específicas de PR (breaking change, security, release)
+      aplicadas cuando aplicable
+  (g) Assignee = autor del PR
+  (h) Al menos un reviewer solicitado desde .github/CODEOWNERS
+
+Esta regla se aplica a TODO PR, independientemente de:
+  - tamaño percibido ("es un cambio trivial")
+  - urgencia ("incendio en producción")
+  - quién solicitó ("el CEO pidió")
+  - confianza del equipo ("el reviewer ya lo vio")
+
+Excepción única declarada: PRs automáticos de Dependabot y herramientas
+de escaneo de seguridad siguen su propio flujo. Toda otra excepción
+exige justificación explícita en el PR.
+</HARD-GATE>
+```
+
 ## Ejemplos
 
 ### Correcto

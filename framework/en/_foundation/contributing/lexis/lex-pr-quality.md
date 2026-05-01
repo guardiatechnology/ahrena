@@ -106,6 +106,37 @@ And verify, **immediately after** `gh pr create`:
 6. The size label has been applied (manually if needed).
 7. At least one reviewer has been requested (auto via CODEOWNERS or manual via `--add-reviewer`).
 
+## HARD-GATE
+
+Per [`lex-hard-gate-pattern`](framework/en/_foundation/quality/lexis/lex-hard-gate-pattern.md), the textual block of this Lex is canonically expressed as:
+
+```
+<HARD-GATE>
+warrior-athena, warrior-apollo, warrior-hephaestus and any other
+agent MUST NOT merge PR without it satisfying ALL criteria:
+
+  (a) Associated issue conforms with lex-issue-quality
+  (b) Branch follows format {type}/{issue-number}-{slug} per lex-git-branches
+  (c) PR body includes Closes #N or Refs #N per lex-issue-first
+  (d) Issue labels mirrored on the PR
+  (e) Exactly one size label (size/XS to size/XXL) applied
+  (f) PR-specific labels (breaking change, security, release)
+      applied when applicable
+  (g) Assignee = PR author
+  (h) At least one reviewer requested from .github/CODEOWNERS
+
+This rule applies to EVERY PR, regardless of:
+  - perceived size ("it's a trivial change")
+  - urgency ("production fire")
+  - who requested ("the CEO asked")
+  - team confidence ("the reviewer already saw it")
+
+Single declared exception: automatic PRs from Dependabot and security
+scanning tools follow their own flow. Every other exception requires
+explicit justification in the PR.
+</HARD-GATE>
+```
+
 ## Examples
 
 ### Correct
