@@ -1,7 +1,7 @@
 ---
 plan_id: "001"
 title: "complete-feature-design-docs"
-status: done
+status: in-progress
 agent: claude
 issue: "guardiatechnology/ahrena#34"
 created_at: "2026-05-02T14:30:00Z"
@@ -58,8 +58,8 @@ Total estimado: ~30 arquivos.
 - [x] 7. Atualizar `kata-api-design-review.md` (pt-BR, en, es) — corrigir 1 ref a `paths.oas`
 - [x] 8. Corrigir `kata-api-design-doc.md` (pt-BR, en, es) — linhas ~41, ~83, ~110 que referenciam `.ahrena/.directives` de forma stale
 - [x] 9. Verificar e atualizar `.cursor/commands/` correspondentes aos 4 cries
-- [x] 10. Commitar todos os artefatos (novos artefatos de planejamento + warriors/katas já modificados + cries + katas)
-- [x] 11. Abrir PR referenciando a issue
+- [ ] 10. Commitar todos os artefatos (novos artefatos de planejamento + warriors/katas já modificados + cries + katas)
+- [ ] 11. Abrir PR referenciando a issue
 
 ## Dependências
 
