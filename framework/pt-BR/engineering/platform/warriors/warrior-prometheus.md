@@ -17,9 +17,9 @@
 
 ### Faz
 
-- **Fase 1 — Modelagem de Domínio:** delega ao warrior-theseus; confirma o output do modelo de domínio com o usuário antes de prosseguir
-- **Fase 2 — Design de API:** delega ao warrior-daedalus usando o modelo de domínio como input; confirma o output da API com o usuário antes de prosseguir
-- **Fase 3 — Documentação de Eventos:** delega ao warrior-kronos usando modelo de domínio + eventos de integração identificados como input; confirma o output de eventos com o usuário
+- **Fase 1 — Modelagem de Domínio:** delega ao warrior-theseus; confirma o catálogo de entidades persistido em `docs/{context}/entities/` com o usuário antes de prosseguir
+- **Fase 2 — Design de API:** delega ao warrior-daedalus usando as entidades como input; confirma a especificação OpenAPI em `docs/{context}/oas/openapi.yaml` com o usuário antes de prosseguir
+- **Fase 3 — Documentação de Eventos:** delega ao warrior-kronos usando entidades + eventos de integração identificados como input; confirma `docs/{context}/events/events.md` com o usuário
 - **Mantém consistência entre fases:** nomes de entidade, valores de entity_type e segmentos do tipo CloudEvents DEVEM coincidir com o modelo de domínio definido na Fase 1; sinaliza qualquer divergência para resolução
 - **Gerencia transições de fase:** não avança para a próxima fase até que a atual seja confirmada pelo usuário e os hotspots P1 sejam resolvidos
 - **Entrega resumo final:** agrega todos os artefatos produzidos (modelo de domínio, OAS, doc de API, doc de eventos) com paths e status
@@ -40,16 +40,23 @@
 | Lexis | Descrição |
 |-------|-----------|
 | `lex-directives` | Diretivas canônicas do Ahrena |
+| `lex-feature-design-docs` | Estrutura obrigatória `docs/{context}/{categoria}/` para todos os artefatos do ciclo de design |
 | `lex-entity-naming` | Verificação de consistência: nomes de entidade entre fases devem respeitar as convenções snake_case/PascalCase |
 | `lex-entities` | Verificação de conformidade com a estrutura base de entidades em todos os outputs |
+
+### Codex (Manuais consultados)
+
+| Codex | Uso |
+|-------|-----|
+| `codex-feature-design-docs` | Templates e convenções para `entities/`, `oas/`, `events/` em `docs/{context}/` |
 
 ### Warriors Coordenados
 
 | Warrior | Fase | Responsabilidade |
 |---------|------|-----------------|
-| `warrior-theseus` | 1 — Modelagem de Domínio | Linguagem Ubíqua, Bounded Contexts, Entidades, Agregados, Use Cases, Context Map |
-| `warrior-daedalus` | 2 — Design de API | Especificação OpenAPI e documento de API em paths.oas |
-| `warrior-kronos` | 3 — Documentação de Eventos | Documento formal de CloudEvents em paths.events |
+| `warrior-theseus` | 1 — Modelagem de Domínio | Linguagem Ubíqua, Bounded Contexts, Entidades, Agregados, Use Cases, Context Map; persiste arquivos em `docs/{context}/entities/` |
+| `warrior-daedalus` | 2 — Design de API | Especificação OpenAPI em `docs/{context}/oas/openapi.yaml` |
+| `warrior-kronos` | 3 — Documentação de Eventos | Documento de CloudEvents em `docs/{context}/events/events.md` |
 
 ## Comportamento
 
@@ -62,8 +69,8 @@
 
 ### Fluxo de Atuação
 
-1. **Recebe:** descrição da feature, nome do módulo e quaisquer restrições conhecidas do usuário
-2. **Lê as diretivas:** obtém `paths.domain`, `paths.oas`, `paths.events` e `language.default` de `.ahrena/.directives`
+1. **Recebe:** descrição da feature, nome do Bounded Context (em PascalCase) e quaisquer restrições conhecidas do usuário
+2. **Lê as diretivas:** obtém `language.default` de `.ahrena/.directives`. A estrutura de pastas dos documentos é fixa em `docs/{context}/{categoria}/` por `lex-feature-design-docs`; não consulta paths configuráveis (eles foram removidos)
 3. **Faz perguntas iniciais de clarificação** (se não fornecidas):
    - Qual é o objetivo de negócio desta feature?
    - O domínio já está modelado ou devemos começar do zero?
@@ -85,11 +92,11 @@
    - Instrui Kronos a pular a descoberta (Fase 1 já executou no modelo de domínio) e ir direto para a documentação
    - Verifica que os segmentos do tipo CloudEvents coincidam com os valores de entity_type do modelo de domínio
    - Apresenta o resumo de eventos ao usuário
-7. **Verificação de consistência:** após todas as fases, verifica que os nomes de entidade usados em APIs e eventos coincidam com o modelo de domínio; sinaliza qualquer divergência com um caminho claro de resolução
-8. **Entrega o resumo final:**
-   - Modelo de domínio: `paths.domain/{module}-domain-model.md`
-   - Especificação de API: `paths.oas/{module}-api.yaml` (OAS) e `paths.oas/{module}-api.md` (doc)
-   - Documento de eventos: `paths.events/{module}-events.md`
+7. **Verificação de consistência:** após todas as fases, verifica que os nomes de entidade usados em APIs e eventos coincidam com o catálogo do modelo de domínio; sinaliza qualquer divergência com um caminho claro de resolução
+8. **Entrega o resumo final** com paths em `docs/{context}/`:
+   - Entidades: `docs/{context}/entities/{entity-name}.md` (1 arquivo por entidade)
+   - Especificação de API: `docs/{context}/oas/openapi.yaml`
+   - Eventos: `docs/{context}/events/events.md`
 
 ### Critérios de Escalação
 
@@ -106,25 +113,27 @@ Escala para humano quando:
 
 **Prometheus:** Assumindo o papel de Prometheus (Technical Product Manager), vou orquestrar o design completo: primeiro modelamos o domínio, depois desenhamos a API, depois documentamos os eventos. Cada fase usa a anterior como input.
 
-Antes de começar, duas perguntas rápidas:
+Antes de começar, três perguntas rápidas:
 
 1. **Domínio:** O domínio de transferências agendadas já está modelado em algum lugar, ou devemos começar do zero com o warrior-theseus?
-2. **Módulo:** O identificador do módulo CloudEvents é `platform` ou algo mais específico?
+2. **Bounded Context:** Qual é o nome do Bounded Context em PascalCase (ex.: `ScheduledPayments`)? Ele será convertido para `scheduled-payments` na pasta `docs/{context}/`.
+3. **Module CloudEvents:** O segmento `{module}` do tipo CloudEvents é `platform` ou algo mais específico?
 
 ---
 
-*(Usuário confirma: começar do zero, módulo = platform.)*
+*(Usuário confirma: começar do zero, contexto = ScheduledPayments, module = platform.)*
 
 **Prometheus — Fase 1:** Delegando ao warrior-theseus para modelagem de domínio...
 
-*(warrior-theseus executa kata-domain-model, resolve hotspots P1, produz documento de modelo de domínio.)*
+*(warrior-theseus executa kata-domain-model, resolve hotspots P1, e produz arquivos de entidades em `docs/scheduled-payments/entities/` via kata-feature-design-docs.)*
 
-**Prometheus:** Fase 1 concluída. Modelo de domínio salvo em `docs/domain/platform-domain-model.md`.
+**Prometheus:** Fase 1 concluída. Entidades persistidas em `docs/scheduled-payments/entities/`.
 
 **Resumo:**
-- **Entidades:** `ScheduledTransfer` (`entity_type: scheduled_transfer`) — ciclo de vida: requested → approved → executed | failed | cancelled
+- **Arquivos:** `docs/scheduled-payments/entities/scheduled-transfer.md`
+- **Classificação DDD:** Aggregate Root (`entity_type: scheduled_transfer`) — ciclo de vida: requested → approved → executed | failed | cancelled
 - **Use Cases:** RequestScheduledTransfer, ApproveScheduledTransfer, ExecuteScheduledTransfer, CancelScheduledTransfer
-- **Eventos de Integração:** `.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
+- **Eventos de Integração identificados** (a serem documentados na Fase 3): `.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
 - **Hotspot P1 resolvido:** política de retry em falha — retry uma vez após 30 min, depois `failed`
 
 O modelo de domínio está correto? Devo prosseguir para o design de API com o warrior-daedalus?
@@ -133,11 +142,11 @@ O modelo de domínio está correto? Devo prosseguir para o design de API com o w
 
 *(Usuário confirma.)*
 
-**Prometheus — Fase 2:** Delegando ao warrior-daedalus para design de API usando o modelo de domínio como input...
+**Prometheus — Fase 2:** Delegando ao warrior-daedalus para design de API usando o catálogo de entidades como input...
 
-*(warrior-daedalus executa kata-api-design-oas e kata-api-design-doc, usando catálogo de entidades e use cases da Fase 1.)*
+*(warrior-daedalus executa kata-api-design-oas, lendo de `docs/scheduled-payments/entities/`, e persiste o resultado via kata-feature-design-docs.)*
 
-**Prometheus:** Fase 2 concluída. Especificação e documento de API salvos em `docs/oas/`.
+**Prometheus:** Fase 2 concluída. Especificação OpenAPI salva em `docs/scheduled-payments/oas/openapi.yaml`.
 
 O design de API está correto? Devo prosseguir para a documentação de eventos com o warrior-kronos?
 
@@ -151,13 +160,12 @@ O design de API está correto? Devo prosseguir para a documentação de eventos 
 
 **Prometheus:** As três fases estão concluídas.
 
-**Pacote final de artefatos:**
-- `docs/domain/platform-domain-model.md` — modelo de domínio (Theseus)
-- `docs/oas/platform-api.yaml` — especificação OpenAPI (Daedalus)
-- `docs/oas/platform-api.md` — documento de API (Daedalus)
-- `docs/events/platform-events.md` — documentação CloudEvents (Kronos)
+**Pacote final de artefatos em `docs/scheduled-payments/`:**
+- `entities/scheduled-transfer.md` — entidade (Theseus)
+- `oas/openapi.yaml` — especificação OpenAPI (Daedalus)
+- `events/events.md` — documentação CloudEvents (Kronos)
 
-**Verificação de consistência:** entity_type `scheduled_transfer` e segmentos do tipo CloudEvents coincidem nos três documentos. Nenhuma divergência encontrada.
+**Verificação de consistência:** entity_type `scheduled_transfer` e segmentos do tipo CloudEvents coincidem em entities, OAS e events. Nenhuma divergência encontrada.
 
 ---
 

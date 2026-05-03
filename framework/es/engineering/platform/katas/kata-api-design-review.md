@@ -38,7 +38,7 @@ Progreso:
 
 ### Paso 1: Leer Directivas y Localizar Contrato
 
-1. Leer `.ahrena/.directives` para obtener `paths.oas` y `language.default`
+1. Identificar `language.default` en `.ahrena/.directives`
 2. Localizar el contrato en la ruta proporcionada. Si la ruta no existe o no puede parsearse, alertar al usuario y detener la ejecución
 3. Identificar si el contrato es OpenAPI 3.x (YAML/JSON) o Markdown. Si no está claro, preguntar al usuario
 4. Registrar el alcance de la revisión: todos los endpoints o un subconjunto específico

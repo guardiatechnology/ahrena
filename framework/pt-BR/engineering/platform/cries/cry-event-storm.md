@@ -21,13 +21,12 @@ Este comando aciona o Warrior Kronos (especialista em Event Storm) para descobri
 
 ## O que o Comando Faz
 
-1. Lê `.ahrena/.directives` para obter `paths.events`, `language.default` e configuração MCP
-2. Assume o papel do Warrior Kronos e **determina o ponto de entrada**:
+1. Assume o papel do Warrior Kronos e **determina o ponto de entrada**:
    - Contexto descreve um domínio sem eventos conhecidos → **Fase 1: Descoberta** (kata-event-storm) depois **Fase 2: Documentação** (kata-events-doc)
    - Contexto fornece lista explícita de tipos de evento → **Fase 2: Documentação apenas** (kata-events-doc)
-3. **Fase 1 — Descoberta** (quando aplicável): executa kata-event-storm iterativamente — mapeia eventos de domínio (timeline), comandos, atores, agregados, políticas, sistemas externos, read models, hotspots e bounded contexts; produz catálogo CloudEvents; apresenta ao usuário para confirmação; resolve hotspots P1 antes de avançar
-4. **Fase 2 — Documentação**: executa kata-events-doc — documenta estrutura do evento, payload (data), idempotência; gera ou atualiza o documento formal de eventos em **paths.events**
-5. Persiste ambos os artefatos (documento de descoberta quando a Fase 1 foi executada; documento de eventos sempre) em **paths.events** (padrão `docs/events`); cria o diretório se não existir
+2. **Fase 1 — Descoberta** (quando aplicável): executa kata-event-storm iterativamente — mapeia eventos de domínio (timeline), comandos, atores, agregados, políticas, sistemas externos, read models, hotspots e bounded contexts; produz catálogo CloudEvents; apresenta ao usuário para confirmação; resolve hotspots P1 antes de avançar
+3. **Fase 2 — Documentação**: executa kata-events-doc — documenta estrutura do evento, payload (data), idempotência; gera ou atualiza o documento formal de eventos em **`docs/{context}/events/`**
+4. Persiste ambos os artefatos (documento de descoberta quando a Fase 1 foi executada; documento de eventos sempre) em **`docs/{context}/events/`**; cria o diretório se não existir
 
 ## Prompt Template
 
@@ -37,8 +36,7 @@ Contexto:
 - Source base (opcional): {{source base}}
 
 Tarefa:
-Atue como o Warrior Kronos (Especialista em Event Storm). Leia .ahrena/.directives
-e determine o ponto de entrada:
+Atue como o Warrior Kronos (Especialista em Event Storm) e determine o ponto de entrada:
 - Se o panorama de eventos for desconhecido ou o domínio ainda não foi mapeado →
   execute kata-event-storm primeiro (Fase 1 — Descoberta), depois kata-events-doc
   (Fase 2 — Documentação).
@@ -50,10 +48,10 @@ aguarde respostas antes de avançar. Não prossiga da Fase 1 para a Fase 2 se
 houver hotspots P1 não resolvidos.
 
 Formato de saída:
-- Consultar paths.events em .ahrena/.directives para o destino (padrão docs/events)
+- Salvar em `docs/{context}/events/` conforme `lex-feature-design-docs`
 - Criar o diretório se não existir
 - Fase 1 (quando executada): salvar documento de descoberta de event storm (ex.: event-storm-{modulo}.md)
-- Fase 2: criar ou atualizar o documento formal de eventos (ex.: events.md)
+- Fase 2: criar ou atualizar o documento formal de eventos (events.md)
 - Confirmar os paths de todos os artefatos persistidos
 ```
 
@@ -69,7 +67,7 @@ Output esperado:
 - Kronos executa kata-event-storm: mapeia timeline, comandos, atores, agregados, hotspots
 - Apresenta catálogo CloudEvents para confirmação; resolve hotspots P1
 - Executa kata-events-doc e produz documento formal de eventos
-- Ambos os artefatos salvos em `paths.events`
+- Ambos os artefatos salvos em `docs/{context}/events/`
 
 **Cenário B — Eventos já conhecidos (Fase 2 apenas):**
 
@@ -80,7 +78,7 @@ Output esperado:
 Output esperado:
 - Kronos executa kata-events-doc diretamente
 - Faz perguntas sobre source base e payload se necessário
-- Documento de eventos criado ou atualizado em `paths.events`
+- Documento de eventos criado ou atualizado em `docs/{context}/events/`
 
 ## Restrições
 
@@ -94,7 +92,7 @@ Output esperado:
 | Artefato | Fase | Descrição |
 |----------|------|-----------|
 | `kata-event-storm` | 1 — Descoberta | Eventos de domínio, comandos, agregados, políticas, bounded contexts, catálogo CloudEvents |
-| `kata-events-doc` | 2 — Documentação | Documento formal de CloudEvents (Markdown) em paths.events |
+| `kata-events-doc` | 2 — Documentação | Documento formal de CloudEvents (Markdown) em `docs/{context}/events/` |
 | `warrior-kronos` | Orquestrador | Determina o ponto de entrada e orquestra as duas fases |
 
 ## Referências

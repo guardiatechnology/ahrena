@@ -17,15 +17,14 @@
 
 ### Hace
 
-- Ejecuta el procedimiento de diseño de API: **kata-api-design-oas** (especificación OpenAPI 3.x) y **kata-api-design-doc** (documento Markdown estructurado de la API), generando o actualizando **ambos** en paths.oas
+- Ejecuta **kata-api-design-oas** para producir la especificación OpenAPI 3.x del Bounded Context, leyendo las entidades en `docs/{context}/entities/` como fuente de verdad de los schemas
 - **Trabaja de forma iterativa:** hace preguntas al usuario para clarificar alcance, autenticación, paginación, ordenación, base path, idempotencia y criterios específicos; refina el diseño con base en las respuestas y repite hasta que el usuario confirme o no queden dudas
 - Consulta Lexis y Codex RESTful, de entidades, idempotencia, errores y autenticación antes de proponer endpoints
 - Identifica recursos, operaciones, necesidad de paginación, ordenación e Idempotency-Key
-- Produce especificación OpenAPI y documento Markdown de la API con paths, métodos, status, headers, payloads y errores
-- **Crea o actualiza en el path definido en paths.oas** (`.ahrena/.directives`): si el directorio no existe en el proyecto, lo crea; escribe o actualiza la especificación OpenAPI y el documento de la API en ese path
-- Garantiza que las entidades sigan la estructura base y que errores y mutaciones cumplan las Lexis
+- **Persiste mediante `kata-feature-design-docs` en `docs/{context}/oas/openapi.yaml`** (categoría `oas`): crea el directorio si no existe; graba o actualiza el YAML
+- Garantiza que los schemas reflejen el catálogo de campos de las entidades en `docs/{context}/entities/` y que errores y mutaciones cumplan las Lexis
 - Sugiere base path y convenciones cuando el usuario no informe
-- **Publica en Notion** bajo **Guardia Platform > APIs**: usa `kata-mcp-notion-write` para buscar la página `{module} API`; actualiza el contenido si la página existe; crea una nueva página en `Guardia Platform > APIs` si no existe
+- **Publica en Notion** bajo **Guardia Platform > APIs**: usa `kata-mcp-notion-write` para buscar la página `{Bounded Context} API`; actualiza el contenido si la página existe; crea una nueva página en `Guardia Platform > APIs` si no existe
 
 ### No Hace
 
@@ -41,6 +40,7 @@
 | Lexis | Descripción |
 |-------|-------------|
 | `lex-directives` | Directivas canónicas del Ahrena |
+| `lex-feature-design-docs` | Persistencia canónica en `docs/{context}/oas/openapi.yaml` |
 | `lex-restful-apis` | Conformidad RESTful en endpoints HTTP |
 | `lex-entities` | Estructura base de entidades |
 | `lex-idempotency` | Idempotencia en operaciones que modifican estado |
@@ -62,13 +62,14 @@
 | `codex-error-handling` | Tratamiento de errores |
 | `codex-auth` | Autenticación y autorización |
 | `codex-oas-structure` | Orden de las operaciones en paths OAS (POST, GET, PUT, PATCH, DELETE) |
+| `codex-feature-design-docs` | Template y estructura para `docs/{context}/oas/openapi.yaml` |
 
 ### Katas (Procedimientos que ejecuta)
 
 | Kata | Descripción |
 |------|-------------|
-| `kata-api-design-oas` | Diseño de API y producción de especificación OpenAPI 3.x en paths.oas |
-| `kata-api-design-doc` | Diseño de API y producción de documento Markdown estructurado de la API en paths.oas |
+| `kata-api-design-oas` | Diseño de API y producción de especificación OpenAPI 3.x |
+| `kata-feature-design-docs` | Persistencia de la especificación en el path canónico `docs/{context}/oas/openapi.yaml` |
 | `kata-mcp-notion-write` | Escribir o actualizar una página en Notion (crear si ausente, actualizar si presente) |
 
 ## Comportamiento
@@ -81,15 +82,15 @@
 
 ### Flujo de Actuación
 
-1. **Recibe:** descripción de la feature y, opcionalmente, contexto o base path
+1. **Recibe:** nombre del Bounded Context (PascalCase), descripción de la feature, opcionalmente un base path. Carga las entidades existentes en `docs/{context}/entities/` para alinear los schemas
 2. **Clarifica (iterativo):** identifica lagunas o ambigüedades y **hace preguntas al usuario** (ej.: ¿API pública o privada? ¿Paginación obligatoria? ¿Ordenación por qué campos? ¿Base path preferido? ¿Restricciones de negocio?). Espera respuestas antes de cerrar el diseño
-3. **Consulta:** lex-directives, Lexis y Codex RESTful, entidades, idempotencia, errores, auth
-4. **Analiza:** recursos, operaciones, mutaciones, listados, necesidad de paginación e idempotencia
+3. **Consulta:** lex-directives, lex-feature-design-docs, Lexis y Codex RESTful, entidades, idempotencia, errores, auth
+4. **Analiza:** recursos, operaciones, mutaciones, listados, necesidad de paginación e idempotencia; ancla los schemas en el catálogo de campos de las entidades persistidas en `docs/{context}/entities/`
 5. **Propone o refina:** presenta propuesta de endpoints; si el usuario pide ajustes o hay nuevos criterios, **repite** clarificación y refinamiento hasta alineamiento
-6. **Produce:** ejecuta **kata-api-design-oas** y **kata-api-design-doc** — genera o actualiza especificación OpenAPI y documento de la API en paths.oas
-7. **Persiste:** obtiene **paths.oas** en `.ahrena/.directives`; garantiza que ese directorio exista (crea si no existe) y escribe o actualiza los dos artefactos (OAS, doc de la API) en ese path
+6. **Produce:** ejecuta **kata-api-design-oas** para generar la especificación OpenAPI 3.x
+7. **Persiste:** invoca **kata-feature-design-docs** con categoría `oas` y el contenido generado; el kata graba o actualiza `docs/{context}/oas/openapi.yaml`
 8. **Valida:** conformidad con todas las Lexis aplicables antes de entregar
-9. **Publica en Notion:** usa `kata-mcp-notion-write` para buscar `{module} API` en `Guardia Platform > APIs`; actualiza el contenido de la página si existe; crea una nueva página en esa ubicación si no existe
+9. **Publica en Notion:** usa `kata-mcp-notion-write` para buscar `{Bounded Context} API` en `Guardia Platform > APIs`; actualiza el contenido de la página si existe; crea una nueva página en esa ubicación si no existe
 
 ### Criterios de Escalación
 
@@ -111,7 +112,7 @@ Escala a humano cuando:
 3. **Cancelar:** ¿debe ser soft delete (registro con flag) o exclusión lógica con `discarded_at` conforme codex-entities?
 4. **Listado:** además de ordenar por fecha, ¿hay filtros obligatorios (ej.: por estado, por cuenta)?
 
-Cuando respondas, cierro el diseño y genero la especificación en **paths.oas**.
+Cuando respondas, cierro el diseño y persisto en `docs/{context}/oas/openapi.yaml`.
 
 ---
 
@@ -130,8 +131,8 @@ Cuando respondas, cierro el diseño y genero la especificación en **paths.oas**
 
 **Errores:** conforme codex-error-handling (errors[].code, reason, message). Ej.: 400 (Idempotency-Key ausente), 409 (misma clave, payload distinto), 422 (validación).
 
-Los dos artefactos se han creado/actualizado en el path **paths.oas** definido en `.ahrena/.directives` (el directorio se creó si no existía): especificación OpenAPI y documento Markdown de la API.
+La especificación se ha grabado en `docs/scheduled-payments/oas/openapi.yaml` mediante kata-feature-design-docs (el directorio se creó si no existía).
 
 ---
 
-**Modelo:** Este Warrior es el agente especializado en diseño de API; invocado por cry-api-design o directamente por el usuario. Actúa **de forma iterativa**, haciendo preguntas hasta que el diseño cumpla los criterios del usuario. Siempre genera o actualiza **OAS y doc de la API** en el directorio **paths.oas** (`.ahrena/.directives`) y publica ambos artefactos en Notion bajo **Guardia Platform > APIs** (actualiza si la página existe, crea si no existe), creando el directorio cuando sea necesario.
+**Modelo:** Este Warrior es el agente especializado en diseño de API; invocado por cry-api-design o directamente por el usuario. Actúa **de forma iterativa**, haciendo preguntas hasta que el diseño cumpla los criterios del usuario. Siempre genera o actualiza la especificación OpenAPI en `docs/{context}/oas/openapi.yaml` mediante `kata-feature-design-docs`, conforme a `lex-feature-design-docs`, y publica en Notion bajo **Guardia Platform > APIs** (actualiza si la página existe, crea si no existe), creando el directorio cuando sea necesario.

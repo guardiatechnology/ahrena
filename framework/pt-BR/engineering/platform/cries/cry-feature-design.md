@@ -22,7 +22,7 @@ Este comando ativa o **Warrior Prometheus** (Technical Product Manager) para orq
 
 ## O que o Comando Faz
 
-1. **Assume o papel do warrior-prometheus** e lê `.ahrena/.directives` para obter `paths.domain`, `paths.oas`, `paths.events` e `language.default`
+1. **Assume o papel do warrior-prometheus** e lê `language.default` em `.ahrena/.directives`
 2. **Faz perguntas de clarificação** se a descrição da feature, módulo ou restrições forem insuficientes
 3. **Fase 1 — Modelagem de Domínio (warrior-theseus):** modela o domínio de forma iterativa; resolve hotspots P1; confirma o modelo de domínio com o usuário antes de prosseguir
 4. **Fase 2 — Design de API (warrior-daedalus):** desenha a API usando o modelo de domínio como input autoritativo; confirma o design de API com o usuário antes de prosseguir
@@ -39,7 +39,9 @@ Contexto:
 - Restrições (opcional): {{restrições}}
 
 Tarefa:
-Aja como o Warrior Prometheus (Technical Product Manager). Leia `.ahrena/.directives` para obter `paths.domain`, `paths.oas`, `paths.events` e `language.default`.
+Aja como o Warrior Prometheus (Technical Product Manager). Os artefatos de design
+são persistidos na estrutura canônica `docs/{context}/{category}/` conforme
+`lex-feature-design-docs`.
 
 Se a descrição da feature, módulo ou restrições forem insuficientes, faça perguntas de clarificação antes de começar.
 
@@ -54,9 +56,9 @@ Orquestre o ciclo completo de design de feature em sequência:
 Após todas as fases, verifique a consistência: nomes de entidade em APIs e eventos devem coincidir com o modelo de domínio. Sinalize qualquer divergência com um caminho claro de resolução.
 
 Entregue o pacote final de artefatos:
-- Modelo de domínio: `paths.domain/{módulo}-domain-model.md`
-- Especificação de API: `paths.oas/{módulo}-api.yaml` (OAS) e `paths.oas/{módulo}-api.md` (doc)
-- Documento de eventos: `paths.events/{módulo}-events.md`
+- Entidades: `docs/{context}/entities/{entity}.md` (1 arquivo por entidade)
+- Especificação de API: `docs/{context}/oas/openapi.yaml` e `docs/{context}/oas/{slug}-api.md`
+- Documento de eventos: `docs/{context}/events/events.md`
 ```
 
 ## Exemplo de Invocação
@@ -73,10 +75,9 @@ Entregue o pacote final de artefatos:
 - **Confirmação Fase 2:** Endpoints (POST /v1/scheduled-transfers, GET, GET/:id, PATCH, DELETE), Idempotency-Key, payloads — usuário confirma antes da Fase 3
 - **Confirmação Fase 3:** Catálogo de CloudEvents (`event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`) — resumo final
 - **Pacote de artefatos:**
-  - `docs/domain/platform-domain-model.md`
-  - `docs/oas/platform-api.yaml`
-  - `docs/oas/platform-api.md`
-  - `docs/events/platform-events.md`
+  - `docs/scheduled-payments/entities/scheduled-transfer.md`
+  - `docs/scheduled-payments/oas/openapi.yaml`
+  - `docs/scheduled-payments/events/events.md`
 
 ## Quando Usar Este Cry vs Outros
 
@@ -110,6 +111,7 @@ Entregue o pacote final de artefatos:
 ## Referências
 
 - `warrior-prometheus` — Technical Product Manager e orquestrador de design de feature
+- `lex-feature-design-docs` — estrutura canônica `docs/{context}/{category}/`
 - `lex-entity-naming` — regras snake_case/PascalCase aplicadas em todas as fases
 - `lex-entities` — estrutura base de entidades (entity_id, entity_type, version, timestamps) consultada durante a modelagem de domínio
 - `lex-cloudevents` — formato do tipo CloudEvents consultado durante a documentação de eventos

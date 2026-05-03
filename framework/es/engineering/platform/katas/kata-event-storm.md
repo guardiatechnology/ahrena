@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Este Kata define el procedimiento para **conducir una sesión de Event Storming** en un dominio o feature: identificar eventos de dominio, comandos, agregados, políticas, sistemas externos, read models, hotspots y bounded contexts; mapear los eventos descubiertos a tipos CloudEvents; y producir un documento de descubrimiento estructurado listo para alimentar `kata-events-doc`.
+Este Kata define el procedimiento para **conducir una sesión de Event Storming** en un dominio o feature: identificar eventos de dominio, comandos, aggregates, políticas, sistemas externos, read models, hotspots y bounded contexts; mapear los eventos descubiertos a tipos CloudEvents; y producir un catálogo de descubrimiento estructurado listo para alimentar `kata-events-doc`.
 
 ## Cuándo Usar
 
@@ -30,7 +30,7 @@ Progreso:
 - [ ] 2. Consultar Lexis y Codex
 - [ ] 3. Identificar eventos de dominio (línea de tiempo)
 - [ ] 4. Identificar comandos y actores
-- [ ] 5. Identificar agregados
+- [ ] 5. Identificar aggregates
 - [ ] 6. Identificar políticas (reacciones automáticas)
 - [ ] 7. Identificar sistemas externos y read models
 - [ ] 8. Marcar hotspots
@@ -41,9 +41,9 @@ Progreso:
 
 ### Paso 1: Leer Directivas y Alcance
 
-1. Leer `.ahrena/.directives` para obtener `paths.events` y `language.default`
-2. Confirmar que la descripción del dominio/feature y el nombre del módulo fueron proporcionados. Si son insuficientes, **preguntar al usuario** (¿cuál es el proceso de negocio principal? ¿quiénes son los actores? ¿cuál es el límite del sistema? ¿qué dispara la primera acción?) y esperar respuestas
-3. Verificar si ya existe un documento de eventos en `paths.events` para este módulo — incorporarlo como input si está disponible
+1. Leer `.ahrena/.directives` para obtener `language.default`
+2. Confirmar que la descripción del dominio/feature, el nombre del Bounded Context (PascalCase) y el módulo CloudEvents fueron proporcionados. Si son insuficientes, **preguntar al usuario** (¿cuál es el proceso de negocio principal? ¿quiénes son los actores? ¿cuál es el límite del sistema? ¿qué dispara la primera acción?) y esperar respuestas
+3. Verificar si ya existe `docs/{context}/events/events.md` — incorporarlo como input si está disponible
 4. Identificar el alcance de bounded context: único o múltiples contextos
 
 ### Paso 2: Consultar Lexis y Codex
@@ -62,7 +62,7 @@ Los eventos de dominio son **cosas que ocurrieron** en el dominio — expresadas
 3. Para cada evento, registrar:
    - **Nombre** — tiempo pasado, PascalCase (ej: `TransferenciaAgendadaEjecutada`)
    - **Cuándo ocurre** — disparador de negocio (ej: "después de que el contador envía el formulario de transferencia")
-   - **Entidad relacionada** — el agregado afectado
+   - **Entidad relacionada** — el aggregate afectado
 4. Identificar **brechas** en la línea de tiempo — eventos que deben existir lógicamente entre otros dos pero aún no han sido nombrados
 5. Marcar eventos disputados o inciertos como hotspots (ver Paso 8)
 
@@ -77,24 +77,24 @@ Los comandos son **intenciones que disparan eventos** — expresados en imperati
    - ej: `Scheduler → EjecutarTransferenciaAgendada → TransferenciaAgendadaEjecutada`
 4. Señalar comandos sin actor claro como hotspots
 
-### Paso 5: Identificar Agregados
+### Paso 5: Identificar Aggregates
 
-Los agregados son **entidades que procesan comandos y producen eventos** — aplican reglas de negocio y mantienen consistencia:
+Los aggregates son **entidades que procesan comandos y producen eventos** — aplican reglas de negocio y mantienen consistencia:
 
 1. Agrupar comandos y eventos relacionados por la entidad que los procesa
-2. Nombrar cada agregado (sustantivo singular, PascalCase, ej: `TransferenciaAgendada`, `AsientoContable`, `EjecucionReconciliacion`)
-3. Para cada agregado, documentar:
+2. Nombrar cada aggregate (sustantivo singular, PascalCase, ej: `TransferenciaAgendada`, `AsientoContable`, `EjecucionReconciliacion`)
+3. Para cada aggregate, documentar:
    - **Comandos que acepta** — lista de nombres de comandos
    - **Eventos que produce** — lista de nombres de eventos de dominio
    - **Invariantes** — reglas de negocio que aplica (ej: "una transferencia no puede ejecutarse si el saldo del origen es insuficiente")
-4. Identificar agregados referenciados en múltiples comandos — candidatos potenciales a shared kernel o anti-corruption layer
+4. Identificar aggregates referenciados en múltiples comandos — candidatos potenciales a shared kernel o anti-corruption layer
 
 ### Paso 6: Identificar Políticas (Reacciones Automáticas)
 
 Las políticas son **reacciones automáticas** que se activan en respuesta a eventos: "Cuando [Evento], entonces [Comando]":
 
 1. Para cada evento de dominio, preguntar: "¿Este evento dispara automáticamente algo más en el sistema?"
-2. Documentar cada política: `Cuando {EventoDominio} → Entonces {Comando} (en {Agregado})`
+2. Documentar cada política: `Cuando {EventoDominio} → Entonces {Comando} (en {Aggregate})`
    - ej: `Cuando TransferenciaAgendadaEjecutada → Entonces AsentarContablemente (en AsientoContable)`
    - ej: `Cuando ReconciliacionCompletada → Entonces NotificarContador (en Notificacion)`
 3. Identificar políticas que **cruzan bounded contexts** — estas se convierten en eventos de integración y necesitan enrutamiento explícito
@@ -126,7 +126,7 @@ Los hotspots son **preguntas, incertidumbres, conflictos y riesgos** que requier
 
 ### Paso 9: Identificar Bounded Contexts
 
-1. Agrupar agregados y eventos en **bounded contexts** — áreas donde los términos tienen un significado consistente y compartido
+1. Agrupar aggregates y eventos en **bounded contexts** — áreas donde los términos tienen un significado consistente y compartido
 2. Nombrar cada bounded context y describir su responsabilidad (ej: `Pagos`, `Reconciliacion`, `InformeFiscal`)
 3. Identificar **límites de contexto** — donde los eventos de dominio cruzan de un contexto a otro (estos se convierten en eventos publicados de integración)
 4. Mapear responsabilidad: qué equipo o servicio es responsable de cada bounded context
@@ -144,28 +144,31 @@ Traducir cada evento de dominio a la convención de nomenclatura CloudEvents de 
    - Omitir `history`; no incluir PII a menos que sea estrictamente necesario
 3. Marcar eventos de integración (que cruzan bounded contexts) — requieren valores explícitos de `source` y `subject`
 
-### Paso 11: Producir Documento de Event Storming
+### Paso 11: Entregar el Catálogo de Descubrimiento
 
-Generar un documento Markdown estructurado y guardarlo en `paths.events`:
+El descubrimiento **no se convierte en un archivo monolítico**. El resultado se entrega como input para la Fase 2 (`kata-events-doc`) y como notas que `warrior-prometheus` consolida.
 
-1. **Encabezado** — dominio, módulo, fecha, participantes, alcance de bounded context
+Estructura interna a transmitir:
+
+1. **Encabezado** — dominio, Bounded Context, módulo CloudEvents, fecha, alcance
 2. **Línea de Tiempo de Eventos de Dominio** — lista cronológica: nombre, disparador, entidad
 3. **Comandos y Actores** — tabla: Actor | Comando | Evento de Dominio
-4. **Agregados** — una subsección por agregado: comandos aceptados, eventos producidos, invariantes
-5. **Políticas** — tabla: Cuando (Evento) | Entonces (Comando) | En (Agregado)
+4. **Aggregates** — una subsección por aggregate: comandos aceptados, eventos producidos, invariantes
+5. **Políticas** — tabla: Cuando (Evento) | Entonces (Comando) | En (Aggregate)
 6. **Sistemas Externos** — tabla: Sistema | Dirección (entrada/salida) | Eventos / Comandos
 7. **Read Models** — tabla: Vista | Eventos que la alimentan | Consumidor
 8. **Hotspots** — tabla: Tipo | Descripción | Prioridad | Responsable
 9. **Bounded Contexts** — diagrama o tabla: Contexto | Responsabilidad | Equipo | Eventos de Integración
 10. **Catálogo CloudEvents** — tabla: Evento de Dominio | Tipo CloudEvents | Shape inicial de data
 
+La persistencia canónica de los eventos descubiertos ocurre en la Fase 2, en `docs/{context}/events/events.md`, vía `kata-events-doc` + `kata-feature-design-docs`. Los hotspots y descubrimientos auxiliares son publicados por Prometheus en Notion (Guardia Platform > Domain Models).
+
 ## Outputs
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Documento de Event Storming | Markdown | `paths.events` (ej: `docs/events/event-storm-{modulo}.md`) |
-| Catálogo CloudEvents | Tabla en el documento | Listo para alimentar `kata-events-doc` directamente |
-| Lista de hotspots | Tabla en el documento | Para revisión humana y resolución priorizada |
+| Catálogo CloudEvents | Tabla en memoria | Input directo para `kata-events-doc` |
+| Lista de hotspots | Tabla | Notas para que `warrior-prometheus` revise y resuelva |
 
 ## Ejemplo de Ejecución
 
@@ -178,9 +181,17 @@ Módulo: platform
 
 ### Output de Ejemplo (resumen)
 
-Archivo `docs/events/event-storm-platform.md` conteniendo:
+Catálogo de descubrimiento entregado a la Fase 2 (`kata-events-doc`):
 
 **Línea de tiempo:** TransferenciaAgendadaSolicitada → TransferenciaAgendadaAprobada → TransferenciaAgendadaEjecutada | TransferenciaAgendadaFallida → TransferenciaAgendadaCancelada
+
+**Comandos y actores:**
+| Actor | Comando | Evento de Dominio |
+|-------|---------|-------------------|
+| Contador | SolicitarTransferenciaAgendada | TransferenciaAgendadaSolicitada |
+| Supervisor | AprobarTransferenciaAgendada | TransferenciaAgendadaAprobada |
+| Scheduler | EjecutarTransferenciaAgendada | TransferenciaAgendadaEjecutada / TransferenciaAgendadaFallida |
+| Contador | CancelarTransferenciaAgendada | TransferenciaAgendadaCancelada |
 
 **Hotspots:**
 | Tipo | Descripción | Prioridad | Responsable |
@@ -199,10 +210,10 @@ Archivo `docs/events/event-storm-platform.md` conteniendo:
 
 ## Restricciones
 
-- Este Kata produce solo el documento de descubrimiento; no implementa publishers, consumers ni contratos de API
+- Este Kata produce solo el catálogo de descubrimiento; no implementa publishers, consumers ni contratos de API
 - No omitir la identificación de hotspots — toda incertidumbre no documentada se convierte en un bug o brecha de alcance
 - El catálogo CloudEvents producido aquí DEBE ser suficientemente completo para ejecutar `kata-events-doc` sin descubrimiento adicional; señalar campos faltantes explícitamente
-- Escalar a un humano cuando la responsabilidad del bounded context sea ambigua o cuando un único evento abarque múltiples agregados sin un propietario claro
+- Escalar a un humano cuando la responsabilidad del bounded context sea ambigua o cuando un único evento abarque múltiples aggregates sin un propietario claro
 - No asumir que la línea de tiempo de eventos está completa — verificar activamente eventos ausentes en cada brecha de la cadena causal
 
 ## Referencias

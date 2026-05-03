@@ -18,6 +18,12 @@ cursor:
     cry: commands
 
   rules:
+    _foundation/process/lexis/lex-agent-planning:
+      alwaysApply: true
+      description: "Before starting any multi-step task, create a plan at ./{agent}/plans/plan-{NNN}-{slug}.md (or paths.plans override). Show it to the user and wait for confirmation before executing."
+    _foundation/process/codex/codex-agent-planning:
+      alwaysApply: false
+      description: "When creating or maintaining agent task plans, consult this codex for canonical path resolution, naming convention, full template, and lifecycle states."
     _foundation/process/lexis/lex-directives:
       alwaysApply: true
       description: "Read .ahrena/.directives before producing any artifact. Apply at session start."
@@ -193,6 +199,9 @@ cursor:
     engineering/platform/lexis/lex-cloudevents:
       alwaysApply: false
       description: "When publishing or consuming events, use CloudEvents format with idempotencykey and type catalog."
+    engineering/platform/lexis/lex-feature-design-docs:
+      alwaysApply: false
+      description: "When persisting feature design artifacts (entities, OpenAPI, events), use docs/{context}/{category}/ structure with category in entities/oas/events/agents/metrics."
     engineering/platform/codex/codex-auth:
       alwaysApply: false
       description: "When implementing API authentication, use OAuth 2.0, FAPI 2.0, JWT, RBAC from this codex."
@@ -232,6 +241,9 @@ cursor:
     engineering/platform/codex/codex-oas-structure:
       alwaysApply: false
       description: "When writing or ordering OpenAPI paths, follow operation order and structure from this codex."
+    engineering/platform/codex/codex-feature-design-docs:
+      alwaysApply: false
+      description: "When producing feature design documents (entities, oas, events) under docs/{context}/, follow templates and conventions from this codex."
     engineering/backend/lexis/lex-python-typing:
       alwaysApply: false
       globs: ["**/*.py"]

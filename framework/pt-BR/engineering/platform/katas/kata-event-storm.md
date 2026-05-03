@@ -41,9 +41,9 @@ Progresso:
 
 ### Passo 1: Ler Diretivas e Escopo
 
-1. Ler `.ahrena/.directives` para obter `paths.events` e `language.default`
-2. Confirmar que a descrição do domínio/feature e o nome do módulo foram fornecidos. Se insuficientes, **perguntar ao usuário** (qual é o processo de negócio principal? quem são os atores? qual é o limite do sistema? o que dispara a primeira ação?) e aguardar as respostas
-3. Verificar se já existe um documento de eventos em `paths.events` para este módulo — incorporá-lo como input se disponível
+1. Ler `.ahrena/.directives` para obter `language.default`
+2. Confirmar que a descrição do domínio/feature, o nome do Bounded Context (PascalCase) e o módulo CloudEvents foram fornecidos. Se insuficientes, **perguntar ao usuário** (qual é o processo de negócio principal? quem são os atores? qual é o limite do sistema? o que dispara a primeira ação?) e aguardar as respostas
+3. Verificar se já existe `docs/{context}/events/events.md` — incorporá-lo como input se disponível
 4. Identificar o escopo de bounded context: único ou múltiplos contextos
 
 ### Passo 2: Consultar Lexis e Codex
@@ -144,11 +144,13 @@ Traduzir cada evento de domínio para a convenção de nomenclatura CloudEvents 
    - Omitir `history`; não incluir PII a menos que estritamente necessário
 3. Marcar eventos de integração (que cruzam bounded contexts) — eles exigem valores explícitos de `source` e `subject`
 
-### Passo 11: Produzir Documento de Event Storming
+### Passo 11: Entregar o Catálogo de Descoberta
 
-Gerar um documento Markdown estruturado e salvar em `paths.events`:
+A descoberta **não vira um arquivo monolítico**. O resultado é entregue como entrada para a Fase 2 (`kata-events-doc`) e como notas que o `warrior-prometheus` consolida.
 
-1. **Cabeçalho** — domínio, módulo, data, participantes, escopo de bounded context
+Estrutura interna a passar adiante:
+
+1. **Cabeçalho** — domínio, Bounded Context, módulo CloudEvents, data, escopo
 2. **Timeline de Eventos de Domínio** — lista cronológica: nome, gatilho, entidade
 3. **Comandos e Atores** — tabela: Ator | Comando | Evento de Domínio
 4. **Agregados** — uma subseção por agregado: comandos aceitos, eventos produzidos, invariantes
@@ -159,13 +161,14 @@ Gerar um documento Markdown estruturado e salvar em `paths.events`:
 9. **Bounded Contexts** — diagrama ou tabela: Contexto | Responsabilidade | Time | Eventos de Integração
 10. **Catálogo CloudEvents** — tabela: Evento de Domínio | Tipo CloudEvents | Shape inicial de data
 
+A persistência canônica dos eventos descobertos acontece na Fase 2, em `docs/{context}/events/events.md`, via `kata-events-doc` + `kata-feature-design-docs`. Hotspots e descobertas auxiliares são publicados pelo Prometheus no Notion (Guardia Platform > Domain Models).
+
 ## Outputs
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Documento de Event Storming | Markdown | `paths.events` (ex: `docs/events/event-storm-{modulo}.md`) |
-| Catálogo CloudEvents | Tabela no documento | Pronto para alimentar `kata-events-doc` diretamente |
-| Lista de hotspots | Tabela no documento | Para revisão humana e resolução priorizada |
+| Catálogo CloudEvents | Tabela em memória | Input direto para `kata-events-doc` |
+| Lista de hotspots | Tabela | Notas para `warrior-prometheus` revisar e resolver |
 
 ## Exemplo de Execução
 
@@ -178,7 +181,7 @@ Módulo: platform
 
 ### Output de Exemplo (resumo)
 
-Arquivo `docs/events/event-storm-platform.md` contendo:
+Catálogo de descoberta entregue à Fase 2 (`kata-events-doc`):
 
 **Timeline:** TransferenciaAgendadaSolicitada → TransferenciaAgendadaAprovada → TransferenciaAgendadaExecutada | TransferenciaAgendadaFalhou → TransferenciaAgendadaCancelada
 

@@ -40,9 +40,9 @@ Progresso:
 
 ### Passo 1: Ler Diretivas e Escopo
 
-1. Ler `.ahrena/.directives` para obter `paths.domain`, `language.default` e nome do módulo
-2. Confirmar que a descrição do domínio e o nome do módulo foram fornecidos; se insuficientes, **perguntar ao usuário** (Qual é o processo de negócio principal? Quem são os atores? Quais são os limites do sistema? O que dispara a primeira ação?) e aguardar respostas
-3. Verificar se já existe um documento de modelo de domínio em `paths.domain` para este módulo — incorporá-lo como input se disponível
+1. Ler `.ahrena/.directives` para obter `language.default`. A pasta de destino dos artefatos é fixa em `docs/{context}/entities/` por `lex-feature-design-docs` (não há mais `paths.domain` configurável)
+2. Confirmar que a descrição do domínio, o nome do Bounded Context (PascalCase) e o módulo CloudEvents foram fornecidos; se insuficientes, **perguntar ao usuário** (Qual é o processo de negócio principal? Quem são os atores? Quais são os limites do sistema? O que dispara a primeira ação?) e aguardar respostas
+3. Verificar se já existem arquivos em `docs/{context}/entities/` — incorporar como input se disponíveis
 4. Identificar o escopo de bounded context: único ou múltiplos contextos
 
 ### Passo 2: Consultar Lexis e Codex
@@ -172,29 +172,27 @@ Produzir um Context Map textual ou em tabela Markdown mostrando relacionamentos 
 
 Para cada par de contextos com relacionamento, documentar o padrão e quaisquer restrições.
 
-### Passo 10: Produzir Documento de Modelo de Domínio
+### Passo 10: Persistir o Modelo de Domínio na Estrutura Canônica
 
-Gerar um documento Markdown estruturado e salvá-lo em `paths.domain`:
+O modelo de domínio **não** vira um arquivo monolítico. Distribui-se entre os arquivos canônicos definidos por `lex-feature-design-docs`:
 
-1. **Cabeçalho** — módulo, descrição do domínio, data, participantes, escopo
-2. **Linguagem Ubíqua** — tabela de glossário: Termo | Definição | Sinônimos a Evitar
-3. **Bounded Contexts** — uma subseção por contexto: nome, responsabilidade, responsável, entidades que possui
-4. **Catálogo de Entidades e Agregados** — tabela: Entidade | entity_type | Bounded Context | Estados do Ciclo de Vida | Raiz do Agregado
-5. **Detalhes dos Agregados** — uma subseção por agregado: raiz, membros, invariantes, comandos, eventos
-6. **Use Cases** — uma subseção por use case: ator, pré-condições, passos, pós-condições, caminhos de falha, eventos emitidos
-7. **Eventos de Integração** — tabela: Tipo de Evento | Publicador | Consumidores | Esboço de Payload
-8. **Anti-Corruption Layers** — tabela: Sistema Externo | Direção | Tradução
-9. **Context Map** — tabela ou diagrama: Contexto A | Relacionamento | Contexto B | Restrições
-10. **Hotspots em Aberto** — tabela: Descrição | Prioridade (P1/P2/P3) | Responsável
+- **Catálogo de entidades e agregados** → um arquivo `docs/{context}/entities/{entity-name}.md` por entidade, contendo: Classificação DDD, Por que existe, Campos, Regras de Negócio, Invariantes, Relações, Erros, Referências (template em `codex-feature-design-docs`)
+- **Eventos de integração identificados** → repassados ao warrior-kronos para virarem `docs/{context}/events/events.md`
+- **Use Cases, Bounded Contexts, Linguagem Ubíqua, Context Map, ACLs, Hotspots** → registrados como notas para o warrior-prometheus consolidar e publicar no Notion (Guardia Platform > Domain Models)
+
+Para cada entidade do catálogo, invocar **`kata-feature-design-docs`** com:
+- `Bounded Context` = nome em PascalCase
+- `Categoria` = `entities`
+- `Conteúdo` = catálogo de campos, regras, invariantes, relações e erros derivados da modelagem
+- `Operação` = `create` (primeira execução) ou `update` (revisão)
 
 ## Outputs
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Documento de modelo de domínio | Markdown | `paths.domain` (ex.: `docs/domain/{module}-domain-model.md`) |
-| Glossário de linguagem ubíqua | Tabela no documento | Compartilhado com a equipe antes da implementação |
-| Catálogo de entidades/agregados | Tabela no documento | Input para warrior-daedalus (APIs) e warrior-kronos (eventos) |
-| Lista de eventos de integração | Tabela no documento | Input para warrior-kronos (documentação de eventos) |
+| Arquivos de entidade | Markdown | `docs/{context}/entities/{entity-name}.md` (1 por entidade) |
+| Glossário de linguagem ubíqua | Notas para Prometheus | Notion: Guardia Platform > Domain Models > {Bounded Context} |
+| Catálogo de eventos de integração | Lista | Input para warrior-kronos (Fase 3 de Prometheus) |
 
 ## Exemplo de Execução
 
@@ -207,7 +205,11 @@ Módulo: platform
 
 ### Resumo do Output
 
-Arquivo `docs/domain/platform-domain-model.md` contendo:
+Arquivos persistidos via `kata-feature-design-docs`:
+
+- `docs/scheduled-payments/entities/scheduled-transfer.md`
+
+Notas adicionais consolidadas pelo warrior-prometheus (publicadas no Notion):
 
 **Linguagem Ubíqua:**
 | Termo | Definição | Sinônimos a Evitar |
@@ -233,14 +235,18 @@ Arquivo `docs/domain/platform-domain-model.md` contendo:
 
 ## Restrições
 
-- Este Kata produz apenas o documento de modelo de domínio; não desenha APIs nem documenta CloudEvents
+- Este Kata produz a modelagem; **a persistência é delegada a `kata-feature-design-docs`**
 - Não omitir a identificação de hotspots — toda incerteza não documentada se torna um bug ou lacuna de escopo
 - O catálogo de entidades DEVE ser completo o suficiente para alimentar warrior-daedalus e warrior-kronos sem descoberta adicional
 - Escalar para humano quando a responsabilidade do bounded context for ambígua ou quando um único agregado abranger múltiplas equipes sem um dono claro
-- Valores de entity_type no catálogo DEVEM estar em snake_case (lex-entity-naming); nomes de agregados nas seções DDD DEVEM estar em PascalCase
+- Valores de entity_type DEVEM estar em snake_case (lex-entity-naming); nomes de agregados nas seções DDD DEVEM estar em PascalCase
+- Não persistir um documento monolítico `domain-model.md` — distribuir entre `entities/`, `events/` e `oas/` conforme `lex-feature-design-docs`
 
 ## Referências
 
+- `lex-feature-design-docs` — estrutura canônica `docs/{context}/{categoria}/`
+- `codex-feature-design-docs` — templates aplicados em cada categoria
+- `kata-feature-design-docs` — procedimento de persistência
 - `lex-entities` — estrutura base de entidades
 - `lex-entity-naming` — snake_case para entity_type, campos e segmentos CloudEvents
 - `lex-cloudevents` — formato do tipo CloudEvents

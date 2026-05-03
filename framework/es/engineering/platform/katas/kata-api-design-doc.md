@@ -2,16 +2,18 @@
 
 > **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Plataforma Guardia — design de APIs REST y producción de documento Markdown estructurado
 
+> **Estado:** complementario. El artefacto canónico de API es `docs/{context}/oas/openapi.yaml` producido por `kata-api-design-oas` y persistido por `kata-feature-design-docs`. Este Kata permanece para generar documentación humana adicional bajo demanda; cuando se utiliza, el output complementa (no sustituye) al `openapi.yaml`.
+
 ## Objetivo
 
-Este Kata define el procedimiento para diseñar la API REST de una nueva feature y **producir documentación en formato Markdown estructurado** (tablas de endpoints, métodos, status, request/response, errores): consultar Lexis y Codex, identificar recursos y operaciones, definir endpoints y persistir el documento en **paths.oas** en conformidad con las reglas de la Guardia.
+Este Kata define el procedimiento para diseñar la API REST de una nueva feature y **producir documentación en formato Markdown estructurado** (tablas de endpoints, métodos, status, request/response, errores): consultar Lexis y Codex, identificar recursos y operaciones, definir endpoints y persistir el documento como complemento legible al `openapi.yaml` canónico en `docs/{context}/oas/`.
 
 ## Cuándo Usar
 
 - Cuando el formato de salida deseado es **documento Markdown** (no OpenAPI)
 - Cuando una nueva feature exige exposición vía API HTTP y aún no existe contrato documentado
 - Cuando se invoca por el `cry-api-design` o por el Warrior Daedalus con output en Markdown
-- Cuando es necesario generar o actualizar un documento de API en `docs/oas` (o path definido en paths.oas) para lectura humana o revisión
+- Cuando es necesario generar o actualizar un documento de API en `docs/{context}/oas/` para lectura humana o revisión
 
 ## Inputs
 
@@ -36,7 +38,7 @@ Progreso:
 
 ### Paso 1: Leer Directivas y Contexto
 
-1. Leer `.ahrena/.directives` para obtener `language.default`, caminos canónicos y **paths.oas** (destino del documento; predeterminado `docs/oas`)
+1. Identificar `language.default` en `.ahrena/.directives`; el destino canónico del documento es **`docs/{context}/oas/`** conforme a `lex-feature-design-docs`
 2. Confirmar que la descripción de la feature fue proporcionada. **Trabajar de forma iterativa:** si es incompleta o ambigua, **hacer preguntas al usuario** (ej.: ¿API pública o privada? ¿Paginación y ordenación? ¿Base path? ¿Soft delete o discarded_at? ¿Filtros?) y esperar respuestas; repetir hasta que los criterios queden claros
 3. Registrar el base path informado o proponer uno (ej.: `/v1/<recurso-principal>`) en kebab-case y versión en la URL cuando aplique
 4. Identificar si la API es pública (Client Credentials, FAPI 2.0) o privada (JWT, RBAC) para alinear con lex-auth
@@ -78,7 +80,7 @@ Progreso:
 
 ### Paso 6: Producir Documento Markdown Estructurado
 
-1. Obtener el path canónico **paths.oas** en `.ahrena/.directives`. Garantizar que el directorio exista en la raíz del proyecto; si no existe, crearlo
+1. El path canónico es **`docs/{context}/oas/`** conforme a `lex-feature-design-docs`. Garantizar que el directorio exista en la raíz del proyecto; si no existe, crearlo
 2. Generar **documento Markdown** (.md) conteniendo:
    - Título y resumen de la API
    - Tabla de endpoints (path, método, resumen)
@@ -86,7 +88,7 @@ Progreso:
    - Sección de **headers globales** (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization) conforme codex-restful-headers
    - Sección de errores conocidos por endpoint (códigos, reason, message)
    - Ejemplos de request/response cuando sea útil
-3. Nombrar el archivo de forma consistente (ej.: `api-scheduled-transfers.md`, `api.md`). Guardar en **paths.oas** (crear o actualizar). Si el usuario solicita entrega inline además del archivo, entregar también en el chat
+3. Nombrar el archivo de forma consistente (ej.: `api-scheduled-transfers.md`, `api.md`). Guardar en **docs/{context}/oas/** (crear o actualizar). Si el usuario solicita entrega inline además del archivo, entregar también en el chat
 
 ### Paso 7: Validación Final
 
@@ -99,13 +101,13 @@ Antes de entregar el output, verificar:
 - [ ] Autenticación/autorización documentadas conforme lex-auth cuando la API sea protegida
 - [ ] Listados paginados tienen page_size, page_token y estructura pagination en la respuesta
 - [ ] Documento está completo (tabla de endpoints, detalles por endpoint, headers globales, errores) y sin contradicción con las Lexis
-- [ ] Documento fue guardado en el path **paths.oas** (directorio creado si no existía)
+- [ ] Documento fue guardado en el path **docs/{context}/oas/** (directorio creado si no existía)
 
 ## Outputs
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Documento de API | Markdown (.md) | Directorio **paths.oas** en `.ahrena/.directives` (crear directorio si no existe; crear o actualizar el archivo) |
+| Documento de API | Markdown (.md) | Directorio **docs/{context}/oas/** (crear directorio si no existe; crear o actualizar el archivo) |
 | Tabla de endpoints | Markdown | Incluida en el documento |
 
 ## Ejemplo de Ejecución
@@ -119,7 +121,7 @@ Base path: /v1/scheduled-transfers
 
 ### Output de Ejemplo (resumido)
 
-Archivo `.md` en **paths.oas** con:
+Archivo `.md` en **docs/{context}/oas/** con:
 - Tabla: `POST /v1/scheduled-transfers` (crear), `GET /v1/scheduled-transfers` (listar), `GET /v1/scheduled-transfers/{entity_id}`, `PATCH ...`, `DELETE ...`
 - Para cada endpoint: parámetros, headers, request/response, status 200/201/204/400/404/409/422 etc.
 - Headers globales (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization)

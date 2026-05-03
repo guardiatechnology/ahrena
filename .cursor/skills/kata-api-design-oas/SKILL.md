@@ -22,7 +22,7 @@ Progress:
 
 ### Step 1: Read Directives and Context
 
-1. Read `.ahrena/.directives` to obtain `language.default`, canonical paths, and **paths.oas** (destination of the specification; default `docs/oas`)
+1. Read `.ahrena/.directives` to obtain `language.default`. The destination is fixed: `docs/{context}/oas/openapi.yaml`, per `lex-feature-design-docs`. Confirm with the user the Bounded Context name in PascalCase (it will be converted to kebab-case in the folder)
 2. Confirm that the feature description was provided. **Work iteratively:** if incomplete or ambiguous, **ask the user** (e.g., public or private API? Pagination and sorting? Base path? Soft delete or discarded_at? Filters?) and wait for answers; repeat until criteria are clear
 3. Record the base path provided or propose one (e.g., `/v1/<main-resource>`) in kebab-case with version in the URL when applicable
 4. Identify whether the API is public (Client Credentials, FAPI 2.0) or private (JWT, RBAC) to align with lex-auth
@@ -54,7 +54,7 @@ Progress:
 4. Define **required headers**: Idempotency-Key for mutations; X-Grd-Trace-Id when applicable; Content-Type, Accept
 5. Define **request payload**: body for POST/PATCH/PUT; query parameters for listing (page_size, page_token, order_by, sort)
 6. Define **response payload**: `data` structure (object or array), `pagination` when paginated listing, per codex-restful-payload
-7. Ensure entities in response include required fields from codex-entities (entity_id, entity_type, created_at, updated_at, version when applicable)
+7. Ensure entities in responses include required fields from codex-entities (entity_id, entity_type, created_at, updated_at, version when applicable)
 
 ### Step 5: Document Errors and Idempotency
 
@@ -65,13 +65,18 @@ Progress:
 
 ### Step 6: Produce OpenAPI 3.x Specification
 
-1. Obtain the canonical path **paths.oas** from `.ahrena/.directives`. Ensure the directory exists at the project root; if not, create it
-2. Generate **OpenAPI 3.x fragment or document** in YAML or JSON (per input or default YAML), containing:
+1. Generate the **OpenAPI 3.x document** in YAML, containing:
    - `openapi: 3.x`
    - `paths` with each endpoint; for each path, list operations in **codex-oas-structure** order: post, get, put, patch, delete; for each operation: `parameters` (path, query, header), `requestBody` when applicable, `responses` (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
    - Global header components (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization) per codex-restful-headers
-   - Request/response schemas aligned with codex-restful-payload and codex-entities
-3. Name the file consistently (e.g., `openapi.yaml`, `api-spec.yaml`, or main resource name). Save to **paths.oas** (create or update). If the user requests inline delivery in addition to the file, deliver in chat as well
+   - Request/response schemas aligned with codex-restful-payload and codex-entities; mirror the field catalog from entities persisted in `docs/{context}/entities/`
+2. **Persist via `kata-feature-design-docs`** with:
+   - `Bounded Context` = name in PascalCase
+   - `Category` = `oas`
+   - `Content` = generated YAML
+   - `Operation` = `create` or `update`
+   - The kata writes to `docs/{context}/oas/openapi.yaml` and creates the directory if needed
+3. If the user requests inline delivery in addition to the file, deliver it in chat as well
 
 ### Step 7: Final Validation
 
@@ -85,13 +90,13 @@ Before delivering the output, verify:
 - [ ] Paginated listings have page_size, page_token, and pagination structure in the response
 - [ ] OpenAPI 3.x file is complete (paths, methods, parameters, responses) with no contradiction to the Lexis
 - [ ] Order of operations in each path follows codex-oas-structure (POST, GET, PUT, PATCH, DELETE)
-- [ ] File was saved to path **paths.oas** (directory created if it did not exist)
+- [ ] Persistence delegated to `kata-feature-design-docs` with category `oas` (canonical path `docs/{context}/oas/openapi.yaml`)
 
 ## Outputs
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| OpenAPI 3.x specification | YAML or JSON | Directory **paths.oas** in `.ahrena/.directives` (create directory if it does not exist; create or update the file) |
+| OpenAPI 3.x specification | YAML | `docs/{context}/oas/openapi.yaml` (persisted via `kata-feature-design-docs`) |
 
 ## Execution Example
 
@@ -105,7 +110,7 @@ Format: YAML
 
 ### Example Output (summary)
 
-File `openapi.yaml` (or similar) in **paths.oas** with `paths` including:
+File `openapi.yaml` (or similar) at **docs/{context}/oas/openapi.yaml** with `paths` including:
 - `POST /v1/scheduled-transfers` — 201, Idempotency-Key required
 - `GET /v1/scheduled-transfers` — 200, query page_size, page_token, order_by, sort; response with data and pagination
 - `GET /v1/scheduled-transfers/{entity_id}` — 200, 404
@@ -117,6 +122,6 @@ Payloads and errors per codex-restful-payload and codex-entities.
 ## Constraints
 
 - This Kata produces only OpenAPI 3.x specification; it does not implement code
-- Do not change already-published OAS contracts without justification and ADR
+- Does not change already-published OAS contracts without justification and ADR
 - Exceptions to the Lexis must be documented in an ADR and reflected in the OAS
-- The agent must escalate to a human when there is conflict between Lexis and business requirement, or when the feature involves multiple bounded contexts with unclear API boundaries
+- The agent MUST escalate to a human when there is conflict between Lexis and a business requirement, or when the feature involves multiple bounded contexts with unclear API boundaries

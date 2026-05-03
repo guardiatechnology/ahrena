@@ -4,13 +4,13 @@
 
 ## Objetivo
 
-Este Kata define el procedimiento para **producir documentación en Markdown** de los eventos CloudEvents de una feature o módulo: consultar lex-cloudevents y codex-cloudevents, identificar los tipos de evento (formato `event.guardia.{module}.{entity_type}.{event_name}`), documentar estructura, payload (data), idempotencia y persistir el documento en **paths.events** en conformidad con las reglas de la Guardia.
+Este Kata define el procedimiento para **producir documentación en Markdown** de los eventos CloudEvents de una feature o módulo: consultar `lex-cloudevents`, `codex-cloudevents` y `codex-feature-design-docs`, identificar los tipos de evento (formato `event.guardia.{module}.{entity_type}.{event_name}`), estructurar el contenido por entidad con `stateDiagram-v2` del ciclo de vida y payload CloudEvents por evento, y delegar la persistencia a `kata-feature-design-docs` en `docs/{context}/events/events.md`.
 
 ## Cuándo Usar
 
 - Cuando una feature o módulo publica o consume eventos y es necesario catalogar y documentar esos eventos
 - Cuando se invoca por el Warrior especialista en Event Storm (ej.: Kronos) o por el cry-event-storm
-- Cuando es necesario generar o actualizar la doc de eventos en paths.events (ej.: `events.md`, `cloudevents.md`)
+- Cuando es necesario generar o actualizar la doc de eventos en `docs/{context}/events/events.md`
 
 ## Inputs
 
@@ -18,7 +18,7 @@ Este Kata define el procedimiento para **producir documentación en Markdown** d
 |-------|:-----------:|-------------|
 | Contexto de la feature o módulo | Sí | Nombre del módulo, entidades involucradas y operaciones que emiten eventos (ej.: transaction.created, transaction.updated) o lista explícita de tipos de evento |
 | Base path / source | No | Base de la URI `source` (ej.: `https://tenant.guardia.finance/platform/api/v1`). Si se omite, el agente propone conforme codex-cloudevents |
-| Documento existente | No | Si existe doc de eventos en paths.events, actualizar en vez de crear desde cero |
+| Documento existente | No | Si existe doc de eventos en `docs/{context}/events/events.md`, actualizar en vez de crear desde cero |
 
 ## Workflow
 
@@ -34,9 +34,10 @@ Progreso:
 
 ### Paso 1: Leer Directivas y Contexto
 
-1. Leer `.ahrena/.directives` para obtener **paths.events** (destino de la doc de eventos; predeterminado `docs/events`)
-2. Confirmar el contexto de la feature/módulo (entidades, operaciones que emiten eventos). Si es insuficiente, hacer preguntas al usuario (¿qué eventos? ¿created/updated/deleted? ¿entidades involucradas?) y esperar respuestas
-3. Verificar si ya existe documento de eventos en paths.events (ej.: `events.md`, `cloudevents.md`) para actualizar o crear nuevo
+1. Leer `.ahrena/.directives` para obtener `language.default`. El destino es fijo: `docs/{context}/events/events.md` por `lex-feature-design-docs`. Confirmar con el usuario el nombre del Bounded Context en PascalCase y el segmento `{module}` del CloudEvents
+2. Cargar entidades existentes en `docs/{context}/entities/` para alinear payloads y ciclo de vida
+3. Confirmar el contexto de la feature/módulo (entidades, operaciones que emiten eventos). Si es insuficiente, hacer preguntas al usuario (¿qué eventos? ¿created/updated/deleted? ¿entidades involucradas?) y esperar respuestas
+4. Verificar si ya existe `docs/{context}/events/events.md` para actualizar en vez de crear nuevo
 
 ### Paso 2: Consultar Lexis y Codex CloudEvents
 
@@ -65,16 +66,19 @@ Para cada evento catalogado, documentar:
 6. **data** — estructura del payload (entity_id, entity_type, y demás campos conforme codex-entities); indicar que history debe omitirse
 7. **Ejemplo** (opcional) — snippet JSON del evento conforme codex-cloudevents
 
-### Paso 5: Producir Documento Markdown de Eventos
+### Paso 5: Producir Contenido del `events.md` en la Estructura Canónica
 
-1. Obtener **paths.events** en `.ahrena/.directives`. Garantizar que el directorio exista; si no existe, crearlo
-2. Generar o actualizar **documento Markdown** (ej.: `events.md`, `cloudevents.md`) en paths.events conteniendo:
-   - Título y resumen (módulo/feature)
-   - Tabla de eventos (type, descripción, cuándo se emite)
-   - Para cada evento: type, descripción, source, subject, idempotencykey, estructura de `data`, ejemplo cuando sea útil
-   - Notas: serialización JSON UTF-8, tamaño < 12KB, consumidores idempotentes (conforme lex-idempotency)
-3. Si ya existe doc de eventos en el path, **fusionar** los nuevos eventos en la estructura existente (por módulo o por entity_type) en vez de sobrescribir
-4. Guardar en **paths.events**. Si el usuario solicita entrega inline, entregar también en el chat
+Estructurar el contenido conforme al template de `codex-feature-design-docs`:
+
+1. **Encabezado** con Bounded Context y el segmento `{module}`
+2. **Visión General** en 2-4 frases
+3. **Catálogo** — tabla `entity_type | event_name | type completo | Publicador | Consumidores`
+4. **Una sección por entidad que emite eventos**:
+   - Subsección **Ciclo de Vida** con bloque `mermaid` `stateDiagram-v2` cubriendo todos los estados y transiciones
+   - Subsección **Eventos**: para cada evento, bloque JSON con payload CloudEvents completo (`specversion`, `id`, `source`, `type`, `subject`, `time`, `datacontenttype`, `idempotencykey`, `data`), tabla `Campo | Tipo | Obligatorio | Descripción` para `data`, y líneas finales **Idempotencia** + **Trigger** (Use Case)
+5. **Referencias** a `lex-cloudevents`, `codex-cloudevents`, `lex-entity-naming`, `lex-idempotency`, y los archivos en `docs/{context}/entities/`
+
+Persistencia: invocar **`kata-feature-design-docs`** con `Bounded Context`, `Categoría` = `events`, `Contenido` = Markdown generado, `Operación` = `create` o `update`. El kata escribe en `docs/{context}/events/events.md`.
 
 ### Paso 6: Validación Final
 
@@ -84,13 +88,14 @@ Antes de entregar el output, verificar:
 - [ ] Tipo en formato event.guardia.{module}.{entity_type}.{event_name}
 - [ ] data sin history; campos obligatorios de entidad documentados
 - [ ] Documento está completo (tabla de eventos, detalles por tipo) y sin contradicción con las Lexis
-- [ ] Documento fue guardado en el path **paths.events** (directorio creado si no existía)
+- [ ] `stateDiagram-v2` presente para cada entidad que emite eventos
+- [ ] Persistencia delegada a `kata-feature-design-docs` con categoría `events` (path canónico `docs/{context}/events/events.md`)
 
 ## Outputs
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Documento de eventos CloudEvents | Markdown (.md) | Directorio **paths.events** en `.ahrena/.directives` (predeterminado `docs/events`; crear directorio si no existe; crear o actualizar el archivo, ej.: events.md) |
+| Documento de eventos CloudEvents | Markdown (.md) | `docs/{context}/events/events.md` (persistido vía `kata-feature-design-docs`) |
 
 ## Ejemplo de Ejecución
 
@@ -102,7 +107,7 @@ Módulo: platform. Entidades: scheduled_transfer. Eventos: created (tras POST), 
 
 ### Output de Ejemplo (resumido)
 
-Archivo `events.md` (o `cloudevents.md`) en **paths.events** con:
+Archivo `docs/{context}/events/events.md` con:
 - event.guardia.platform.scheduled_transfer.created — tras creación; source, subject, idempotencykey; data con entity_id, entity_type, created_at, updated_at, version, etc.
 - event.guardia.platform.scheduled_transfer.updated
 - event.guardia.platform.scheduled_transfer.cancelled
@@ -118,6 +123,9 @@ Cada uno con descripción, source, subject, data y ejemplo JSON conforme codex-c
 
 ## Referencias
 
-- lex-directives, lex-cloudevents, lex-entities, lex-idempotency
-- codex-cloudevents, codex-entities, codex-idempotency
+- `lex-feature-design-docs` — estructura `docs/{context}/events/`
+- `codex-feature-design-docs` — template del `events.md`
+- `kata-feature-design-docs` — persistencia canónica
+- `lex-directives`, `lex-cloudevents`, `lex-entities`, `lex-entity-naming`, `lex-idempotency`
+- `codex-cloudevents`, `codex-entities`, `codex-idempotency`
 - [CloudEvents Specification](https://cloudevents.io/)

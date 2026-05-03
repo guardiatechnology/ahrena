@@ -6,57 +6,50 @@ description: "Feature Design — Domain, API, and Events. Complete feature desig
 
 > **Prefix:** `cry-` | **Type:** Recurring Command | **Scope:** Complete feature design cycle: domain modeling, REST API design, and CloudEvents documentation in sequence
 
+## Description
+
+This command orchestrates the complete feature design cycle by invoking the Prometheus Warrior, who coordinates in sequence: (1) domain modeling (warrior-theseus), (2) REST API design (warrior-daedalus), and (3) events documentation (warrior-kronos). Artifacts are produced in **`docs/{context}/entities/`**, **`docs/{context}/oas/`**, and **`docs/{context}/events/`** respectively.
+
 ## Usage
 
 ```
-/cry-feature-design <feature description> [module] [constraints]
+/cry-feature-design <feature description> [base path] [events context]
 ```
 
 ## Parameters
 
 | Parameter | Required | Description | Example |
 |-----------|:--------:|-------------|---------|
-| `feature description` | Yes | Description of the feature scope, business goal, and any known rules or actors | "Scheduled transfers: accountants create, supervisors approve, executed on the scheduled date" |
-| `module` | No | CloudEvents module identifier. If omitted, Prometheus will ask | `platform` |
-| `constraints` | No | Known constraints: security, compliance, existing integrations, breaking-change restrictions | "No breaking changes to existing /v1/transfers endpoints" |
+| `feature description` | Yes | Description of domain, entities, operations, and business rules; used as the base for the complete cycle | "Scheduled transfers module: create, list, update, and cancel; paginated listing; idempotent mutations; events emitted on each state transition" |
+| `base path` | No | URL prefix for the API (e.g.: /v1/scheduled-transfers). If omitted, Daedalus proposes one | `/v1/scheduled-transfers` |
+| `events context` | No | Specific complement for events (e.g.: module, entity type). If omitted, Kronos infers from context | "Module platform, entity scheduled_transfer" |
 
 ## What the Command Does
 
-1. **Assumes the role of warrior-prometheus** and reads `.ahrena/.directives` for `paths.domain`, `paths.oas`, `paths.events`, and `language.default`
-2. **Asks clarifying questions** if feature description, module, or constraints are insufficient
-3. **Phase 1 — Domain Modeling (warrior-theseus):** models the domain iteratively; resolves P1 hotspots; confirms domain model with user before proceeding
-4. **Phase 2 — API Design (warrior-daedalus):** designs the API using the domain model as authoritative input; confirms API design with user before proceeding
-5. **Phase 3 — Event Documentation (warrior-kronos):** documents CloudEvents using domain model + integration events from Phase 1; skips discovery (already done); confirms events documentation with user
-6. **Consistency check:** verifies that entity names, entity_type values, and CloudEvents type segments match the domain model across all outputs
-7. **Delivers final artifact package** with paths to all produced files
+1. Invokes the Prometheus Warrior to orchestrate the complete design cycle
+2. **Phase 1 — Domain:** Prometheus delegates to warrior-theseus; produces entities and domain model in **`docs/{context}/entities/`**
+3. **Phase 2 — API:** Prometheus delegates to warrior-daedalus; produces OpenAPI specification and API document in **`docs/{context}/oas/`**
+4. **Phase 3 — Events:** Prometheus delegates to warrior-kronos; produces events documentation in **`docs/{context}/events/`**
+5. Prometheus verifies consistency across the three artifacts and delivers a design package summary
 
 ## Prompt Template
 
 ```
 Context:
 - Feature description: {{feature description}}
-- Module (optional): {{module}}
-- Constraints (optional): {{constraints}}
+- Base path (optional): {{base path}}
+- Events context (optional): {{events context}}
 
 Task:
-Act as the Prometheus Warrior (Technical Product Manager). Read `.ahrena/.directives` to obtain `paths.domain`, `paths.oas`, `paths.events`, and `language.default`.
+Act as the Prometheus Warrior (Technical Product Manager) and execute the complete feature design cycle in sequence:
 
-If the feature description, module, or constraints are insufficient, ask clarifying questions before starting.
+1) **Domain Phase (Theseus):** Delegate to warrior-theseus. Execute kata-domain-model to model entities, aggregates, business rules, and invariants. Ask clarifying questions when necessary. Produce entity artifacts in **`docs/{context}/entities/`**.
 
-Orchestrate the complete feature design cycle in sequence:
+2) **API Phase (Daedalus):** Delegate to warrior-daedalus. Execute kata-api-design-oas and kata-api-design-doc based on the designed entities. Ask clarifying questions when necessary. Produce OpenAPI specification and API document in **`docs/{context}/oas/`**.
 
-1) **Phase 1 — Domain Modeling (warrior-theseus):** Delegate to warrior-theseus with the feature description and module. Monitor P1 hotspots — do not advance until resolved. Present the domain model summary (entity catalog, use cases, integration events) and ask: "Does the domain model look correct? Should I proceed to API design?"
+3) **Events Phase (Kronos):** Delegate to warrior-kronos. Execute kata-events-doc based on the entities and API operations. Ask clarifying questions when necessary. Produce events documentation in **`docs/{context}/events/`**.
 
-2) **Phase 2 — API Design (warrior-daedalus):** After explicit user confirmation, delegate to warrior-daedalus using the domain model document as primary input. Instruct Daedalus to use entity_type values and field names from the domain model (lex-entity-naming). Present the API design summary and ask: "Does the API design look correct? Should I proceed to event documentation?"
-
-3) **Phase 3 — Event Documentation (warrior-kronos):** After explicit user confirmation, delegate to warrior-kronos with domain model + integration events list. Instruct Kronos to skip discovery (events were identified in Phase 1) and go directly to documentation. Verify CloudEvents type segments match entity_type values from the domain model. Present the events summary.
-
-After all phases, verify consistency: entity names in APIs and events must match the domain model. Flag any divergence with a clear resolution path.
-
-Deliver the final artifact package:
-- Domain model: `paths.domain/{module}-domain-model.md`
-- API specification: `paths.oas/{module}-api.yaml` (OAS) and `paths.oas/{module}-api.md` (doc)
-- Events document: `paths.events/{module}-events.md`
+4) **Consistency Verification:** Verify that entities, API, and events are consistent with each other. Deliver a complete design package summary.
 ```
 
 ## Invocation Example
@@ -64,45 +57,40 @@ Deliver the final artifact package:
 **Input:**
 
 ```
-/cry-feature-design "Scheduled transfers: accountants schedule a transfer for a future date, supervisors approve transfers above BRL 10,000, the system executes on the scheduled date, failures trigger one retry after 30 minutes" platform
+/cry-feature-design "Scheduled transfers module: create, list, update, and cancel; paginated and sortable listing by date; idempotent mutations; events emitted on each state transition" /v1/scheduled-transfers "module platform, entity scheduled_transfer"
 ```
 
 **Expected output:**
 
-- **Phase 1 confirmation:** Entity catalog (`ScheduledTransfer`, entity_type `scheduled_transfer`), lifecycle, use cases, integration events — user confirms before Phase 2
-- **Phase 2 confirmation:** Endpoints (POST /v1/scheduled-transfers, GET, GET/:id, PATCH, DELETE), Idempotency-Key, payloads — user confirms before Phase 3
-- **Phase 3 confirmation:** CloudEvents catalog (`event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`) — final summary
-- **Artifact package:**
-  - `docs/domain/platform-domain-model.md`
-  - `docs/oas/platform-api.yaml`
-  - `docs/oas/platform-api.md`
-  - `docs/events/platform-events.md`
+Complete design package produced by Prometheus with:
+- **Entities:** `docs/scheduled-payments/entities/scheduled-transfer.md` — domain model with fields, business rules, and invariants
+- **API:** `docs/scheduled-payments/oas/openapi.yaml` + Markdown document — POST/GET/PATCH/DELETE endpoints with pagination and idempotency
+- **Events:** `docs/scheduled-payments/events/events.md` — catalog with `requested`, `approved`, `executed`, `failed`, `cancelled`
+- Consistency verification across the three artifacts
 
-## When to Use This Cry vs Others
+## Constraints
 
-| Cry | When to use |
-|-----|-------------|
-| **cry-feature-design** | Domain is unknown or must be modeled; need a consistent domain → API → events package |
-| **cry-full-design** | Domain is already modeled; need only API + events from a feature description |
-| **cry-api-design** | Domain is modeled and events are out of scope; need only the API |
-| **cry-event-storm** | Need event discovery or documentation only (domain and API already exist) |
+- The Cry does not implement code; it only orchestrates the complete design cycle
+- The feature description must be sufficient for all three phases; if incomplete, each specialist Warrior will ask its own questions
+- Exceptions to Lexis must be documented in an ADR
 
-## Restrictions
+## Cry vs Individual Katas
 
-- Does not implement code — orchestrates design only
-- Does not advance to the next phase without explicit user confirmation
-- Does not skip Phase 1 (domain modeling) when the domain is genuinely unknown — a poorly modeled domain produces incorrect APIs and events
-- Exceptions to Lexis must be documented in an ADR; Prometheus will signal when a decision requires one
+| Aspect | Cry | Individual Katas |
+|--------|-----|-----------------|
+| **Nature** | Orchestration of the complete cycle in one command | Execution of a specific phase |
+| **Complexity** | Medium (3 phases coordinated by Prometheus) | High per phase (each Kata has multiple steps) |
+| **Configures agent?** | Yes (Prometheus + the three Warriors) | Yes (the specific Warrior or agent for the phase) |
+| **Example** | "/cry-feature-design complete scheduled transfers domain" | "/cry-api-design only the transfers API" |
 
-## Associated Warriors and Katas
+## Associated Warriors
 
-| Artifact | Role |
-|----------|------|
-| `warrior-prometheus` | Orchestrator — invoked by this Cry |
-| `warrior-theseus` | Phase 1 — Domain Modeling |
-| `warrior-daedalus` | Phase 2 — API Design |
-| `warrior-kronos` | Phase 3 — Event Documentation |
-| `kata-domain-model` | Executed by warrior-theseus |
-| `kata-api-design-oas` | Executed by warrior-daedalus |
-| `kata-api-design-doc` | Executed by warrior-daedalus |
-| `kata-events-doc` | Executed by warrior-kronos |
+- **warrior-prometheus** — Orchestrator of the complete design cycle
+- **warrior-theseus** — Domain modeling; produces `docs/{context}/entities/`
+- **warrior-daedalus** — REST API design; produces `docs/{context}/oas/`
+- **warrior-kronos** — Events documentation; produces `docs/{context}/events/`
+
+## References
+
+- `lex-feature-design-docs` — canonical structure `docs/{context}/{category}/`
+- `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, `warrior-kronos` — Warriors invoked by this Cry
