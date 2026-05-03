@@ -20,7 +20,7 @@ Create an isolated git worktree for a task, execute the work inside it, open the
 | Issue number | Yes | Existing GitHub Issue that originates the task (per `lex-issue-first`) |
 | Branch type | Yes | One of: `feat`, `fix`, `docs`, `build`, `chore`, `ci`, `style`, `refactor`, `perf`, `test` |
 | Slug | Yes | Short kebab-case description (max 50 chars) |
-| Repository name | No | Default: root directory name of the repository |
+
 
 ## Workflow
 
@@ -47,13 +47,13 @@ Based on inputs:
 
 ```
 branch  = {type}/{issue-number}-{slug}
-wtDir   = ../{repo-name}-{issue-number}-{slug}
+wtDir   = .worktrees/{issue-number}-{slug}/
 ```
 
 Examples:
 - Issue #42, type `feat`, slug `scheduled-payments-api`
 - Branch: `feat/42-scheduled-payments-api`
-- Directory: `../ahrena-42-scheduled-payments-api`
+- Directory: `.worktrees/42-scheduled-payments-api`
 
 Present to the user for confirmation before creating.
 
@@ -118,8 +118,8 @@ gh pr create --title "{type}({scope}): {description}" `
 After confirming the PR has been merged:
 
 ```powershell
-# 1. Exit the worktree (if currently inside)
-Set-Location ../$repo
+# 1. Navigate to the repository root (if inside the worktree)
+Set-Location ../..
 
 # 2. Remove the worktree
 git worktree remove $wtDir --force
@@ -137,7 +137,7 @@ Confirm to the user: "Worktree `{wtDir}` removed. Branch `{branch}` deleted."
 
 | Output | Description |
 |--------|-------------|
-| Worktree created | Directory `../{repo}-{issue-number}-{slug}/` with the active branch |
+| Worktree created | Directory `.worktrees/{issue-number}-{slug}/` with the active branch |
 | Branch created | `{type}/{issue-number}-{slug}` in the repository |
 | PR opened | PR URL referencing the issue |
 | Cleanup | Worktree and branch removed after merge |
@@ -157,13 +157,13 @@ Repository: ahrena
 
 ```
 Branch:    feat/42-scheduled-payments-api
-Directory: ../ahrena-42-scheduled-payments-api
+Directory: .worktrees/42-scheduled-payments-api
 ```
 
 ### Step 4 — Creation
 
 ```powershell
-git worktree add ../ahrena-42-scheduled-payments-api -b feat/42-scheduled-payments-api
+git worktree add .worktrees/42-scheduled-payments-api -b feat/42-scheduled-payments-api
 # Preparing worktree (new branch 'feat/42-scheduled-payments-api')
 # HEAD is now at 4df8e43 Merge pull request #33...
 ```
@@ -179,7 +179,7 @@ gh pr create --title "feat(payments): add scheduled payments API" `
 ### Step 7 — Cleanup
 
 ```powershell
-git worktree remove ../ahrena-42-scheduled-payments-api --force
+git worktree remove .worktrees/42-scheduled-payments-api --force
 git branch -d feat/42-scheduled-payments-api
 # Deleted branch feat/42-scheduled-payments-api
 ```

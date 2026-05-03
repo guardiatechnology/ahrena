@@ -58,7 +58,7 @@ Exemplos válidos:
 ### Diretório do worktree
 
 ```
-../{repo-name}-{issue-number}-{slug}/
+.worktrees/{issue-number}-{slug}/
 ```
 
 | Campo | Regra |
@@ -68,8 +68,8 @@ Exemplos válidos:
 | `slug` | Mesmo slug do branch |
 
 Exemplos:
-- `../ahrena-42-scheduled-payments-api/`
-- `../ahrena-87-null-pointer-transfer/`
+- `.worktrees/42-scheduled-payments-api/`
+- `.worktrees/87-null-pointer-transfer/`
 
 O prefixo `../{repo-name}-` coloca o worktree **fora** do diretório do repositório principal, evitando interferências com o `.git` raiz e mantendo a listagem de arquivos limpa.
 
@@ -101,7 +101,7 @@ $issue   = 42
 $type    = "feat"
 $slug    = "scheduled-payments-api"
 $branch  = "$type/$issue-$slug"
-$wtDir   = "../$repo-$issue-$slug"
+$wtDir   = ".worktrees/$issue-$slug"
 
 git worktree add $wtDir -b $branch
 ```
@@ -134,7 +134,7 @@ gh pr create --title "feat(payments): add scheduled payments API" `
 
 ```powershell
 # Sair do diretório do worktree (se dentro)
-Set-Location ../$repo
+Set-Location ../..
 
 # Remover o worktree
 git worktree remove $wtDir --force
@@ -169,8 +169,8 @@ Um repositório suporta múltiplos worktrees simultâneos — cada tarefa tem o 
 git worktree list
 
 /c/Workspace/guardia/public/ahrena                [main]
-/c/Workspace/guardia/public/ahrena-42-payments    [feat/42-scheduled-payments-api]
-/c/Workspace/guardia/public/ahrena-87-fix-null    [fix/87-null-pointer-transfer]
+/c/Workspace/guardia/public/ahrena/.worktrees/42-payments    [feat/42-scheduled-payments-api]
+/c/Workspace/guardia/public/ahrena/.worktrees/87-fix-null    [fix/87-null-pointer-transfer]
 ```
 
 Restrições do git:

@@ -50,10 +50,10 @@ worktree (feat/42-payments-api)   ← separate directory, own branch
 ### Worktree directory
 
 ```
-../{repo-name}-{issue-number}-{slug}/
+.worktrees/{issue-number}-{slug}/
 ```
 
-Example: branch `feat/42-scheduled-payments-api` → directory `../ahrena-42-scheduled-payments-api/`
+Example: branch `feat/42-scheduled-payments-api` → directory `.worktrees/42-scheduled-payments-api/`
 
 ---
 
@@ -67,7 +67,7 @@ issue exists → create worktree → work inside → commit + push → PR opened
 
 ```powershell
 $repo = "ahrena"; $issue = 42; $type = "feat"; $slug = "scheduled-payments-api"
-$branch = "$type/$issue-$slug"; $wtDir = "../$repo-$issue-$slug"
+$branch = "$type/$issue-$slug"; $wtDir = ".worktrees/$issue-$slug"
 git worktree add $wtDir -b $branch
 ```
 
@@ -88,7 +88,7 @@ gh pr create --title "feat(payments): ..." --body "Closes #$issue" --base main -
 ### Cleanup after merge
 
 ```powershell
-Set-Location ../$repo
+Set-Location ../..
 git worktree remove $wtDir --force
 git branch -d $branch
 git worktree list   # confirm removed

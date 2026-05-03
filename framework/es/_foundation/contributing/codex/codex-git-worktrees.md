@@ -57,21 +57,22 @@ Ejemplos válidos:
 
 ### Directorio del worktree
 
+El path base se define en `paths.worktrees` en `.ahrena/.directives` (valor por defecto: `.worktrees/`):
+
 ```
-../{repo-name}-{issue-number}-{slug}/
+.worktrees/{issue-number}-{slug}/
 ```
 
 | Campo | Regla |
 |---|---|
-| `repo-name` | Nombre del repositorio (ej.: `ahrena`) |
 | `issue-number` | Mismo número de issue que el branch |
 | `slug` | Mismo slug que el branch |
 
 Ejemplos:
-- `../ahrena-42-scheduled-payments-api/`
-- `../ahrena-87-null-pointer-transfer/`
+- `.worktrees/42-scheduled-payments-api/`
+- `.worktrees/87-null-pointer-transfer/`
 
-El prefijo `../{repo-name}-` coloca el worktree **fuera** del directorio del repositorio principal, evitando interferencias con el `.git` raíz y manteniendo el listado de archivos limpio.
+El directorio `.worktrees/` está dentro del repositorio y es ignorado por git mediante `.gitignore`. El path es configurable mediante `paths.worktrees` en `.ahrena/.directives`.
 
 ---
 
@@ -101,7 +102,7 @@ $issue   = 42
 $type    = "feat"
 $slug    = "scheduled-payments-api"
 $branch  = "$type/$issue-$slug"
-$wtDir   = "../$repo-$issue-$slug"
+$wtDir   = ".worktrees/$issue-$slug"
 
 git worktree add $wtDir -b $branch
 ```
@@ -133,8 +134,8 @@ gh pr create --title "feat(payments): add scheduled payments API" `
 ### 3.4 Limpieza tras el merge
 
 ```powershell
-# Salir del directorio del worktree (si se está dentro)
-Set-Location ../$repo
+# Navegar a la raíz del repositorio (si se está dentro del worktree)
+Set-Location ../..
 
 # Eliminar el worktree
 git worktree remove $wtDir --force
@@ -169,8 +170,8 @@ Un repositorio admite múltiples worktrees simultáneos — cada tarea tiene el 
 git worktree list
 
 /c/Workspace/guardia/public/ahrena                [main]
-/c/Workspace/guardia/public/ahrena-42-payments    [feat/42-scheduled-payments-api]
-/c/Workspace/guardia/public/ahrena-87-fix-null    [fix/87-null-pointer-transfer]
+/c/Workspace/guardia/public/ahrena/.worktrees/42-payments    [feat/42-scheduled-payments-api]
+/c/Workspace/guardia/public/ahrena/.worktrees/87-fix-null    [fix/87-null-pointer-transfer]
 ```
 
 Restricciones de git:

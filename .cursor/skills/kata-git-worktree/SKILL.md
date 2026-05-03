@@ -30,12 +30,12 @@ Progress:
 
 ```
 branch = {type}/{issue-number}-{slug}
-wtDir  = ../{repo-name}-{issue-number}-{slug}
+wtDir  = .worktrees/{issue-number}-{slug}/
 ```
 
 Example: Issue #42, type `feat`, slug `scheduled-payments-api`
 → Branch: `feat/42-scheduled-payments-api`
-→ Directory: `../ahrena-42-scheduled-payments-api`
+→ Directory: `.worktrees/42-scheduled-payments-api`
 
 Present to user for confirmation before creating.
 
@@ -78,7 +78,7 @@ Communicate PR URL to user.
 ### Step 7: Cleanup after merge
 
 ```powershell
-Set-Location ../$repo
+Set-Location ../..
 git worktree remove $wtDir --force
 git branch -d $branch
 git worktree list  # verify removed

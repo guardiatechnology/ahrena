@@ -37,10 +37,10 @@ The branch MUST follow the `lex-git-branches` format:
 The worktree directory MUST use the same `{issue-number}-{slug}` slug as its name, prefixed with the repository name for readability:
 
 ```
-../{repo-name}-{issue-number}-{slug}/
+.worktrees/{issue-number}-{slug}/
 ```
 
-Example: branch `feat/42-scheduled-payments-api` → directory `../ahrena-42-scheduled-payments-api/`
+Example: branch `feat/42-scheduled-payments-api` → directory `.worktrees/42-scheduled-payments-api/`
 
 ### 3. Worktree as isolated environment
 
@@ -66,7 +66,7 @@ After the corresponding PR is merged:
 ```
 Issue #42 exists: "Add scheduled payments API"
 Branch: feat/42-scheduled-payments-api
-Worktree: ../ahrena-42-scheduled-payments-api/
+Worktree: .worktrees/42-scheduled-payments-api/
 
 → Agent enters worktree via EnterWorktree or git worktree add
 → All edits made inside the worktree

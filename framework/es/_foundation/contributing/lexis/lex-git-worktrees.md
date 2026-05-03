@@ -29,13 +29,15 @@ El branch DEBE seguir el formato de `lex-git-branches`:
 {type}/{issue-number}-{slug}
 ```
 
-El directorio del worktree DEBE usar el mismo slug `{issue-number}-{slug}` como nombre, prefijado con el nombre del repositorio para legibilidad:
+El directorio del worktree DEBE seguir el path definido en `paths.worktrees` en `.ahrena/.directives` (valor por defecto: `.worktrees/`) y usar `{issue-number}-{slug}` como nombre:
 
 ```
-../{repo-name}-{issue-number}-{slug}/
+.worktrees/{issue-number}-{slug}/
 ```
 
-Ejemplo: branch `feat/42-scheduled-payments-api` → directorio `../ahrena-42-scheduled-payments-api/`
+Ejemplo: branch `feat/42-scheduled-payments-api` → directorio `.worktrees/42-scheduled-payments-api/`
+
+El path `.worktrees/` está dentro del repositorio y es ignorado por git mediante `.gitignore`.
 
 ### 3. Worktree como entorno aislado
 
@@ -50,7 +52,7 @@ El agente DEBE usar el worktree como entorno exclusivo para la tarea:
 Tras el merge del PR correspondiente:
 
 1. Salir del directorio del worktree (si se está dentro)
-2. Eliminar el worktree: `git worktree remove ../{repo}-{issue-number}-{slug} --force`
+2. Eliminar el worktree: `git worktree remove .worktrees/{issue-number}-{slug} --force`
 3. Eliminar el branch local: `git branch -d {branch}`
 4. Confirmar: `git worktree list` no debe mostrar el worktree eliminado
 
@@ -61,7 +63,7 @@ Tras el merge del PR correspondiente:
 ```
 Issue #42 existe: "Add scheduled payments API"
 Branch: feat/42-scheduled-payments-api
-Worktree: ../ahrena-42-scheduled-payments-api/
+Worktree: .worktrees/42-scheduled-payments-api/
 
 → El agente entra al worktree vía EnterWorktree o git worktree add
 → Todas las ediciones se realizan dentro del worktree
