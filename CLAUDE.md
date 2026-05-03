@@ -13,6 +13,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/_foundation\authoring\codex-lexis.md`
 - `.claude/docs/_foundation\authoring\codex-pilars.md`
 - `.claude/docs/_foundation\authoring\codex-warriors.md`
+- `.claude/docs/_foundation\contributing\codex-git-worktrees.md`
 - `.claude/docs/_foundation\contributing\codex-commit-standards.md`
 - `.claude/docs/_foundation\contributing\codex-contributing.md`
 - `.claude/docs/_foundation\contributing\codex-git-workflow.md`

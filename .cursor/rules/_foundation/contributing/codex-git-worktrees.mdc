@@ -1,0 +1,121 @@
+---
+description: "When creating or managing git worktrees, consult this codex for naming conventions (../{repo}-{issue}-{slug}/), full lifecycle (create → work → PR → cleanup), CLI commands (PowerShell), Claude Code EnterWorktree integration, and troubleshooting."
+alwaysApply: false
+---
+
+# Codex: Git Worktrees in the Ahrena Context
+
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Conventions, lifecycle, and commands for using git worktrees by AI agents in the Ahrena context
+
+## Overview
+
+This Codex is the canonical manual for using git worktrees. It complements `lex-git-worktrees` (the Law) with explanations, naming conventions, full lifecycle, commands, and integration with the Claude Code SDK. Every agent that creates or manages worktrees MUST consult this Codex.
+
+## Context
+
+- **Domain:** per-task development environment isolation
+- **Audience:** all agents (Claude, Cursor, warriors, katas) and human reviewers
+- **Update:** when commands or conventions change
+
+---
+
+## 1. What is a git worktree
+
+A git worktree is an additional working directory linked to the same git repository. Each worktree has its own active branch, but shares the history, objects, and configuration of the root repository.
+
+```
+root repository (main)
+├── .git/                         ← single shared git object
+├── src/
+└── framework/
+
+worktree (feat/42-payments-api)   ← separate directory, own branch
+├── .git                          ← pointer file, not a directory
+├── src/
+└── framework/
+```
+
+**Why use it:** each feature task runs in an isolated environment — no risk of mixing changes, no need for `stash`, no active branch conflict between parallel tasks.
+
+---
+
+## 2. Naming convention
+
+### Branch
+
+```
+{type}/{issue-number}-{slug}
+```
+
+### Worktree directory
+
+```
+../{repo-name}-{issue-number}-{slug}/
+```
+
+Example: branch `feat/42-scheduled-payments-api` → directory `../ahrena-42-scheduled-payments-api/`
+
+---
+
+## 3. Lifecycle
+
+```
+issue exists → create worktree → work inside → commit + push → PR opened → PR merged → remove worktree + delete branch
+```
+
+### Create
+
+```powershell
+$repo = "ahrena"; $issue = 42; $type = "feat"; $slug = "scheduled-payments-api"
+$branch = "$type/$issue-$slug"; $wtDir = "../$repo-$issue-$slug"
+git worktree add $wtDir -b $branch
+```
+
+### Work
+
+```powershell
+Set-Location $wtDir
+git add .; git commit -m "feat(payments): add entity"
+git push -u origin $branch
+```
+
+### Open PR
+
+```powershell
+gh pr create --title "feat(payments): ..." --body "Closes #$issue" --base main --head $branch
+```
+
+### Cleanup after merge
+
+```powershell
+Set-Location ../$repo
+git worktree remove $wtDir --force
+git branch -d $branch
+git worktree list   # confirm removed
+```
+
+---
+
+## 4. Claude Code integration
+
+Use `EnterWorktree` tool (preferred over CLI). Pass `branch` in `lex-git-branches` format. After PR merge, use `ExitWorktree` then run CLI cleanup.
+
+---
+
+## 5. Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `fatal: '{dir}' already exists` | Remove directory, then `git worktree add` |
+| `error: branch already checked out` | `git worktree list`; remove stale worktree |
+| `git branch -d` fails | `git worktree remove {dir} --force` first |
+| Stale entries in `git worktree list` | `git worktree prune` |
+
+---
+
+## References
+
+- `lex-git-worktrees` — corresponding Law
+- `kata-git-worktree` — step-by-step procedure
+- `lex-git-branches` — branch naming convention
+- `lex-issue-first` — issue required before the branch
