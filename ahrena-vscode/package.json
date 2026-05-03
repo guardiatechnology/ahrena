@@ -1,0 +1,114 @@
+{
+  "name": "agent-explorer",
+  "displayName": "Agent Explorer",
+  "description": "Catalog and visualize AI artifacts (agents, skills, rules, docs, commands, tools, MCPs) across your workspace.",
+  "version": "0.1.0",
+  "publisher": "guardia",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guardiatechnology/vscode-agent-explorer"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "keywords": ["ai", "agents", "ahrena", "warriors", "katas", "mcp", "claude"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agentExplorer",
+          "title": "Agent Explorer",
+          "icon": "media/explorer-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "agentExplorer": [
+        {
+          "id": "agentExplorer.view",
+          "name": "Artifacts",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "agentExplorer.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)",
+        "category": "Agent Explorer"
+      },
+      {
+        "command": "agentExplorer.openArtifact",
+        "title": "Open Artifact",
+        "category": "Agent Explorer"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "agentExplorer.refresh",
+          "when": "view == agentExplorer.view",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Agent Explorer",
+      "properties": {
+        "agentExplorer.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Agent Explorer."
+        },
+        "agentExplorer.additionalPaths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Additional glob patterns to scan for artifacts."
+        },
+        "agentExplorer.watchDelay": {
+          "type": "number",
+          "default": 500,
+          "description": "Debounce delay in ms before re-scanning after file changes."
+        },
+        "agentExplorer.defaultExpandedKinds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["lex", "codex", "kata", "warrior", "cry", "tool", "mcp"]
+          },
+          "default": ["warrior", "kata", "mcp"],
+          "description": "Artifact kinds that are expanded by default."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "build:dev": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "pretest": "npm run build:dev",
+    "test": "node ./dist/test/runTests.js",
+    "test:unit": "node ./dist/test/suite/index.js",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^2.3.8",
+    "esbuild": "^0.20.0",
+    "mocha": "^10.3.0",
+    "typescript": "^5.3.3"
+  }
+}
