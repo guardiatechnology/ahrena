@@ -13,7 +13,7 @@ Este Kata define o procedimento para desenhar a API REST de uma nova feature e *
 - Quando o formato de saída desejado é **documento Markdown** (não OpenAPI)
 - Quando uma nova feature exige exposição via API HTTP e ainda não existe contrato documentado
 - Quando invocado pelo `cry-api-design` ou pelo Warrior Daedalus com output em Markdown
-- Quando é necessário gerar ou atualizar um documento de API em `docs/oas` (ou path definido em docs/{context}/oas/) para leitura humana ou revisão
+- Quando é necessário gerar ou atualizar um documento de API em `docs/{context}/oas/` para leitura humana ou revisão
 
 ## Inputs
 
