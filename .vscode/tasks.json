@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "build:dev",
+      "path": "ahrena-vscode/",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "npm: build:dev",
+      "detail": "Build extension in development mode"
+    },
+    {
+      "type": "npm",
+      "script": "watch",
+      "path": "ahrena-vscode/",
+      "group": "build",
+      "label": "npm: watch",
+      "detail": "Watch and rebuild on changes",
+      "isBackground": true,
+      "problemMatcher": "$tsc-watch"
+    }
+  ]
+}

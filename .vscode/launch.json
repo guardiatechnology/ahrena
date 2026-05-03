@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Extension Development Host",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/ahrena-vscode"],
+      "outFiles": ["${workspaceFolder}/ahrena-vscode/dist/**/*.js"],
+      "preLaunchTask": "${defaultBuildTask}",
+      "sourceMaps": true
+    },
+    {
+      "name": "Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/ahrena-vscode",
+        "--extensionTestsPath=${workspaceFolder}/ahrena-vscode/dist/test/suite/index.js"
+      ],
+      "outFiles": ["${workspaceFolder}/ahrena-vscode/dist/**/*.js"],
+      "preLaunchTask": "npm: build:dev"
+    }
+  ]
+}
