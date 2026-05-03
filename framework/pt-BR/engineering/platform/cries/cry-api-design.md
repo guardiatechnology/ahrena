@@ -4,7 +4,7 @@
 
 ## Descrição
 
-Este comando aciona o Warrior Daedalus (ou o agente assumindo seu papel) para desenhar a API REST de uma nova feature: consultar Lexis e Codex RESTful e produzir **especificação OpenAPI 3.x** (kata-api-design-oas) e **documento Markdown** estruturado da API (kata-api-design-doc), ambos em **paths.oas**.
+Este comando aciona o Warrior Daedalus (ou o agente assumindo seu papel) para desenhar a API REST de uma nova feature: consultar Lexis e Codex RESTful e produzir **especificação OpenAPI 3.x** (kata-api-design-oas) e **documento Markdown** estruturado da API (kata-api-design-doc), ambos em **`docs/{context}/oas/`**.
 
 ## Uso
 
@@ -36,11 +36,11 @@ Contexto:
 - Base path (opcional): {{base path}}
 
 Tarefa:
-Atue como o Warrior Daedalus (Especialista em Design de API) e execute de forma iterativa o **kata-api-design-oas** e o **kata-api-design-doc** (os Katas consultam as Lexis e Codex RESTful conforme sua documentação). Com base na descrição da feature acima, faça perguntas de clarificação quando necessário e refine o design com base nas respostas. Produza a especificação OpenAPI e o documento da API em paths.oas. Use o base path informado ou proponha um adequado.
+Atue como o Warrior Daedalus (Especialista em Design de API) e execute de forma iterativa o **kata-api-design-oas** e o **kata-api-design-doc** (os Katas consultam as Lexis e Codex RESTful conforme sua documentação). Com base na descrição da feature acima, faça perguntas de clarificação quando necessário e refine o design com base nas respostas. Produza a especificação OpenAPI e o documento da API em `docs/{context}/oas/`. Use o base path informado ou proponha um adequado.
 
 Formato de saída:
-- Consultar **paths.oas** em `.ahrena/.directives` para o destino
-- Criar o diretório (paths.oas) se não existir no projeto
+- Salvar em `docs/{context}/oas/` conforme `lex-feature-design-docs`
+- Criar o diretório se não existir no projeto
 - Criar ou atualizar a especificação OpenAPI e o documento Markdown da API nesse path
 - Lista ou tabela de endpoints (path, método, resumo); para cada endpoint: parâmetros, headers obrigatórios (ex.: Idempotency-Key em mutações), códigos de status, estrutura de request/response (data, pagination, errors conforme codex-restful-payload)
 ```
@@ -59,7 +59,7 @@ Resposta estruturada do Warrior Daedalus com:
 - Recursos identificados (ex.: scheduled-transfers)
 - Endpoints: POST (criar), GET (listar com paginação/ordenação), GET por id, PATCH (atualizar), DELETE (cancelar)
 - Uso de Idempotency-Key em POST e PATCH; status 200/201/204/400/409/422 etc.; payload com data/pagination/errors conforme codex-restful-payload
-- Especificação criada ou atualizada no path **paths.oas** (`.ahrena/.directives`; diretório criado se não existir)
+- Especificação criada ou atualizada em `docs/{context}/oas/` (diretório criado se não existir)
 
 ## Restrições
 
@@ -78,9 +78,9 @@ Resposta estruturada do Warrior Daedalus com:
 
 ## Kata e Warrior Associados
 
-- **kata-api-design-oas** — Design de API e produção de especificação OpenAPI 3.x em paths.oas
-- **kata-api-design-doc** — Design de API e produção de documento Markdown estruturado em paths.oas
-- **warrior-daedalus** — Especialista em Design de API; executa kata-api-design-oas e kata-api-design-doc (ambos em paths.oas)
+- **kata-api-design-oas** — Design de API e produção de especificação OpenAPI 3.x em `docs/{context}/oas/`
+- **kata-api-design-doc** — Design de API e produção de documento Markdown estruturado em `docs/{context}/oas/`
+- **warrior-daedalus** — Especialista em Design de API; executa kata-api-design-oas e kata-api-design-doc (ambos em `docs/{context}/oas/`)
 
 ## Referências
 

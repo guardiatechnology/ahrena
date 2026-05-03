@@ -7,6 +7,8 @@ description: "RESTful API Design for New Feature — Structured Document (Markdo
 
 > **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Guardia platform — REST API design and structured Markdown document production
 
+> **Status:** complementary. The canonical API artifact is `docs/{context}/oas/openapi.yaml` produced by `kata-api-design-oas` and persisted by `kata-feature-design-docs`. This Kata remains for generating additional human-readable documentation on demand; when used, the output complements (does not replace) `openapi.yaml`.
+
 ## Workflow
 
 ```
@@ -22,7 +24,7 @@ Progress:
 
 ### Step 1: Read Directives and Context
 
-1. Read `.ahrena/.directives` to obtain `language.default`, canonical paths, and **paths.oas** (destination of the document; default `docs/oas`)
+1. Read `.ahrena/.directives` to obtain `language.default`. The destination is `docs/{context}/oas/`, per `lex-feature-design-docs`. Confirm with the user the Bounded Context name in PascalCase (it will be converted to kebab-case in the folder)
 2. Confirm that the feature description was provided. **Work iteratively:** if incomplete or ambiguous, **ask the user** (e.g., public or private API? Pagination and sorting? Base path? Soft delete or discarded_at? Filters?) and wait for answers; repeat until criteria are clear
 3. Record the base path provided or propose one (e.g., `/v1/<main-resource>`) in kebab-case with version in the URL when applicable
 4. Identify whether the API is public (Client Credentials, FAPI 2.0) or private (JWT, RBAC) to align with lex-auth
@@ -64,15 +66,15 @@ Progress:
 
 ### Step 6: Produce Structured Markdown Document
 
-1. Obtain the canonical path **paths.oas** from `.ahrena/.directives`. Ensure the directory exists at the project root; if not, create it
-2. Generate **Markdown document** (.md) containing:
+1. Obtain the canonical path **docs/{context}/oas/** per `lex-feature-design-docs`. Ensure the directory exists at the project root; if not, create it
+2. Generate a **Markdown document** (.md) containing:
    - Title and API summary
    - Endpoint table (path, method, summary)
    - For each endpoint: parameters (path, query, header), request body when applicable, responses (200/201/204, 400, 401, 403, 404, 409, 422, 429, 500) with payload structure per codex-restful-payload
    - **Global headers** section (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization) per codex-restful-headers
    - Known errors section per endpoint (codes, reason, message)
    - Request/response examples when useful
-3. Name the file consistently (e.g., `api-scheduled-transfers.md`, `api.md`). Save to **paths.oas** (create or update). If the user requests inline delivery in addition to the file, deliver in chat as well
+3. Name the file consistently (e.g., `api-scheduled-transfers.md`, `api.md`). Save to **docs/{context}/oas/** (create or update). If the user requests inline delivery in addition to the file, deliver in chat as well
 
 ### Step 7: Final Validation
 
@@ -85,13 +87,13 @@ Before delivering the output, verify:
 - [ ] Authentication/authorization documented per lex-auth when the API is protected
 - [ ] Paginated listings have page_size, page_token, and pagination structure in the response
 - [ ] Document is complete (endpoint table, details per endpoint, global headers, errors) with no contradiction to the Lexis
-- [ ] Document was saved to path **paths.oas** (directory created if it did not exist)
+- [ ] Document was saved to path **docs/{context}/oas/** (directory created if it did not exist)
 
 ## Outputs
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| API document | Markdown (.md) | Directory **paths.oas** in `.ahrena/.directives` (create directory if it does not exist; create or update the file) |
+| API document | Markdown (.md) | Directory **docs/{context}/oas/** (create directory if it does not exist; create or update the file) |
 | Endpoint table | Markdown | Included in the document |
 
 ## Execution Example
@@ -105,7 +107,7 @@ Base path: /v1/scheduled-transfers
 
 ### Example Output (summary)
 
-`.md` file in **paths.oas** with:
+`.md` file at **docs/{context}/oas/** with:
 - Table: `POST /v1/scheduled-transfers` (create), `GET /v1/scheduled-transfers` (list), `GET /v1/scheduled-transfers/{entity_id}`, `PATCH ...`, `DELETE ...`
 - For each endpoint: parameters, headers, request/response, status 200/201/204/400/404/409/422 etc.
 - Global headers (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization)
@@ -114,6 +116,6 @@ Base path: /v1/scheduled-transfers
 ## Constraints
 
 - This Kata produces only a Markdown document; it does not implement code or generate OpenAPI
-- Do not change already-published documents without justification and ADR
+- Does not change already-published documents without justification and ADR
 - Exceptions to the Lexis must be documented in an ADR and reflected in the document
-- The agent must escalate to a human when there is conflict between Lexis and business requirement, or when the feature involves multiple bounded contexts with unclear API boundaries
+- The agent MUST escalate to a human when there is conflict between Lexis and a business requirement, or when the feature involves multiple bounded contexts with unclear API boundaries

@@ -4,7 +4,7 @@
 
 ## Objective
 
-This Kata defines the procedure to **conduct an Event Storming session** for a domain or feature: identify domain events, commands, aggregates, policies, external systems, read models, hotspots, and bounded contexts; map discovered events to CloudEvents types; and produce a structured discovery document ready to feed `kata-events-doc`.
+This Kata defines the procedure to **conduct an Event Storming session** for a domain or feature: identify domain events, commands, aggregates, policies, external systems, read models, hotspots, and bounded contexts; map discovered events to CloudEvents types; and produce a structured discovery catalog ready to feed `kata-events-doc`.
 
 ## When to Use
 
@@ -18,7 +18,8 @@ This Kata defines the procedure to **conduct an Event Storming session** for a d
 | Input | Required | Description |
 |-------|:--------:|-------------|
 | Domain or feature description | Yes | Textual description of the business domain, feature scope, or module to be stormed |
-| Module name | Yes | Guardia module identifier used in CloudEvents type (e.g., `platform`, `reconciliation`, `fiscal`) |
+| Bounded Context name | Yes | Bounded Context identifier in PascalCase (e.g., `ScheduledPayments`) |
+| CloudEvents module | Yes | Guardia module identifier used in CloudEvents type (e.g., `platform`, `reconciliation`, `fiscal`) |
 | Bounded context scope | No | Whether to storm a single bounded context or multiple. If omitted, storms a single context |
 | Known events | No | List of already-known events to use as starting point. If provided, extend and validate against them |
 
@@ -36,14 +37,14 @@ Progress:
 - [ ] 8. Mark hotspots
 - [ ] 9. Identify bounded contexts
 - [ ] 10. Map to CloudEvents types
-- [ ] 11. Produce Event Storm document
+- [ ] 11. Deliver the discovery catalog
 ```
 
 ### Step 1: Read Directives and Scope
 
-1. Read `.ahrena/.directives` to obtain `paths.events` and `language.default`
-2. Confirm the domain/feature description and module name are provided. If insufficient, **ask the user** (what is the main business process? who are the actors? what is the system boundary? what triggers the first action?) and wait for answers
-3. Check whether an events document already exists in `paths.events` for this module — incorporate it as input if available
+1. Read `.ahrena/.directives` to obtain `language.default`
+2. Confirm the domain/feature description, the Bounded Context name (PascalCase), and the CloudEvents module are provided. If insufficient, **ask the user** (what is the main business process? who are the actors? what is the system boundary? what triggers the first action?) and wait for answers
+3. Check whether `docs/{context}/events/events.md` already exists — incorporate it as input if available
 4. Identify the bounded context scope: single or multiple contexts
 
 ### Step 2: Consult Lexis and Codex
@@ -58,7 +59,7 @@ Progress:
 Domain events are **things that happened** in the domain — stated in the past tense, from the business perspective:
 
 1. Ask the user: "Walk me through the business process step by step. What happens first, and what follows?" — or infer from the description when the flow is clear
-2. List all domain events in **chronological order** (e.g., `TransferRequested`, `TransferApproved`, `TransferExecuted`, `TransferFailed`)
+2. List all domain events in **chronological order** (e.g., `ScheduledTransferRequested`, `ScheduledTransferApproved`, `ScheduledTransferExecuted`, `ScheduledTransferFailed`)
 3. For each event, capture:
    - **Name** — past tense, PascalCase noun phrase (e.g., `ScheduledTransferExecuted`)
    - **When it occurs** — business trigger (e.g., "after the accountant submits the transfer form")
@@ -144,11 +145,13 @@ Translate each domain event to Guardia's CloudEvents naming convention:
    - Omit `history`; do not include PII unless strictly necessary
 3. Mark integration events (crossing bounded contexts) — they require explicit `source` and `subject` values
 
-### Step 11: Produce Event Storm Document
+### Step 11: Deliver the Discovery Catalog
 
-Generate a structured Markdown document and save to `paths.events`:
+The discovery **does not become a monolithic file**. The result is delivered as input to Phase 2 (`kata-events-doc`) and as notes that `warrior-prometheus` consolidates.
 
-1. **Header** — domain, module, date, participants, bounded context scope
+Internal structure to forward:
+
+1. **Header** — domain, Bounded Context, CloudEvents module, date, scope
 2. **Domain Events Timeline** — chronological list: name, trigger, entity
 3. **Commands and Actors** — table: Actor | Command | Domain Event
 4. **Aggregates** — one subsection per aggregate: commands accepted, events produced, invariants
@@ -159,13 +162,14 @@ Generate a structured Markdown document and save to `paths.events`:
 9. **Bounded Contexts** — diagram or table: Context | Responsibility | Owner | Integration Events
 10. **CloudEvents Catalog** — table: Domain Event | CloudEvents type | Initial data shape
 
+Canonical persistence of the discovered events happens in Phase 2, at `docs/{context}/events/events.md`, via `kata-events-doc` + `kata-feature-design-docs`. Hotspots and supporting findings are published by Prometheus to Notion (Guardia Platform > Domain Models).
+
 ## Outputs
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Event Storm document | Markdown | `paths.events` (e.g., `docs/events/event-storm-{module}.md`) |
-| CloudEvents catalog | Table within document | Ready to feed `kata-events-doc` directly |
-| Hotspot list | Table within document | For human review and prioritized resolution |
+| CloudEvents catalog | In-memory table | Direct input for `kata-events-doc` |
+| Hotspot list | Table | Notes for `warrior-prometheus` to review and resolve |
 
 ## Execution Example
 
@@ -178,7 +182,7 @@ Module: platform
 
 ### Example Output (summary)
 
-File `docs/events/event-storm-platform.md` containing:
+Discovery catalog delivered to Phase 2 (`kata-events-doc`):
 
 **Timeline:** ScheduledTransferRequested → ScheduledTransferApproved → ScheduledTransferExecuted | ScheduledTransferFailed → ScheduledTransferCancelled
 
@@ -189,10 +193,6 @@ File `docs/events/event-storm-platform.md` containing:
 | Supervisor | ApproveScheduledTransfer | ScheduledTransferApproved |
 | Scheduler | ExecuteScheduledTransfer | ScheduledTransferExecuted / ScheduledTransferFailed |
 | Accountant | CancelScheduledTransfer | ScheduledTransferCancelled |
-
-**Aggregates:** `ScheduledTransfer` (handles request, approval, execution, cancellation), `LedgerEntry` (handles posting after execution)
-
-**Policies:** `When ScheduledTransferApproved AND ExecutionDate reached → Then ExecuteScheduledTransfer (on ScheduledTransfer)`
 
 **Hotspots:**
 | Type | Description | Priority | Owner |
@@ -211,7 +211,7 @@ File `docs/events/event-storm-platform.md` containing:
 
 ## Constraints
 
-- This Kata produces only the discovery document; it does not implement publishers, consumers, or API contracts
+- This Kata produces only the discovery catalog; it does not implement publishers, consumers, or API contracts
 - Do not skip hotspot identification — every uncertainty left undocumented becomes a bug or scope gap
 - The CloudEvents catalog produced here MUST be complete enough to run `kata-events-doc` without additional discovery; flag missing fields explicitly
 - Escalate to a human when bounded context ownership is ambiguous or when a single event spans multiple aggregates with no clear owner
@@ -219,7 +219,9 @@ File `docs/events/event-storm-platform.md` containing:
 
 ## References
 
-- lex-cloudevents, lex-entities, lex-idempotency
-- codex-cloudevents, codex-entities, codex-idempotency
+- lex-cloudevents, lex-entities, lex-idempotency, lex-feature-design-docs
+- codex-cloudevents, codex-entities, codex-idempotency, codex-feature-design-docs
+- kata-events-doc — Phase 2 persistence
+- kata-feature-design-docs — canonical persistence procedure
 - [Event Storming — Alberto Brandolini](https://www.eventstorming.com/)
 - [Domain-Driven Design Reference — Eric Evans](https://www.domainlanguage.com/ddd/reference/)

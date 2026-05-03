@@ -4,7 +4,7 @@
 
 ## Description
 
-This command activates the **Prometheus Warrior** (Technical Product Manager) to orchestrate the complete feature design cycle in three sequential phases: domain modeling (warrior-theseus), API design (warrior-daedalus), and event documentation (warrior-kronos). Each phase uses the previous phase's output as its authoritative input. The user confirms each phase before the next begins.
+This command activates the **Prometheus Warrior** (Technical Product Manager) to orchestrate the complete feature design cycle in three sequential phases: domain modeling (warrior-theseus), API design (warrior-daedalus), and event documentation (warrior-kronos). Each phase uses the output of the previous phase as its authoritative input. The user confirms each phase before the next one begins.
 
 ## Usage
 
@@ -22,13 +22,13 @@ This command activates the **Prometheus Warrior** (Technical Product Manager) to
 
 ## What the Command Does
 
-1. **Assumes the role of warrior-prometheus** and reads `.ahrena/.directives` for `paths.domain`, `paths.oas`, `paths.events`, and `language.default`
-2. **Asks clarifying questions** if feature description, module, or constraints are insufficient
-3. **Phase 1 — Domain Modeling (warrior-theseus):** models the domain iteratively; resolves P1 hotspots; confirms domain model with user before proceeding
-4. **Phase 2 — API Design (warrior-daedalus):** designs the API using the domain model as authoritative input; confirms API design with user before proceeding
-5. **Phase 3 — Event Documentation (warrior-kronos):** documents CloudEvents using domain model + integration events from Phase 1; skips discovery (already done); confirms events documentation with user
+1. **Assumes the role of warrior-prometheus** and reads `language.default` from `.ahrena/.directives`
+2. **Asks clarifying questions** if the feature description, module, or constraints are insufficient
+3. **Phase 1 — Domain Modeling (warrior-theseus):** models the domain iteratively; resolves P1 hotspots; confirms the domain model with the user before proceeding
+4. **Phase 2 — API Design (warrior-daedalus):** designs the API using the domain model as authoritative input; confirms the API design with the user before proceeding
+5. **Phase 3 — Event Documentation (warrior-kronos):** documents CloudEvents using the domain model and integration events from Phase 1; skips discovery (already done); confirms event documentation with the user
 6. **Consistency check:** verifies that entity names, entity_type values, and CloudEvents type segments match the domain model across all outputs
-7. **Delivers final artifact package** with paths to all produced files
+7. **Delivers the final artifact package** with paths to all produced files
 
 ## Prompt Template
 
@@ -39,7 +39,9 @@ Context:
 - Constraints (optional): {{constraints}}
 
 Task:
-Act as the Prometheus Warrior (Technical Product Manager). Read `.ahrena/.directives` to obtain `paths.domain`, `paths.oas`, `paths.events`, and `language.default`.
+Act as the Prometheus Warrior (Technical Product Manager). Design artifacts are
+persisted in the canonical structure `docs/{context}/{category}/` per
+`lex-feature-design-docs`.
 
 If the feature description, module, or constraints are insufficient, ask clarifying questions before starting.
 
@@ -49,14 +51,14 @@ Orchestrate the complete feature design cycle in sequence:
 
 2) **Phase 2 — API Design (warrior-daedalus):** After explicit user confirmation, delegate to warrior-daedalus using the domain model document as primary input. Instruct Daedalus to use entity_type values and field names from the domain model (lex-entity-naming). Present the API design summary and ask: "Does the API design look correct? Should I proceed to event documentation?"
 
-3) **Phase 3 — Event Documentation (warrior-kronos):** After explicit user confirmation, delegate to warrior-kronos with domain model + integration events list. Instruct Kronos to skip discovery (events were identified in Phase 1) and go directly to documentation. Verify CloudEvents type segments match entity_type values from the domain model. Present the events summary.
+3) **Phase 3 — Event Documentation (warrior-kronos):** After explicit user confirmation, delegate to warrior-kronos with the domain model and integration events list. Instruct Kronos to skip discovery (events were identified in Phase 1) and go directly to documentation. Verify that CloudEvents type segments match entity_type values from the domain model. Present the events summary.
 
 After all phases, verify consistency: entity names in APIs and events must match the domain model. Flag any divergence with a clear resolution path.
 
 Deliver the final artifact package:
-- Domain model: `paths.domain/{module}-domain-model.md`
-- API specification: `paths.oas/{module}-api.yaml` (OAS) and `paths.oas/{module}-api.md` (doc)
-- Events document: `paths.events/{module}-events.md`
+- Entities: `docs/{context}/entities/{entity}.md` (1 file per entity)
+- API specification: `docs/{context}/oas/openapi.yaml` and `docs/{context}/oas/{slug}-api.md`
+- Events document: `docs/{context}/events/events.md`
 ```
 
 ## Invocation Example
@@ -73,10 +75,9 @@ Deliver the final artifact package:
 - **Phase 2 confirmation:** Endpoints (POST /v1/scheduled-transfers, GET, GET/:id, PATCH, DELETE), Idempotency-Key, payloads — user confirms before Phase 3
 - **Phase 3 confirmation:** CloudEvents catalog (`event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`) — final summary
 - **Artifact package:**
-  - `docs/domain/platform-domain-model.md`
-  - `docs/oas/platform-api.yaml`
-  - `docs/oas/platform-api.md`
-  - `docs/events/platform-events.md`
+  - `docs/scheduled-payments/entities/scheduled-transfer.md`
+  - `docs/scheduled-payments/oas/openapi.yaml`
+  - `docs/scheduled-payments/events/events.md`
 
 ## When to Use This Cry vs Others
 
@@ -87,7 +88,7 @@ Deliver the final artifact package:
 | **cry-api-design** | Domain is modeled and events are out of scope; need only the API |
 | **cry-event-storm** | Need event discovery or documentation only (domain and API already exist) |
 
-## Restrictions
+## Constraints
 
 - Does not implement code — orchestrates design only
 - Does not advance to the next phase without explicit user confirmation
@@ -109,7 +110,8 @@ Deliver the final artifact package:
 
 ## References
 
-- `warrior-prometheus` — Technical Product Manager and feature design orchestrator
-- `lex-entity-naming` — snake_case/PascalCase rules enforced across all phases
+- `warrior-prometheus` — Technical Product Manager and feature design cycle orchestrator
+- `lex-feature-design-docs` — canonical structure `docs/{context}/{category}/`
+- `lex-entity-naming` — snake_case/PascalCase rules applied across all phases
 - `lex-entities` — base entity structure (entity_id, entity_type, version, timestamps) consulted during domain modeling
 - `lex-cloudevents` — CloudEvents type format consulted during event documentation

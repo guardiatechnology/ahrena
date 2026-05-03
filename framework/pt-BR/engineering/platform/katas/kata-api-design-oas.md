@@ -4,14 +4,14 @@
 
 ## Objetivo
 
-Este Kata define o procedimento para desenhar a API REST de uma nova feature e **produzir especificação em formato OpenAPI 3.x** (YAML ou JSON): consultar Lexis e Codex, identificar recursos e operações, definir endpoints e persistir o contrato em **paths.oas** em conformidade com as regras da Guardia.
+Este Kata define o procedimento para desenhar a API REST de uma nova feature e **produzir especificação em formato OpenAPI 3.x** (YAML ou JSON): consultar Lexis e Codex, identificar recursos e operações, definir endpoints e persistir o contrato em **docs/{context}/oas/openapi.yaml** em conformidade com as regras da Guardia.
 
 ## Quando Usar
 
 - Quando o formato de saída desejado é **OpenAPI 3.x** (YAML ou JSON)
 - Quando uma nova feature exige exposição via API HTTP e ainda não existe contrato definido
 - Quando invocado pelo `cry-api-design` ou pelo Warrior Daedalus com output OAS
-- Quando é necessário gerar ou atualizar um arquivo OAS em `docs/oas` (ou path definido em paths.oas)
+- Quando é necessário gerar ou atualizar um arquivo OAS em `docs/oas` (ou path definido em docs/{context}/oas/openapi.yaml)
 
 ## Inputs
 
@@ -37,7 +37,7 @@ Progresso:
 
 ### Passo 1: Ler Diretivas e Contexto
 
-1. Ler `.ahrena/.directives` para obter `language.default`, caminhos canônicos e **paths.oas** (destino da especificação; padrão `docs/oas`)
+1. Ler `.ahrena/.directives` para obter `language.default`. O destino é fixo: `docs/{context}/oas/openapi.yaml`, conforme `lex-feature-design-docs`. Confirmar com o usuário o nome do Bounded Context em PascalCase (será convertido para kebab-case na pasta)
 2. Confirmar que a descrição da feature foi fornecida. **Trabalhar de forma iterativa:** se incompleta ou ambígua, **fazer perguntas ao usuário** (ex.: API pública ou privada? Paginação e ordenação? Base path? Soft delete ou discarded_at? Filtros?) e aguardar respostas; repetir até os critérios ficarem claros
 3. Registrar o base path informado ou propor um (ex.: `/v1/<recurso-principal>`) em kebab-case e versão na URL quando aplicável
 4. Identificar se a API é pública (Client Credentials, FAPI 2.0) ou privada (JWT, RBAC) para alinhar com lex-auth
@@ -80,13 +80,18 @@ Progresso:
 
 ### Passo 6: Produzir Especificação OpenAPI 3.x
 
-1. Obter o path canônico **paths.oas** em `.ahrena/.directives`. Garantir que o diretório exista na raiz do projeto; se não existir, criá-lo
-2. Gerar **fragmento ou documento OpenAPI 3.x** em YAML ou JSON (conforme input ou padrão YAML), contendo:
+1. Gerar **documento OpenAPI 3.x** em YAML, contendo:
    - `openapi: 3.x`
    - `paths` com cada endpoint; em cada path, listar as operações na ordem **codex-oas-structure**: post, get, put, patch, delete; em cada operação: `parameters` (path, query, header), `requestBody` quando aplicável, `responses` (200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500)
    - Componentes de headers globais (Idempotency-Key, X-Grd-Trace-Id, Content-Type, Authorization) conforme codex-restful-headers
-   - Schemas de request/response alinhados a codex-restful-payload e codex-entities
-3. Nomear o arquivo de forma consistente (ex.: `openapi.yaml`, `api-spec.yaml` ou nome do recurso principal). Salvar em **paths.oas** (criar ou atualizar). Se o usuário solicitar entrega inline além do arquivo, entregar também no chat
+   - Schemas de request/response alinhados a codex-restful-payload e codex-entities; espelhar o catálogo de campos das entidades persistidas em `docs/{context}/entities/`
+2. **Persistir via `kata-feature-design-docs`** com:
+   - `Bounded Context` = nome em PascalCase
+   - `Categoria` = `oas`
+   - `Conteúdo` = YAML gerado
+   - `Operação` = `create` ou `update`
+   - O kata grava em `docs/{context}/oas/openapi.yaml` e cria o diretório se necessário
+3. Se o usuário solicitar entrega inline além do arquivo, entregar também no chat
 
 ### Passo 7: Validação Final
 
@@ -100,13 +105,13 @@ Antes de entregar o output, verificar:
 - [ ] Listagens paginadas têm page_size, page_token e estrutura pagination na resposta
 - [ ] Arquivo OpenAPI 3.x está completo (paths, methods, parameters, responses) e sem contradição com as Lexis
 - [ ] Ordem das operações em cada path segue codex-oas-structure (POST, GET, PUT, PATCH, DELETE)
-- [ ] Arquivo foi salvo no path **paths.oas** (diretório criado se não existia)
+- [ ] Persistência delegada a `kata-feature-design-docs` com categoria `oas` (path canônico `docs/{context}/oas/openapi.yaml`)
 
 ## Outputs
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Especificação OpenAPI 3.x | YAML ou JSON | Diretório **paths.oas** em `.ahrena/.directives` (criar diretório se não existir; criar ou atualizar o arquivo) |
+| Especificação OpenAPI 3.x | YAML | `docs/{context}/oas/openapi.yaml` (persistido via `kata-feature-design-docs`) |
 
 ## Exemplo de Execução
 
@@ -120,7 +125,7 @@ Formato: YAML
 
 ### Output de Exemplo (resumido)
 
-Arquivo `openapi.yaml` (ou similar) em **paths.oas** com `paths` incluindo:
+Arquivo `openapi.yaml` (ou similar) em **docs/{context}/oas/openapi.yaml** com `paths` incluindo:
 - `POST /v1/scheduled-transfers` — 201, Idempotency-Key obrigatório
 - `GET /v1/scheduled-transfers` — 200, query page_size, page_token, order_by, sort; response com data e pagination
 - `GET /v1/scheduled-transfers/{entity_id}` — 200, 404
