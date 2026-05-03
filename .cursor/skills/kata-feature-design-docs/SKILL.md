@@ -1,6 +1,6 @@
 ---
 name: kata-feature-design-docs
-description: "ScheduledTransfer. Guardia platform — production of entities/, oas/ and events/ documents under docs/{context}/ during the feature design cycle"
+description: "Create and Update Feature Design Documents. Guardia platform — production of entities/, oas/ and events/ documents under docs/{context}/ during the feature design cycle"
 ---
 
 # Kata: Create and Update Feature Design Documents

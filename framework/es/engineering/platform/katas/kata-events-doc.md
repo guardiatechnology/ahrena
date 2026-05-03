@@ -14,8 +14,9 @@ Este Kata define el procedimiento para **producir documentación en Markdown** d
 
 ## Inputs
 
-| Input | Obligatorio | Descripción |
+| Entrada | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
+| Nombre del Bounded Context | Sí | Nombre del Bounded Context en PascalCase (ej.: `ScheduledPayments`) |
 | Contexto de la feature o módulo | Sí | Nombre del módulo, entidades involucradas y operaciones que emiten eventos (ej.: transaction.created, transaction.updated) o lista explícita de tipos de evento |
 | Base path / source | No | Base de la URI `source` (ej.: `https://tenant.guardia.finance/platform/api/v1`). Si se omite, el agente propone conforme codex-cloudevents |
 | Documento existente | No | Si existe doc de eventos en `docs/{context}/events/events.md`, actualizar en vez de crear desde cero |

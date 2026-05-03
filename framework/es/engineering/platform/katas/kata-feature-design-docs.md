@@ -15,7 +15,7 @@ Producir o actualizar los documentos de diseño de una feature en la estructura 
 
 ## Inputs
 
-| Input | Obligatorio | Descripción |
+| Entrada | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
 | Bounded Context | Sí | Nombre del contexto en PascalCase (será convertido a kebab-case). Ej.: `ScheduledPayments` |
 | Categoría | Sí | Una de: `entities`, `oas`, `events` (categorías `agents`, `metrics` reservadas) |
