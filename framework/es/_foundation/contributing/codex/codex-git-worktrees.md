@@ -155,7 +155,7 @@ El Claude Code SDK expone el tool `EnterWorktree` para crear y navegar worktrees
 
 Parámetros esperados por `EnterWorktree`:
 - `branch`: nombre del branch en formato `lex-git-branches`
-- Crea automáticamente el directorio `../{repo}-{issue-number}-{slug}/`
+- Crea automáticamente el directorio `.worktrees/{issue-number}-{slug}/`
 - Devuelve la ruta del worktree creado
 
 Tras completar la tarea y hacer merge del PR, el agente usa `ExitWorktree` para salir y luego ejecuta la limpieza vía CLI.

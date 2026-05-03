@@ -63,7 +63,6 @@ Exemplos válidos:
 
 | Campo | Regra |
 |---|---|
-| `repo-name` | Nome do repositório (ex.: `ahrena`) |
 | `issue-number` | Mesmo número da issue do branch |
 | `slug` | Mesmo slug do branch |
 
@@ -71,7 +70,7 @@ Exemplos:
 - `.worktrees/42-scheduled-payments-api/`
 - `.worktrees/87-null-pointer-transfer/`
 
-O prefixo `../{repo-name}-` coloca o worktree **fora** do diretório do repositório principal, evitando interferências com o `.git` raiz e mantendo a listagem de arquivos limpa.
+O diretório `.worktrees/` fica dentro do repositório e é ignorado pelo git via `.gitignore`. O caminho é configurável via `paths.worktrees` em `.ahrena/.directives`.
 
 ---
 
@@ -154,7 +153,7 @@ O Claude Code SDK expõe o tool `EnterWorktree` para criar e navegar worktrees d
 
 Parâmetros esperados pelo `EnterWorktree`:
 - `branch`: nome do branch no formato `lex-git-branches`
-- Cria automaticamente o diretório `../{repo}-{issue-number}-{slug}/`
+- Cria automaticamente o diretório `.worktrees/{issue-number}-{slug}/`
 - Retorna o caminho do worktree criado
 
 Após a tarefa concluída e PR mergeado, o agente usa `ExitWorktree` para sair e depois executa o cleanup do CLI.
