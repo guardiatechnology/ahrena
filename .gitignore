@@ -13,5 +13,8 @@ temp.md
 
 .claude/settings.local.json
 
+# Git worktrees (path defined in paths.worktrees in .ahrena/.directives)
+.worktrees/
+
 # Harness runtime artifacts (transient agent worktrees)
 .claude/worktrees/
