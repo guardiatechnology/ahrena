@@ -1,7 +1,7 @@
 ---
 paths:
-  - "**/COMMIT_EDITMSG"
-  - ".commitlintrc*"
+  - '**/COMMIT_EDITMSG'
+  - '.commitlintrc*'
 ---
 
 # Lexis: Mandatory Atomic Commits

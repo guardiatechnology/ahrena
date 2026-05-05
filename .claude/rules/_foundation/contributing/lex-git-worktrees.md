@@ -1,8 +1,8 @@
 ---
 paths:
-  - ".github/CODEOWNERS"
-  - ".gitignore"
-  - ".github/workflows/**.yml"
+  - '.github/CODEOWNERS'
+  - '.gitignore'
+  - '.github/workflows/**.yml'
 ---
 
 # Lexis: Mandatory Use of Git Worktrees

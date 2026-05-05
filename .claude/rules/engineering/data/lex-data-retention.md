@@ -1,8 +1,8 @@
 ---
 paths:
-  - "**/migrations/**"
-  - "**/models/**"
-  - "docs/data-retention.yaml"
+  - '**/migrations/**'
+  - '**/models/**'
+  - 'docs/data-retention.yaml'
 ---
 
 # Lexis: Data Retention Policy

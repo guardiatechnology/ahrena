@@ -1,9 +1,9 @@
 ---
 paths:
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.vue"
-  - "**/*.svelte"
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.vue'
+  - '**/*.svelte'
 ---
 
 # Lexis: Strict Typing in Frontend

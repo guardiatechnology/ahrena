@@ -1,6 +1,6 @@
 ---
 name: kata-git-worktree
-description: "Deleted branch feat/42-scheduled-payments-api. Creating, using, and removing git worktrees for branch-based tasks, per lex-git-worktrees"
+description: "Create and Manage a Git Worktree. Creating, using, and removing git worktrees for branch-based tasks, per lex-git-worktrees"
 ---
 
 # Kata: Create and Manage a Git Worktree

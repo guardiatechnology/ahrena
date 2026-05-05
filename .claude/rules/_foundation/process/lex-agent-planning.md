@@ -1,8 +1,8 @@
 ---
 paths:
-  - ".claude/plans/**"
-  - ".cursor/plans/**"
-  - "**/plan-*.md"
+  - '.claude/plans/**'
+  - '.cursor/plans/**'
+  - '**/plan-*.md'
 ---
 
 # Lexis: Mandatory Planning for Agent Tasks

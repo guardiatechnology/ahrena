@@ -1,11 +1,11 @@
 ---
 paths:
-  - "**/*.tf"
-  - "**/*.hcl"
-  - "**/*.cdk.ts"
-  - "**/cdk/**"
-  - "**/cloudformation/**"
-  - "**/cf-*.yaml"
+  - '**/*.tf'
+  - '**/*.hcl'
+  - '**/*.cdk.ts'
+  - '**/cdk/**'
+  - '**/cloudformation/**'
+  - '**/cf-*.yaml'
 ---
 
 # Lexis: Infrastructure as Code (IaC) in AWS

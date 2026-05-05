@@ -1,13 +1,13 @@
 ---
 paths:
-  - "**/*.py"
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.go"
-  - "**/api/**"
-  - "**/handlers/**"
-  - "**/jobs/**"
-  - "**/consumers/**"
+  - '**/*.py'
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.go'
+  - '**/api/**'
+  - '**/handlers/**'
+  - '**/jobs/**'
+  - '**/consumers/**'
 ---
 
 # Lexis: Observability Is Mandatory

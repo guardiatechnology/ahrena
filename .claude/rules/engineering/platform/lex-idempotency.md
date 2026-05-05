@@ -1,9 +1,9 @@
 ---
 paths:
-  - "**/api/**"
-  - "**/*api*.py"
-  - "**/*router*.py"
-  - "**/events/**"
+  - '**/api/**'
+  - '**/*api*.py'
+  - '**/*router*.py'
+  - '**/events/**'
 ---
 
 # Lexis: Idempotency for State-Modifying Operations

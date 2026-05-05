@@ -1,6 +1,6 @@
 ---
 paths:
-  - "**/*.py"
+  - '**/*.py'
 ---
 
 # Lexis: Python Result Type for Error Handling

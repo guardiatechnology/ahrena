@@ -1,8 +1,8 @@
 ---
 paths:
-  - "docs/slo/**"
-  - "**/slo/**"
-  - "**/*.slo.yaml"
+  - 'docs/slo/**'
+  - '**/slo/**'
+  - '**/*.slo.yaml'
 ---
 
 # Lexis: SLO Required for tier-1/2 Services

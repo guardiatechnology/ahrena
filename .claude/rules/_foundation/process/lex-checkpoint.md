@@ -1,6 +1,6 @@
 ---
 paths:
-  - "**/.checkpoint"
+  - '**/.checkpoint'
 ---
 
 # Lexis: Session Checkpoint

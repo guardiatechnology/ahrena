@@ -1,8 +1,8 @@
 ---
 paths:
-  - "**/entities/**"
-  - "**/*entity*.py"
-  - "docs/**/entities/**"
+  - '**/entities/**'
+  - '**/*entity*.py'
+  - 'docs/**/entities/**'
 ---
 
 # Lexis: Base Entity Structure

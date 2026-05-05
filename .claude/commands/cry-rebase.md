@@ -1,4 +1,4 @@
-rebase then push. Shortcut to resolve conflicts and update the branch via rebase
+Run Rebase. Shortcut to resolve conflicts and update the branch via rebase
 
 # Cry: Run Rebase
 

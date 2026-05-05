@@ -1,11 +1,11 @@
 ---
 paths:
-  - "**/*.swift"
-  - "**/*.kt"
-  - "**/*.java"
-  - "**/*.dart"
-  - "**/ios/**"
-  - "**/android/**"
+  - '**/*.swift'
+  - '**/*.kt'
+  - '**/*.java'
+  - '**/*.dart'
+  - '**/ios/**'
+  - '**/android/**'
 ---
 
 # Lexis: Minimum Parity Between Mobile Platforms

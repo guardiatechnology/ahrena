@@ -1,10 +1,10 @@
 ---
 paths:
-  - "**/*.tf"
-  - "**/*.hcl"
-  - "**/*.cdk.ts"
-  - "**/cdk/**"
-  - "**/cloudformation/**"
+  - '**/*.tf'
+  - '**/*.hcl'
+  - '**/*.cdk.ts'
+  - '**/cdk/**'
+  - '**/cloudformation/**'
 ---
 
 # Lexis: AWS Cost Awareness

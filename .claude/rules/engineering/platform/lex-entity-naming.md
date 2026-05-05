@@ -1,8 +1,8 @@
 ---
 paths:
-  - "**/entities/**"
-  - "**/*entity*"
-  - "docs/**/entities/**"
+  - '**/entities/**'
+  - '**/*entity*'
+  - 'docs/**/entities/**'
 ---
 
 # Lexis: Entity Naming Conventions — snake_case

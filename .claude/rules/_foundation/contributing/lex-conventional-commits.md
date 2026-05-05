@@ -1,9 +1,9 @@
 ---
 paths:
-  - "**/COMMIT_EDITMSG"
-  - ".commitlintrc*"
-  - ".github/workflows/**commit**.yml"
-  - ".github/workflows/**commit**.yaml"
+  - '**/COMMIT_EDITMSG'
+  - '.commitlintrc*'
+  - '.github/workflows/**commit**.yml'
+  - '.github/workflows/**commit**.yaml'
 ---
 
 # Lexis: Mandatory Conventional Commits

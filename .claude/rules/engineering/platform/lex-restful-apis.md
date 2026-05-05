@@ -1,10 +1,10 @@
 ---
 paths:
-  - "**/api/**"
-  - "**/*api*.py"
-  - "**/*router*.py"
-  - "**/openapi*.yaml"
-  - "docs/**/oas/**"
+  - '**/api/**'
+  - '**/*api*.py'
+  - '**/*router*.py'
+  - '**/openapi*.yaml'
+  - 'docs/**/oas/**'
 ---
 
 # Lexis: RESTful Compliance for HTTP Endpoints

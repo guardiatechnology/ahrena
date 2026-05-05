@@ -1,10 +1,10 @@
 ---
 paths:
-  - "**/*.py"
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.js"
-  - "**/*.go"
+  - '**/*.py'
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.js'
+  - '**/*.go'
 ---
 
 # Lexis: Logs via Centralized Bootstrap and Decorator

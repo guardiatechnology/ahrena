@@ -1,8 +1,8 @@
 ---
 paths:
-  - ".github/PULL_REQUEST_TEMPLATE.md"
-  - ".github/PULL_REQUEST_TEMPLATE/**"
-  - ".github/CODEOWNERS"
+  - '.github/PULL_REQUEST_TEMPLATE.md'
+  - '.github/PULL_REQUEST_TEMPLATE/**'
+  - '.github/CODEOWNERS'
 ---
 
 # Lexis: Pull Request Quality Requirements

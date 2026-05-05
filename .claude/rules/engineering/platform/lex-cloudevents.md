@@ -1,8 +1,8 @@
 ---
 paths:
-  - "**/events/**"
-  - "**/*event*.py"
-  - "**/*event*.ts"
+  - '**/events/**'
+  - '**/*event*.py'
+  - '**/*event*.ts'
 ---
 
 # Lexis: CloudEvents on the Guardia Platform

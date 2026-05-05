@@ -1,6 +1,6 @@
 ---
 name: kata-requirements-brief
-description: "{title}. Phase 2 of the Issue-Driven flow — transforming the Phase 1 brief into a numbered list of acceptance criteria, DoD, and out-of-scope items"
+description: "Requirements Elicitation (PO perspective). Phase 2 of the Issue-Driven flow — transforming the Phase 1 brief into a numbered list of acceptance criteria, DoD, and out-of-scope items"
 ---
 
 # Kata: Requirements Elicitation (PO perspective)

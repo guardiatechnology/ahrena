@@ -1,9 +1,9 @@
 ---
 paths:
-  - "docs/runbooks/**"
-  - "**/runbooks/**"
-  - "**/alerts/**"
-  - "**/*.alerts.yaml"
+  - 'docs/runbooks/**'
+  - '**/runbooks/**'
+  - '**/alerts/**'
+  - '**/*.alerts.yaml'
 ---
 
 # Lexis: Every Alert Has a Runbook

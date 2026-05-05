@@ -1,11 +1,11 @@
 ---
 paths:
-  - "package.json"
-  - "**/__version__.py"
-  - "**/version.txt"
-  - "CHANGELOG*"
-  - ".bumpversion*"
-  - "pyproject.toml"
+  - 'package.json'
+  - '**/__version__.py'
+  - '**/version.txt'
+  - 'CHANGELOG*'
+  - '.bumpversion*'
+  - 'pyproject.toml'
 ---
 
 # Lexis: Mandatory Semantic Versioning

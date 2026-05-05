@@ -1,9 +1,9 @@
 ---
 paths:
-  - "**/migrations/**"
-  - "**/alembic/**"
-  - "**/*migration*"
-  - "**/*.sql"
+  - '**/migrations/**'
+  - '**/alembic/**'
+  - '**/*migration*'
+  - '**/*.sql'
 ---
 
 # Lexis: Reversible Migrations or With Rollback Plan

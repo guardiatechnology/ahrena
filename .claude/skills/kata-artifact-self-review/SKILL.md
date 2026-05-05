@@ -1,6 +1,6 @@
 ---
 name: kata-artifact-self-review
-description: "Self-Review Report — lex-hard-gate-pattern.md. Pre-human self-review of any artifact produced by an agent — Lexis, Codex, Kata, Warrior, Cry, PRD, Capability Spec, ADR, release plan, PLR, wireframes"
+description: "Artifact Self-Review. Pre-human self-review of any artifact produced by an agent — Lexis, Codex, Kata, Warrior, Cry, PRD, Capability Spec, ADR, release plan, PLR, wireframes"
 ---
 
 # Kata: Artifact Self-Review

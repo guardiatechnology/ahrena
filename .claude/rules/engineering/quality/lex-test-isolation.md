@@ -1,12 +1,12 @@
 ---
 paths:
-  - "**/tests/**"
-  - "**/test_*.py"
-  - "**/*_test.py"
-  - "**/*.test.ts"
-  - "**/*.test.tsx"
-  - "**/*.spec.ts"
-  - "**/__tests__/**"
+  - '**/tests/**'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - '**/__tests__/**'
 ---
 
 # Lexis: Test Isolation

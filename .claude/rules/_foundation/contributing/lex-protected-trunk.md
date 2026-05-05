@@ -1,8 +1,8 @@
 ---
 paths:
-  - ".github/CODEOWNERS"
-  - ".github/workflows/**.yml"
-  - ".github/workflows/**.yaml"
+  - '.github/CODEOWNERS'
+  - '.github/workflows/**.yml'
+  - '.github/workflows/**.yaml'
 ---
 
 # Lexis: Trunk Branches Are Protected Against Direct Writes

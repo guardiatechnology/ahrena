@@ -1,8 +1,8 @@
 ---
 paths:
-  - ".github/ISSUE_TEMPLATE/**"
-  - ".github/PULL_REQUEST_TEMPLATE.md"
-  - ".github/PULL_REQUEST_TEMPLATE/**"
+  - '.github/ISSUE_TEMPLATE/**'
+  - '.github/PULL_REQUEST_TEMPLATE.md'
+  - '.github/PULL_REQUEST_TEMPLATE/**'
 ---
 
 # Lexis: Issue-First Development

@@ -1,7 +1,7 @@
 ---
 paths:
-  - "docs/issues/**"
-  - ".ahrena/workflow/**"
+  - 'docs/issues/**'
+  - '.ahrena/workflow/**'
 ---
 
 # Lexis: Issue-Driven Development

@@ -1,9 +1,9 @@
 ---
 paths:
-  - "**/*.py"
-  - "**/*.ts"
-  - "**/api/**"
-  - "**/handlers/**"
+  - '**/*.py'
+  - '**/*.ts'
+  - '**/api/**'
+  - '**/handlers/**'
 ---
 
 # Lexis: Standardized Error Structure in Responses

@@ -1,8 +1,8 @@
 ---
 paths:
-  - "**/COMMIT_EDITMSG"
-  - ".gitconfig"
-  - "**/.gitsigners"
+  - '**/COMMIT_EDITMSG'
+  - '.gitconfig'
+  - '**/.gitsigners'
 ---
 
 # Lexis: Mandatory Signed Commits

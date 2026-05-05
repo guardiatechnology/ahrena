@@ -1,6 +1,6 @@
 ---
 paths:
-  - ".github/ISSUE_TEMPLATE/**"
+  - '.github/ISSUE_TEMPLATE/**'
 ---
 
 # Lexis: Issue Quality Requirements

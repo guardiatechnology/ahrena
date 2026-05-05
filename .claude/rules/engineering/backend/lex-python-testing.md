@@ -1,8 +1,8 @@
 ---
 paths:
-  - "**/*.py"
-  - "**/test_*.py"
-  - "**/*_test.py"
+  - '**/*.py'
+  - '**/test_*.py'
+  - '**/*_test.py'
 ---
 
 # Lexis: Python Testing Requirements

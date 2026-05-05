@@ -1,6 +1,6 @@
 ---
 paths:
-  - "docs/**"
+  - 'docs/**'
 ---
 
 # Lexis: Mandatory Structure for Feature Design Documents

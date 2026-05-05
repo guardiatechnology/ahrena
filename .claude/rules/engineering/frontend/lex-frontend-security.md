@@ -1,11 +1,11 @@
 ---
 paths:
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/*.js"
-  - "**/*.jsx"
-  - "**/*.vue"
-  - "**/*.svelte"
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.js'
+  - '**/*.jsx'
+  - '**/*.vue'
+  - '**/*.svelte'
 ---
 
 # Lexis: Frontend Security

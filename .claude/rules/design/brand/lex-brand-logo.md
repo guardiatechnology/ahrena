@@ -1,20 +1,20 @@
 ---
 paths:
-  - "**/*.tsx"
-  - "**/*.jsx"
-  - "**/*.ts"
-  - "**/*.js"
-  - "**/*.vue"
-  - "**/*.svelte"
-  - "**/*.html"
-  - "**/*.css"
-  - "**/*.scss"
-  - "**/*.sass"
-  - "**/*.less"
-  - "**/*.styl"
-  - "**/*.pcss"
-  - "**/*.md"
-  - "**/*.mdx"
+  - '**/*.tsx'
+  - '**/*.jsx'
+  - '**/*.ts'
+  - '**/*.js'
+  - '**/*.vue'
+  - '**/*.svelte'
+  - '**/*.html'
+  - '**/*.css'
+  - '**/*.scss'
+  - '**/*.sass'
+  - '**/*.less'
+  - '**/*.styl'
+  - '**/*.pcss'
+  - '**/*.md'
+  - '**/*.mdx'
 ---
 
 # Lexis: Correct Use of the Guardia Logo
