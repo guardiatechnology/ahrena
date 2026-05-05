@@ -1,32 +1,11 @@
 ---
 name: kata-feature-design-docs
-description: "Create and Update Feature Design Documents. Guardia platform — production of entities/, oas/ and events/ documents under docs/{context}/ during the feature design cycle"
+description: "ScheduledTransfer. Guardia platform — production of entities/, oas/ and events/ documents under docs/{context}/ during the feature design cycle"
 ---
 
 # Kata: Create and Update Feature Design Documents
 
 > **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Guardia platform — production of `entities/`, `oas/` and `events/` documents under `docs/{context}/` during the feature design cycle
-
-## Objective
-
-Produce or update the feature design documents in the canonical structure `docs/{context}/{category}/` defined by `lex-feature-design-docs` and detailed in `codex-feature-design-docs`. This Kata is the operational procedure consumed by `warrior-theseus` (entities), `warrior-daedalus` (OAS) and `warrior-kronos` (events), invoked directly or indirectly by `warrior-prometheus` in each phase of the design cycle.
-
-## When to Use
-
-- In any phase of the feature design cycle orchestrated by `warrior-prometheus` where a design artifact (entities, OAS or events) needs to be persisted
-- When `warrior-theseus`, `warrior-daedalus` or `warrior-kronos` needs to write or update its output
-- When a feature in maintenance requires reviewing the document structure
-- When a new Bounded Context starts and the folder structure needs to be created from scratch
-
-## Inputs
-
-| Input | Required | Description |
-|-------|:--------:|-------------|
-| Bounded Context | Yes | Context name in PascalCase (will be converted to kebab-case). e.g. `ScheduledPayments` |
-| Category | Yes | One of: `entities`, `oas`, `events` (categories `agents`, `metrics` reserved) |
-| Content | Yes | Domain model, OpenAPI spec, or event catalog to document |
-| CloudEvents Module | Yes when category = `events` | Segment `{module}` of the CloudEvents type (e.g. `platform`) |
-| Operation | Yes | `create` (new file) or `update` (merge with existing preserving stable sections) |
 
 ## Workflow
 
@@ -235,13 +214,6 @@ Represents a bank transfer ordered by an accountant for execution on a future da
 | `ERR403_FORBIDDEN` | `APPROVER_NOT_AUTHORIZED` | "approver does not have supervisor role" | BR-2 |
 | `ERR409_CONFLICT` | `INVALID_STATE_TRANSITION` | "transfer cannot move from {from} to {to}" | INV-2 |
 
-## References
-
-- `lex-entities`, `lex-entity-naming`, `lex-error-handling`
-- `docs/scheduled-payments/events/events.md`
-- `docs/scheduled-payments/oas/openapi.yaml`
-```
-
 ## Restrictions
 
 - This Kata **does not** decide design content — it persists the document with the input already produced by the responsible warrior (Theseus, Daedalus, Kronos)
@@ -250,15 +222,3 @@ Represents a bank transfer ordered by an accountant for execution on a future da
 - **Never** mix two categories in the same file (e.g., event payload inside `entities/{e}.md`)
 - When `update` removes a previously existing section, **flag the user** before writing
 - Document language per `language.default` in `.ahrena/.directives`
-
-## References
-
-- `lex-feature-design-docs` — Law
-- `codex-feature-design-docs` — templates
-- `lex-entities`, `lex-entity-naming`, `codex-entities`
-- `lex-cloudevents`, `codex-cloudevents`
-- `codex-oas-structure`, `codex-restful-payload`, `codex-restful-headers`, `codex-restful-pagination`, `codex-restful-status-codes`
-- `lex-error-handling`, `codex-error-handling`, `codex-known-errors`
-- `lex-idempotency`, `codex-idempotency`
-- `lex-auth`, `codex-auth`
-- `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, `warrior-kronos`

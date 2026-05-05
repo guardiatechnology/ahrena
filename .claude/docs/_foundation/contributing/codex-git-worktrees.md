@@ -2,18 +2,6 @@
 
 > **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Conventions, lifecycle, and commands for using git worktrees by AI agents in the Ahrena context
 
-## Overview
-
-This Codex is the canonical manual for using git worktrees. It complements `lex-git-worktrees` (the Law) with explanations, naming conventions, full lifecycle, commands, and integration with the Claude Code SDK. Every agent that creates or manages worktrees MUST consult this Codex.
-
-## Context
-
-- **Domain:** per-task development environment isolation
-- **Audience:** all agents (Claude, Cursor, warriors, katas) and human reviewers
-- **Update:** when commands or conventions change
-
----
-
 ## 1. What is a git worktree
 
 A git worktree is an additional working directory linked to the same git repository. Each worktree has its own active branch, but shares the history, objects, and configuration of the root repository.
@@ -198,11 +186,3 @@ Git restrictions:
 5. **Do not edit `.git` in the worktree.** The `.git` file in the worktree directory is a pointer — it is not a full `.git` directory; do not modify it manually.
 
 ---
-
-## References
-
-- `lex-git-worktrees` — corresponding Law
-- `kata-git-worktree` — step-by-step procedure
-- `lex-git-branches` — branch naming convention
-- `lex-issue-first` — issue required before the branch
-- `lex-agent-planning` — task planning before execution

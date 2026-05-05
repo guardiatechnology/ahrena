@@ -4,7 +4,7 @@
 
 ## Law
 
-> **Every issue in a Guardia repository MUST use one of the approved templates (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task), MUST have at least one label from the approved list that corresponds to its type, and MUST explicitly answer: why (motivation and impact), what (objective and scope), and how (implementation approach or definition of done). No branch MAY be created and no PR MAY be opened for an issue that does not comply with these requirements.**
+> **Every issue in a Guardia repository MUST use one of the approved templates (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task), MUST have at least one label from the approved list that corresponds to its type, MUST have a defined GitHub Issue Type (Feature, Task, Bug, Epic) matching its template, MUST have at least one assignee — by default the issue's author —, and MUST explicitly answer: why (motivation and impact), what (objective and scope), and how (implementation approach or definition of done). No branch MAY be created and no PR MAY be opened for an issue that does not comply with these requirements.**
 
 ## Coverage
 
@@ -40,7 +40,42 @@ Every issue MUST have at least one label applied. The label MUST correspond to t
 | `user-story-for-frontend` | `frontend`, `user story 🎯` |
 | `simple-task` | At least one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
 
-### 3. Mandatory content: Why / What / How
+### 3. Mandatory GitHub Issue Type
+
+Every issue MUST have a defined **GitHub Issue Type** (a native GitHub field, distinct from labels). The type MUST match the template used:
+
+| Template | Issue Type |
+|----------|------------|
+| `feature-request` | `Feature` |
+| `epic` | `Epic` |
+| `user-story-for-api` | `Feature` |
+| `user-story-for-frontend` | `Feature` |
+| `simple-task` | `Task` |
+
+When the issue is created via a template form (`.github/ISSUE_TEMPLATE/*.yml`), the type is auto-applied by the template's `type:` field. When the issue is created via CLI (`gh issue create`), the agent MUST apply the type after creation:
+
+```bash
+# After creating the issue, apply the type via REST API
+gh api -X PATCH "repos/$OWNER/$REPO/issues/$ISSUE_NUMBER" -f type=Task
+```
+
+Issues without a defined Issue Type do not satisfy this Lex and block branch/PR creation.
+
+### 4. Mandatory assignee
+
+Every issue MUST have at least one assignee. By default, the assignee is **the issue's author** (the person who opened it). When the issue is created via CLI without a template, the agent MUST apply the assignee on creation or immediately after:
+
+```bash
+# On creation
+gh issue create ... --assignee "@me"
+
+# Or after creation
+gh issue edit $ISSUE_NUMBER --add-assignee "@me"
+```
+
+Re-assignment to another person later is allowed when work is delegated, but the issue MUST NOT remain without an assignee.
+
+### 5. Mandatory content: Why / What / How
 
 Every issue MUST answer three questions, explicitly or through the template sections:
 
@@ -54,21 +89,56 @@ For `simple-task`: the three questions are the direct sections of the template.
 
 For other templates: the sections map to these questions — the **Objective** (user story) answers What, **Why is this important** answers Why, and **How can it be implemented** / acceptance criteria answers How.
 
-### 4. Branch and PR blocked until issue complies
+### 6. Branch and PR blocked until issue complies
 
 Per `lex-issue-first` and `lex-git-branches`, no branch MAY be created and no PR MAY be opened if the associated issue:
 
 - Does not use one of the approved templates
 - Does not have at least one required label
+- Does not have a defined Issue Type
+- Does not have an assignee
 - Does not answer Why, What, and How
 
-### 5. Agents must comply
+### 7. Agents must comply
 
 AI agents that create issues (via MCP or CLI) MUST:
 
 1. Use the appropriate template via `kata-contributing-issue`
 2. Apply the required labels during creation
-3. Fill all mandatory sections (Why / What / How) before submitting
+3. Apply the Issue Type matching the template
+4. Apply at least one assignee (default: `@me`)
+5. Fill all mandatory sections (Why / What / How) before submitting
+
+## HARD-GATE
+
+Per [`lex-hard-gate-pattern`](framework/en/_foundation/quality/lexis/lex-hard-gate-pattern.md), the textual block of this Lex is canonically expressed as:
+
+```
+<HARD-GATE>
+warrior-athena, warrior-apollo, warrior-hephaestus and any other
+agent MUST NOT create branch or open PR for an issue without it
+satisfying ALL 5 canonical criteria:
+
+  (a) Uses one of the approved templates (feature-request, epic,
+      user-story-for-api, user-story-for-frontend, simple-task)
+  (b) Has at least one required label matching the template
+  (c) Has a defined GitHub Issue Type (Feature, Task, Bug, Epic)
+      compatible with the template
+  (d) Has at least one assignee (default: issue author)
+  (e) Explicitly answers Why, What, and How
+
+This rule applies to EVERY issue, regardless of:
+  - perceived size ("it's a trivial change")
+  - urgency ("production fire")
+  - who requested ("the CEO asked")
+  - team confidence ("we already tested")
+
+Single declared exception: issues generated automatically by
+Dependabot or security scanning tools follow their own format
+and are exempt. Every other exception requires explicit
+justification recorded in the issue itself.
+</HARD-GATE>
+```
 
 ## Examples
 
@@ -97,6 +167,6 @@ Content: single line, no Why / What / How
 
 ## Automated Validation
 
-- **Tool:** `kata-contributing-issue` enforces template selection and label application on creation; PR review checklist verifies that the associated issue is complete.
-- **When:** on issue creation (via kata); on PR creation (via lex-issue-first check).
-- **Metric:** 0 open PRs referencing an issue without template and labels; 100% of issues created via kata comply on first submission.
+- **Tool:** `kata-contributing-issue` enforces template, labels, Issue Type, and assignee on creation; `.github/ISSUE_TEMPLATE/*.yml` templates declare `type:` to auto-apply Issue Type; PR review checklist verifies that the associated issue is complete on every required field.
+- **When:** on issue creation (via kata or template); on PR creation (via lex-issue-first check).
+- **Metric:** 0 open PRs referencing an issue without template, labels, Issue Type, or assignee; 100% of issues created via kata comply on first submission.

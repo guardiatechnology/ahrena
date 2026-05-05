@@ -1,3 +1,15 @@
+---
+paths:
+  - "**/*.py"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.go"
+  - "**/api/**"
+  - "**/handlers/**"
+  - "**/jobs/**"
+  - "**/consumers/**"
+---
+
 # Lexis: Observability Is Mandatory
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Every new HTTP endpoint, event consumer, background job, or long-running process across any stack

@@ -1,3 +1,13 @@
+---
+paths:
+  - "**/*.swift"
+  - "**/*.kt"
+  - "**/*.java"
+  - "**/*.dart"
+  - "**/ios/**"
+  - "**/android/**"
+---
+
 # Lexis: Mobile Operates Offline-First
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Mobile apps (iOS, Android, React Native, Flutter) — behavior in degraded network conditions, data sync, cache, and conflict resolution

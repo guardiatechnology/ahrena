@@ -1,3 +1,10 @@
+---
+paths:
+  - "docs/slo/**"
+  - "**/slo/**"
+  - "**/*.slo.yaml"
+---
+
 # Lexis: SLO Required for tier-1/2 Services
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Service Level Objectives (SLO) for tier-1 and tier-2 services — defined before go-live, measured in production, respected as an internal contract

@@ -14,18 +14,17 @@ Event Storm — CloudEvents Discovery and Documentation. Shortcut to discover an
 
 | Parameter | Required | Description | Example |
 |-----------|:--------:|-------------|---------|
-| `feature or module context` | Yes | Module name and either a domain description (for Discovery) or an explicit list of event types (for Documentation only) | `"Platform module, scheduled transfers — unknown events"` or `"event.guardia.platform.scheduled_transfer.created, .updated, .cancelled"` |
+| `feature or module context` | Yes | Module name and domain description (for Discovery) or explicit list of event types (for Documentation only) | `"Platform module, scheduled transfers — unknown events"` or `"event.guardia.platform.scheduled_transfer.created, .updated, .cancelled"` |
 | `source base` | No | Base URI for `source` (e.g., `https://tenant.guardia.finance/platform/api/v1`). If omitted, the agent proposes per codex-cloudevents | `https://tenant.guardia.finance/platform/api/v1` |
 
 ## What the Command Does
 
-1. Reads `.ahrena/.directives` to obtain `paths.events`, `language.default`, and MCP configuration
-2. Assumes the role of the Kronos Warrior and **determines the entry point**:
+1. Assumes the role of the Kronos Warrior and **determines the entry point**:
    - Context describes a domain without known events → **Phase 1: Discovery** (kata-event-storm) then **Phase 2: Documentation** (kata-events-doc)
    - Context provides an explicit list of event types → **Phase 2: Documentation only** (kata-events-doc)
-3. **Phase 1 — Discovery** (when applicable): executes kata-event-storm iteratively — maps domain events (timeline), commands, actors, aggregates, policies, external systems, read models, hotspots, and bounded contexts; produces CloudEvents catalog; presents it for user confirmation; resolves P1 hotspots before advancing
-4. **Phase 2 — Documentation**: executes kata-events-doc — documents event structure, payload (data), idempotency; generates or updates the formal events document in **paths.events**
-5. Persists both artifacts (discovery document when Phase 1 ran; events document always) in **paths.events** (default `docs/events`); creates directory if it does not exist
+2. **Phase 1 — Discovery** (when applicable): executes kata-event-storm iteratively — maps domain events (timeline), commands, actors, aggregates, policies, external systems, read models, hotspots, and bounded contexts; produces CloudEvents catalog; presents it to the user for confirmation; resolves P1 hotspots before advancing
+3. **Phase 2 — Documentation**: executes kata-events-doc — documents event structure, payload (data), idempotency; generates or updates the formal events document in **`docs/{context}/events/`**
+4. Persists both artifacts (discovery document when Phase 1 ran; events document always) in **`docs/{context}/events/`**; creates the directory if it does not exist
 
 ## Prompt Template
 
@@ -35,8 +34,7 @@ Context:
 - Source base (optional): {{source base}}
 
 Task:
-Act as the Kronos Warrior (Event Storm Specialist). Read .ahrena/.directives
-and determine the entry point:
+Act as the Kronos Warrior (Event Storm Specialist) and determine the entry point:
 - If the event landscape is unknown or the domain has not been mapped →
   execute kata-event-storm first (Phase 1 — Discovery), then kata-events-doc
   (Phase 2 — Documentation).
@@ -48,10 +46,10 @@ before advancing. Do not proceed from Phase 1 to Phase 2 if P1 hotspots
 remain unresolved.
 
 Output format:
-- Consult paths.events in .ahrena/.directives for the destination (default docs/events)
+- Save in `docs/{context}/events/` per `lex-feature-design-docs`
 - Create the directory if it does not exist
 - Phase 1 (when executed): save event storm discovery document (e.g., event-storm-{module}.md)
-- Phase 2: create or update the formal events document (e.g., events.md)
+- Phase 2: create or update the formal events document (events.md)
 - Confirm paths of all persisted artifacts
 ```
 
@@ -67,5 +65,5 @@ Output format:
 | Artifact | Phase | Description |
 |----------|-------|-------------|
 | `kata-event-storm` | 1 — Discovery | Domain events, commands, aggregates, policies, bounded contexts, CloudEvents catalog |
-| `kata-events-doc` | 2 — Documentation | Formal CloudEvents document (Markdown) in paths.events |
+| `kata-events-doc` | 2 — Documentation | Formal CloudEvents document (Markdown) in `docs/{context}/events/` |
 | `warrior-kronos` | Orchestrator | Determines entry point and orchestrates both phases |

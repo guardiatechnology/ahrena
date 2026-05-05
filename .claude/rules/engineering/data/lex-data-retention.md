@@ -1,3 +1,10 @@
+---
+paths:
+  - "**/migrations/**"
+  - "**/models/**"
+  - "docs/data-retention.yaml"
+---
+
 # Lexis: Data Retention Policy
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Persistent storage of personal, transactional, logs, and artifacts data — retention policy defined by class and enforced

@@ -1,3 +1,13 @@
+---
+paths:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.jsx"
+  - "**/*.vue"
+  - "**/*.svelte"
+---
+
 # Lexis: Frontend Security
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Prevention of XSS, CSRF, credential leakage, and insecure use of data in the frontend

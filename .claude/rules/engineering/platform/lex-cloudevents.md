@@ -1,3 +1,10 @@
+---
+paths:
+  - "**/events/**"
+  - "**/*event*.py"
+  - "**/*event*.ts"
+---
+
 # Lexis: CloudEvents on the Guardia Platform
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — distributed systems and events

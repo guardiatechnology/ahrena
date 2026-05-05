@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.py"
+---
+
 # Lexis: Python Type Safety
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Backend: type annotations in Python code

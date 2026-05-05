@@ -1,3 +1,12 @@
+---
+paths:
+  - "**/api/**"
+  - "**/*api*.py"
+  - "**/*router*.py"
+  - "**/openapi*.yaml"
+  - "docs/**/oas/**"
+---
+
 # Lexis: RESTful Compliance for HTTP Endpoints
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — REST APIs

@@ -1,3 +1,14 @@
+---
+paths:
+  - "**/tests/**"
+  - "**/test_*.py"
+  - "**/*_test.py"
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/__tests__/**"
+---
+
 # Lexis: Test Pyramid
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Test distribution across levels (unit, integration, E2E) in any stack to ensure fast feedback, adequate coverage, and sustainable cost

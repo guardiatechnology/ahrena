@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.py"
+---
+
 # Lexis: Python Result Type for Error Handling
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Backend: error handling using the Result type in Python code

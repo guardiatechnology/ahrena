@@ -20,15 +20,15 @@ Progress:
 - [ ] 7. Define Use Cases and Application Services
 - [ ] 8. Identify integration events and anti-corruption layers
 - [ ] 9. Draw Context Map
-- [ ] 10. Produce domain model document
+- [ ] 10. Persist the domain model in the canonical structure
 ```
 
 ### Step 1: Read Directives and Scope
 
-1. Read `.ahrena/.directives` to obtain `paths.domain`, `language.default`, and module name
-2. Confirm domain description and module name were provided; if insufficient, **ask the user** (What is the main business process? Who are the actors? What are the system boundaries? What triggers the first action?) and wait for answers
-3. Check whether a domain model document already exists in `paths.domain` for this module — incorporate it as input if available
-4. Identify bounded context scope: single context or multiple
+1. Read `.ahrena/.directives` to obtain `language.default`. The destination folder for artifacts is fixed at `docs/{context}/entities/` per `lex-feature-design-docs` (no longer a configurable `paths.domain`)
+2. Confirm the domain description, the Bounded Context name (PascalCase), and the CloudEvents module were provided; if insufficient, **ask the user** (What is the main business process? Who are the actors? What are the system boundaries? What triggers the first action?) and wait for answers
+3. Check whether files already exist in `docs/{context}/entities/` — incorporate them as input if available
+4. Identify the bounded context scope: single context or multiple
 
 ### Step 2: Consult Lexis and Codex
 
@@ -157,29 +157,27 @@ Produce a textual or Markdown-table Context Map showing relationships between bo
 
 For each context pair with a relationship, document the pattern and any constraints.
 
-### Step 10: Produce Domain Model Document
+### Step 10: Persist the Domain Model in the Canonical Structure
 
-Generate a structured Markdown document and save it to `paths.domain`:
+The domain model **does not** become a monolithic file. It is distributed across the canonical files defined by `lex-feature-design-docs`:
 
-1. **Header** — module, domain description, date, participants, scope
-2. **Ubiquitous Language** — glossary table: Term | Definition | Synonyms to Avoid
-3. **Bounded Contexts** — one subsection per context: name, responsibility, owner, entities owned
-4. **Entity and Aggregate Catalog** — table: Entity | entity_type | Bounded Context | Lifecycle States | Aggregate Root
-5. **Aggregate Details** — one subsection per aggregate: root, members, invariants, commands, events
-6. **Use Cases** — one subsection per use case: actor, preconditions, steps, postconditions, failure paths, events emitted
-7. **Integration Events** — table: Event Type | Publisher | Consumers | Payload Sketch
-8. **Anti-Corruption Layers** — table: External System | Direction | Translation
-9. **Context Map** — table or diagram: Context A | Relationship | Context B | Constraints
-10. **Open Hotspots** — table: Description | Priority (P1/P2/P3) | Owner
+- **Entity and aggregate catalog** → one `docs/{context}/entities/{entity-name}.md` file per entity, containing: DDD Classification, Why it exists, Fields, Business Rules, Invariants, Relations, Errors, References (template in `codex-feature-design-docs`)
+- **Identified integration events** → forwarded to warrior-kronos to become `docs/{context}/events/events.md`
+- **Use Cases, Bounded Contexts, Ubiquitous Language, Context Map, ACLs, Hotspots** → recorded as notes for warrior-prometheus to consolidate and publish to Notion (Guardia Platform > Domain Models)
+
+For each entity in the catalog, invoke **`kata-feature-design-docs`** with:
+- `Bounded Context` = name in PascalCase
+- `Category` = `entities`
+- `Content` = catalog of fields, rules, invariants, relations, and errors derived from modeling
+- `Operation` = `create` (first run) or `update` (revision)
 
 ## Outputs
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Domain model document | Markdown | `paths.domain` (e.g., `docs/domain/{module}-domain-model.md`) |
-| Ubiquitous language glossary | Table in document | Shared with team before implementation |
-| Entity/aggregate catalog | Table in document | Input for warrior-daedalus (APIs) and warrior-kronos (events) |
-| Integration events list | Table in document | Input for warrior-kronos (event documentation) |
+| Entity files | Markdown | `docs/{context}/entities/{entity-name}.md` (1 per entity) |
+| Ubiquitous language glossary | Notes for Prometheus | Notion: Guardia Platform > Domain Models > {Bounded Context} |
+| Integration events catalog | List | Input for warrior-kronos (Phase 3 of Prometheus) |
 
 ## Execution Example
 
@@ -192,12 +190,16 @@ Module: platform
 
 ### Output Summary
 
-File `docs/domain/platform-domain-model.md` containing:
+Files persisted via `kata-feature-design-docs`:
+
+- `docs/scheduled-payments/entities/scheduled-transfer.md`
+
+Additional notes consolidated by warrior-prometheus (published to Notion):
 
 **Ubiquitous Language:**
 | Term | Definition | Synonyms to Avoid |
 |------|------------|-------------------|
-| ScheduledTransfer | Transfer ordered for future execution, requiring approval | "future payment", "planned transfer" |
+| ScheduledTransfer | Transfer ordered for future execution, requiring approval | "planned transfer", "future payment" |
 | Execution | Processing by the banking partner on the scheduled date | "processing", "settlement" |
 
 **Bounded Contexts:** `ScheduledPayments` (owns ScheduledTransfer), `Approval` (owns approval flow), `BankingIntegration` (ACL to banking partner)
@@ -218,8 +220,9 @@ File `docs/domain/platform-domain-model.md` containing:
 
 ## Constraints
 
-- This Kata produces only the domain model document; it does not design APIs or document CloudEvents
+- This Kata produces the modeling; **persistence is delegated to `kata-feature-design-docs`**
 - Do not skip hotspot identification — every undocumented uncertainty becomes a bug or scope gap
 - The entity catalog MUST be complete enough to feed warrior-daedalus and warrior-kronos without additional discovery
 - Escalate to human when bounded context ownership is ambiguous or when a single aggregate spans multiple teams without a clear owner
-- entity_type values in the catalog MUST be in snake_case (lex-entity-naming); aggregate names in DDD sections MUST be in PascalCase
+- entity_type values MUST be in snake_case (lex-entity-naming); aggregate names in DDD sections MUST be in PascalCase
+- Do not persist a monolithic `domain-model.md` document — distribute across `entities/`, `events/`, and `oas/` per `lex-feature-design-docs`

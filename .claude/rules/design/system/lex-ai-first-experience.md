@@ -1,18 +1,18 @@
 ---
 paths:
-  - **/*.tsx
-  - **/*.jsx
-  - **/*.ts
-  - **/*.js
-  - **/*.vue
-  - **/*.svelte
-  - **/*.html
-  - **/*.css
-  - **/*.scss
-  - **/*.sass
-  - **/*.less
-  - **/*.styl
-  - **/*.pcss
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.ts"
+  - "**/*.js"
+  - "**/*.vue"
+  - "**/*.svelte"
+  - "**/*.html"
+  - "**/*.css"
+  - "**/*.scss"
+  - "**/*.sass"
+  - "**/*.less"
+  - "**/*.styl"
+  - "**/*.pcss"
 ---
 
 # Lexis: AI-First Experience by Default

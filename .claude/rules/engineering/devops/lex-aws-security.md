@@ -1,3 +1,12 @@
+---
+paths:
+  - "**/*.tf"
+  - "**/*.hcl"
+  - "**/*.cdk.ts"
+  - "**/cdk/**"
+  - "**/cloudformation/**"
+---
+
 # Lexis: AWS Security
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Security in AWS architecture and infrastructure — IAM, encryption, secrets, network, audit

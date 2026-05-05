@@ -1,3 +1,11 @@
+---
+paths:
+  - "**/api/**"
+  - "**/*api*.py"
+  - "**/*router*.py"
+  - "**/events/**"
+---
+
 # Lexis: Idempotency for State-Modifying Operations
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — APIs and events

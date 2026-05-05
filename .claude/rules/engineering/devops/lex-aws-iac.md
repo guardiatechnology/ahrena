@@ -1,3 +1,13 @@
+---
+paths:
+  - "**/*.tf"
+  - "**/*.hcl"
+  - "**/*.cdk.ts"
+  - "**/cdk/**"
+  - "**/cloudformation/**"
+  - "**/cf-*.yaml"
+---
+
 # Lexis: Infrastructure as Code (IaC) in AWS
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All provisioning and modification of AWS infrastructure through versioned code (Terraform, AWS CDK, CloudFormation, Pulumi)

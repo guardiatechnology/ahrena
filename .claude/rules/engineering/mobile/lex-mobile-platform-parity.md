@@ -1,3 +1,13 @@
+---
+paths:
+  - "**/*.swift"
+  - "**/*.kt"
+  - "**/*.java"
+  - "**/*.dart"
+  - "**/ios/**"
+  - "**/android/**"
+---
+
 # Lexis: Minimum Parity Between Mobile Platforms
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Mobile features that must run on iOS and Android — rules of minimum functional parity, not aesthetic parity
