@@ -7,9 +7,9 @@ Optionally generates platform-specific files (e.g., Cursor IDE).
 
 Bootstrap (nothing exists locally):
   macOS/Linux:
-    curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform cursor
+    curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform cursor
   Windows (PowerShell):
-    irm https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; del install.py
+    irm https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; del install.py
 
 After first install:
   make -f .ahrena/Makefile install-cursor
@@ -31,7 +31,7 @@ from pathlib import Path
 # Constants
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-DEFAULT_REPO = "https://github.com/guardiafinance/ahrena"
+DEFAULT_REPO = "https://github.com/guardiatechnology/ahrena"
 DEFAULT_VERSION = "main"
 MIN_PYTHON = (3, 8)
 

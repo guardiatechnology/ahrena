@@ -17,7 +17,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-DEFAULT_REPO = "https://github.com/guardiafinance/ahrena"
+DEFAULT_REPO = "https://github.com/guardiatechnology/ahrena"
 DEFAULT_VERSION = "main"
 MIN_PYTHON = (3, 8)
 
