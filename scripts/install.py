@@ -666,7 +666,7 @@ def transform_md_to_claude_rule(content: str, pilar: str, rule_config: dict | No
         if isinstance(paths, list):
             lines.append("paths:")
             for p in paths:
-                lines.append(f"  - {p}")
+                lines.append(f'  - "{p}"')
         else:
             lines.append(f"paths: {paths!r}")
         lines.append("---")
