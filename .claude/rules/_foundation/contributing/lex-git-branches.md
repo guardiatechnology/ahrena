@@ -1,3 +1,10 @@
+---
+paths:
+  - '.github/CODEOWNERS'
+  - '.github/workflows/**.yml'
+  - '.github/workflows/**.yaml'
+---
+
 # Lexis: Git Branch Naming Convention
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All git branches in Guardia repositories
@@ -8,7 +15,7 @@
 
 ## Coverage
 
-- **Applies to:** all branches in all Guardia repositories (except `main` and `release/*`, which are managed by maintainers).
+- **Applies to:** all working branches in all Guardia repositories. Trunk branches (`main`, `master`, `release/*`) **are not working branches** — they are protected targets governed by `lex-protected-trunk` and receive code only through merged PRs from a branch named per this Law.
 - **Bound agents:** developers, AI agents that create branches (warrior-athena, warrior-apollo, warrior-hephaestus).
 - **Exceptions:** None. Branches outside the valid format are rejected at push.
 
@@ -30,7 +37,11 @@
 
 A branch MUST NOT be created before the corresponding Issue exists. See `lex-issue-first`.
 
-### 3. One branch per Issue (default)
+### 3. Work never starts on trunk
+
+Before any commit, the developer (human or AI) **MUST** verify the active branch via `git rev-parse --abbrev-ref HEAD`. If it is `main`, `master`, or starts with `release/`, they **MUST** create a working branch per this Law (`git checkout -b {type}/{N}-{slug}`) before producing any change. Editing files with the working copy positioned on trunk is FORBIDDEN. The protection regime is detailed in `lex-protected-trunk`.
+
+### 4. One branch per Issue (default)
 
 Each Issue typically corresponds to one branch. Exceptions (multiple branches for a single complex Issue) require explicit justification in the Issue comments.
 

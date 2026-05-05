@@ -456,6 +456,7 @@ claude-code:
     _foundation/process/lexis/lex-directives:
       description: "Read .ahrena/.directives before producing any artifact — language, paths, naming, tone all come from here."
     _foundation/process/lexis/lex-checkpoint:
+      paths: ["**/.checkpoint"]
       description: "Check .checkpoint at session start; save progress when concluding an activity."
     _foundation/process/lexis/lex-platforms-rules:
       description: "When creating or publishing a Lexis or Codex, add its rule key to platforms.yaml cursor.rules."
@@ -468,8 +469,10 @@ claude-code:
     _foundation/tooling/lexis/lex-mcp:
       description: "When an MCP server is active for the current operation, use MCP tool over CLI. Credentials via env vars only."
     engineering/workflow/lexis/lex-issue-driven:
+      paths: ["docs/issues/**", ".ahrena/workflow/**"]
       description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
     _foundation/contributing/lexis/lex-protected-trunk:
+      paths: [".github/CODEOWNERS", ".github/workflows/**.yml", ".github/workflows/**.yaml"]
       description: "Trunk branches (main, master, release/*) are protected; never start dev on trunk — always create a feature branch first and reach trunk only via merged PR."
     engineering/frontend/lexis/lex-frontend-typing:
       paths: ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.svelte"]
@@ -478,21 +481,27 @@ claude-code:
       paths: ["**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.svelte", "**/*.html"]
       description: "When building UI, WCAG 2.1 AA compliance is mandatory."
     engineering/devops/lexis/lex-aws-security:
+      paths: ["**/*.tf", "**/*.hcl", "**/*.cdk.ts", "**/cdk/**", "**/cloudformation/**"]
       description: "When provisioning AWS, enforce security laws on IAM, encryption, secrets, and public access."
     _foundation/quality/lexis/lex-observability-required:
+      paths: ["**/*.py", "**/*.ts", "**/*.tsx", "**/*.go", "**/api/**", "**/handlers/**", "**/jobs/**", "**/consumers/**"]
       description: "Every runtime surface emits trace + metric + structured log with correlation ID."
     _foundation/quality/lexis/lex-logging-decorator:
+      paths: ["**/*.py", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.go"]
       description: "Logs come from centralized bootstrap + decorator/wrapper; inline logger.info/console.log/print are forbidden in application code."
     engineering/backend/codex/codex-python-logging:
       paths: ["**/*.py"]
       description: "Python logging uses loguru with centralized setup, JSON sink with redaction, and the @logged decorator."
     engineering/quality/lexis/lex-test-pyramid:
+      paths: ["**/tests/**", "**/test_*.py", "**/*_test.py", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/__tests__/**"]
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
     engineering/quality/lexis/lex-dry:
       description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
     engineering/sre/lexis/lex-slo-required:
+      paths: ["docs/slo/**", "**/slo/**", "**/*.slo.yaml"]
       description: "Tier-1/2 services require SLO pre go-live; error budget guides priorization."
     engineering/data/lexis/lex-migrations-reversible:
+      paths: ["**/migrations/**", "**/alembic/**", "**/*migration*", "**/*.sql"]
       description: "Schema migrations reversible or documented; destructive DDL requires backup + window."
     design/brand/lexis/lex-brand-colors:
       paths: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss", "**/*.md", "**/*.mdx"]
@@ -512,7 +521,110 @@ claude-code:
       paths: ["**/*.tsx", "**/*.jsx", "**/*.ts", "**/*.js", "**/*.vue", "**/*.svelte", "**/*.html", "**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "**/*.styl", "**/*.pcss"]
       description: "Guardia product UI follows the AI-First pattern (Isac-led conversation + live workspace); no module sidebar as primary architecture."
     engineering/mobile/lexis/lex-mobile-offline-first:
+      paths: ["**/*.swift", "**/*.kt", "**/*.java", "**/*.dart", "**/ios/**", "**/android/**"]
       description: "Mobile apps operate in 3 network states; cache reads, queue mutations."
+    engineering/mobile/lexis/lex-mobile-platform-parity:
+      paths: ["**/*.swift", "**/*.kt", "**/*.java", "**/*.dart", "**/ios/**", "**/android/**"]
+      description: "Mobile features ship in iOS and Android same release; functional parity mandatory; UI follows HIG/Material; deviation needs ADR."
+    engineering/devops/lexis/lex-aws-iac:
+      paths: ["**/*.tf", "**/*.hcl", "**/*.cdk.ts", "**/cdk/**", "**/cloudformation/**", "**/cf-*.yaml"]
+      description: "When changing AWS infrastructure, use versioned IaC (Terraform/CDK) with remote state; no console changes in production; one tool per project."
+    engineering/devops/lexis/lex-aws-cost:
+      paths: ["**/*.tf", "**/*.hcl", "**/*.cdk.ts", "**/cdk/**", "**/cloudformation/**"]
+      description: "When designing AWS architecture, apply cost-allocation tags, configure budgets, justify choices with cost awareness, right-size periodically."
+    engineering/data/lexis/lex-data-retention:
+      paths: ["**/migrations/**", "**/models/**", "docs/data-retention.yaml"]
+      description: "Every persistent data class MUST declare retention + legal basis; LGPD/GDPR deletion SLA enforced; logs with PII are time-limited."
+    engineering/quality/lexis/lex-test-isolation:
+      paths: ["**/tests/**", "**/test_*.py", "**/*_test.py", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/__tests__/**"]
+      description: "Tests must be deterministic, order-independent, parallelizable; flaky is a P1 bug — no retries as cure."
+    engineering/sre/lexis/lex-runbook-for-every-alert:
+      paths: ["docs/runbooks/**", "**/runbooks/**", "**/alerts/**", "**/*.alerts.yaml"]
+      description: "Every human-paging alert MUST link to a versioned runbook with symptoms, diagnosis, mitigation, escalation."
+    engineering/frontend/lexis/lex-frontend-security:
+      paths: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.vue", "**/*.svelte"]
+      description: "When writing frontend code, prevent XSS, never bundle secrets, validate inputs in two tiers, configure CSP, rel=noopener on external links."
+    engineering/frontend/lexis/lex-frontend-testing:
+      paths: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/__tests__/**"]
+      description: "When writing frontend tests, test user behavior with accessible queries; mock only at external boundaries."
+    engineering/backend/lexis/lex-python-typing:
+      paths: ["**/*.py"]
+      description: "When writing Python code, require strict type annotations (mypy strict) for all functions and variables."
+    engineering/backend/lexis/lex-python-security:
+      paths: ["**/*.py"]
+      description: "When writing Python code, follow security rules: no secrets in code, validate inputs, use parameterized queries."
+    engineering/backend/lexis/lex-python-immutability:
+      paths: ["**/*.py"]
+      description: "When writing Python code, prefer immutable data structures; use frozen dataclasses and tuples."
+    engineering/backend/lexis/lex-python-testing:
+      paths: ["**/*.py", "**/test_*.py", "**/*_test.py"]
+      description: "When writing Python tests, use pytest with coverage; no untested public functions."
+    engineering/backend/lexis/lex-python-error-handling:
+      paths: ["**/*.py"]
+      description: "When writing Python code, no bare except; specific exceptions only; top-level boundary handlers must log original and translate into an Error."
+    engineering/backend/lexis/lex-python-error-object:
+      paths: ["**/*.py"]
+      description: "When producing Python error values, use a frozen dataclass Error with exactly code, reason, message; subclasses pin code and reason."
+    engineering/backend/lexis/lex-python-result-type:
+      paths: ["**/*.py"]
+      description: "When writing Python code, expected fallible operations must return Result[T, Error] from the returns package instead of raising exceptions."
+    engineering/platform/lexis/lex-auth:
+      paths: ["**/auth/**", "**/*auth*.py", "**/*auth*.ts", "**/openapi/**", "**/oas/**", "**/api/**"]
+      description: "When designing or implementing API access, apply OAuth 2.0/JWT/RBAC per Guardia auth spec."
+    engineering/platform/lexis/lex-cloudevents:
+      paths: ["**/events/**", "**/*event*.py", "**/*event*.ts"]
+      description: "When publishing or consuming events, use CloudEvents format with idempotencykey and type catalog."
+    engineering/platform/lexis/lex-entities:
+      paths: ["**/entities/**", "**/*entity*.py", "docs/**/entities/**"]
+      description: "When designing persistent resources, include entity_id, entity_type, version, created_at, updated_at per spec."
+    engineering/platform/lexis/lex-entity-naming:
+      paths: ["**/entities/**", "**/*entity*", "docs/**/entities/**"]
+      description: "When naming domain entities, follow Guardia conventions: singular PascalCase for types, snake_case for fields, event.guardia.{module}.{entity_type}.{event_name} for CloudEvents types."
+    engineering/platform/lexis/lex-error-handling:
+      paths: ["**/*.py", "**/*.ts", "**/api/**", "**/handlers/**"]
+      description: "When returning errors, use errors array with code, reason, message; never reveal user existence in auth errors."
+    engineering/platform/lexis/lex-idempotency:
+      paths: ["**/api/**", "**/*api*.py", "**/*router*.py", "**/events/**"]
+      description: "When designing state-changing APIs or events, require Idempotency-Key and deduplicate by key/hash."
+    engineering/platform/lexis/lex-restful-apis:
+      paths: ["**/api/**", "**/*api*.py", "**/*router*.py", "**/openapi*.yaml", "docs/**/oas/**"]
+      description: "When designing HTTP endpoints, follow RESTful spec: status codes, payload, headers, pagination."
+    engineering/platform/lexis/lex-feature-design-docs:
+      paths: ["docs/**"]
+      description: "When persisting feature design artifacts (entities, OpenAPI, events), use docs/{context}/{category}/ structure with category in entities/oas/events/agents/metrics."
+    _foundation/process/lexis/lex-agent-planning:
+      paths: [".claude/plans/**", ".cursor/plans/**", "**/plan-*.md"]
+      description: "Before starting any multi-step task, create a plan at ./{agent}/plans/plan-{NNN}-{slug}.md (or paths.plans override). Show it to the user and wait for confirmation before executing."
+    _foundation/contributing/lexis/lex-issue-quality:
+      paths: [".github/ISSUE_TEMPLATE/**"]
+      description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, has a defined Issue Type, has an assignee, and answers Why/What/How."
+    _foundation/contributing/lexis/lex-issue-first:
+      paths: [".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**"]
+      description: "When starting any code change, ensure a GitHub Issue exists first; PR body must include Closes #N or Refs #N."
+    _foundation/contributing/lexis/lex-pr-quality:
+      paths: [".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**", ".github/CODEOWNERS"]
+      description: "When creating a PR, mirror issue labels, apply size label, set assignee to author, and request reviewers per CODEOWNERS."
+    _foundation/contributing/lexis/lex-git-branches:
+      paths: [".github/CODEOWNERS", ".github/workflows/**.yml", ".github/workflows/**.yaml"]
+      description: "When creating a branch, use format {type}/{issue-number}-{kebab-slug}; type must be a Conventional Commits type; issue number is mandatory."
+    _foundation/contributing/lexis/lex-git-worktrees:
+      paths: [".github/CODEOWNERS", ".gitignore", ".github/workflows/**.yml"]
+      description: "Every branch-based task by an AI agent must run inside a dedicated git worktree under paths.worktrees; main checkout stays clean."
+    _foundation/contributing/lexis/lex-conventional-commits:
+      paths: ["**/COMMIT_EDITMSG", ".commitlintrc*", ".github/workflows/**commit**.yml", ".github/workflows/**commit**.yaml"]
+      description: "When writing a commit message, use format type(scope): description (feat, fix, docs, etc.)."
+    _foundation/contributing/lexis/lex-commit-language:
+      paths: ["**/COMMIT_EDITMSG", ".commitlintrc*", ".github/workflows/**commit**.yml", ".github/workflows/**commit**.yaml"]
+      description: "When writing commit message: subject in English; use [lang] tag in body for local language."
+    _foundation/contributing/lexis/lex-small-commits:
+      paths: ["**/COMMIT_EDITMSG", ".commitlintrc*"]
+      description: "When committing, ensure one logical change per commit; split if multiple purposes."
+    _foundation/contributing/lexis/lex-signed-commits:
+      paths: ["**/COMMIT_EDITMSG", ".gitconfig", "**/.gitsigners"]
+      description: "When pushing commits or configuring Git, ensure commits are GPG-signed and show Verified."
+    _foundation/contributing/lexis/lex-semantic-version:
+      paths: ["package.json", "**/__version__.py", "**/version.txt", "CHANGELOG*", ".bumpversion*", "pyproject.toml"]
+      description: "When creating a release or tag, use MAJOR.MINOR.PATCH (SemVer); no other format allowed."
 
   docs:
     _foundation/tooling/codex/codex-mcp-github:

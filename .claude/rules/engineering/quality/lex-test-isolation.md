@@ -1,3 +1,14 @@
+---
+paths:
+  - '**/tests/**'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - '**/__tests__/**'
+---
+
 # Lexis: Test Isolation
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Ensuring each test runs from a known state, independent of order and parallelizable without race conditions

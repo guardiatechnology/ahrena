@@ -1,4 +1,4 @@
-Credencial hardcoded no código — VIOLA A LEI. [Etapa do SDLC]
+[Nome da Lei]. [Etapa do SDLC]
 
 # Lexis: [Nome da Lei]
 

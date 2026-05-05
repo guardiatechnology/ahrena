@@ -1,3 +1,13 @@
+---
+paths:
+  - '**/auth/**'
+  - '**/*auth*.py'
+  - '**/*auth*.ts'
+  - '**/openapi/**'
+  - '**/oas/**'
+  - '**/api/**'
+---
+
 # Lexis: Authentication and Authorization for Guardia APIs
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — API access

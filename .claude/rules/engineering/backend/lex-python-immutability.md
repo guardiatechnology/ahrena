@@ -1,3 +1,8 @@
+---
+paths:
+  - '**/*.py'
+---
+
 # Lexis: Python Immutability by Default
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Backend: data structure mutability in Python code

@@ -460,7 +460,7 @@ def extract_description(content: str) -> str:
     scope = ""
 
     for line in content.splitlines():
-        if line.startswith("# ") and not line.startswith("## "):
+        if not title and line.startswith("# ") and not line.startswith("## "):
             raw = line.lstrip("# ").strip()
             if ": " in raw:
                 raw = raw.split(": ", 1)[1]
@@ -666,7 +666,7 @@ def transform_md_to_claude_rule(content: str, pilar: str, rule_config: dict | No
         if isinstance(paths, list):
             lines.append("paths:")
             for p in paths:
-                lines.append(f"  - {p}")
+                lines.append(f"  - {p!r}")
         else:
             lines.append(f"paths: {paths!r}")
         lines.append("---")

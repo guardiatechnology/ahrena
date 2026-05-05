@@ -1,3 +1,12 @@
+---
+paths:
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - '**/*.spec.tsx'
+  - '**/__tests__/**'
+---
+
 # Lexis: Behavioral Testing in Frontend
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Testing strategy for frontend applications (unit, component, integration, E2E)

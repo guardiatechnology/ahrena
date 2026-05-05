@@ -1,3 +1,11 @@
+---
+paths:
+  - '**/*.py'
+  - '**/*.ts'
+  - '**/api/**'
+  - '**/handlers/**'
+---
+
 # Lexis: Standardized Error Structure in Responses
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — error handling

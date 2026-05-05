@@ -1,3 +1,8 @@
+---
+paths:
+  - '**/*.py'
+---
+
 # Lexis: Python Error Handling
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Backend: error handling standards for Python code, complementary to `lex-python-result-type` and `lex-python-error-object`

@@ -1,4 +1,4 @@
-Sync with upstream remote. Shortcut to sync the local repository with the remote (fetch, pull, push)
+Sync Repository. Shortcut to sync the local repository with the remote (fetch, pull, push)
 
 # Cry: Sync Repository
 

@@ -1,3 +1,11 @@
+---
+paths:
+  - 'docs/runbooks/**'
+  - '**/runbooks/**'
+  - '**/alerts/**'
+  - '**/*.alerts.yaml'
+---
+
 # Lexis: Every Alert Has a Runbook
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Monitoring alerts that trigger humans (page, on-call Slack) — each needs a linked runbook

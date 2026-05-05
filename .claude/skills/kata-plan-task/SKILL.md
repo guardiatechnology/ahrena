@@ -1,6 +1,6 @@
 ---
 name: kata-plan-task
-description: "Plan a Task. Creates or updates the plan file for a task before executing it, following lex-agent-planning."
+description: "Plan a Task. Creating and maintaining task plan documents by agents, per lex-agent-planning"
 ---
 
 # Kata: Plan a Task
@@ -85,16 +85,54 @@ When all steps are `[x]`:
 |--------|--------|-------------|
 | Plan file | Markdown with YAML front-matter | `{plans_dir}/plan-{NNN}-{slug}.md` |
 
+## Example Execution
+
+### Input
+
+```
+Task: complete migration of cries to lex-feature-design-docs
+Issue: guardiafinance/ahrena#42
+```
+
+### Step 1 — Path resolved
+
+```
+Agent: Claude Code
+Directory: .claude/plans/
+Next number: 001 (empty directory)
+File: .claude/plans/plan-001-complete-feature-design-docs.md
+```
+
+### Step 3 — Draft
+
+```markdown
+## Scope
+- cry-api-design.md, cry-event-storm.md, cry-feature-design.md, cry-full-design.md (pt-BR, en, es)
+- kata-api-design-review.md (pt-BR, en, es)
+- kata-api-design-doc.md — fix .directives references (pt-BR, en, es)
+- .cursor/commands/ corresponding
+
+## Steps
+- [ ] 1. Open GitHub issue to track the work
+- [ ] 2. Create branch feat/{N}-complete-feature-design-docs
+- [ ] 3-6. Update 4 cries (× 3 languages)
+- [ ] 7. Update kata-api-design-review (× 3 languages)
+- [ ] 8. Fix kata-api-design-doc (× 3 languages)
+- [ ] 9. Update .cursor/commands/ affected
+- [ ] 10. Commit everything (new artifacts + cries + katas)
+- [ ] 11. Open PR
+```
+
+### Step 4 — Confirmation
+
+```
+Agent: "This is the plan to complete the feature-design-docs migration.
+  Total: ~18 files. Would you like to adjust anything before I start?"
+```
+
 ## Restrictions
 
 - **Never start execution without user confirmation** in Step 4
 - **Never create an empty plan** — if the description is insufficient to decompose steps, ask clarifying questions first
 - **Never delete a plan** — cancelled plans become `abandoned`, not removed
 - **Never omit the front-matter** — `plan_id`, `title`, `status`, `agent`, `created_at`, `updated_at` are mandatory; `issue` when applicable
-
-## References
-
-- `lex-agent-planning` — Law
-- `codex-agent-planning` — Manual with full template and best practices
-- `lex-checkpoint` — Session state tracking (complementary)
-- `lex-directives` — Reading `.ahrena/.directives`

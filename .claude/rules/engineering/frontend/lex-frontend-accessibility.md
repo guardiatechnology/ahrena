@@ -1,10 +1,10 @@
 ---
 paths:
-  - **/*.tsx
-  - **/*.jsx
-  - **/*.vue
-  - **/*.svelte
-  - **/*.html
+  - '**/*.tsx'
+  - '**/*.jsx'
+  - '**/*.vue'
+  - '**/*.svelte'
+  - '**/*.html'
 ---
 
 # Lexis: Frontend Accessibility (WCAG 2.1 AA)

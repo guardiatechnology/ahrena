@@ -1,10 +1,11 @@
+---
+paths:
+  - 'docs/**'
+---
+
 # Lexis: Mandatory Structure for Feature Design Documents
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — documents produced during the feature design cycle orchestrated by warrior-prometheus
-
-## Purpose
-
-Domain modeling, API design, and event documentation produce artifacts that need to be located fast, read by humans and agents, and updated unambiguously across phases. Without a single, named structure, each feature ends up saving documents in different places under different names, and cross-consistency between domain, API, and events is lost. This Lexis fixes the location, name, and organization of these documents.
 
 ## Law
 
@@ -91,12 +92,3 @@ docs/
 - **Tool:** agent verification on persistence; PR lint validating regex `^docs/[a-z][a-z0-9-]*/(entities|oas|events|agents|metrics)/[^/]+$` for every new file under `docs/`.
 - **Timing:** at the end of every design phase, on Gate 1 of the Issue-Driven flow (scope) and on the PR.
 - **Metric:** 0 design documents outside the canonical structure on `main`; 100% of features with identified Bounded Contexts produce coherent subdirectories under `docs/`.
-
-## References
-
-- `codex-feature-design-docs` — manual with the templates of each category
-- `kata-feature-design-docs` — procedure to create and update the documents
-- `lex-entities`, `lex-entity-naming` — entity structure and naming
-- `lex-cloudevents`, `codex-cloudevents` — event format
-- `codex-oas-structure` — OpenAPI structure
-- `warrior-prometheus` — design cycle orchestrator that enforces this Lexis

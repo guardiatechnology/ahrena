@@ -1,3 +1,10 @@
+---
+paths:
+  - '**/COMMIT_EDITMSG'
+  - '.gitconfig'
+  - '**/.gitsigners'
+---
+
 # Lexis: Mandatory Signed Commits
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All commits in Guardia repositories

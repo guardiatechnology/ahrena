@@ -1,3 +1,11 @@
+---
+paths:
+  - '**/COMMIT_EDITMSG'
+  - '.commitlintrc*'
+  - '.github/workflows/**commit**.yml'
+  - '.github/workflows/**commit**.yaml'
+---
+
 # Lexis: Mandatory Conventional Commits
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All commits in Guardia repositories

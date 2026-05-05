@@ -1,3 +1,10 @@
+---
+paths:
+  - '**/entities/**'
+  - '**/*entity*.py'
+  - 'docs/**/entities/**'
+---
+
 # Lexis: Base Entity Structure
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — entity model

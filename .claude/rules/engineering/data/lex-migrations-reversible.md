@@ -1,3 +1,11 @@
+---
+paths:
+  - '**/migrations/**'
+  - '**/alembic/**'
+  - '**/*migration*'
+  - '**/*.sql'
+---
+
 # Lexis: Reversible Migrations or With Rollback Plan
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Database schema migrations (relational or NoSQL) in any persistent environment

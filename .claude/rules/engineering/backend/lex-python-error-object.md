@@ -1,3 +1,8 @@
+---
+paths:
+  - '**/*.py'
+---
+
 # Lexis: Python Error Object Structure
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Backend: error value structure used in Result failures and error responses in Python code

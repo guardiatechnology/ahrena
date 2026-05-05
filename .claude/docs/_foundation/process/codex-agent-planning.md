@@ -2,18 +2,6 @@
 
 > **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Creating, maintaining, and managing the lifecycle of agent task plans in the Ahrena context
 
-## Overview
-
-This Codex is the canonical manual for agent task planning. It complements `lex-agent-planning` (the Law) with templates, fill examples, numbering rules, best practices, and guidance for edge cases. Every agent that creates plans MUST consult this Codex.
-
-## Context
-
-- **Domain:** AI agent task execution discipline
-- **Audience:** all agents (Claude, Cursor, warriors, katas) and human reviewers
-- **Update:** when the template or conventions change (ADR recommended for front-matter changes)
-
----
-
 ## 1. Plan Path Resolution
 
 The agent resolves the plans directory in the following order:
@@ -175,10 +163,3 @@ GitHub Issue
 5. **Commit the plan.** The plan is part of the work; it must go in the same PR as the artifacts it describes.
 
 ---
-
-## References
-
-- `lex-agent-planning` — corresponding Law
-- `kata-plan-task` — operational procedure to create and maintain plans
-- `lex-checkpoint` — session state tracking
-- `lex-issue-driven` — Issue-Driven flow

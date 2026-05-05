@@ -1,3 +1,10 @@
+---
+paths:
+  - '.github/CODEOWNERS'
+  - '.gitignore'
+  - '.github/workflows/**.yml'
+---
+
 # Lexis: Mandatory Use of Git Worktrees
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Every branch-based task executed by AI agents in the Ahrena context
@@ -89,10 +96,3 @@ Worktree: .worktrees/42-scheduled-payments-api/
 - **Tool:** `git worktree list` to verify active worktrees; Claude Code `EnterWorktree` for creation and navigation; `kata-git-worktree` as canonical entry point
 - **Timing:** before starting any task that produces a branch; after PR merge (cleanup)
 - **Metric:** 0 feature tasks executed outside a dedicated worktree; 0 worktrees created without a corresponding GitHub Issue; main checkout always clean during feature executions
-
-## References
-
-- `codex-git-worktrees` — manual with conventions, lifecycle, and commands
-- `kata-git-worktree` — step-by-step procedure
-- `lex-git-branches` — branch naming convention
-- `lex-issue-first` — issue required before the branch

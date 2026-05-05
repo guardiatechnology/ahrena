@@ -1,3 +1,8 @@
+---
+paths:
+  - '**/*.py'
+---
+
 # Lexis: Python Security Practices
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Backend: security standards for Python code

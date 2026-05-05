@@ -1,3 +1,10 @@
+---
+paths:
+  - '**/entities/**'
+  - '**/*entity*'
+  - 'docs/**/entities/**'
+---
+
 # Lexis: Entity Naming Conventions — snake_case
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Guardia platform — entity identifiers, field names, CloudEvents type segments, and database column names

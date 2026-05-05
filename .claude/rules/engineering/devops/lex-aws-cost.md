@@ -1,3 +1,12 @@
+---
+paths:
+  - '**/*.tf'
+  - '**/*.hcl'
+  - '**/*.cdk.ts'
+  - '**/cdk/**'
+  - '**/cloudformation/**'
+---
+
 # Lexis: AWS Cost Awareness
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Design and operation of AWS infrastructure with attention to cost — tagging, right-sizing, spend monitoring, surprise prevention

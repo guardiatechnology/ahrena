@@ -1,3 +1,12 @@
+---
+paths:
+  - '**/*.py'
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/*.js'
+  - '**/*.go'
+---
+
 # Lexis: Logs via Centralized Bootstrap and Decorator
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All code that produces logs — backend, frontend, mobile, workers, jobs, scripts, infrastructure — in any language

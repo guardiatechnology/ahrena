@@ -1,6 +1,6 @@
 ---
 name: kata-adr-write
-description: "{Title}. Production of an individual ADR in simplified MADR format under docs/adr/"
+description: "Write an Architecture Decision Record (ADR). Production of an individual ADR in simplified MADR format under docs/adr/"
 ---
 
 # Kata: Write an Architecture Decision Record (ADR)

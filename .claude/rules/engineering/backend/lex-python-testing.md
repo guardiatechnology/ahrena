@@ -1,3 +1,10 @@
+---
+paths:
+  - '**/*.py'
+  - '**/test_*.py'
+  - '**/*_test.py'
+---
+
 # Lexis: Python Testing Requirements
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Backend: testing standards for Python code

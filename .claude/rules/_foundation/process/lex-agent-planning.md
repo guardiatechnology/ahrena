@@ -1,10 +1,13 @@
+---
+paths:
+  - '.claude/plans/**'
+  - '.cursor/plans/**'
+  - '**/plan-*.md'
+---
+
 # Lexis: Mandatory Planning for Agent Tasks
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Every multi-step task initiated by any agent or subagent (Claude, Cursor, IDEs, warriors, katas, cries)
-
-## Purpose
-
-Agents that execute without prior planning produce partial results, leave files in inconsistent states, and force the user to manually reconstruct context. This Lexis eliminates that pattern by requiring every agent to document its plan before executing, making intention, scope, and sequence auditable by humans and other agents.
 
 ## Law
 
@@ -42,9 +45,6 @@ updated_at: "YYYY-MM-DDTHH:MM:SSZ"
 
 ## Objective
 {Why this task is being done — 1 to 3 sentences}
-
-## Scope
-{What will be modified: files, systems, affected artifacts}
 
 ## Steps
 - [ ] Step 1
@@ -103,10 +103,3 @@ Task: update 4 cries and 2 katas
 - **Tool:** agent self-check before any multi-step execution; `kata-plan-task` as canonical entry point
 - **Timing:** before any multi-step task execution — without exception
 - **Metric:** 0 multi-step tasks executed without a plan documented in `{agent_dir}/plans/`
-
-## References
-
-- `codex-agent-planning` — manual with full template, examples, and best practices
-- `kata-plan-task` — operational procedure to create and maintain plans
-- `lex-checkpoint` — session state tracking (complementary)
-- `lex-issue-driven` — issue-driven development flow
