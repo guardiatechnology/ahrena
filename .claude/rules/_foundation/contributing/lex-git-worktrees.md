@@ -1,3 +1,10 @@
+---
+paths:
+  - ".github/CODEOWNERS"
+  - ".gitignore"
+  - ".github/workflows/**.yml"
+---
+
 # Lexis: Mandatory Use of Git Worktrees
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Every branch-based task executed by AI agents in the Ahrena context

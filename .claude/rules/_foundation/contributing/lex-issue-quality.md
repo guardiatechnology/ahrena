@@ -1,3 +1,8 @@
+---
+paths:
+  - ".github/ISSUE_TEMPLATE/**"
+---
+
 # Lexis: Issue Quality Requirements
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All issues in Guardia repositories

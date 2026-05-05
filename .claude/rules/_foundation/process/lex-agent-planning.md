@@ -1,3 +1,10 @@
+---
+paths:
+  - ".claude/plans/**"
+  - ".cursor/plans/**"
+  - "**/plan-*.md"
+---
+
 # Lexis: Mandatory Planning for Agent Tasks
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Every multi-step task initiated by any agent or subagent (Claude, Cursor, IDEs, warriors, katas, cries)

@@ -1,3 +1,10 @@
+---
+paths:
+  - ".github/CODEOWNERS"
+  - ".github/workflows/**.yml"
+  - ".github/workflows/**.yaml"
+---
+
 # Lexis: Trunk Branches Are Protected Against Direct Writes
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Trunk branches (`main`, `master`, `release/*`) in every Guardia repository

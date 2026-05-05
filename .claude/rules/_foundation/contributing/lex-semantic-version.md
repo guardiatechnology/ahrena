@@ -1,3 +1,13 @@
+---
+paths:
+  - "package.json"
+  - "**/__version__.py"
+  - "**/version.txt"
+  - "CHANGELOG*"
+  - ".bumpversion*"
+  - "pyproject.toml"
+---
+
 # Lexis: Mandatory Semantic Versioning
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Versions and release tags in Guardia repositories

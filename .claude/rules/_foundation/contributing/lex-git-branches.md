@@ -1,3 +1,10 @@
+---
+paths:
+  - ".github/CODEOWNERS"
+  - ".github/workflows/**.yml"
+  - ".github/workflows/**.yaml"
+---
+
 # Lexis: Git Branch Naming Convention
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All git branches in Guardia repositories

@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/COMMIT_EDITMSG"
+  - ".commitlintrc*"
+---
+
 # Lexis: Mandatory Atomic Commits
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All commits in Guardia repositories

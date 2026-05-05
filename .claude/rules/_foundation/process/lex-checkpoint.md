@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/.checkpoint"
+---
+
 # Lexis: Session Checkpoint
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** All work sessions with AI agents

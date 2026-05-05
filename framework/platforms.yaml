@@ -456,6 +456,7 @@ claude-code:
     _foundation/process/lexis/lex-directives:
       description: "Read .ahrena/.directives before producing any artifact — language, paths, naming, tone all come from here."
     _foundation/process/lexis/lex-checkpoint:
+      paths: ["**/.checkpoint"]
       description: "Check .checkpoint at session start; save progress when concluding an activity."
     _foundation/process/lexis/lex-platforms-rules:
       description: "When creating or publishing a Lexis or Codex, add its rule key to platforms.yaml cursor.rules."
@@ -468,8 +469,10 @@ claude-code:
     _foundation/tooling/lexis/lex-mcp:
       description: "When an MCP server is active for the current operation, use MCP tool over CLI. Credentials via env vars only."
     engineering/workflow/lexis/lex-issue-driven:
+      paths: ["docs/issues/**", ".ahrena/workflow/**"]
       description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
     _foundation/contributing/lexis/lex-protected-trunk:
+      paths: [".github/CODEOWNERS", ".github/workflows/**.yml", ".github/workflows/**.yaml"]
       description: "Trunk branches (main, master, release/*) are protected; never start dev on trunk — always create a feature branch first and reach trunk only via merged PR."
     engineering/frontend/lexis/lex-frontend-typing:
       paths: ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.svelte"]
@@ -589,6 +592,39 @@ claude-code:
     engineering/platform/lexis/lex-feature-design-docs:
       paths: ["docs/**"]
       description: "When persisting feature design artifacts (entities, OpenAPI, events), use docs/{context}/{category}/ structure with category in entities/oas/events/agents/metrics."
+    _foundation/process/lexis/lex-agent-planning:
+      paths: [".claude/plans/**", ".cursor/plans/**", "**/plan-*.md"]
+      description: "Before starting any multi-step task, create a plan at ./{agent}/plans/plan-{NNN}-{slug}.md (or paths.plans override). Show it to the user and wait for confirmation before executing."
+    _foundation/contributing/lexis/lex-issue-quality:
+      paths: [".github/ISSUE_TEMPLATE/**"]
+      description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, has a defined Issue Type, has an assignee, and answers Why/What/How."
+    _foundation/contributing/lexis/lex-issue-first:
+      paths: [".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**"]
+      description: "When starting any code change, ensure a GitHub Issue exists first; PR body must include Closes #N or Refs #N."
+    _foundation/contributing/lexis/lex-pr-quality:
+      paths: [".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**", ".github/CODEOWNERS"]
+      description: "When creating a PR, mirror issue labels, apply size label, set assignee to author, and request reviewers per CODEOWNERS."
+    _foundation/contributing/lexis/lex-git-branches:
+      paths: [".github/CODEOWNERS", ".github/workflows/**.yml", ".github/workflows/**.yaml"]
+      description: "When creating a branch, use format {type}/{issue-number}-{kebab-slug}; type must be a Conventional Commits type; issue number is mandatory."
+    _foundation/contributing/lexis/lex-git-worktrees:
+      paths: [".github/CODEOWNERS", ".gitignore", ".github/workflows/**.yml"]
+      description: "Every branch-based task by an AI agent must run inside a dedicated git worktree under paths.worktrees; main checkout stays clean."
+    _foundation/contributing/lexis/lex-conventional-commits:
+      paths: ["**/COMMIT_EDITMSG", ".commitlintrc*", ".github/workflows/**commit**.yml", ".github/workflows/**commit**.yaml"]
+      description: "When writing a commit message, use format type(scope): description (feat, fix, docs, etc.)."
+    _foundation/contributing/lexis/lex-commit-language:
+      paths: ["**/COMMIT_EDITMSG", ".commitlintrc*", ".github/workflows/**commit**.yml", ".github/workflows/**commit**.yaml"]
+      description: "When writing commit message: subject in English; use [lang] tag in body for local language."
+    _foundation/contributing/lexis/lex-small-commits:
+      paths: ["**/COMMIT_EDITMSG", ".commitlintrc*"]
+      description: "When committing, ensure one logical change per commit; split if multiple purposes."
+    _foundation/contributing/lexis/lex-signed-commits:
+      paths: ["**/COMMIT_EDITMSG", ".gitconfig", "**/.gitsigners"]
+      description: "When pushing commits or configuring Git, ensure commits are GPG-signed and show Verified."
+    _foundation/contributing/lexis/lex-semantic-version:
+      paths: ["package.json", "**/__version__.py", "**/version.txt", "CHANGELOG*", ".bumpversion*", "pyproject.toml"]
+      description: "When creating a release or tag, use MAJOR.MINOR.PATCH (SemVer); no other format allowed."
 
   docs:
     _foundation/tooling/codex/codex-mcp-github:

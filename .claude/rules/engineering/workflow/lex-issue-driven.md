@@ -1,3 +1,9 @@
+---
+paths:
+  - "docs/issues/**"
+  - ".ahrena/workflow/**"
+---
+
 # Lexis: Issue-Driven Development
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Feature and bugfix development flow driven by GitHub issues in the Ahrena framework
