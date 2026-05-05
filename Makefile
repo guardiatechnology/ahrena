@@ -1,7 +1,7 @@
 PYTHON ?= python3
 VERSION ?= main
 TARGET ?= .
-REPO ?= https://github.com/guardiafinance/ahrena
+REPO ?= https://github.com/guardiatechnology/ahrena
 PLATFORM ?=
 LANGUAGE ?=
 LANGUAGES ?=
