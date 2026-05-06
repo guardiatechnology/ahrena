@@ -17,8 +17,8 @@ Garantir que toda Idea no Ahrena tenha origem rastreável em insights aprovados 
 - **Exceções:** Nenhuma. Lexis não admitem exceções
 
 <HARD-GATE>
-warrior-phanes MUST NOT promover um insight a Idea sem que TODAS as
-preconditions abaixo sejam atendidas:
+warrior-phanes NÃO DEVE promover um insight a Idea sem que TODAS as
+pré-condições abaixo sejam atendidas:
 
   (a) insight.status == approved (decisão humana registrada)
   (b) Idea referencia ≥1 insight em linked_insights[]
@@ -28,7 +28,7 @@ preconditions abaixo sejam atendidas:
   (e) Phanes atualiza o insight de origem para status: promoted +
       preenche idea_ref apontando para a Idea criada
 
-Esta regra aplica-se a TODA criação de Idea no Ahrena, regardless of:
+Esta regra aplica-se a TODA criação de Idea no Ahrena, independentemente de:
   - tamanho percebido ("é só um experimento")
   - validação verbal ("o stakeholder já aprovou na call")
   - obviedade percebida ("o insight é trivial")
@@ -38,10 +38,10 @@ Exceção única: nenhuma.
 </HARD-GATE>
 
 <HARD-GATE>
-warrior-pitia MUST NOT alterar o status de um insight para qualquer
+warrior-pitia NÃO DEVE alterar o status de um insight para qualquer
 valor diferente de "proposed" sem direção humana explícita.
 
-Mandatory preconditions para qualquer transição de status diferente
+Pré-condições obrigatórias para qualquer transição de status diferente
 de `[*] → proposed`:
 
   (a) Existe instrução humana explícita identificando o insight pelo
@@ -54,7 +54,7 @@ de `[*] → proposed`:
       redigida, com `updated_at` atualizado
 
 Esta regra aplica-se a TODOS os insights produzidos por warrior-pitia,
-regardless of:
+independentemente de:
   - obviedade do feedback ("o ajuste é trivial")
   - histórico de casos similares ("Pítia já viu isso antes")
   - urgência declarada
