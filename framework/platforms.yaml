@@ -168,6 +168,10 @@ cursor:
     _foundation/tooling/codex/codex-mcp-figma:
       alwaysApply: false
       description: "When using Figma MCP server, use tools (get_file, get_component, get_local_variables, export_node, etc.) and auth from this codex."
+    _foundation/tooling/codex/codex-git-spice:
+      alwaysApply: false
+      description: "When operating Stacked PRs and stacked_prs.tool=gs, consult this codex for git-spice install, setup, command catalog, vanilla→gs mapping, and force-push semantics."
+      paths: [".git/spice/**"]
     documentation/i18n/lexis/lex-language:
       alwaysApply: false
       description: "When translating technical docs, preserve structure and semantics; apply cross-cutting translation rules."
@@ -675,6 +679,8 @@ claude-code:
       description: "When authoring SKILL.md or validating a skill package, follow the Anthropic Agent Skills spec (frontmatter fields, naming limits, progressive disclosure)."
     _foundation/tooling/codex/codex-skill-project-architecture:
       description: "When scaffolding or editing skills/{slug}/, follow the Ahrena project layout and reuse codex-frontend-architecture / codex-python-architecture for widgets and scripts/tools."
+    _foundation/tooling/codex/codex-git-spice:
+      description: "When operating Stacked PRs and stacked_prs.tool=gs, consult this codex for git-spice install, setup, command catalog, vanilla→gs mapping, and force-push semantics."
     engineering/workflow/codex/codex-issue-workflow:
       description: "Reference for the 7-phase Issue-Driven flow, the 2 gates, MADR format, and delegation."
     engineering/frontend/codex/codex-frontend-architecture:
