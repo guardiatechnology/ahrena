@@ -136,9 +136,100 @@ git rebase --onto main "feat/${N}-stack-1-${SLUG}" "feat/${N}-stack-2-${SLUG}"
 - Si la stack queda inconsistente (rebase falló en el medio), **no esconder el estado** — listar branches restantes al usuario y proponer `git rebase --abort` o continuación manual
 - Hooks pre-push pesados (linters, tests) pueden volver el cascade muy lento; en casos extremos, considerar `--no-verify` **con autorización explícita del usuario** y justificación registrada
 
+## Variant: git-spice
+
+Aplicable cuando `.ahrena/.directives` declara `stacked_prs.tool: gs`. La gran ventaja del camino gs en este kata es el **auto-restack**: alterar una capa inferior (commit nuevo, amend o rebase contra trunk) reaplica automáticamente los commits de las capas superiores sobre la nueva base. El agente raramente necesita un loop manual; ante conflicto, `gs rebase continue` sustituye `git rebase --continue`. Consultar `codex-git-spice` para el mapeo completo.
+
+### Caso 1: amend o commit nuevo en una capa ya submitida
+
+Estando dentro del worktree compartido y en la capa modificada:
+
+```bash
+git-spice branch checkout "feat/${ISSUE_NUMBER}-stack-${MODIFIED_LAYER}-${LAYER_SLUG}"
+
+# (a) Commit adicional en la misma capa
+git add <archivos>
+git-spice commit create -m "fix(scope): ajuste pedido en review"
+# → gs reaplica las capas i+1..N sobre el nuevo commit
+
+# (b) Amend del último commit de la capa
+git add <archivos>
+git-spice commit amend --no-edit
+# → ídem; auto-restack ocurre tras el amend
+
+# Submitir el stack para reflejar en los PRs (idempotente)
+git-spice stack submit
+# o solo las capas afectadas:
+git-spice upstack submit
+```
+
+`gs commit create` y `gs commit amend` llaman a `git commit` por debajo (firma GPG preservada cuando `commit.gpgsign=true` está global) y luego disparan `gs upstack restack` para todas las capas superiores.
+
+### Caso 2: trunk (`main`) avanzó y la capa base requiere rebase
+
+```bash
+# Estando en cualquier capa del worktree compartido
+git-spice repo sync --restack
+# Pull del trunk + elimina branches ya mergeadas localmente +
+# rebasea el stack actual contra el trunk actualizado
+```
+
+Equivalente al loop vanilla `git fetch && git rebase origin/main && cascade rebase manual`, en un único comando.
+
+### Caso 3: squash merge upstream creó divergencia
+
+Si la capa anterior fue mergeada con squash (en el trunk) y el historial unsquashed desapareció:
+
+```bash
+git-spice repo sync --restack
+# Cubre la mayoría de los casos: gs detecta el squash y ajusta la base.
+```
+
+Si aún queda inconsistencia (raro):
+
+```bash
+# Mueve la capa superior directamente sobre main
+git-spice upstack onto main
+# o sobre otra base explícita
+git-spice upstack onto "feat/${ISSUE_NUMBER}-stack-3-${LAYER_SLUG}"
+```
+
+### Caso 4: conflicto durante el auto-restack
+
+`gs` se detiene con un mensaje similar a `git rebase` en conflicto. Resolución:
+
+```bash
+git status
+# resolver marcadores <<<<<<< / >>>>>>> manualmente
+git add <archivos-resueltos>
+git-spice rebase continue
+# o para abortar:
+git-spice rebase abort
+```
+
+`gs rebase continue` retoma el auto-restack desde donde se detuvo — incluidas las capas superiores aún no tocadas. No use `git rebase --continue` directo; puede desincronizar la metadata de gs en cascadas multi-capa.
+
+### Caso 5: push tras los cambios
+
+`gs` aplica `--force-with-lease` automáticamente en `branch submit` y `stack submit`:
+
+```bash
+git-spice stack submit             # default seguro: --force-with-lease
+git-spice stack submit --force     # bypassa el lease (NO usar sin motivo)
+git-spice stack submit --no-verify # salta los pre-push hooks (autorización explícita)
+```
+
+### Notas operativas (gs)
+
+- **El orden importa, y gs lo maneja:** comience siempre por la capa modificada — `gs` propaga hacia arriba por sí solo.
+- **¿Salté `gs commit create`?** Si hizo `git commit` directo, la capa superior no fue auto-restacked. Use `gs upstack restack` manualmente.
+- **Hooks lentos:** el auto-restack repite `pre-commit` por capa superior; optimizar o usar `--no-verify` con autorización (la misma disciplina del vanilla).
+- **Firma GPG:** preservada en los commits resultantes del auto-restack si `commit.gpgsign=true` está global; verificar con `git log --show-signature`.
+
 ## Referencias
 
 - `codex-stacked-prs` — modelo conceptual y ciclo de vida
+- `codex-git-spice` — comandos `gs commit create/amend`, `gs repo sync`, `gs rebase continue/abort`
 - `kata-stacked-pr-create` — creación inicial de la stack
 - `kata-stacked-pr-merge` — merge bottom-up (etapa siguiente en la vida de la stack)
 - `lex-protected-trunk` — trunk nunca recibe force-push

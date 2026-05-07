@@ -217,9 +217,101 @@ Aplicar labels específicos de PR cuando aplicable (ver `codex-labels`):
 - Si la Decision Checklist reprueba, **no intentar argumentar** — redirigir inmediatamente a `kata-contributing-pr`
 - Cada commit en cualquier capa debe seguir las 4 Lexis de commit (`lex-conventional-commits`, `lex-commit-language`, `lex-small-commits`, `lex-signed-commits`)
 
+## Variant: git-spice
+
+Aplicable cuando `.ahrena/.directives` declara `stacked_prs.tool: gs`. Pre-requisito: `git-spice` instalado (`brew install git-spice`) y `gs auth login` realizado una vez. Toda la estrategia (Paso 0 — Decision Checklist, validación de la issue, descomposición en capas) permanece **idéntica** al camino vanilla; solo los pasos operativos 3, 4 y 5 cambian de comandos. Consultar `codex-git-spice` para el mapeo completo.
+
+### Paso 3 (gs): Inicializar gs y crear el worktree compartido
+
+```bash
+ISSUE_NUMBER=42
+SLUG="scheduled-payments"
+WORKTREE_DIR=".worktrees/${ISSUE_NUMBER}-${SLUG}-stack"
+
+# El worktree sigue siendo uno solo compartido (codex-stacked-prs §4)
+git worktree add "$WORKTREE_DIR" main
+cd "$WORKTREE_DIR"
+
+# Idempotente: solo la primera vez que el repositorio encuentra gs.
+# Verifique con `cat .git/spice/store/info` y omita si ya está inicializado.
+git-spice repo init --trunk main --remote origin
+```
+
+### Paso 4 (gs): Crear y submitir cada capa
+
+**Capa 1** (desde el trunk):
+
+```bash
+# Implementar archivos de la capa 1, luego:
+git add <archivos-de-la-capa-1>
+git-spice branch create "feat/${ISSUE_NUMBER}-stack-1-${SLUG}" \
+  -m "feat(scope): capa 1 — schema (1/N)"
+# `gs branch create` commitea el stage automáticamente.
+```
+
+**Capas 2..N** (cada una sobre la anterior):
+
+```bash
+git add <archivos-de-la-capa-i>
+git-spice branch create "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" \
+  -m "feat(scope): capa ${i} — ${LAYER_NAME} (${i}/N)"
+# Estando checked out en la capa i-1, gs la usa como base automáticamente.
+```
+
+> **Auto-restack:** cuando commiteas en la capa `i` vía `gs commit create` o `gs commit amend`, `gs` reaplica los commits de las capas `i+1..N` sobre la nueva base. Por eso: **siempre** empiece por la capa inferior; **nunca** mezcle cambios de dos capas en el mismo `commit create`.
+
+**Submitir todos los PRs de una sola vez:**
+
+```bash
+git-spice stack submit --draft --fill
+# --draft   → todos los PRs como borrador
+# --fill    → completa título/body del commit message
+```
+
+`gs stack submit` acepta `--label`, `--reviewer`, `--assign` pero los aplica iguales a **todos** los PRs del stack. Para mirror exacto de la issue (con variaciones por capa), prefiera aplicar vía `gh pr edit` en el Paso 5 (gs).
+
+**Body personalizado por capa** (opcional, cuando `--fill` no alcanza):
+
+```bash
+git-spice branch checkout "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}"
+git-spice branch submit \
+  --title "feat(scope): capa ${i} — ${LAYER_NAME} (${i}/N)" \
+  --body "Refs #${ISSUE_NUMBER} (${i}/N — ${LAYER_NAME})
+
+Cubre: AC-X, AC-Y."
+```
+
+Para la **última capa**, cambie `Refs #${ISSUE_NUMBER}` por `Closes #${ISSUE_NUMBER}` en el body.
+
+### Paso 5 (gs): Espejar labels/assignee/reviewers en cada PR
+
+Idéntico al camino vanilla — `gs` no diferencia por capa al mirror la issue. Reutilice el loop con `gh pr edit`:
+
+```bash
+LABELS=$(gh issue view "$ISSUE_NUMBER" --repo "$OWNER/$REPO" \
+  --json labels --jq '[.labels[].name] | join(",")')
+
+for PR in "${PR_NUMBERS[@]}"; do
+  gh pr edit "$PR" --repo "$OWNER/$REPO" \
+    --add-label "$LABELS" \
+    --add-assignee "@me"
+  # Reviewers vía CODEOWNERS: auto-request cuando está configurado;
+  # si no, agregue manualmente:
+  gh pr edit "$PR" --add-reviewer "org/team"
+done
+```
+
+### Notas operativas (gs)
+
+- **Force-push seguro por default:** `gs branch submit` y `gs stack submit` ya usan `--force-with-lease`; nunca pase `--force` sin justificación registrada.
+- **Hooks pesados:** el auto-restack repite el ciclo de hooks por cada capa superior; optimice pre-commit o use `--no-verify` con autorización del usuario (la misma disciplina del vanilla).
+- **Firma GPG:** preservada si `commit.gpgsign=true` está global; `gs` no tiene flag específico.
+- **Confusión de nombre:** el binario se llama `git-spice`. Use `git-spice` en scripts; `gs` solo en shell interactivo (alias).
+
 ## Referencias
 
 - `codex-stacked-prs` — Decision Checklist canónica, naming, ciclo de vida
+- `codex-git-spice` — instalación, catálogo de comandos `gs`, mapeo vanilla→gs
 - `kata-stacked-pr-rebase` — cascade rebase cuando una capa inferior cambia
 - `kata-stacked-pr-merge` — merge bottom-up tras review aprobada
 - `kata-contributing-pr` — fallback para PR único cuando Decision Checklist reprueba
