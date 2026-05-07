@@ -23,7 +23,7 @@ New Stacked Pull Request. Shortcut to start a chain of stacked Pull Requests in 
 2. The kata runs **Phase 0 — Decision Checklist** even on explicit user invocation, applying the canonical checklist defined in `codex-stacked-prs`.
 3. **If the checklist fails**, the kata warns the user with the actual signals counted, proposes proceeding with a single PR via `kata-contributing-pr`, and only continues with the stack on explicit user override (recording the decision).
 4. **If the checklist passes**, the kata proposes a concrete layer decomposition (see kata for details), confirms with the user, and creates the chain: shared worktree, N branches, N stacked PRs, label mirroring.
-5. The kata selects the operational tool by consulting the `stacked_prs.tool` directive in `.ahrena/.directives` — vanilla is the default; additional values (e.g., `gs`) activate variants within the Kata itself. The Cry does not read the directive directly.
+5. The kata selects the operational tool by consulting the `stacked_prs.tool` directive in `.ahrena/.directives`. Accepted values: `vanilla` (default — `git` + `gh`) and `gs` (git-spice — auto-restack documented in `codex-git-spice`). Each value activates the corresponding section of the Kata (main procedure vs. "Variant: git-spice" section); the Cry does not read the directive directly.
 
 ## Associated Kata
 
