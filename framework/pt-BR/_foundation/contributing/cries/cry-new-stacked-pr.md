@@ -21,7 +21,7 @@
 2. O kata roda **Fase 0 — Decision Checklist** mesmo em invocação explícita pelo usuário, aplicando a checklist canônica definida em `codex-stacked-prs`.
 3. **Se a checklist reprovar**, o kata avisa o usuário com os sinais reais contados, propõe seguir com PR único via `kata-contributing-pr`, e só prossegue com a stack mediante override explícito do usuário (registrando a decisão).
 4. **Se a checklist aprovar**, o kata propõe decomposição concreta em camadas (ver kata para detalhes), confirma com o usuário e cria a cadeia: worktree compartilhado, N branches, N PRs encadeados, mirror de labels.
-5. O kata seleciona a ferramenta operacional consultando a diretiva `stacked_prs.tool` em `.ahrena/.directives` — vanilla é default; valores adicionais (ex.: `gs`) ativam variantes da própria Kata. A Cry não lê a diretiva diretamente.
+5. O kata seleciona a ferramenta operacional consultando a diretiva `stacked_prs.tool` em `.ahrena/.directives`. Valores aceitos: `vanilla` (default — `git` + `gh`) e `gs` (git-spice — auto-restack documentado em `codex-git-spice`). Cada valor ativa a seção correspondente da Kata (procedimento principal vs. seção "Variant: git-spice"); a Cry não lê a diretiva diretamente.
 
 ## Kata Associado
 
@@ -38,6 +38,7 @@
 
 - `kata-stacked-pr-create` — Kata invocado por este Cry
 - `codex-stacked-prs` — Decision Checklist canônica e modelo conceitual
+- `codex-git-spice` — Manual da variante `gs` quando o projeto declara `stacked_prs.tool: gs`
 - `kata-contributing-pr` — Fallback para PR único
 - `cry-new-pr` — Atalho equivalente para PR único
 - `lex-issue-first`, `lex-issue-quality`, `lex-git-branches`, `lex-pr-quality` — Lexis aplicáveis
