@@ -202,9 +202,116 @@ Os três `git branch` finais não devem retornar nada. `git worktree list` não 
 - Se um conflito aparecer no rebase de uma camada superior, **parar** e invocar `kata-stacked-pr-rebase` (passo 4) — não tentar resolver dentro deste kata
 - Se a issue guarda-chuva não fechar automaticamente, **investigar antes de fechar manualmente** — pode indicar que `Closes #N` está faltando no PR errado
 
+## Variant: git-spice
+
+Aplicável quando `.ahrena/.directives` declara `stacked_prs.tool: gs`. O merge em si **não** é coberto por `gs` — continua sendo `gh pr merge` (gs não tem comando equivalente). A vantagem do gs aqui está no **pós-merge**: `gs repo sync` substitui o loop manual de "atualizar base do PR seguinte → rebase onto main → force-push" por um único comando. Consultar `codex-git-spice` para mapeamento completo.
+
+### Passo 1 (gs): Verificar pré-requisitos
+
+Idêntico ao caminho vanilla — `gh pr checks`, `gh pr view --json reviews`, `gh pr view --json mergeable`. Sem mudança.
+
+### Passo 2 (gs): Mergear camada inferior (1)
+
+Idêntico ao vanilla. `gs` não automatiza o merge de PR; usar `gh pr merge`:
+
+```bash
+gh pr merge "$PR_NUMBER" \
+  --repo "$OWNER/$REPO" \
+  --squash \
+  --delete-branch=false
+```
+
+`--delete-branch=false` continua importante: a branch da camada 1 ainda é referenciada pelo PR da camada 2 até o `gs repo sync` reconstruir o estado.
+
+### Passo 3 (gs): Sincronizar e mergear camadas restantes
+
+Diferente do vanilla, `gs repo sync` automatiza a fase de "atualizar base + rebase + force-push" para todas as camadas remanescentes:
+
+```bash
+# Estando dentro do worktree compartilhado
+git-spice repo sync
+# Ações automáticas do gs:
+#   1. Pull do trunk atualizado (com a camada 1 mergeada via squash)
+#   2. Detecta a camada 1 como já mergeada e a apaga localmente
+#   3. Rebaseia a camada 2 onto main
+#   4. Idem para camadas 3..N
+#   5. Atualiza o tracking interno do gs
+```
+
+Após `gs repo sync`, atualizar os PRs no GitHub (idempotente):
+
+```bash
+# Re-submete cada camada atualizando base e force-pushing com lease
+git-spice stack submit
+```
+
+> **Importante:** `gs branch submit` / `gs stack submit` atualiza o campo `base` do PR remoto automaticamente quando ele difere da nova base local. Você **não precisa** de `gh pr edit --base main` antes — diferença chave em relação ao vanilla.
+
+Mergear cada camada subsequente:
+
+```bash
+for i in $(seq 2 $N); do
+  THIS_BRANCH="feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}"
+  THIS_PR=$(gh pr view "$THIS_BRANCH" --json number --jq .number)
+
+  # Verificar pré-requisitos (CI, approval, mergeable)
+  gh pr checks "$THIS_PR"
+
+  # Mergear (delete-branch só na última)
+  if [ "$i" -eq "$N" ]; then
+    gh pr merge "$THIS_PR" --squash --delete-branch
+  else
+    gh pr merge "$THIS_PR" --squash --delete-branch=false
+  fi
+
+  # Sincronizar gs após cada merge
+  git-spice repo sync
+done
+```
+
+`gs repo sync` é idempotente — chamá-lo após cada merge mantém o estado coerente sem custo significativo.
+
+### Passo 4 (gs): Confirmar fechamento da issue guarda-chuva
+
+Idêntico ao vanilla — `gh issue view $ISSUE_NUMBER --json state` deve retornar `CLOSED`. Sem participação do `gs`.
+
+### Passo 5 (gs): Cleanup do worktree e branches locais
+
+`gs repo sync` já fez parte do trabalho (deletou branches mergeadas localmente). Resta:
+
+```bash
+# Sair do worktree
+cd ../..
+
+# (Opcional) confirmar que não restam branches da stack rastreadas
+git-spice log short
+# Deve mostrar apenas o trunk e branches não relacionadas
+
+# Remover o worktree compartilhado
+git worktree remove ".worktrees/${ISSUE_NUMBER}-${SLUG}-stack" --force
+
+# Branches locais da stack já foram apagadas por gs repo sync;
+# se alguma sobreviveu (ex.: gs repo sync interrompido):
+git branch --list "feat/${ISSUE_NUMBER}-stack-*" | xargs -r git branch -D
+
+# Refs remotas: --delete-branch no merge da camada N apagou a última;
+# camadas intermediárias podem ter sobrado:
+for i in $(seq 1 $((N-1))); do
+  git push origin --delete "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" 2>/dev/null || true
+done
+```
+
+### Notas operacionais (gs)
+
+- **Merge ainda é `gh pr merge`:** `gs` não opera sobre o GitHub para fechar PRs; continua via `gh`.
+- **`gs repo sync` é o ganho real:** elimina o loop manual de update-base+rebase+push da fase pós-merge.
+- **Stack edit raramente é necessária aqui:** se você precisar reordenar camadas durante o merge, é sinal que a Decision Checklist falhou — abortar e invocar `kata-stacked-pr-rebase`.
+- **Conflitos no rebase pós-merge:** delegar a `kata-stacked-pr-rebase` (variante gs) — não tentar resolver dentro deste kata.
+
 ## Referências
 
 - `codex-stacked-prs` — modelo conceitual; ciclo de vida; política bottom-up
+- `codex-git-spice` — `gs repo sync`, `gs stack submit`, fluxo pós-merge
 - `kata-stacked-pr-create` — criação inicial da stack
 - `kata-stacked-pr-rebase` — cascade rebase quando há conflito
 - `lex-pr-quality` — HARD-GATE de 8 critérios atendido por cada PR antes do merge

@@ -121,3 +121,93 @@ git rebase --onto main "feat/${N}-stack-1-${SLUG}" "feat/${N}-stack-2-${SLUG}"
 - If a conflict is large or ambiguous, **stop** and consult the user instead of guessing
 - If the stack is left inconsistent (rebase failed in the middle), **do not hide the state** — list remaining branches to the user and propose `git rebase --abort` or manual continuation
 - Heavy pre-push hooks (linters, tests) can make the cascade very slow; in extreme cases, consider `--no-verify` **with explicit user authorization** and recorded justification
+
+## Variant: git-spice
+
+Applicable when `.ahrena/.directives` declares `stacked_prs.tool: gs`. The big advantage of the gs path in this kata is **auto-restack**: changing a lower layer (new commit, amend, or rebase against trunk) automatically reapplies the upper layers' commits on top of the new base. The agent rarely needs a manual loop; on conflict, `gs rebase continue` replaces `git rebase --continue`. Consult `codex-git-spice` for the full mapping.
+
+### Case 1: amend or new commit on an already-submitted layer
+
+While inside the shared worktree and on the modified layer:
+
+```bash
+git-spice branch checkout "feat/${ISSUE_NUMBER}-stack-${MODIFIED_LAYER}-${LAYER_SLUG}"
+
+# (a) Additional commit on the same layer
+git add <files>
+git-spice commit create -m "fix(scope): adjust requested in review"
+# → gs reapplies layers i+1..N on top of the new commit
+
+# (b) Amend the layer's last commit
+git add <files>
+git-spice commit amend --no-edit
+# → same; auto-restack happens after the amend
+
+# Submit the stack to reflect on the PRs (idempotent)
+git-spice stack submit
+# or just the affected layers:
+git-spice upstack submit
+```
+
+`gs commit create` and `gs commit amend` call `git commit` underneath (GPG signature preserved when `commit.gpgsign=true` is global) and then trigger `gs upstack restack` for all upper layers.
+
+### Case 2: trunk (`main`) advanced and the base layer needs rebase
+
+```bash
+# From any layer in the shared worktree
+git-spice repo sync --restack
+# Pulls trunk + deletes locally-merged branches +
+# rebases the current stack against the updated trunk
+```
+
+Equivalent to the vanilla loop `git fetch && git rebase origin/main && manual cascade rebase`, in a single command.
+
+### Case 3: upstream squash merge created divergence
+
+If the previous layer was squash-merged (into trunk) and the unsquashed history vanished:
+
+```bash
+git-spice repo sync --restack
+# Covers most cases: gs detects the squash and adjusts the base.
+```
+
+If inconsistency remains (rare):
+
+```bash
+# Move the upper layer directly on top of main
+git-spice upstack onto main
+# or onto another explicit base
+git-spice upstack onto "feat/${ISSUE_NUMBER}-stack-3-${LAYER_SLUG}"
+```
+
+### Case 4: conflict during auto-restack
+
+`gs` stops with a message similar to `git rebase` on conflict. Resolution:
+
+```bash
+git status
+# resolve <<<<<<< / >>>>>>> markers manually
+git add <resolved-files>
+git-spice rebase continue
+# or to abort:
+git-spice rebase abort
+```
+
+`gs rebase continue` resumes the auto-restack from where it stopped — including upper layers not yet touched. Do not use `git rebase --continue` directly; it can desync gs metadata in multi-layer cascade cases.
+
+### Case 5: push after changes
+
+`gs` applies `--force-with-lease` automatically in `branch submit` and `stack submit`:
+
+```bash
+git-spice stack submit             # safe default: --force-with-lease
+git-spice stack submit --force     # bypasses lease (DO NOT use without reason)
+git-spice stack submit --no-verify # skips pre-push hooks (explicit authorization)
+```
+
+### Operational notes (gs)
+
+- **Order matters, and gs handles it:** always start from the modified layer — `gs` propagates upward by itself.
+- **Did you skip `gs commit create`?** If you ran `git commit` directly, the upper layer was not auto-restacked. Run `gs upstack restack` manually.
+- **Slow hooks:** auto-restack repeats `pre-commit` per upper layer; optimize or use `--no-verify` with authorization (same discipline as vanilla).
+- **GPG signing:** preserved on the resulting commits of auto-restack if `commit.gpgsign=true` is global; verify with `git log --show-signature`.

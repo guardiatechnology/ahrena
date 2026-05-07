@@ -187,3 +187,109 @@ The three final `git branch` calls MUST return nothing. `git worktree list` MUST
 - **Do not** merge via the GitHub UI during the sequence — use exclusively `gh pr merge` via CLI to coordinate with the rebase steps
 - If a conflict appears during an upper layer's rebase, **stop** and invoke `kata-stacked-pr-rebase` (step 4) — do not try to resolve inside this kata
 - If the umbrella issue does not auto-close, **investigate before closing manually** — it may indicate that `Closes #N` is missing on the wrong PR
+
+## Variant: git-spice
+
+Applicable when `.ahrena/.directives` declares `stacked_prs.tool: gs`. The merge itself is **not** covered by `gs` — it remains `gh pr merge` (gs has no equivalent command). The gs gain here is in the **post-merge**: `gs repo sync` replaces the manual loop of "update next PR base → rebase onto main → force-push" with a single command. Consult `codex-git-spice` for the full mapping.
+
+### Step 1 (gs): Verify prerequisites
+
+Identical to the vanilla path — `gh pr checks`, `gh pr view --json reviews`, `gh pr view --json mergeable`. No changes.
+
+### Step 2 (gs): Merge the bottom layer (1)
+
+Identical to vanilla. `gs` does not automate PR merging; use `gh pr merge`:
+
+```bash
+gh pr merge "$PR_NUMBER" \
+  --repo "$OWNER/$REPO" \
+  --squash \
+  --delete-branch=false
+```
+
+`--delete-branch=false` still matters: layer 1's branch is still referenced by layer 2's PR until `gs repo sync` rebuilds the state.
+
+### Step 3 (gs): Sync and merge remaining layers
+
+Unlike vanilla, `gs repo sync` automates the "update base + rebase + force-push" phase for all remaining layers:
+
+```bash
+# From inside the shared worktree
+git-spice repo sync
+# Automatic gs actions:
+#   1. Pull updated trunk (with layer 1 squash-merged)
+#   2. Detect layer 1 as already merged and delete it locally
+#   3. Rebase layer 2 onto main
+#   4. Same for layers 3..N
+#   5. Update gs internal tracking
+```
+
+After `gs repo sync`, update PRs on GitHub (idempotent):
+
+```bash
+# Re-submits each layer updating base and force-pushing with lease
+git-spice stack submit
+```
+
+> **Important:** `gs branch submit` / `gs stack submit` automatically updates the remote PR's `base` field when it differs from the new local base. You **don't need** `gh pr edit --base main` first — key difference vs. vanilla.
+
+Merge each subsequent layer:
+
+```bash
+for i in $(seq 2 $N); do
+  THIS_BRANCH="feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}"
+  THIS_PR=$(gh pr view "$THIS_BRANCH" --json number --jq .number)
+
+  # Verify prerequisites (CI, approval, mergeable)
+  gh pr checks "$THIS_PR"
+
+  # Merge (delete-branch only on the last)
+  if [ "$i" -eq "$N" ]; then
+    gh pr merge "$THIS_PR" --squash --delete-branch
+  else
+    gh pr merge "$THIS_PR" --squash --delete-branch=false
+  fi
+
+  # Sync gs after each merge
+  git-spice repo sync
+done
+```
+
+`gs repo sync` is idempotent — calling it after each merge keeps state coherent at negligible cost.
+
+### Step 4 (gs): Confirm the umbrella issue closed
+
+Identical to vanilla — `gh issue view $ISSUE_NUMBER --json state` should return `CLOSED`. No `gs` involvement.
+
+### Step 5 (gs): Cleanup of worktree and local branches
+
+`gs repo sync` already did part of the work (deleted merged branches locally). What remains:
+
+```bash
+# Exit the worktree
+cd ../..
+
+# (Optional) confirm no stack branches still tracked
+git-spice log short
+# Should show only trunk and unrelated branches
+
+# Remove the shared worktree
+git worktree remove ".worktrees/${ISSUE_NUMBER}-${SLUG}-stack" --force
+
+# Local stack branches should already be deleted by gs repo sync;
+# if any survived (e.g., interrupted gs repo sync):
+git branch --list "feat/${ISSUE_NUMBER}-stack-*" | xargs -r git branch -D
+
+# Remote refs: --delete-branch on the layer N merge deleted the last;
+# intermediate layers may have leftovers:
+for i in $(seq 1 $((N-1))); do
+  git push origin --delete "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" 2>/dev/null || true
+done
+```
+
+### Operational notes (gs)
+
+- **Merge is still `gh pr merge`:** `gs` does not operate against GitHub to close PRs; it remains via `gh`.
+- **`gs repo sync` is the real win:** eliminates the manual update-base+rebase+push loop in the post-merge phase.
+- **Stack edit rarely needed here:** if you need to reorder layers during the merge, it signals the Decision Checklist failed — abort and invoke `kata-stacked-pr-rebase`.
+- **Post-merge rebase conflicts:** delegate to `kata-stacked-pr-rebase` (gs variant) — do not try to resolve inside this kata.

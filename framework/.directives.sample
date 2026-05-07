@@ -103,7 +103,9 @@ language:
 # Tool used to operate Stacked Pull Requests when a feature is
 # decomposed into N reviewable layers. Default is `vanilla`
 # (plain git + gh CLI). Set to `gs` to use git-spice, which
-# automates cascade rebase. See codex-stacked-prs.
+# automates cascade rebase via auto-restack — see codex-git-spice.
+# Strategic decisions (when to stack, decomposition, naming) live
+# in codex-stacked-prs and apply equally to both tools.
 # Adoption is opt-in: the kata-stacked-pr-create runs a Decision
 # Checklist (≥ 3 high signals AND 0 anti-signals) before stacking.
 

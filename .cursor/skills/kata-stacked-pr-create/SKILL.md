@@ -202,3 +202,102 @@ Apply PR-specific labels when applicable (see `codex-labels`):
 - **Do not** apply `size/*` labels manually — GitHub Actions applies them
 - If the Decision Checklist fails, **do not argue** — redirect immediately to `kata-contributing-pr`
 - Each commit in any layer MUST follow the 4 commit Lexis (`lex-conventional-commits`, `lex-commit-language`, `lex-small-commits`, `lex-signed-commits`)
+
+## Variant: git-spice
+
+Applicable when `.ahrena/.directives` declares `stacked_prs.tool: gs`. Prerequisite: `git-spice` installed (`brew install git-spice`) and `gs auth login` performed once. The whole strategy (Step 0 — Decision Checklist, issue validation, layer decomposition) remains **identical** to the vanilla path; only operational steps 3, 4, and 5 swap commands. Consult `codex-git-spice` for the full mapping.
+
+### Step 3 (gs): Initialize gs and create the shared worktree
+
+```bash
+ISSUE_NUMBER=42
+SLUG="scheduled-payments"
+WORKTREE_DIR=".worktrees/${ISSUE_NUMBER}-${SLUG}-stack"
+
+# Worktree remains a single shared one (codex-stacked-prs §4)
+git worktree add "$WORKTREE_DIR" main
+cd "$WORKTREE_DIR"
+
+# Idempotent: only the first time the repository encounters gs.
+# Verify with `cat .git/spice/store/info` first; skip if already initialized.
+git-spice repo init --trunk main --remote origin
+```
+
+### Step 4 (gs): Create and submit each layer
+
+**Layer 1** (from trunk):
+
+```bash
+# Implement layer 1 files, then:
+git add <layer-1-files>
+git-spice branch create "feat/${ISSUE_NUMBER}-stack-1-${SLUG}" \
+  -m "feat(scope): layer 1 — schema (1/N)"
+# `gs branch create` commits the stage automatically.
+```
+
+**Layers 2..N** (each on top of the previous):
+
+```bash
+git add <layer-i-files>
+git-spice branch create "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" \
+  -m "feat(scope): layer ${i} — ${LAYER_NAME} (${i}/N)"
+# While checked out on layer i-1, gs uses it as base automatically.
+```
+
+> **Auto-restack:** when you commit on layer `i` via `gs commit create` or `gs commit amend`, `gs` reapplies the commits of layers `i+1..N` on top of the new base. Therefore: **always** start from the lowest layer; **never** mix changes from two layers in the same `commit create`.
+
+**Submit all PRs at once:**
+
+```bash
+git-spice stack submit --draft --fill
+# --draft   → all PRs as draft
+# --fill    → fills title/body from commit message
+```
+
+`gs stack submit` accepts `--label`, `--reviewer`, `--assign`, but applies the same to **all** stack PRs. For exact issue mirroring (which may vary per layer), prefer applying via `gh pr edit` in Step 5 (gs).
+
+**Custom body per layer** (optional, when `--fill` isn't enough):
+
+```bash
+git-spice branch checkout "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}"
+git-spice branch submit \
+  --title "feat(scope): layer ${i} — ${LAYER_NAME} (${i}/N)" \
+  --body "Refs #${ISSUE_NUMBER} (${i}/N — ${LAYER_NAME})
+
+Covers: AC-X, AC-Y."
+```
+
+For the **last layer**, swap `Refs #${ISSUE_NUMBER}` for `Closes #${ISSUE_NUMBER}` in the body.
+
+### Step 5 (gs): Mirror labels/assignee/reviewers on each PR
+
+Identical to the vanilla path — `gs` does not differentiate per layer when mirroring the issue. Reuse the loop with `gh pr edit`:
+
+```bash
+# Populate PR_NUMBERS from the stack branches (gs stack submit prints
+# the URLs, but the loop below needs the numeric IDs):
+PR_NUMBERS=()
+for i in $(seq 1 "$N"); do
+  BRANCH="feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}"
+  PR_NUMBERS+=("$(gh pr view "$BRANCH" --json number --jq .number)")
+done
+
+LABELS=$(gh issue view "$ISSUE_NUMBER" --repo "$OWNER/$REPO" \
+  --json labels --jq '[.labels[].name] | join(",")')
+
+for PR in "${PR_NUMBERS[@]}"; do
+  gh pr edit "$PR" --repo "$OWNER/$REPO" \
+    --add-label "$LABELS" \
+    --add-assignee "@me"
+  # Reviewers via CODEOWNERS: auto-requested when configured;
+  # otherwise add manually:
+  gh pr edit "$PR" --add-reviewer "org/team"
+done
+```
+
+### Operational notes (gs)
+
+- **Safe force-push by default:** `gs branch submit` and `gs stack submit` already use `--force-with-lease`; never pass `--force` without recorded justification.
+- **Heavy hooks:** auto-restack repeats the hook cycle for each upper layer; optimize pre-commit or use `--no-verify` with user authorization (same discipline as vanilla).
+- **GPG signing:** preserved if `commit.gpgsign=true` is set globally; `gs` has no specific flag.
+- **Name confusion:** the binary is named `git-spice`. Use `git-spice` in scripts; `gs` only in interactive shell (alias).
