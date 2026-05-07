@@ -114,20 +114,20 @@ skills/{slug}/                        kata-build-skill                 .build/{s
 
 | Pilar | Arquivo | Papel |
 |---|---|---|
-| Codex | `_foundation/tooling/codex/codex-skill-project-architecture.md` | Layout `skills/{slug}/`, papel de cada subdir, fluxo dev → build → dist, binding widget ↔ script, `skill.config` |
-| Codex | `_foundation/tooling/codex/codex-skill-anthropic-agent-skills.md` | Manual da spec Anthropic (frontmatter, file refs, packaging) com URL e versão validadas |
-| Codex | `_foundation/tooling/codex/codex-skill-tools-and-widgets.md` | Convenção Ahrena para `tools/` (MCP) e `widgets/` (React + manifest); aviso "não é parte da spec Anthropic" |
-| Codex | `_foundation/tooling/codex/codex-skill-build-pipeline.md` | Pipeline de build determinística, cache, hashes, ordering, integração com Vite/esbuild |
-| Lexis | `_foundation/tooling/lexis/lex-skill-project-structure.md` | Obriga layout `skills/{slug}/`, presença de `SKILL.md` + `skill.config`, separação fonte/build/dist |
-| Lexis | `_foundation/tooling/lexis/lex-skill-package-structure.md` | Frontmatter SKILL.md obrigatório, `.skill-manifest.json` válido, refs com hash; HARD-GATE bloqueia entrega sem manifest válido |
-| Lexis | `_foundation/tooling/lexis/lex-skill-export-determinism.md` | Snapshot por commit hash, ordering lexicográfico, sem timestamps voláteis, rebuild idêntico |
-| Kata | `_foundation/tooling/katas/kata-init-skill.md` | Scaffold de `skills/{slug}/` com templates de `SKILL.md`, `skill.config`, subdirs vazios, `.gitignore` herdado |
-| Kata | `_foundation/tooling/katas/kata-build-skill.md` | Compila widgets, congela scripts, valida tools, escreve `.build/{slug}/` + zip |
-| Kata | `_foundation/tooling/katas/kata-package-skill.md` | A partir de `.build/{slug}/`, snapshota refs externas com commit hash, escreve `.dist/{slug}.skill` |
-| Kata | `_foundation/tooling/katas/kata-skill-dev-server.md` | Sobe dev server (widgets HMR + script runner + tools stub) em localhost |
-| Cry | `_foundation/tooling/cries/cry-new-skill.md` | Atalho — invoca `kata-init-skill` |
-| Cry | `_foundation/tooling/cries/cry-skill-dev.md` | Atalho — invoca `kata-skill-dev-server` |
-| Cry | `_foundation/tooling/cries/cry-skill-build.md` | Atalho — invoca `kata-build-skill` (e opcionalmente `kata-package-skill`) |
+| Codex | `engineering/skills/codex/codex-skill-project-architecture.md` | Layout `skills/{slug}/`, papel de cada subdir, fluxo dev → build → dist, binding widget ↔ script, `skill.config` |
+| Codex | `engineering/skills/codex/codex-skill-anthropic-agent-skills.md` | Manual da spec Anthropic (frontmatter, file refs, packaging) com URL e versão validadas |
+| Codex | `engineering/skills/codex/codex-skill-tools-and-widgets.md` | Convenção Ahrena para `tools/` (MCP) e `widgets/` (React + manifest); aviso "não é parte da spec Anthropic" |
+| Codex | `engineering/skills/codex/codex-skill-build-pipeline.md` | Pipeline de build determinística, cache, hashes, ordering, integração com Vite/esbuild |
+| Lexis | `engineering/skills/lexis/lex-skill-project-structure.md` | Obriga layout `skills/{slug}/`, presença de `SKILL.md` + `skill.config`, separação fonte/build/dist |
+| Lexis | `engineering/skills/lexis/lex-skill-package-structure.md` | Frontmatter SKILL.md obrigatório, `.skill-manifest.json` válido, refs com hash; HARD-GATE bloqueia entrega sem manifest válido |
+| Lexis | `engineering/skills/lexis/lex-skill-export-determinism.md` | Snapshot por commit hash, ordering lexicográfico, sem timestamps voláteis, rebuild idêntico |
+| Kata | `engineering/skills/katas/kata-init-skill.md` | Scaffold de `skills/{slug}/` com templates de `SKILL.md`, `skill.config`, subdirs vazios, `.gitignore` herdado |
+| Kata | `engineering/skills/katas/kata-build-skill.md` | Compila widgets, congela scripts, valida tools, escreve `.build/{slug}/` + zip |
+| Kata | `engineering/skills/katas/kata-package-skill.md` | A partir de `.build/{slug}/`, snapshota refs externas com commit hash, escreve `.dist/{slug}.skill` |
+| Kata | `engineering/skills/katas/kata-skill-dev-server.md` | Sobe dev server (widgets HMR + script runner + tools stub) em localhost |
+| Cry | `engineering/skills/cries/cry-new-skill.md` | Atalho — invoca `kata-init-skill` |
+| Cry | `engineering/skills/cries/cry-skill-dev.md` | Atalho — invoca `kata-skill-dev-server` |
+| Cry | `engineering/skills/cries/cry-skill-build.md` | Atalho — invoca `kata-build-skill` (e opcionalmente `kata-package-skill`) |
 | Templates | `templates/skill-project-sample/` | Diretório-template com `SKILL.md`, `skill.config.json`, `widgets/package.json`, `scripts/`, `tools/` mínimos |
 
 ### Atualizações em artefatos existentes
