@@ -23,9 +23,9 @@ Atalho que invoca `warrior-phanes` para promover insights aprovados a uma Idea s
 
 1. Invoca `warrior-phanes` com os parâmetros fornecidos
 2. Phanes lê `.ahrena/.directives` e internaliza `lex-discovery-flow` e `codex-discovery-artifacts`
-3. Phanes valida o HARD-GATE 1: `status: approved` em todos os insights, coerência de `topic`
-4. Se passar, Phanes executa `kata-ideation-from-insight`, gerando o arquivo da Idea com os 5 campos obrigatórios preenchidos
-5. Phanes atualiza o(s) insight(s) de origem para `status: promoted` com `idea_ref` apontando para a Idea
+3. Phanes valida o HARD-GATE 1 em **três momentos** (per `kata-ideation-from-insight`): preflight de input (a, d) antes de qualquer leitura, preflight de output (b, c) sobre a Idea sintetizada antes de gravar, e pós-escrita (e) com rollback transacional caso a atualização parcial dos insights falhe
+4. Se preflight passar, Phanes executa `kata-ideation-from-insight`, gerando o arquivo da Idea com os 5 campos de conteúdo obrigatórios preenchidos
+5. Phanes atualiza o(s) insight(s) de origem para `status: promoted` com `idea_ref` apontando para a Idea (rollback automático se falhar)
 6. Phanes reporta a Idea criada e os insights promovidos, sinalizando lacunas que pedem validação adicional
 
 ## Prompt Template
@@ -42,12 +42,13 @@ Parâmetros recebidos:
 Tarefa:
 Execute kata-ideation-from-insight com os parâmetros acima.
 Antes de qualquer escrita, leia .ahrena/.directives, lex-discovery-flow e codex-discovery-artifacts.
-Valide o HARD-GATE 1:
-  (a) status == approved em todos os insights
-  (d) topic idêntico em todos os insights
-Se qualquer precondição falhar, interrompa e informe o humano qual ação destrava.
+Valide o HARD-GATE 1 em três momentos, conforme o kata:
+  - Preflight de input (a, d) antes de qualquer leitura
+  - Preflight de output (b, c) sobre a Idea sintetizada, ANTES de gravar
+  - Pós-escrita (e) com rollback transacional se a atualização parcial dos insights falhar
+Se qualquer preflight falhar, interrompa e informe o humano qual ação destrava.
 Se passar, gere a Idea em docs/discovery/{topic}/ideas/{NNN}-{slug}.md
-com os 5 campos obrigatórios (problem, hypothesis, target_user, success_metric, effort_estimate)
+com os 5 campos de conteúdo obrigatórios (problem, hypothesis, target_user, success_metric, effort_estimate)
 e linked_insights[] referenciando os insights de origem.
 Atualize o(s) insight(s) de origem para status: promoted + idea_ref + updated_at.
 Não altere status de insight para approved (HARD-GATE 2; prerrogativa humana).
@@ -55,7 +56,7 @@ Não altere status de insight para approved (HARD-GATE 2; prerrogativa humana).
 Formato de saída:
 - Confirmação da Idea criada com path canônico
 - Lista dos insights promovidos
-- Resumo de cada um dos 5 campos obrigatórios
+- Resumo de cada um dos 5 campos de conteúdo obrigatórios
 - Lacunas que pedem validação adicional antes do design cycle
 ```
 

@@ -23,9 +23,9 @@ description: "Promote an Approved Insight to an Idea. Product Discovery — shor
 
 1. Invokes `warrior-phanes` with the provided parameters
 2. Phanes reads `.ahrena/.directives` and internalizes `lex-discovery-flow` and `codex-discovery-artifacts`
-3. Phanes validates HARD-GATE 1: `status: approved` in all insights, `topic` coherence
-4. If it passes, Phanes executes `kata-ideation-from-insight`, generating the Idea file with the 5 mandatory fields filled
-5. Phanes updates the source insight(s) to `status: promoted` with `idea_ref` pointing to the Idea
+3. Phanes validates HARD-GATE 1 at **three moments** (per `kata-ideation-from-insight`): input preflight (a, d) before any read, output preflight (b, c) on the synthesized Idea before writing, and post-write (e) with transactional rollback if any partial source-insight update fails
+4. If preflight passes, Phanes executes `kata-ideation-from-insight`, generating the Idea file with the 5 mandatory content fields filled
+5. Phanes updates the source insight(s) to `status: promoted` with `idea_ref` pointing to the Idea (rollback automatic on failure)
 6. Phanes reports the created Idea and the promoted insights, flagging gaps that need additional validation
 
 ## Prompt Template
@@ -42,12 +42,13 @@ Received parameters:
 Task:
 Execute kata-ideation-from-insight with the parameters above.
 Before any write, read .ahrena/.directives, lex-discovery-flow, and codex-discovery-artifacts.
-Validate HARD-GATE 1:
-  (a) status == approved in all insights
-  (d) topic identical in all insights
-If any precondition fails, interrupt and inform the human which action unblocks.
+Validate HARD-GATE 1 at three moments, per the kata:
+  - Input preflight (a, d) before any read
+  - Output preflight (b, c) on the synthesized Idea, BEFORE writing
+  - Post-write (e) with transactional rollback if any partial source-insight update fails
+If any preflight fails, interrupt and inform the human which action unblocks.
 If it passes, generate the Idea in docs/discovery/{topic}/ideas/{NNN}-{slug}.md
-with the 5 mandatory fields (problem, hypothesis, target_user, success_metric, effort_estimate)
+with the 5 mandatory content fields (problem, hypothesis, target_user, success_metric, effort_estimate)
 and linked_insights[] referencing the source insights.
 Update the source insight(s) to status: promoted + idea_ref + updated_at.
 Do not change an insight status to approved (HARD-GATE 2; human prerogative).
@@ -55,7 +56,7 @@ Do not change an insight status to approved (HARD-GATE 2; human prerogative).
 Output format:
 - Confirmation of the created Idea with canonical path
 - List of promoted insights
-- Summary of each of the 5 mandatory fields
+- Summary of each of the 5 mandatory content fields
 - Gaps that need additional validation before the design cycle
 ```
 

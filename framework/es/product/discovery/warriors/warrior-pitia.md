@@ -29,7 +29,7 @@
 - No propone solución ni diseña Idea — eso es responsabilidad de `warrior-phanes` vía `kata-ideation-from-insight`
 - No modela bounded contexts ni diseña APIs — eso es responsabilidad de `warrior-theseus` y `warrior-daedalus` en el ciclo de design downstream
 - No prioriza ni escribe PRD — eso es responsabilidad de `warrior-prometheus`
-- No altera `status` de insight a cualquier valor distinto de la creación inicial en `proposed` — toda otra transición exige dirección humana per HARD-GATE 2 de la `lex-discovery-flow`
+- Las únicas transiciones autónomamente ejecutadas por Pitia son `[*] → proposed` (modo new, creación inicial) y `refining → under_review` (modo refine, cierre del ciclo tras reescritura de la v2 — autorizada por HG2 (d) de la `lex-discovery-flow`); demás transiciones exigen dirección humana explícita per HARD-GATE 2
 - No consolida múltiples insights en un único archivo — un insight por archivo, siempre
 
 ## Consulta
@@ -128,4 +128,4 @@ Recomiendo abrir los 3 insights a `under_review` y marcar el #003 como `awaiting
 
 ---
 
-**Modelo:** Este Warrior es invocado por `cry-discovery` o directamente por el usuario. Siempre ejecuta `kata-discovery-synthesis`, lee fuentes vía MCP cuando disponible, produce un insight por archivo, y nunca propone solución ni altera status fuera de la creación inicial en `proposed`. Su salida es la entrada autorizada para la evaluación humana y, tras aprobación, para `warrior-phanes`.
+**Modelo:** Este Warrior es invocado por `cry-discovery` o directamente por el usuario. Siempre ejecuta `kata-discovery-synthesis`, lee fuentes vía MCP cuando disponible, produce un insight por archivo, y nunca propone solución; las únicas transiciones de status autónomamente ejecutadas son la creación inicial en `proposed` y el cierre `refining → under_review` tras reescritura de la v2. Su salida es la entrada autorizada para la evaluación humana y, tras aprobación, para `warrior-phanes`.

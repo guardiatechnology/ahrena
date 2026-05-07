@@ -91,6 +91,8 @@ If any of (b) or (c) fails, **abort before writing** — no file is created, no 
 
 ### Step 6: Update the source insight(s)
 
+**Before writing**, capture in memory the original `updated_at` of each insight (needed for rollback in Step 7; the original `status` does not need a snapshot because it is always `approved`, validated in Step 1 (a)).
+
 For each insight in `linked_insights[]`:
 
 1. Update `status` to `promoted`
@@ -201,8 +203,9 @@ updated_at: "2026-05-10T15:00:00Z"
 - Never change an insight's `status` to `approved` — approval is a human prerogative per HARD-GATE 2 of `lex-discovery-flow`
 - Never produce an Idea without fully validating the 5 preconditions of HARD-GATE 1
 - Never mix distinct `topics` in a single Idea — the Idea's `topic` MUST match the `topic` of all `linked_insights[]`
-- Never fill the 5 mandatory fields with raw placeholders such as "TBD"; when evidence is missing, explicitly declare it (e.g., "baseline to be confirmed via 3 additional interviews")
+- Never fill the 5 mandatory content fields with raw placeholders such as "TBD"; when evidence is missing, explicitly declare it (e.g., "baseline to be confirmed via 3 additional interviews")
 - Never modify source insight fields beyond `status`, `idea_ref`, and `updated_at`
+- The Step 7 rollback is part of the normal workflow when partial source-insight updates fail — it is not an exception path, it is the invariance mechanism. Do NOT skip Step 7 even when the write "appears successful"; verify on-disk persistence and execute the transactional rollback if any insight ended up out of sync with the Idea
 
 ## References
 

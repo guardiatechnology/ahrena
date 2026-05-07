@@ -91,6 +91,8 @@ Se qualquer (b) ou (c) falhar, **abortar antes de gravar** — nenhum arquivo é
 
 ### Passo 6: Atualização do(s) insight(s) de origem
 
+**Antes de gravar**, capturar em memória o `updated_at` original de cada insight (necessário para rollback no Passo 7; o `status` original não precisa snapshot porque é sempre `approved`, validado em Passo 1 (a)).
+
 Para cada insight em `linked_insights[]`:
 
 1. Atualizar `status` para `promoted`
@@ -201,8 +203,9 @@ updated_at: "2026-05-10T15:00:00Z"
 - Nunca alterar `status` de um insight para `approved` — a aprovação é prerrogativa humana per HARD-GATE 2 da `lex-discovery-flow`
 - Nunca produzir Idea sem ter validado integralmente as 5 precondições do HARD-GATE 1
 - Nunca misturar `topics` distintos em uma única Idea — `topic` da Idea deve coincidir com o `topic` de todos os `linked_insights[]`
-- Nunca preencher os 5 campos obrigatórios com placeholders crus como "TBD"; quando faltar evidência, declarar explicitamente que falta evidência (ex: "baseline a confirmar via 3 entrevistas adicionais")
+- Nunca preencher os 5 campos de conteúdo obrigatórios com placeholders crus como "TBD"; quando faltar evidência, declarar explicitamente que falta evidência (ex: "baseline a confirmar via 3 entrevistas adicionais")
 - Nunca alterar campos do insight de origem além de `status`, `idea_ref` e `updated_at`
+- O rollback do Passo 7 é parte normal do workflow quando a atualização parcial dos insights falha — não é caminho de exceção, é mecanismo de invariância. Não pular o Passo 7 mesmo quando a escrita "parece bem-sucedida"; verificar persistência efetiva em disco e executar rollback transacional se qualquer insight ficou desincronizado da Idea
 
 ## Referências
 
