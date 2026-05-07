@@ -105,6 +105,12 @@ cursor:
     _foundation/contributing/codex/codex-git-workflow:
       alwaysApply: false
       description: "When contributing, follow the complete Issue → Branch → Commits → PR → Review → Merge workflow from this codex."
+    _foundation/contributing/codex/codex-git-worktrees:
+      alwaysApply: false
+      description: "When creating, using, or removing git worktrees for branch-based tasks, follow conventions, lifecycle, and commands from this codex."
+    _foundation/contributing/lexis/lex-git-worktrees:
+      alwaysApply: false
+      description: "Every branch-based task by an AI agent MUST run inside a dedicated git worktree (.worktrees/{N}-{slug}/) with a corresponding GitHub issue."
     _foundation/contributing/lexis/lex-issue-quality:
       alwaysApply: false
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
@@ -452,6 +458,12 @@ cursor:
     engineering/mobile/codex/codex-mobile-architecture:
       alwaysApply: false
       description: "When designing mobile app structure, follow layer separation, state management, offline sync, testing, observability from this codex."
+    product/discovery/lexis/lex-discovery-flow:
+      alwaysApply: false
+      description: "Every Idea in Ahrena MUST be created by warrior-phanes from approved insights with the 5 mandatory content fields; warrior-pitia never changes status without explicit human direction. Carries 2 HARD-GATEs."
+    product/discovery/codex/codex-discovery-artifacts:
+      alwaysApply: false
+      description: "YAML front-matter schema for insights/{NNN}-{slug}.md and ideas/{NNN}-{slug}.md, 9-status state machine, and canonical addressing under docs/discovery/{topic}/."
 
 claude-code:
   transposition:
@@ -634,6 +646,9 @@ claude-code:
     _foundation/contributing/lexis/lex-semantic-version:
       paths: ["package.json", "**/__version__.py", "**/version.txt", "CHANGELOG*", ".bumpversion*", "pyproject.toml"]
       description: "When creating a release or tag, use MAJOR.MINOR.PATCH (SemVer); no other format allowed."
+    product/discovery/lexis/lex-discovery-flow:
+      paths: ["docs/discovery/**"]
+      description: "When producing or modifying insights/ideas, enforce: warrior-phanes promotes only from approved insights with all 5 mandatory Idea fields; warrior-pitia never changes status without explicit human direction."
 
   docs:
     _foundation/tooling/codex/codex-mcp-github:
@@ -678,3 +693,5 @@ claude-code:
       description: "Reference for the AI-First UX pattern with Isac at the center."
     engineering/mobile/codex/codex-mobile-architecture:
       description: "Reference for mobile app structure, state, offline sync, testing."
+    product/discovery/codex/codex-discovery-artifacts:
+      description: "Reference for Product Discovery artifacts: insight and Idea front-matter schemas, 9-status state machine, canonical addressing under docs/discovery/{topic}/."

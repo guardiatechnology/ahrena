@@ -74,6 +74,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/engineering/quality/codex-test-strategy.md`
 - `.claude/docs/engineering/sre/codex-incident-response.md`
 - `.claude/docs/engineering/workflow/codex-issue-workflow.md`
+- `.claude/docs/product/discovery/codex-discovery-artifacts.md`
 - `.claude/docs/samples/codex-sample.md`
 - `.claude/docs/samples/lex-sample.md`
 
