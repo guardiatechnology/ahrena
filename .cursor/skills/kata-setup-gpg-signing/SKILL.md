@@ -1,6 +1,6 @@
 ---
 name: kata-setup-gpg-signing
-description: "tag.gpgSign=true. Configure GPG signing for git commits and tags, per lex-signed-commits"
+description: "Configure GPG Commit Signing. Configure GPG signing for git commits and tags, per lex-signed-commits"
 ---
 
 # Kata: Configure GPG Commit Signing

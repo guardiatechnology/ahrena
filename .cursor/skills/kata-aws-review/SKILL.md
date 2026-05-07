@@ -1,6 +1,6 @@
 ---
 name: kata-aws-review
-description: "AWS Architecture Review — {target}. Systematic review of AWS architecture or IaC changes (Terraform, CDK, CloudFormation) against Lexis and the Well-Architected Framework"
+description: "Review AWS Architecture or IaC. Systematic review of AWS architecture or IaC changes (Terraform, CDK, CloudFormation) against Lexis and the Well-Architected Framework"
 ---
 
 # Kata: Review AWS Architecture or IaC

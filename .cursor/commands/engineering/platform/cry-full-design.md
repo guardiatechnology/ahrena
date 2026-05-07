@@ -6,10 +6,6 @@ description: "Full Design — API and Events. Single process that combines REST 
 
 > **Prefix:** `cry-` | **Type:** Recurring Command | **Scope:** Single process that combines REST API design and CloudEvents documentation for a new feature
 
-## Description
-
-This command executes the **full design** of the feature surface: in a single sequence, it triggers the Daedalus Warrior to design the API (OpenAPI + API document in **`docs/{context}/oas/`**) and then the Kronos Warrior to document events (Markdown in **`docs/{context}/events/`**). The agent executes both phases in sequence using the same feature description as the base. Equivalent to combining **cry-api-design** and **cry-event-storm** in a single flow.
-
 ## Usage
 
 ```
@@ -21,8 +17,8 @@ This command executes the **full design** of the feature surface: in a single se
 | Parameter | Required | Description | Example |
 |-----------|:--------:|-------------|---------|
 | `feature description` | Yes | Description of domain, entities, API operations, and business rules; used as the base for both the API and the event storm | "Scheduled transfers module: create, list, update, cancel; paginated listing; idempotent mutations; events created, updated, cancelled" |
-| `base path` | No | URL prefix for the API (e.g.: /v1/scheduled-transfers). If omitted, Daedalus proposes one | `/v1/scheduled-transfers` |
-| `events context` | No | Specific complement for events (e.g.: module, entity type, source base). If omitted, Kronos infers from the feature context or asks | "Module platform, entity type scheduled_transfer" |
+| `base path` | No | URL prefix for the API (e.g., /v1/scheduled-transfers). If omitted, Daedalus proposes one | `/v1/scheduled-transfers` |
+| `events context` | No | Specific complement for events (e.g., module, entity type, source base). If omitted, Kronos infers from the feature context or asks | "Module platform, entity type scheduled_transfer" |
 
 ## What the Command Does
 
@@ -44,7 +40,7 @@ Execute the **full design** process in sequence:
 
 1) **API phase (Daedalus):** Act as the Daedalus Warrior. Execute **kata-api-design-oas** and **kata-api-design-doc** based on the feature description. Ask clarifying questions if needed (scope, authentication, pagination, base path). Produce OpenAPI specification and API document in **`docs/{context}/oas/`**.
 
-2) **Event Storm phase (Kronos):** Act as the Kronos Warrior. Based on the same feature (and events context, if provided), execute **kata-events-doc**. Identify relevant events (e.g.: created, updated, cancelled for the API operations), ask clarifying questions if needed, and produce the events documentation in **`docs/{context}/events/`**.
+2) **Event Storm phase (Kronos):** Act as the Kronos Warrior. Based on the same feature (and events context, if provided), execute **kata-events-doc**. Identify relevant events (e.g., created, updated, cancelled for the API operations), ask clarifying questions if needed, and produce the events documentation in **`docs/{context}/events/`**.
 
 Deliver a final summary: artifacts in `docs/{context}/oas/` (OAS + API doc) and in `docs/{context}/events/` (events doc).
 ```
@@ -75,8 +71,3 @@ Deliver a final summary: artifacts in `docs/{context}/oas/` (OAS + API doc) and 
 - **cry-event-storm** — Event documentation only (Kronos)
 - **warrior-daedalus** — API Design Specialist
 - **warrior-kronos** — Event Storm Specialist
-
-## References
-
-- `lex-feature-design-docs` — canonical structure `docs/{context}/{category}/`
-- `cry-api-design`, `cry-event-storm` — Cries invoked (the Katas they execute consult applicable Lexis and Codex; see Cry/Kata documentation)

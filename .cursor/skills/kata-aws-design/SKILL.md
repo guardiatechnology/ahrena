@@ -1,6 +1,6 @@
 ---
 name: kata-aws-design
-description: "AWS Architecture — {system name}. AWS architecture design for a new feature, system, or workload — service selection, diagram, IaC, cost estimate, and risk analysis"
+description: "Design AWS Architecture. AWS architecture design for a new feature, system, or workload — service selection, diagram, IaC, cost estimate, and risk analysis"
 ---
 
 # Kata: Design AWS Architecture

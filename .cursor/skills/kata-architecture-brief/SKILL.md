@@ -1,6 +1,6 @@
 ---
 name: kata-architecture-brief
-description: "{title}. Phase 3 of the Issue-Driven flow — mapping affected components, design decisions, and delegation to specialist warriors when applicable"
+description: "Architecture Brief. Phase 3 of the Issue-Driven flow — mapping affected components, design decisions, and delegation to specialist warriors when applicable"
 ---
 
 # Kata: Architecture Brief

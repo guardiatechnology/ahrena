@@ -111,9 +111,18 @@ cursor:
     _foundation/contributing/lexis/lex-pr-quality:
       alwaysApply: false
       description: "When creating a PR, mirror issue labels, apply size label, set assignee to author, and request reviewers per CODEOWNERS."
+    _foundation/contributing/lexis/lex-git-worktrees:
+      alwaysApply: false
+      description: "When starting any branch-based task, work inside a dedicated git worktree per .worktrees/{N}-{slug}/ — except for stacked PRs which use a single shared worktree (Rule 5)."
     _foundation/contributing/codex/codex-labels:
       alwaysApply: false
       description: "When creating issues or PRs, consult this codex for the full label taxonomy, GitHub Issue Types, size thresholds, and mirroring rules."
+    _foundation/contributing/codex/codex-git-worktrees:
+      alwaysApply: false
+      description: "When creating a worktree to isolate a branch task, consult this codex for naming conventions, lifecycle, commands, and the shared-worktree exception for stacked PRs."
+    _foundation/contributing/codex/codex-stacked-prs:
+      alwaysApply: false
+      description: "When deciding whether to split a feature into stacked PRs and how to operate the chain, consult this codex for the canonical Decision Checklist and the vanilla git+gh flow."
     _foundation/i18n/lexis/lex-framework-language:
       alwaysApply: false
       description: "When creating or placing i18n artifacts, use language as first path segment (e.g. pt-BR/, en/)."

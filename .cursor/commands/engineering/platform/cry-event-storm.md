@@ -6,86 +6,66 @@ description: "Event Storm — CloudEvents Discovery and Documentation. Shortcut 
 
 > **Prefix:** `cry-` | **Type:** Recurring Command | **Scope:** Shortcut to discover and document CloudEvents for a feature or module per Guardia Lexis and Codex
 
-## Description
-
-This command invokes the Kronos Warrior (or the agent assuming its role) to execute the discovery and documentation of CloudEvents for a new feature: consult the CloudEvents Lexis and Codex and produce the **events documentation in Markdown** (kata-events-doc), in **`docs/{context}/events/`**.
-
 ## Usage
 
 ```
-/cry-event-storm <feature description> [events context]
+/cry-event-storm <feature or module context> [source base]
 ```
 
 ## Parameters
 
 | Parameter | Required | Description | Example |
 |-----------|:--------:|-------------|---------|
-| `feature description` | Yes | Description of domain, entities, operations, and business rules relevant to the events | "Scheduled transfers module: create, list, update, and cancel; events emitted on each state transition" |
-| `events context` | No | Specific complement for events (e.g.: module, entity type, source base). If omitted, the agent infers from the feature context or asks | "Module platform, entity type scheduled_transfer" |
+| `feature or module context` | Yes | Module name and domain description (for Discovery) or explicit list of event types (for Documentation only) | `"Platform module, scheduled transfers — unknown events"` or `"event.guardia.platform.scheduled_transfer.created, .updated, .cancelled"` |
+| `source base` | No | Base URI for `source` (e.g., `https://tenant.guardia.finance/platform/api/v1`). If omitted, the agent proposes per codex-cloudevents | `https://tenant.guardia.finance/platform/api/v1` |
 
 ## What the Command Does
 
-1. Interprets the feature description and events context (if provided)
-2. Assumes the role of the Kronos Warrior (events specialist) or delegates to the agent executing kata-events-doc
-3. The Kronos Warrior (or the agent in its role) consults lex-cloudevents, lex-idempotency, and the CloudEvents Codex
-4. Identifies entities, state transitions, and events relevant to the feature
-5. Produces events documentation in Markdown with catalog, lifecycle diagrams (Mermaid), and CloudEvents payloads
-6. Delivers the artifact in **`docs/{context}/events/`**
+1. Assumes the role of the Kronos Warrior and **determines the entry point**:
+   - Context describes a domain without known events → **Phase 1: Discovery** (kata-event-storm) then **Phase 2: Documentation** (kata-events-doc)
+   - Context provides an explicit list of event types → **Phase 2: Documentation only** (kata-events-doc)
+2. **Phase 1 — Discovery** (when applicable): executes kata-event-storm iteratively — maps domain events (timeline), commands, actors, aggregates, policies, external systems, read models, hotspots, and bounded contexts; produces CloudEvents catalog; presents it to the user for confirmation; resolves P1 hotspots before advancing
+3. **Phase 2 — Documentation**: executes kata-events-doc — documents event structure, payload (data), idempotency; generates or updates the formal events document in **`docs/{context}/events/`**
+4. Persists both artifacts (discovery document when Phase 1 ran; events document always) in **`docs/{context}/events/`**; creates the directory if it does not exist
 
 ## Prompt Template
 
 ```
 Context:
-- Feature description: {{feature description}}
-- Events context (optional): {{events context}}
+- Feature/module context: {{feature or module context}}
+- Source base (optional): {{source base}}
 
 Task:
-Act as the Kronos Warrior (Event Storm Specialist) and execute **kata-events-doc** (the Kata consults the CloudEvents Lexis and Codex per its documentation). Based on the feature description, ask clarifying questions when necessary (e.g.: module, entity types, state transitions, consumers) and refine the design based on the answers. Produce the events documentation in `docs/{context}/events/`. Use the provided events context or propose a suitable one.
+Act as the Kronos Warrior (Event Storm Specialist) and determine the entry point:
+- If the event landscape is unknown or the domain has not been mapped →
+  execute kata-event-storm first (Phase 1 — Discovery), then kata-events-doc
+  (Phase 2 — Documentation).
+- If an explicit list of event types is provided → execute kata-events-doc
+  directly (Phase 2 — Documentation only).
+
+Work iteratively: ask clarifying questions when needed and wait for answers
+before advancing. Do not proceed from Phase 1 to Phase 2 if P1 hotspots
+remain unresolved.
 
 Output format:
-- Save to `docs/{context}/events/` per `lex-feature-design-docs`
-- Create the directory if it does not exist in the project
-- Create or update the events Markdown document at that path
-- Event catalog (entity_type, event_name, full type, publishers, consumers); for each event: Mermaid lifecycle diagram, full CloudEvents payload with all `data` attribute fields, fields table
+- Save in `docs/{context}/events/` per `lex-feature-design-docs`
+- Create the directory if it does not exist
+- Phase 1 (when executed): save event storm discovery document (e.g., event-storm-{module}.md)
+- Phase 2: create or update the formal events document (events.md)
+- Confirm paths of all persisted artifacts
 ```
-
-## Invocation Example
-
-**Input:**
-
-```
-/cry-event-storm "Scheduled transfers module: create, update, and cancel; events emitted in requested, approved, executed, failed, cancelled" "module platform, entity scheduled_transfer"
-```
-
-**Expected output:**
-
-Structured response from the Kronos Warrior with:
-- Identified events: `event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
-- Mermaid lifecycle diagram for `scheduled_transfer`
-- Full CloudEvents payload for each event (specversion, id, source, type, subject, time, idempotencykey, data)
-- Documentation created or updated in `docs/{context}/events/` (directory created if it did not exist)
 
 ## Constraints
 
-- The Cry does not implement code; it only triggers the events discovery and documentation
-- The feature description must be sufficient to identify entities and state transitions; if vague, the agent may ask for clarification
-- Exceptions to Lexis must be documented in an ADR; the agent may flag when a decision requires an ADR
+- The Cry does not implement code (publishers or consumers); it only triggers discovery and documentation
+- P1 hotspots identified in Phase 1 block the transition to Phase 2 — they must be resolved before documentation
+- Context must be sufficient to identify the module and domain or event types; if vague, Kronos asks for clarification
+- Exceptions to Lexis must be documented in an ADR
 
-## Cry vs Kata
+## Associated Katas and Warrior
 
-| Aspect | Cry | Kata |
-|--------|-----|------|
-| **Nature** | Quick invocation with feature description | Complete procedure in multiple steps |
-| **Complexity** | Low (1 command) | High (steps: directives, consult Lexis/Codex, entities, events, payloads, documentation, validation) |
-| **Configures agent?** | Yes (assumes the Kronos Warrior role) | Yes (defines all discovery steps) |
-| **Example** | "/cry-event-storm create/list/cancel scheduled transfers" | Execute kata-events-doc with explicit inputs |
-
-## Associated Kata and Warrior
-
-- **kata-events-doc** — Event discovery and production of Markdown documentation in `docs/{context}/events/`
-- **warrior-kronos** — Event Storm Specialist; executes kata-events-doc
-
-## References
-
-- `kata-events-doc` — Procedure executed by the Kronos Warrior (the Kata consults the CloudEvents Lexis and Codex; see Kata documentation)
-- `lex-feature-design-docs` — canonical structure `docs/{context}/{category}/`
+| Artifact | Phase | Description |
+|----------|-------|-------------|
+| `kata-event-storm` | 1 — Discovery | Domain events, commands, aggregates, policies, bounded contexts, CloudEvents catalog |
+| `kata-events-doc` | 2 — Documentation | Formal CloudEvents document (Markdown) in `docs/{context}/events/` |
+| `warrior-kronos` | Orchestrator | Determines entry point and orchestrates both phases |

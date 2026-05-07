@@ -1,6 +1,6 @@
 ---
 name: kata-frontend-review
-description: "Frontend Review — {PR or issue} #{n}. Systematic review of frontend code for correctness, accessibility, types, tests, security, and performance"
+description: "Review Frontend Code. Systematic review of frontend code for correctness, accessibility, types, tests, security, and performance"
 ---
 
 # Kata: Review Frontend Code

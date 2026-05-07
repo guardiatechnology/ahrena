@@ -60,6 +60,7 @@ The agent **MUST** apply each section of the directives to the corresponding beh
 | `naming.reserved_clades` | Recognize special Clades and respect their usage rules |
 | `terminal` | Consult for shell commands; use the defined type (bash or PowerShell). See `lex-terminal-type`. |
 | `naming.tone_and_writing_style` | Apply tone and style when producing artifacts and communication. See `lex-tone`. |
+| `stacked_prs.tool` | Select the tool used to operate Stacked Pull Requests when applicable: `vanilla` (default — plain `git` + `gh`) or `gs` (git-spice). See `codex-stacked-prs`. |
 
 Complementary manuals for interpreting sections: `codex-directives` (file overview), `codex-paths` (canonical paths), `codex-naming` (naming conventions).
 

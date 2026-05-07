@@ -1,6 +1,6 @@
 ---
 name: kata-quality-gate
-description: "{title}. Phase 6 of the Issue-Driven flow — final implementation validation with 7 checks including AC↔test traceability, scope creep, best practices, tests, coverage, types, and performance budget"
+description: "Quality Gate (Gate 2). Phase 6 of the Issue-Driven flow — final implementation validation with 7 checks including AC↔test traceability, scope creep, best practices, tests, coverage, types, and performance budget"
 ---
 
 # Kata: Quality Gate (Gate 2)

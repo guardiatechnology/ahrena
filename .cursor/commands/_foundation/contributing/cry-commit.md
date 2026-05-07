@@ -1,5 +1,5 @@
 ---
-description: "Automatic commit — agent analyzes the diff and suggests. Shortcut for creating standardized commits"
+description: "Create Commit. Shortcut for creating standardized commits"
 ---
 
 # Cry: Create Commit

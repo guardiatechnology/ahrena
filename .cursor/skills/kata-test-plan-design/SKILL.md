@@ -1,6 +1,6 @@
 ---
 name: kata-test-plan-design
-description: "{title}. Designing a test plan for a feature — distributes ACs across the right levels, defines expected coverage, identifies risks and gaps"
+description: "Design Test Plan. Designing a test plan for a feature — distributes ACs across the right levels, defines expected coverage, identifies risks and gaps"
 ---
 
 # Kata: Design Test Plan
