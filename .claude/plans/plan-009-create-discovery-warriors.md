@@ -1,14 +1,18 @@
 ---
-plan_id: "004"
+plan_id: "009"
 title: "create-discovery-warriors"
-status: done
+status: archived
 agent: claude
 issue: "guardiatechnology/ahrena#48"
+pr: "guardiatechnology/ahrena#49"
+renumber:
+  from: "004"
+  reason: "NNN collision with plan-004-stacked-prs-vanilla on main; renumbered per #54"
 follow_ups:
   - "guardiatechnology/ahrena#52 — ADR for top-level clade product/"
   - "guardiatechnology/ahrena#53 — sync targets regress legitimate content from main"
 created_at: "2026-05-05T00:00:00Z"
-updated_at: "2026-05-07T03:00:00Z"
+updated_at: "2026-05-07T07:00:00Z"
 ---
 
 # Plan: Create Product Discovery warriors (Pítia + Phanes)
