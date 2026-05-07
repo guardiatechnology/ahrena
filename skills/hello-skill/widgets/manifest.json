@@ -20,7 +20,7 @@
         {
           "kind": "script",
           "ref": "scripts/src/format_greeting.py",
-          "called_via": "http://localhost:5174/format-greeting"
+          "called_via": "http://localhost:5174/format_greeting"
         }
       ]
     }
