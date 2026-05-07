@@ -132,7 +132,7 @@ En `SKILL.md` (copia en `.build/{slug}/SKILL.md`):
    `files[]` listado en orden **lexicográfico** de los paths.
 2. Cuando `skip_zip=false`:
    - `mtime` de cada archivo en el zip fijado en `1980-01-01T00:00:00Z` (mínimo del formato)
-   - Comando: `cd .build/{slug} && find . -type f | LC_ALL=C sort | zip -X --no-extra -@ ../{slug}.zip` (o equivalente cross-platform)
+   - Comando: `cd .build/{slug} && find . -type f -exec touch -t 198001010000 {} + && find . -type f | LC_ALL=C sort | zip -X --no-extra -@ ../{slug}.zip` (o equivalente cross-platform). El `touch` fija el `mtime` de cada archivo en el mínimo del formato ZIP antes del empaquetado
    - Output: `{paths.skills_build}/{slug}.zip`
 
 ### Paso 8: Validar idempotencia
