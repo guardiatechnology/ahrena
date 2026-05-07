@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "language": "pt-BR",
+  "runtimes": {
+    "scripts": "python",
+    "widgets": "react"
+  },
+  "dev_server": {
+    "widgets_port": 5173,
+    "scripts_port": 5174,
+    "tools_stub_port": 5175
+  },
+  "build": {
+    "bundler": "vite",
+    "minify": true,
+    "source_maps": false
+  },
+  "external_refs": []
+}
