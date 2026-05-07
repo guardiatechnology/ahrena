@@ -16,7 +16,7 @@ Estender os artefatos de stacked PRs do plan-004 (vanilla) com o caminho `git-sp
 
 ## Contexto
 
-`git-spice` é uma ferramenta Go open-source (MIT) que automatiza branch-stacks em git nativo. Resolve a dor central do vanilla: o auto-restack das camadas superiores acontece automaticamente quando você faz `gs commit create`/`amend` na camada inferior. Outras vantagens: trunk declarado em `gs repo init`, `gs repo sync` deleta branches mergeadas e rebaseia, `gs auth login` reusa o token do `gh` se disponível.
+`git-spice` é uma ferramenta Go open-source (GPL-3.0) que automatiza branch-stacks em git nativo. Resolve a dor central do vanilla: o auto-restack das camadas superiores acontece automaticamente quando você faz `gs commit create`/`amend` na camada inferior. Outras vantagens: trunk declarado em `gs repo init`, `gs repo sync` deleta branches mergeadas e rebaseia, `gs auth login` reusa o token do `gh` se disponível.
 
 Compatibilidade verificada com a doc oficial (https://abhinav.github.io/git-spice/, fetch em 2026-05-06):
 
@@ -34,7 +34,7 @@ Decisões fechadas com o usuário:
 1. **Estratégia de tool:** suportar vanilla (plan-004) e git-spice (este plan-005), com seleção via `.directives`.
 2. **Modelo de katas:** manter os 3 katas do plan-004 e adicionar uma seção "Variant: git-spice" em cada um, em vez de duplicar arquivos. Single source of truth por procedimento.
 3. **Codex de tool:** `codex-git-spice` em `_foundation/tooling/` (mesmo lar de `codex-make`, `codex-mcp-*`, `codex-terminal-type`).
-4. **Separação de decisões:** existem **duas decisões distintas** no fluxo de stacked PRs — **(a) decisão estratégica** (stack vs PR único) e **(b) decisão de ferramenta** (vanilla vs gs). A decisão (a) é coberta pelo plan-004 (Decision Checklist no codex + Pre-flight no kata-create). Este plan-005 cobre apenas (b): se o usuário confirmou stack, qual ferramenta usar é definido por `.directives.tooling.stacked_pr` (default `vanilla`; `git-spice` quando o projeto declara). Não há análise por sinais para a decisão de tool — é config lookup direto.
+4. **Separação de decisões:** existem **duas decisões distintas** no fluxo de stacked PRs — **(a) decisão estratégica** (stack vs PR único) e **(b) decisão de ferramenta** (vanilla vs gs). A decisão (a) é coberta pelo plan-004 (Decision Checklist no codex + Pre-flight no kata-create). Este plan-005 cobre apenas (b): se o usuário confirmou stack, qual ferramenta usar é definido por `.directives.stacked_prs.tool` (default `vanilla`; `gs` quando o projeto declara). Não há análise por sinais para a decisão de tool — é config lookup direto.
 
 ## Escopo
 
@@ -108,7 +108,7 @@ Decisões fechadas com o usuário:
 1. **Estrutura:** `find framework -name "codex-git-spice.md"` retorna 3 arquivos (pt-BR, es, en).
 2. **CLAUDE.md auto-gerado:** lista `_foundation/tooling/codex-git-spice.md` na seção Reference Docs.
 3. **Katas estendidos:** cada um dos 3 katas em `_foundation/contributing/katas/` contém literalmente uma seção `## Variant: git-spice` (ou tradução equivalente em es/en) nas 3 línguas.
-4. **Diretiva:** `framework/.directives.sample` tem bloco `tooling.stacked_pr` documentado.
-5. **Cry:** `cry-new-stacked-pr` referencia `tooling.stacked_pr` no prompt do agente.
+4. **Diretiva:** `framework/.directives.sample` tem bloco `stacked_prs.tool` documentado.
+5. **Cry:** `cry-new-stacked-pr` referencia `stacked_prs.tool` no prompt do agente.
 6. **Smoke test gs:** `gs repo init` + `gs stack submit --dry-run` funcionam contra um repo sandbox sem erro.
 7. **PR:** body referencia `Closes #{N}` e a PR do plan-004; HARD-GATE de `lex-pr-quality` atendido.
