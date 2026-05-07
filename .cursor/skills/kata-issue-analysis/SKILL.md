@@ -1,6 +1,6 @@
 ---
 name: kata-issue-analysis
-description: "{title}. Phase 1 of the Issue-Driven flow — reading the GitHub issue and fetching related context from Notion"
+description: "Issue Analysis. Phase 1 of the Issue-Driven flow — reading the GitHub issue and fetching related context from Notion"
 ---
 
 # Kata: Issue Analysis

@@ -1,5 +1,5 @@
 ---
-description: "Open discussion before a large change. Shortcut for contributing issues, PRs, and discussions to Guardia repositories"
+description: "Contribute to Guardia Repository. Shortcut for contributing issues, PRs, and discussions to Guardia repositories"
 ---
 
 # Cry: Contribute to Guardia Repository

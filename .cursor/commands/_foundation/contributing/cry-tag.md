@@ -1,5 +1,5 @@
 ---
-description: "List tags. Shortcut to create or list release tags with semantic versioning"
+description: "Run Git Tag. Shortcut to create or list release tags with semantic versioning"
 ---
 
 # Cry: Run Git Tag

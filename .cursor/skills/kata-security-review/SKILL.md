@@ -1,6 +1,6 @@
 ---
 name: kata-security-review
-description: "{title}. Phase 5 of the Issue-Driven flow — security review of the implemented code against OWASP Top 10, authentication/authorization patterns, sensitive data handling, and vulnerable dependencies"
+description: "Security Review. Phase 5 of the Issue-Driven flow — security review of the implemented code against OWASP Top 10, authentication/authorization patterns, sensitive data handling, and vulnerable dependencies"
 ---
 
 # Kata: Security Review

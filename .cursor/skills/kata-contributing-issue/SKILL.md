@@ -1,6 +1,6 @@
 ---
 name: kata-contributing-issue
-description: "Set Issue Type (replace ISSUE_TYPE_ID with value from table below). Create issue in the origin repository via GitHub MCP"
+description: "Open issue in the repository (template by type). Create issue in the origin repository via GitHub MCP"
 ---
 
 # Kata: Open issue in the repository (template by type)

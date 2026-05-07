@@ -1,6 +1,6 @@
 ---
 name: kata-schema-design
-description: "{title}. Schema design for new entity, domain, or expansion of existing model — entities, relationships, indexes, migrations, retention"
+description: "Design Data Schema. Schema design for new entity, domain, or expansion of existing model — entities, relationships, indexes, migrations, retention"
 ---
 
 # Kata: Design Data Schema

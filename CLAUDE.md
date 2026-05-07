@@ -19,6 +19,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/_foundation/contributing/codex-git-worktrees.md`
 - `.claude/docs/_foundation/contributing/codex-labels.md`
 - `.claude/docs/_foundation/contributing/codex-semantic-version.md`
+- `.claude/docs/_foundation/contributing/codex-stacked-prs.md`
 - `.claude/docs/_foundation/i18n/codex-framework-language.md`
 - `.claude/docs/_foundation/process/codex-agent-planning.md`
 - `.claude/docs/_foundation/process/codex-directives.md`

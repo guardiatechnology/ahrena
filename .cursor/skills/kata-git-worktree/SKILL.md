@@ -1,6 +1,6 @@
 ---
 name: kata-git-worktree
-description: "Create and Manage a Git Worktree. Creates an isolated git worktree for a branch-based task following lex-git-worktrees: verify issue → compose branch {type}/{N}-{slug} + directory ../{repo}-{N}-{slug}/ → create via EnterWorktree or CLI → work inside → PR → cleanup after merge."
+description: "Create and Manage a Git Worktree. Creating, using, and removing git worktrees for branch-based tasks, per lex-git-worktrees"
 ---
 
 # Kata: Create and Manage a Git Worktree
@@ -23,21 +23,24 @@ Progress:
 ### Step 1: Verify the issue
 
 1. Confirm the GitHub Issue exists and is open (per `lex-issue-first`)
-2. Record the issue number — mandatory part of branch and directory names
-3. If issue does not exist → stop, ask user to create it first
+2. Record the issue number — it will be a mandatory part of the branch and directory
+3. If the issue does not exist → stop and ask the user to create the issue before proceeding
 
 ### Step 2: Compose branch and directory names
 
+Based on inputs:
+
 ```
-branch = {type}/{issue-number}-{slug}
-wtDir  = .worktrees/{issue-number}-{slug}/
+branch  = {type}/{issue-number}-{slug}
+wtDir   = .worktrees/{issue-number}-{slug}/
 ```
 
-Example: Issue #42, type `feat`, slug `scheduled-payments-api`
-→ Branch: `feat/42-scheduled-payments-api`
-→ Directory: `.worktrees/42-scheduled-payments-api`
+Examples:
+- Issue #42, type `feat`, slug `scheduled-payments-api`
+- Branch: `feat/42-scheduled-payments-api`
+- Directory: `.worktrees/42-scheduled-payments-api`
 
-Present to user for confirmation before creating.
+Present to the user for confirmation before creating.
 
 ### Step 3: Check existing worktrees
 
@@ -45,56 +48,131 @@ Present to user for confirmation before creating.
 git worktree list
 ```
 
-- Branch already checked out in another worktree → ask: resume (skip to Step 5) or create new?
-- Target directory exists but is not a worktree → alert user, request confirmation
+- If the branch is already in use in an existing worktree → ask the user whether to resume that worktree (skip to Step 5) or create a new one
+- If the target directory already exists but is not a worktree → alert the user and request confirmation before overwriting
 
 ### Step 4: Create the worktree
 
-**Via Claude Code (preferred):** use `EnterWorktree` tool with branch from Step 2.
+**Via Claude Code (preferred):**
 
-**Via CLI:**
+Use the `EnterWorktree` tool with the branch composed in Step 2.
+
+**Via CLI (PowerShell):**
+
 ```powershell
 git worktree add $wtDir -b $branch
-git worktree list  # confirm
+```
+
+Confirm creation:
+```powershell
+git worktree list
 ```
 
 ### Step 5: Enter the worktree and execute the task
 
 ```powershell
 Set-Location $wtDir
-# implement, commit with Conventional Commits format
-git push -u origin $branch
 ```
+
+Inside the worktree:
+- Execute the entire implementation inside this directory
+- Commit with Conventional Commits format messages (per `lex-conventional-commits`)
+- Push the branch regularly to the remote:
+  ```powershell
+  git push -u origin $branch
+  ```
 
 ### Step 6: Commit and open PR
 
+When the task is complete:
+
+1. Ensure all commits are made and the branch is up to date on the remote
+2. Open the PR referencing the issue:
+
 ```powershell
 gh pr create --title "{type}({scope}): {description}" `
-             --body "Closes #$issue" --base main --head $branch
+             --body "Closes #$issue" `
+             --base main `
+             --head $branch
 ```
 
-Communicate PR URL to user.
+3. Record the PR URL and communicate it to the user
 
-### Step 7: Cleanup after merge
+### Step 7: Perform cleanup after merge
+
+After confirming the PR has been merged:
 
 ```powershell
+# 1. Navigate to the repository root (if inside the worktree)
 Set-Location ../..
+
+# 2. Remove the worktree
 git worktree remove $wtDir --force
+
+# 3. Delete the local branch
 git branch -d $branch
-git worktree list  # verify removed
+
+# 4. Verify
+git worktree list
+```
+
+Confirm to the user: "Worktree `{wtDir}` removed. Branch `{branch}` deleted."
+
+## Outputs
+
+| Output | Description |
+|--------|-------------|
+| Worktree created | Directory `.worktrees/{issue-number}-{slug}/` with the active branch |
+| Branch created | `{type}/{issue-number}-{slug}` in the repository |
+| PR opened | PR URL referencing the issue |
+| Cleanup | Worktree and branch removed after merge |
+
+## Execution Example
+
+### Input
+
+```
+Issue: #42 "Add scheduled payments API"
+Type: feat
+Slug: scheduled-payments-api
+Repository: ahrena
+```
+
+### Step 2 — Composed names
+
+```
+Branch:    feat/42-scheduled-payments-api
+Directory: .worktrees/42-scheduled-payments-api
+```
+
+### Step 4 — Creation
+
+```powershell
+git worktree add .worktrees/42-scheduled-payments-api -b feat/42-scheduled-payments-api
+# Preparing worktree (new branch 'feat/42-scheduled-payments-api')
+# HEAD is now at 4df8e43 Merge pull request #33...
+```
+
+### Step 6 — PR
+
+```powershell
+gh pr create --title "feat(payments): add scheduled payments API" `
+             --body "Closes #42" --base main --head feat/42-scheduled-payments-api
+# https://github.com/guardiatechnology/ahrena/pull/43
+```
+
+### Step 7 — Cleanup
+
+```powershell
+git worktree remove .worktrees/42-scheduled-payments-api --force
+git branch -d feat/42-scheduled-payments-api
+# Deleted branch feat/42-scheduled-payments-api
 ```
 
 ## Restrictions
 
-- Never create worktree without existing issue
-- Never reuse worktree from another issue
-- Never edit files outside the worktree during task execution
-- Never skip cleanup
-- Never delete branch before removing worktree
-
-## References
-
-- `lex-git-worktrees` — Law
-- `codex-git-worktrees` — Manual with conventions, lifecycle, and troubleshooting
-- `lex-git-branches` — Branch naming convention
-- `lex-issue-first` — Issue required before branch
+- **Never create a worktree without an existing issue** — stop and inform the user if the issue does not exist
+- **Never reuse a worktree from another issue** — each task has its own worktree
+- **Never make edits outside the worktree** during task execution
+- **Never skip cleanup** — stale worktrees accumulate and pollute `git worktree list`
+- **Never delete the branch before removing the worktree** — git rejects the operation
