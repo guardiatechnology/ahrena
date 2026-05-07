@@ -171,7 +171,6 @@ cursor:
     _foundation/tooling/codex/codex-git-spice:
       alwaysApply: false
       description: "When operating Stacked PRs and stacked_prs.tool=gs, consult this codex for git-spice install, setup, command catalog, vanilla→gs mapping, and force-push semantics."
-      paths: [".git/spice/**"]
     documentation/i18n/lexis/lex-language:
       alwaysApply: false
       description: "When translating technical docs, preserve structure and semantics; apply cross-cutting translation rules."
