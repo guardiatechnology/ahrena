@@ -1,11 +1,11 @@
 ---
 plan_id: "004"
 title: "stacked-prs-vanilla"
-status: in-progress
+status: archived
 agent: claude
 issue: "guardiatechnology/ahrena#50"
 created_at: "2026-05-06T00:00:00Z"
-updated_at: "2026-05-07T03:10:00Z"
+updated_at: "2026-05-07T07:00:00Z"
 ---
 
 # Plano: Suporte a Stacked PRs no fluxo vanilla (git + gh)

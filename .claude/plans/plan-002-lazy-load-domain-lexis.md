@@ -1,11 +1,12 @@
 ---
 plan_id: "002"
 title: "lazy-load-domain-lexis"
-status: in-progress
+status: archived
 agent: claude
 issue: "guardiatechnology/ahrena#46"
+pr: "guardiatechnology/ahrena#47"
 created_at: "2026-05-05T16:00:00Z"
-updated_at: "2026-05-05T16:15:00Z"
+updated_at: "2026-05-07T07:00:00Z"
 ---
 
 # Plano: Lazy-load de Lexis de domínio no Claude Code via `paths:`

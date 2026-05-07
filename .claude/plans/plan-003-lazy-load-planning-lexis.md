@@ -1,12 +1,12 @@
 ---
 plan_id: "003"
 title: "lazy-load-planning-lexis"
-status: in-progress
+status: archived
 agent: claude
 issue: "guardiatechnology/ahrena#46"
 pr: "guardiatechnology/ahrena#47"
 created_at: "2026-05-05T17:00:00Z"
-updated_at: "2026-05-05T17:00:00Z"
+updated_at: "2026-05-07T07:00:00Z"
 ---
 
 # Plano: Lazy-load de Lexis de planejamento/contributing no Claude Code
