@@ -17,7 +17,7 @@ Shortcut to create a new skill project under `{paths.skills_root}/{slug}/` (defa
 | Parameter | Required | Description | Example |
 |-----------|:--------:|-------------|---------|
 | `slug` | Yes | Project name in kebab-case (1-64 chars, `a-z`/`0-9`/hyphen, no leading/trailing hyphen, no `--`) | `scheduled-payments-skill` |
-| `description=` | Yes | Single sentence for the frontmatter (1-1024 chars), with **what it does** + **when to use** | `description="Schedules transfers..."` |
+| `description=` | Yes | Single sentence for the frontmatter (1-1024 chars), with **what it does** + **when to use** | `description="Schedules bank transfers when the user requests payment for a future date"` |
 | `language=` | No | BCP 47; default = `language.default` in `.directives` | `language=en` |
 | `license=` | No | Identifier (`Apache-2.0`, `MIT`) or reference | `license=Apache-2.0` |
 | `human_title=` | No | Human-readable title for the `# H1` of `SKILL.md` | `human_title="Scheduled Payments"` |

@@ -40,7 +40,7 @@ Progress:
 
 ### Step 1: Validate slug and description
 
-1. Apply the regex `^[a-z0-9](?:[a-z0-9]|-(?!-)){0,62}[a-z0-9]$` to the slug (1-64 chars, no leading/trailing hyphen, no `--`)
+1. Apply the regex `^[a-z0-9](?:(?:[a-z0-9]|-(?!-)){0,62}[a-z0-9])?$` to the slug (1-64 chars, no leading/trailing hyphen, no `--`)
 2. Reject slugs with reserved words (`anthropic`, `claude`) per Anthropic documentation
 3. Confirm `description` is 1-1024 chars; reject empty
 4. On violation, abort with a message naming the rule (cite `codex-skill-anthropic-agent-skills`)

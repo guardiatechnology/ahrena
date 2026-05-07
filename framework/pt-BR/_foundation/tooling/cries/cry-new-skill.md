@@ -17,7 +17,7 @@ Atalho para criar um novo projeto de skill em `{paths.skills_root}/{slug}/` (def
 | Parâmetro | Obrigatório | Descrição | Exemplo |
 |-----------|:-----------:|-----------|---------|
 | `slug` | Sim | Nome do projeto em kebab-case (1-64 chars, `a-z`/`0-9`/hífen, sem hífen no início/fim, sem `--`) | `scheduled-payments-skill` |
-| `description=` | Sim | Frase única do frontmatter (1-1024 chars), com **o que faz** + **quando usar** | `description="Schedules transfers..."` |
+| `description=` | Sim | Frase única do frontmatter (1-1024 chars), com **o que faz** + **quando usar** | `description="Schedules bank transfers when the user requests payment for a future date"` |
 | `language=` | Não | BCP 47; default = `language.default` em `.directives` | `language=en` |
 | `license=` | Não | Identificador (`Apache-2.0`, `MIT`) ou referência | `license=Apache-2.0` |
 | `human_title=` | Não | Título humano para o `# H1` do `SKILL.md` | `human_title="Scheduled Payments"` |

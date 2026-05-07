@@ -20,9 +20,9 @@ Criar um novo projeto de skill no repositório a partir do template oficial, val
 | `language` | Não | BCP 47; default = `language.default` em `.ahrena/.directives` |
 | `license` | Não | Identificador (ex.: `Apache-2.0`); default vazio (campo omitido) |
 | `human_title` | Não | Título humano para o `# H1` no corpo do `SKILL.md`; default = capitalização legível do slug |
-| `with_widgets` | Não | `true` | `false`; default `true` (mantém `widgets/` no scaffold) |
-| `with_tools` | Não | `true` | `false`; default `true` (mantém `tools/` no scaffold) |
-| `with_scripts` | Não | `true` | `false` | `python` | `js`; default `python` |
+| `with_widgets` | Não | `true` (default, mantém `widgets/` no scaffold) ou `false` |
+| `with_tools` | Não | `true` (default, mantém `tools/` no scaffold) ou `false` |
+| `with_scripts` | Não | `true` (default), `false`, `python` (default quando true) ou `js` |
 
 ## Workflow
 
@@ -40,7 +40,7 @@ Progresso:
 
 ### Passo 1: Validar slug e description
 
-1. Aplicar regex `^[a-z0-9](?:[a-z0-9]|-(?!-)){0,62}[a-z0-9]$` ao slug (1-64 chars, sem hífen no início/fim, sem `--`)
+1. Aplicar regex `^[a-z0-9](?:(?:[a-z0-9]|-(?!-)){0,62}[a-z0-9])?$` ao slug (1-64 chars, sem hífen no início/fim, sem `--`)
 2. Rejeitar slugs com palavras reservadas (`anthropic`, `claude`) per documentação Anthropic
 3. Verificar que `description` tem 1-1024 chars; rejeitar vazio
 4. Em caso de violação, abortar com mensagem indicando a regra (citar `codex-skill-anthropic-agent-skills`)
