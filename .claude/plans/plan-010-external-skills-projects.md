@@ -218,16 +218,23 @@ language: pt-BR
 - [ ] Abrir PR (lex-pr-quality) com `Closes #58`
 - [ ] Após merge: registrar progresso e abrir issue do PR 2
 
-### PR 2 — build pipeline (a abrir depois do PR 1 mergear)
+### PR 2 — build pipeline (issue #60)
 
-- [ ] **Codex** `codex-skill-tools-and-widgets` (pt-BR + traduções)
-- [ ] **Codex** `codex-skill-build-pipeline` (pt-BR + traduções)
-- [ ] **Kata** `kata-skill-dev-server` (Vite default, runtime de scripts, ports)
-- [ ] **Kata** `kata-build-skill`
-- [ ] **Cry** `cry-skill-dev`, `cry-skill-build`
-- [ ] **Smoke 2:** `cry-skill-dev hello-skill` sobe widget HMR e script runner em localhost
-- [ ] **Smoke 3:** `cry-skill-build hello-skill` produz `.build/hello-skill/` + zip
-- [ ] **Smoke 7:** widget React chama script Python via localhost (binding manifest)
+- [x] Abrir issue `feat: external skills build pipeline (2/3)` — guardiatechnology/ahrena#60
+- [x] Criar branch `feat/60-external-skills-build` + worktree
+- [x] **Codex** `codex-skill-tools-and-widgets` (pt-BR + es + en)
+- [x] **Codex** `codex-skill-build-pipeline` (pt-BR + es + en)
+- [x] **Kata** `kata-skill-dev-server` (pt-BR + es + en) — Vite default, runtime de scripts, ports configuráveis
+- [x] **Kata** `kata-build-skill` (pt-BR + es + en) — pipeline determinístico em 6 phases
+- [x] **Cry** `cry-skill-dev`, `cry-skill-build` (pt-BR + es + en)
+- [x] Atualizar `framework/platforms.yaml` (cursor.rules + claude-code.docs com 2 novos codex)
+- [x] Sync `.cursor/` e `.claude/` (`scripts/install.py --self`)
+- [x] **Smoke documental:** enriquecer `skills/hello-skill/` com widget React (Hello), script Python (format_greeting), tool handler MCP, bindings consistentes; manifests parseiam, refs apontam para arquivos existentes
+- [ ] **Smoke 2 operacional:** `cry-skill-dev hello-skill` sobe widget HMR e script runner — depende de implementação executável dos katas (futura iteração; PR 2 entrega documentação)
+- [ ] **Smoke 3 operacional:** `cry-skill-build hello-skill` produz `.build/hello-skill/` + zip — idem
+- [ ] **Smoke 7 operacional:** widget React chama script Python via localhost — idem
+- [ ] Commits atômicos assinados
+- [ ] Abrir PR 2 com `Closes #60`
 
 ### PR 3 — packaging + determinismo (a abrir depois do PR 2)
 
