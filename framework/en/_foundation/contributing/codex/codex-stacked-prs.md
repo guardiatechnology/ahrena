@@ -78,7 +78,7 @@ This section is the **source of truth** consulted by `kata-stacked-pr-create` in
 |---|---|
 | Estimated diff size | > 500 lines modified |
 | Independent ACs in the issue | ≥ 4 ACs |
-| Technical Pilars crossed | ≥ 2 (e.g., backend + frontend) |
+| Technical Pillars crossed | ≥ 2 (e.g., backend + frontend) |
 | Obvious layers present | schema → API → UI; data → service → handler; or equivalent |
 | Review independence | reviewer A can assess layer X without needing context from Y |
 | Per-layer rollback risk | change with migration + visible feature in the same issue |

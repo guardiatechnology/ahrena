@@ -10,7 +10,7 @@ This Kata defines the procedure to turn an umbrella issue into a chain of stacke
 
 - When the user asks to start work on a large issue and the agent wants to assess whether stacking is worthwhile
 - When the user explicitly invokes `cry-new-stacked-pr`
-- When an umbrella issue already has numbered ACs and the scope crosses ≥ 2 technical Pilars
+- When an umbrella issue already has numbered ACs and the scope crosses ≥ 2 technical Pillars
 
 ## Inputs
 
@@ -41,7 +41,7 @@ Apply the canonical Decision Checklist from [codex-stacked-prs](../codex/codex-s
 1. **Count high signals** against issue + expected scope:
    - Estimated diff > 500 lines (1 point)
    - ≥ 4 independent ACs (1 point)
-   - ≥ 2 technical Pilars crossed (1 point)
+   - ≥ 2 technical Pillars crossed (1 point)
    - Obvious layers present (schema → API → UI; equivalent) (1 point)
    - Review independence between layers (1 point)
    - Per-layer rollback risk (1 point)
@@ -57,7 +57,7 @@ Apply the canonical Decision Checklist from [codex-stacked-prs](../codex/codex-s
 
 ```
 This issue looks like a stacked PR candidate:
-  High signals: 4 (estimated diff ~800 lines, 5 ACs, 2 Pilars, obvious layers)
+  High signals: 4 (estimated diff ~800 lines, 5 ACs, 2 Pillars, obvious layers)
   Anti-signals: 0
 
 Proposed decomposition:
