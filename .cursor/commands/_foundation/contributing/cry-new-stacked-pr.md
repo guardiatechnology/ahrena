@@ -22,23 +22,10 @@ description: "New Stacked Pull Request. Shortcut to start a chain of stacked Pul
 ## Behavior
 
 1. Invokes **kata-stacked-pr-create**.
-2. The kata runs **Phase 0 — Decision Checklist** even on explicit user invocation, using the canonical criteria from `codex-stacked-prs` (≥ 3 high signals AND 0 anti-signals).
-3. **If the checklist fails** (anti-signal present or high signals < 3), the agent warns:
-   ```
-   This issue does not meet the canonical checklist for a stacked PR:
-     High signals: X (minimum 3)
-     Anti-signals detected: [list]
-
-   Proposal: proceed with a single PR via kata-contributing-pr.
-
-   Force the stack anyway? (y/n)
-   ```
-   - If `n` (default), redirect to `kata-contributing-pr` (single PR)
-   - If `y` (explicit user override), proceed with the stack and record the override decision
+2. The kata runs **Phase 0 — Decision Checklist** even on explicit user invocation, applying the canonical checklist defined in `codex-stacked-prs`.
+3. **If the checklist fails**, the kata warns the user with the actual signals counted, proposes proceeding with a single PR via `kata-contributing-pr`, and only continues with the stack on explicit user override (recording the decision).
 4. **If the checklist passes**, the kata proposes a concrete layer decomposition (see kata for details), confirms with the user, and creates the chain: shared worktree, N branches, N stacked PRs, label mirroring.
-5. Reads `.ahrena/.directives` for `stacked_prs.tool`:
-   - `vanilla` (default) → follow this Kata's flow
-   - `gs` → follow the kata's "Variant: git-spice" section (available after plan-005)
+5. The kata selects the operational tool by consulting the `stacked_prs.tool` directive in `.ahrena/.directives` — vanilla is the default; additional values (e.g., `gs`) activate variants within the Kata itself. The Cry does not read the directive directly.
 
 ## Associated Kata
 

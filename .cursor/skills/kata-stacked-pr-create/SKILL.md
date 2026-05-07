@@ -37,7 +37,7 @@ Apply the canonical Decision Checklist from [codex-stacked-prs](../codex/codex-s
    - Monolithic refactor without natural layers
 3. **Decide:**
    - **≥ 3 high signals AND 0 anti-signals** → propose a stack to the user
-   - **Otherwise** → inform the user and redirect to `kata-contributing-pr`
+   - **Otherwise** → stop and recommend the user invoke `kata-contributing-pr` (or `cry-new-pr`) for a single PR
 
 **Present the proposal to the user** in concrete form, e.g.:
 
@@ -54,7 +54,7 @@ Proposed decomposition:
 Confirm and proceed? (y/n/adjust)
 ```
 
-If the user rejects or asks for a single PR, exit and invoke `kata-contributing-pr`.
+If the user rejects or asks for a single PR, end this kata and recommend the user invoke `kata-contributing-pr` (or `cry-new-pr`) — katas do not chain-call other katas; cross-kata orchestration is the Warriors' role.
 
 ### Step 1: Validate the umbrella issue
 
