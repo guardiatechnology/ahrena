@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "skill": {
+    "name": "__SLUG__",
+    "version": "0.1.0",
+    "language": "__BCP47__"
+  },
+  "framework": {
+    "ahrena_commit": ""
+  },
+  "references": [],
+  "files": []
+}
