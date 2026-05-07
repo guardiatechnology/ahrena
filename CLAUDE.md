@@ -32,6 +32,8 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/_foundation/tooling/codex-mcp-figma.md`
 - `.claude/docs/_foundation/tooling/codex-mcp-github.md`
 - `.claude/docs/_foundation/tooling/codex-mcp-notion.md`
+- `.claude/docs/_foundation/tooling/codex-skill-anthropic-agent-skills.md`
+- `.claude/docs/_foundation/tooling/codex-skill-project-architecture.md`
 - `.claude/docs/_foundation/tooling/codex-terminal-type.md`
 - `.claude/docs/design/brand/codex-brand-colors.md`
 - `.claude/docs/design/brand/codex-brand-essence.md`

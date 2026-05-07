@@ -24,6 +24,11 @@ paths:
   oas: "docs/oas"
   # Destination for CloudEvents documentation (create directory if missing)
   events: "docs/events"
+  # External skill projects (Anthropic Agent Skills format).
+  # See lex-skill-project-structure and codex-skill-project-architecture.
+  skills_root: "skills"        # Source of skill projects (versioned)
+  skills_build: ".build"       # Build intermediates (gitignored)
+  skills_dist: ".dist"         # Final packaged skills (committed, consumed by external agents)
   samples:
     lexis: "templates/lex-sample.md"
     codex: "templates/codex-sample.md"

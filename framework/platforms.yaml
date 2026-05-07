@@ -363,6 +363,15 @@ cursor:
     _foundation/tooling/codex/codex-mcp-common:
       alwaysApply: false
       description: "Shared MCP patterns (auth, config, fallback, failure signals) — preamble consumed by all codex-mcp-{server} references."
+    _foundation/tooling/lexis/lex-skill-project-structure:
+      alwaysApply: false
+      description: "When creating or editing an external skill project under skills/{slug}/, enforce canonical layout, slug==frontmatter name, and source/build/dist separation."
+    _foundation/tooling/codex/codex-skill-anthropic-agent-skills:
+      alwaysApply: false
+      description: "When authoring SKILL.md or validating a skill package, follow the Anthropic Agent Skills spec (frontmatter fields, naming limits, progressive disclosure)."
+    _foundation/tooling/codex/codex-skill-project-architecture:
+      alwaysApply: false
+      description: "When scaffolding or editing skills/{slug}/, follow the Ahrena project layout and reuse codex-frontend-architecture / codex-python-architecture for widgets and scripts/tools."
     engineering/quality/lexis/lex-test-pyramid:
       alwaysApply: false
       description: "When authoring test suites, enforce 70/20/10 distribution (unit/integration/E2E); E2E only for critical journeys."
@@ -489,6 +498,9 @@ claude-code:
       description: "When running or suggesting shell commands, use terminal type from .ahrena/.directives."
     _foundation/tooling/lexis/lex-mcp:
       description: "When an MCP server is active for the current operation, use MCP tool over CLI. Credentials via env vars only."
+    _foundation/tooling/lexis/lex-skill-project-structure:
+      paths: ["skills/**", "**/skills/**"]
+      description: "When creating or editing an external skill project under skills/{slug}/, enforce canonical layout, slug==frontmatter name, and source/build/dist separation."
     engineering/workflow/lexis/lex-issue-driven:
       paths: ["docs/issues/**", ".ahrena/workflow/**"]
       description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
@@ -659,6 +671,10 @@ claude-code:
       description: "When using Figma MCP server, reference tools (get_file, get_component, get_local_variables, etc.) from this codex."
     _foundation/tooling/codex/codex-mcp-common:
       description: "Shared MCP patterns — consulted alongside any server-specific MCP codex."
+    _foundation/tooling/codex/codex-skill-anthropic-agent-skills:
+      description: "When authoring SKILL.md or validating a skill package, follow the Anthropic Agent Skills spec (frontmatter fields, naming limits, progressive disclosure)."
+    _foundation/tooling/codex/codex-skill-project-architecture:
+      description: "When scaffolding or editing skills/{slug}/, follow the Ahrena project layout and reuse codex-frontend-architecture / codex-python-architecture for widgets and scripts/tools."
     engineering/workflow/codex/codex-issue-workflow:
       description: "Reference for the 7-phase Issue-Driven flow, the 2 gates, MADR format, and delegation."
     engineering/frontend/codex/codex-frontend-architecture:

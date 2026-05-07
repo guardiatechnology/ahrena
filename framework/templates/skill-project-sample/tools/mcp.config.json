@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "mcp": {
+    "name": "__SLUG__-tools",
+    "description": "MCP tools bundled with this skill (Ahrena convention; see codex-skill-tools-and-widgets in PR 2).",
+    "tools": []
+  }
+}
