@@ -1,4 +1,28 @@
 {
   "schema_version": 1,
-  "components": []
+  "components": [
+    {
+      "name": "Hello",
+      "entry": "src/hello/index.tsx",
+      "props_schema": {
+        "type": "object",
+        "properties": {
+          "default_name": { "type": "string" },
+          "greeting": { "type": "string" }
+        }
+      },
+      "events": [],
+      "bindings": [
+        {
+          "kind": "tool",
+          "ref": "format_greeting"
+        },
+        {
+          "kind": "script",
+          "ref": "scripts/src/format_greeting.py",
+          "called_via": "http://localhost:5174/format-greeting"
+        }
+      ]
+    }
+  ]
 }

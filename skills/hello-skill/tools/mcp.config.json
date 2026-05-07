@@ -2,7 +2,20 @@
   "schema_version": 1,
   "mcp": {
     "name": "hello-skill-tools",
-    "description": "MCP tools bundled with this skill (Ahrena convention; see codex-skill-tools-and-widgets in PR 2).",
-    "tools": []
+    "description": "MCP tools bundled with this skill (Ahrena convention; see codex-skill-tools-and-widgets).",
+    "tools": [
+      {
+        "name": "format_greeting",
+        "description": "Format a greeting message for a given name. Use when the Hello widget needs the canonical phrasing.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" }
+          },
+          "required": ["name"]
+        },
+        "handler": "handlers/format_greeting.py:run"
+      }
+    ]
   }
 }

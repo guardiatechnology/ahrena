@@ -1,0 +1,13 @@
+[project]
+name = "hello-skill-scripts"
+version = "0.1.0"
+description = "Scripts bundled with hello-skill (smoke project for plan-010 PR 2)."
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
