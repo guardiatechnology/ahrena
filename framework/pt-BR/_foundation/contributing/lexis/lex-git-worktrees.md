@@ -10,7 +10,10 @@
 
 - **Aplica-se a:** Claude Code (CLI, VSCode, Desktop, claude.ai/code), Cursor, qualquer agente AI que crie branches para implementar tarefas
 - **Agentes vinculados:** todos os warriors e katas que produzem código ou artefatos em branches dedicados (`warrior-athena`, `warrior-apollo`, `warrior-hephaestus`, `warrior-iris`)
-- **Exceções permitidas:** commits diretos em `main` para correções triviais de tipografia ou formatação (conforme `lex-issue-first`); operações de leitura/consulta sem produção de branch
+- **Exceções permitidas:**
+  - Commits diretos em `main` para correções triviais de tipografia ou formatação (conforme `lex-issue-first`)
+  - Operações de leitura/consulta sem produção de branch
+  - **Stacked Pull Requests** — uma stack inteira ocupa um único worktree compartilhado em vez de um worktree por branch. Regra detalhada na seção 5 abaixo
 
 ## Regras
 
@@ -54,6 +57,75 @@ Após o merge do PR correspondente:
 3. Deletar o branch local: `git branch -d {branch}`
 4. Confirmar: `git worktree list` não deve exibir o worktree removido
 
+### 5. Worktree compartilhado para Stacked Pull Requests
+
+Quando uma feature é decomposta em N camadas encadeadas (conforme `codex-stacked-prs`), a regra de "um worktree por branch" das seções 2-4 NÃO se aplica. Uma stack inteira opera dentro de um **único** worktree compartilhado.
+
+**Justificativa:** o cascade rebase (`kata-stacked-pr-rebase`) opera lendo e re-escrevendo as branches da stack em sequência, e exige working dir único. Worktree por branch quebra esse pressuposto.
+
+#### 5.1 Nomenclatura do diretório
+
+```
+.worktrees/{issue-number}-{slug}-stack/
+```
+
+| Campo | Regra |
+|---|---|
+| `issue-number` | Número da issue guarda-chuva (1 issue → N camadas) |
+| `slug` | Slug descritivo da feature, **sem** o segmento `stack-{layer}` |
+| Sufixo `-stack` | Literal e obrigatório — sinal canônico de que o diretório hospeda uma stack |
+
+Exemplo: para a issue #42 ("Scheduled Payments"), o worktree é `.worktrees/42-scheduled-payments-stack/`. Dentro dele coexistem as branches `feat/42-stack-1-schema`, `feat/42-stack-2-api`, `feat/42-stack-3-ui`.
+
+#### 5.2 Branches dentro do worktree compartilhado
+
+Cada camada tem branch própria, seguindo o pattern de `lex-git-branches`:
+
+```
+{type}/{issue-number}-stack-{layer}-{slug}
+```
+
+A camada base (`layer = 1`) é criada junto com o worktree partindo de `main`. Camadas superiores (`layer ≥ 2`) são criadas a partir da camada anterior:
+
+```bash
+git worktree add .worktrees/${N}-${SLUG}-stack -b feat/${N}-stack-1-${SLUG} main
+cd .worktrees/${N}-${SLUG}-stack
+# trabalho na camada 1, commit, push
+git checkout -b feat/${N}-stack-2-${SLUG} feat/${N}-stack-1-${SLUG}
+# trabalho na camada 2, commit, push
+```
+
+#### 5.3 Troca de camada
+
+O agente alterna entre camadas com `git checkout` dentro do mesmo diretório — **nunca** criando worktrees adicionais para a mesma stack:
+
+```bash
+git checkout feat/${N}-stack-1-${SLUG}    # voltar para camada base
+git checkout feat/${N}-stack-3-${SLUG}    # ir para o topo
+```
+
+#### 5.4 Cleanup após merge da stack
+
+Quando a última camada da stack mergear (a que tem `Closes #N`), a issue fecha e o cleanup é único:
+
+```bash
+cd ../..
+git worktree remove .worktrees/${N}-${SLUG}-stack --force
+# deletar TODAS as branches locais da stack
+for i in $(seq 1 $N); do
+  git branch -D feat/${N}-stack-${i}-${SLUG_i} 2>/dev/null || true
+done
+```
+
+Veja `kata-stacked-pr-merge` (Passo 5) para o procedimento completo.
+
+#### 5.5 Restrições específicas
+
+- **Nunca** criar mais de um worktree para a mesma stack — todas as camadas vivem no diretório `-stack/`
+- **Nunca** misturar branches de stacks diferentes no mesmo worktree
+- **Nunca** trabalhar numa branch da stack a partir do checkout principal — a stack inteira é tarefa do worktree dedicado
+- O sufixo `-stack` no nome do diretório é **literal** — não substituir por convenção interna
+
 ## Exemplos
 
 ### Correto
@@ -94,3 +166,4 @@ Worktree: .worktrees/42-scheduled-payments-api/
 - `kata-git-worktree` — procedimento passo a passo
 - `lex-git-branches` — convenção de nomenclatura de branches
 - `lex-issue-first` — issue obrigatória antes do branch
+- `codex-stacked-prs` — exceção declarada: uma stack ocupa um único worktree compartilhado

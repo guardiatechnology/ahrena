@@ -94,6 +94,18 @@ language:
 # terminal: bash         # Linux, macOS, WSL
 
 
+# ─── Stacked PRs ────────────────────────────────────────────────
+# Tool used to operate Stacked Pull Requests when a feature is
+# decomposed into N reviewable layers. Default is `vanilla`
+# (plain git + gh CLI). Set to `gs` to use git-spice, which
+# automates cascade rebase. See codex-stacked-prs.
+# Adoption is opt-in: the kata-stacked-pr-create runs a Decision
+# Checklist (≥ 3 high signals AND 0 anti-signals) before stacking.
+
+# stacked_prs:
+#   tool: vanilla   # vanilla | gs
+
+
 # ─── Naming ─────────────────────────────────────────────────────
 # Canonical naming conventions for files, directories, and
 # framework artifacts.
