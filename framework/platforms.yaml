@@ -108,9 +108,6 @@ cursor:
     _foundation/contributing/codex/codex-git-worktrees:
       alwaysApply: false
       description: "When creating, using, or removing git worktrees for branch-based tasks, follow conventions, lifecycle, and commands from this codex."
-    _foundation/contributing/lexis/lex-git-worktrees:
-      alwaysApply: false
-      description: "Every branch-based task by an AI agent MUST run inside a dedicated git worktree (.worktrees/{N}-{slug}/) with a corresponding GitHub issue."
     _foundation/contributing/lexis/lex-issue-quality:
       alwaysApply: false
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
