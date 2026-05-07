@@ -137,16 +137,31 @@ gh issue close "$ISSUE_NUMBER" --comment "Closed by #${LAST_PR_NUMBER} (last sta
 
 ### Step 5: Cleanup of worktree and local branches
 
-After all layers are merged:
+Order matters: delete remote refs **first**, then the worktree, then local branches. If cleanup is interrupted midway, orphan remote refs are the worst state possible (they pollute `git branch -r`, complicate PR-list tooling); keeping the worktree and local branches is recoverable.
 
 ```bash
 # Exit the worktree
 cd ../..  # back to repo root
 
-# Remove the shared worktree
+# 1. Confirm every layer was merged
+for i in $(seq 1 $N); do
+  STATE=$(gh pr view "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" \
+    --repo "$OWNER/$REPO" --json state --jq .state 2>/dev/null)
+  if [ "$STATE" != "MERGED" ]; then
+    echo "Layer $i not merged yet (state: $STATE) — aborting cleanup"
+    exit 1
+  fi
+done
+
+# 2. Delete remote refs (layer N may already have been deleted by --delete-branch on merge)
+for i in $(seq 1 $N); do
+  git push origin --delete "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" 2>/dev/null || true
+done
+
+# 3. Remove the shared worktree
 git worktree remove ".worktrees/${ISSUE_NUMBER}-${SLUG}-stack" --force
 
-# Delete local branches (all layers)
+# 4. Delete local branches (all layers)
 for i in $(seq 1 $N); do
   git branch -D "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" 2>/dev/null || true
 done
@@ -154,9 +169,10 @@ done
 # Verify
 git worktree list
 git branch --list "feat/${ISSUE_NUMBER}-stack-*"
+git branch -r --list "origin/feat/${ISSUE_NUMBER}-stack-*"
 ```
 
-`git worktree list` MUST no longer show the stack worktree. `git branch --list` MUST return nothing.
+The three final `git branch` calls MUST return nothing. `git worktree list` MUST no longer show the stack worktree.
 
 ### Step 6: Final verification
 

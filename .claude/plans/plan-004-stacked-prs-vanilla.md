@@ -33,7 +33,7 @@ A decisão de transformar uma issue em stacked PR vs PR único usa **checklist o
 **Sinais altos** (cada um conta 1 ponto):
 - Diff estimado > 500 linhas modificadas
 - Issue com ≥ 4 ACs independentes
-- ≥ 2 Pilars técnicos atravessados (ex.: backend + frontend)
+- ≥ 2 Pilares técnicos atravessados (ex.: backend + frontend)
 - Camadas óbvias presentes (schema → API → UI; data → service → handler)
 - Independência de review entre camadas (reviewer A não precisa do contexto de Y para revisar X)
 - Risco de rollback por camada (migração + feature visível na mesma issue)

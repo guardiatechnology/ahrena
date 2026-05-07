@@ -40,6 +40,8 @@ O diretório do worktree DEVE seguir o path definido em `paths.worktrees` em `.a
 
 Exemplo: branch `feat/42-scheduled-payments-api` → diretório `.worktrees/42-scheduled-payments-api/`
 
+O path `.worktrees/` está dentro do repositório e é ignorado pelo git via `.gitignore`.
+
 ### 3. Worktree como ambiente isolado
 
 O agente DEVE usar o worktree como ambiente exclusivo para a tarefa:

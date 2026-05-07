@@ -137,16 +137,31 @@ gh issue close "$ISSUE_NUMBER" --comment "Cerrada por #${LAST_PR_NUMBER} (últim
 
 ### Paso 5: Cleanup del worktree y branches locales
 
-Tras todas las capas mergeadas:
+El orden importa: eliminar refs remotas **primero**, después worktree, después branches locales. Si el cleanup se interrumpe en el medio, refs remotas huérfanas son el peor estado posible (contaminan `git branch -r`, complican el tooling de PR list); mantener el worktree y branches locales es recuperable.
 
 ```bash
 # Salir del worktree
 cd ../..  # volver al repo raíz
 
-# Eliminar el worktree compartido
+# 1. Confirmar que todas las capas fueron mergeadas
+for i in $(seq 1 $N); do
+  STATE=$(gh pr view "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" \
+    --repo "$OWNER/$REPO" --json state --jq .state 2>/dev/null)
+  if [ "$STATE" != "MERGED" ]; then
+    echo "Capa $i aún no mergeada (state: $STATE) — abortar cleanup"
+    exit 1
+  fi
+done
+
+# 2. Eliminar refs remotas (la capa N puede haber sido eliminada por --delete-branch en el merge)
+for i in $(seq 1 $N); do
+  git push origin --delete "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" 2>/dev/null || true
+done
+
+# 3. Eliminar el worktree compartido
 git worktree remove ".worktrees/${ISSUE_NUMBER}-${SLUG}-stack" --force
 
-# Eliminar branches locales (todas las capas)
+# 4. Eliminar branches locales (todas las capas)
 for i in $(seq 1 $N); do
   git branch -D "feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}" 2>/dev/null || true
 done
@@ -154,9 +169,10 @@ done
 # Verificar
 git worktree list
 git branch --list "feat/${ISSUE_NUMBER}-stack-*"
+git branch -r --list "origin/feat/${ISSUE_NUMBER}-stack-*"
 ```
 
-`git worktree list` no debe mostrar más el worktree de la stack. `git branch --list` no debe retornar nada.
+Los tres `git branch` finales no deben retornar nada. `git worktree list` no debe mostrar más el worktree de la stack.
 
 ### Paso 6: Verificación final
 

@@ -64,6 +64,8 @@ Ejemplos válidos:
 
 La presencia del segmento literal `stack-{layer}` en el slug es la señal canónica de que la branch forma parte de una stack.
 
+> **Importante:** `{slug}` es único y compartido por toda la stack — es el mismo `{slug}` usado en el directorio del worktree (`.worktrees/{N}-{slug}-stack/`); solamente `{layer}` distingue capas. Los nombres `schema`/`api`/`ui` en los ejemplos de arriba son valores de `{layer}`, no de `{slug}`.
+
 ---
 
 ## 2. Decision Checklist (canónica)
@@ -76,7 +78,7 @@ Esta sección es la **fuente de verdad** consultada por `kata-stacked-pr-create`
 |---|---|
 | Tamaño estimado del diff | > 500 líneas modificadas |
 | ACs independientes en la issue | ≥ 4 ACs |
-| Pilars técnicos atravesados | ≥ 2 (ej.: backend + frontend) |
+| Pilares técnicos atravesados | ≥ 2 (ej.: backend + frontend) |
 | Capas obvias presentes | schema → API → UI; data → service → handler; o equivalente |
 | Independencia de review | reviewer A puede evaluar capa X sin necesitar el contexto de Y |
 | Riesgo de rollback por capa | cambio con migración + feature visible en la misma issue |

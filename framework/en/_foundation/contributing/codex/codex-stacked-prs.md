@@ -64,6 +64,8 @@ Valid examples:
 
 The literal `stack-{layer}` segment in the slug is the canonical signal that the branch belongs to a stack.
 
+> **Important:** `{slug}` is unique and shared by the entire stack — it is the same `{slug}` used in the worktree directory (`.worktrees/{N}-{slug}-stack/`); only `{layer}` distinguishes layers. The names `schema`/`api`/`ui` in the examples above are values of `{layer}`, not of `{slug}`.
+
 ---
 
 ## 2. Decision Checklist (canonical)

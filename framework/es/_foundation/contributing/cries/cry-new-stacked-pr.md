@@ -18,23 +18,10 @@
 ## Comportamiento
 
 1. Invoca **kata-stacked-pr-create**.
-2. La kata corre **Fase 0 — Decision Checklist** incluso en invocación explícita por el usuario, usando los criterios canónicos de `codex-stacked-prs` (≥ 3 señales altas AND 0 anti-señales).
-3. **Si la checklist reprueba** (anti-señal presente o señales altas < 3), el agente avisa:
-   ```
-   Esta issue no atiende la checklist canónica para stacked PR:
-     Señales altas: X (mínimo 3)
-     Anti-señales detectadas: [lista]
-
-   Propuesta: proseguir con PR único vía kata-contributing-pr.
-
-   ¿Forzar la stack de todas formas? (s/n)
-   ```
-   - Si `n` (default), redirige a `kata-contributing-pr` (PR único)
-   - Si `s` (override explícito del usuario), prosigue con la stack registrando la decisión de override
+2. La kata corre **Fase 0 — Decision Checklist** incluso en invocación explícita por el usuario, aplicando la checklist canónica definida en `codex-stacked-prs`.
+3. **Si la checklist reprueba**, la kata avisa al usuario con las señales reales contadas, propone seguir con PR único vía `kata-contributing-pr`, y solo prosigue con la stack mediante override explícito del usuario (registrando la decisión).
 4. **Si la checklist aprueba**, la kata propone descomposición concreta en capas (ver kata para detalles), confirma con el usuario y crea la cadena: worktree compartido, N branches, N PRs encadenados, espejo de labels.
-5. Lee `.ahrena/.directives` para `stacked_prs.tool`:
-   - `vanilla` (default) → sigue el flujo de esta Kata
-   - `gs` → sigue la sección "Variant: git-spice" de la Kata (disponible tras plan-005)
+5. La kata selecciona la herramienta operacional consultando la directiva `stacked_prs.tool` en `.ahrena/.directives` — vanilla es default; valores adicionales (ej.: `gs`) activan variantes de la propia Kata. El Cry no lee la directiva directamente.
 
 ## Kata Asociada
 

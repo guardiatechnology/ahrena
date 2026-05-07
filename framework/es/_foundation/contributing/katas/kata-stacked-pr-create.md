@@ -10,7 +10,7 @@ Esta Kata define el procedimiento para transformar una issue paraguas en una cad
 
 - Cuando el usuario pide iniciar trabajo en una issue grande y el agente quiere evaluar si vale la pena apilar
 - Cuando el usuario invoca explícitamente `cry-new-stacked-pr`
-- Cuando una issue paraguas ya tiene ACs numerados y el alcance cruza ≥ 2 Pilars técnicos
+- Cuando una issue paraguas ya tiene ACs numerados y el alcance cruza ≥ 2 Pilares técnicos
 
 ## Entradas
 
@@ -41,7 +41,7 @@ Aplicar la Decision Checklist canónica de [codex-stacked-prs](../codex/codex-st
 1. **Contar señales altas** contra issue + alcance previsto:
    - Diff estimado > 500 líneas (1 punto)
    - ≥ 4 ACs independientes (1 punto)
-   - ≥ 2 Pilars técnicos atravesados (1 punto)
+   - ≥ 2 Pilares técnicos atravesados (1 punto)
    - Capas obvias presentes (schema → API → UI; equivalente) (1 punto)
    - Independencia de review entre capas (1 punto)
    - Riesgo de rollback por capa (1 punto)
@@ -51,13 +51,13 @@ Aplicar la Decision Checklist canónica de [codex-stacked-prs](../codex/codex-st
    - Refactor monolítico sin capas naturales
 3. **Decidir:**
    - **≥ 3 señales altas AND 0 anti-señales** → proponer stack al usuario
-   - **Caso contrario** → informar al usuario y redirigir a `kata-contributing-pr`
+   - **Caso contrario** → parar y recomendar al usuario invocar `kata-contributing-pr` (o `cry-new-pr`) para un PR único
 
 **Presentar la propuesta al usuario** en formato concreto, ej.:
 
 ```
 Esta issue parece candidata a stacked PR:
-  Señales altas: 4 (diff estimado ~800 líneas, 5 ACs, 2 Pilars, capas obvias)
+  Señales altas: 4 (diff estimado ~800 líneas, 5 ACs, 2 Pilares, capas obvias)
   Anti-señales: 0
 
 Propuesta de descomposición:
@@ -68,7 +68,7 @@ Propuesta de descomposición:
 ¿Confirmar y proseguir? (s/n/ajustar)
 ```
 
-Si el usuario rechaza o pide PR único, salir e invocar `kata-contributing-pr`.
+Si el usuario rechaza o pide PR único, finalizar esta kata y recomendar al usuario invocar `kata-contributing-pr` (o `cry-new-pr`) — las katas no encadenan otras katas; la orquestación entre katas es rol de los Warriors.
 
 ### Paso 1: Validar issue paraguas
 

@@ -10,7 +10,7 @@ Esta Kata define o procedimento para transformar uma issue guarda-chuva em uma c
 
 - Quando o usuário pede para iniciar trabalho numa issue grande e o agente quer avaliar se vale stackar
 - Quando o usuário invoca explicitamente `cry-new-stacked-pr`
-- Quando uma issue guarda-chuva já tem ACs numerados e o escopo cruza ≥ 2 Pilars técnicos
+- Quando uma issue guarda-chuva já tem ACs numerados e o escopo cruza ≥ 2 Pilares técnicos
 
 ## Entradas
 
@@ -41,7 +41,7 @@ Aplicar a Decision Checklist canônica de [codex-stacked-prs](../codex/codex-sta
 1. **Contar sinais altos** contra issue + escopo previsto:
    - Diff estimado > 500 linhas (1 ponto)
    - ≥ 4 ACs independentes (1 ponto)
-   - ≥ 2 Pilars técnicos atravessados (1 ponto)
+   - ≥ 2 Pilares técnicos atravessados (1 ponto)
    - Camadas óbvias presentes (schema → API → UI; equivalente) (1 ponto)
    - Independência de review entre camadas (1 ponto)
    - Risco de rollback por camada (1 ponto)
@@ -51,13 +51,13 @@ Aplicar a Decision Checklist canônica de [codex-stacked-prs](../codex/codex-sta
    - Refactor monolítico sem camadas naturais
 3. **Decidir:**
    - **≥ 3 sinais altos AND 0 anti-sinais** → propor stack ao usuário
-   - **Caso contrário** → informar ao usuário e redirecionar para `kata-contributing-pr`
+   - **Caso contrário** → parar e recomendar ao usuário invocar `kata-contributing-pr` (ou `cry-new-pr`) para um PR único
 
 **Apresentar a proposta ao usuário** em formato concreto, ex.:
 
 ```
 Esta issue parece candidata a stacked PR:
-  Sinais altos: 4 (diff estimado ~800 linhas, 5 ACs, 2 Pilars, camadas óbvias)
+  Sinais altos: 4 (diff estimado ~800 linhas, 5 ACs, 2 Pilares, camadas óbvias)
   Anti-sinais: 0
 
 Proposta de decomposição:
@@ -68,7 +68,7 @@ Proposta de decomposição:
 Confirmar e prosseguir? (s/n/ajustar)
 ```
 
-Se o usuário rejeitar ou pedir PR único, sair e invocar `kata-contributing-pr`.
+Se o usuário rejeitar ou pedir PR único, encerrar este kata e recomendar ao usuário invocar `kata-contributing-pr` (ou `cry-new-pr`) — katas não encadeiam outros katas; orquestração entre katas é papel de Warriors.
 
 ### Passo 1: Validar issue guarda-chuva
 
