@@ -56,7 +56,7 @@ Decisões fechadas com o usuário:
 ### Atualizações de configuração
 
 - `framework/.directives.sample`: o bloco `stacked_prs.tool` é introduzido pelo plan-004 com `vanilla` documentado. Este plan apenas atualiza o **comentário de valores aceitos** para `vanilla | gs` (o plan-004 já deixa o esqueleto pronto). Mudança mínima, uma linha.
-- `framework/platforms.yaml`: registrar `_foundation/tooling/codex/codex-git-spice` em `cursor.rules` e `claude-code.rules`, com `paths: [".git/spice/**"]` para lazy-load (gs guarda metadata em `.git/spice/`).
+- `framework/platforms.yaml`: registrar `_foundation/tooling/codex/codex-git-spice` em `cursor.rules` e `claude-code.docs` (`description` apenas; `paths` para `.git/spice/**` foi avaliado e descartado — Cursor não percorre `.git/`, hint não dispara).
 
 ## Fora de escopo
 
