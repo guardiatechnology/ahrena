@@ -74,14 +74,16 @@ Structure the Markdown body in the 4 sections: **Observation**, **Source**, **In
    - Do not create a new file — update the existing one identified by `target_insight_id`
    - Update `updated_at` to the current timestamp
    - Rewrite the 4 body sections incorporating the received `feedback`
-   - Keep `status: refining` only until full write completes; after persisting, record in a message to the human that v2 is ready for `under_review` (the transition itself depends on human action, per HARD-GATE 2)
+   - After persisting v2, update `status: under_review` — this transition is authorized per HARD-GATE 2 of `lex-discovery-flow` (precondition (d) met: v2 written with updated `updated_at`), executed by Pitia to close the `refining → under_review` cycle initiated by the original human direction
+   - Record a message to the human that v2 is ready for new evaluation
 
 ### Step 6: Final validation
 
 Before delivering:
 
 - [ ] Each created insight has unique `id`, correct `topic`, and `source_refs[]` with at least 1 entry
-- [ ] No insight has `status` other than `proposed` (in `mode == new`) or other than `refining` (in `mode == refine`, and even then the actual status changes only by human)
+- [ ] In `mode == new`: each created insight has `status: proposed`
+- [ ] In `mode == refine`: the updated insight has `status: under_review` (Pitia closed the cycle per HG2 precondition (d)) and `updated_at` updated
 - [ ] The 4 body sections (Observation, Source, Initial implication, Open questions) are filled — no placeholders such as "TBD"
 - [ ] No insight proposes a solution; every solution hypothesis lives in the "Open questions" section as a question
 - [ ] The content respects `lex-tone` (direct, strategic, no buzzwords) and the language matches `language.default`
@@ -156,6 +158,6 @@ Reducing time spent on manual reconciliation frees accountant capacity for analy
 
 - Never propose a solution in the insight; the solution is Phanes's responsibility via Idea
 - Never consolidate multiple insights into a single file — one insight per file
-- Never change the `status` of an existing insight to any value other than `refining` (in refine mode, by Pitia itself) or `proposed` (in new mode); other transitions require human direction per HARD-GATE 2 of `lex-discovery-flow`
+- The only `status` transitions Pitia executes autonomously are: `[*] → proposed` (new mode, initial creation) and `refining → under_review` (refine mode, closing the cycle after rewriting v2 — HG2 precondition (d) met). All other transitions require explicit human direction per HARD-GATE 2 of `lex-discovery-flow`
 - Never embed a reference to `idea_ref` on initial creation; this field is filled by Phanes
 - Always quote literal excerpts (with quotation marks) when referencing an interview or doc — avoids second-level interpretation

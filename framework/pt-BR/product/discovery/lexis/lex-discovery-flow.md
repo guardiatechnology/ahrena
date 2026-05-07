@@ -1,6 +1,6 @@
 # Lexis: Fluxo de Product Discovery — Insight a Idea
 
-> **Prefixo:** `lex-` | **Tipo:** Lei Inquebável | **Escopo:** Product Discovery — produção de insights, transição de status, e promoção de insight aprovado a Idea no Ahrena
+> **Prefixo:** `lex-` | **Tipo:** Lei Inquebrável | **Escopo:** Product Discovery — produção de insights, transição de status, e promoção de insight aprovado a Idea no Ahrena
 
 ## Propósito
 
@@ -8,13 +8,13 @@ Garantir que toda Idea no Ahrena tenha origem rastreável em insights aprovados 
 
 ## Lei
 
-> **Toda Idea no Ahrena (`docs/discovery/{topic}/ideas/{NNN}-{slug}.md`) DEVE ter sido criada por `warrior-phanes` exclusivamente a partir de um ou mais insights cujo `status` é `approved`, com todos os 5 campos obrigatórios do schema preenchidos, e o insight de origem DEVE ser atualizado para `status: promoted` com `idea_ref` apontando para a Idea criada. Toda mudança de `status` de um insight para qualquer valor diferente de `proposed` DEVE ser conduzida por decisão humana explícita registrada (mensagem na sessão, comentário em PR, ou instrução literal); `warrior-pitia` NÃO PODE alterar status por iniciativa própria, exceto a criação inicial em `proposed`.**
+> **Toda Idea no Ahrena (`docs/discovery/{topic}/ideas/{NNN}-{slug}.md`) DEVE ter sido criada por `warrior-phanes` exclusivamente a partir de um ou mais insights cujo `status` é `approved`, com os 5 campos de conteúdo obrigatórios (`problem`, `hypothesis`, `target_user`, `success_metric`, `effort_estimate`) preenchidos, e o insight de origem DEVE ser atualizado para `status: promoted` com `idea_ref` apontando para a Idea criada. Toda mudança de `status` de um insight para qualquer valor diferente de `proposed` DEVE ser conduzida por decisão humana explícita registrada (mensagem na sessão, comentário em PR, ou instrução literal); `warrior-pitia` NÃO DEVE alterar status por iniciativa própria, exceto a criação inicial em `proposed`.**
 
 ## Abrangência
 
 - **Aplica-se a:** todos os insights e ideas produzidos no contexto Ahrena, em qualquer projeto que adote o framework
 - **Agentes vinculados:** `warrior-pitia`, `warrior-phanes`, e qualquer outro agente que crie ou modifique arquivos sob `docs/discovery/`
-- **Exceções:** Nenhuma. Lexis não admitem exceções
+- **Exceções:** Nenhuma. Lexis não admitem exceções. (Os HARD-GATEs abaixo declaram *carve-outs de precondição* — não exceções da Lei. O HG2 carve-out — criação inicial em `proposed` — é parte integral da regra, não derrogação.)
 
 <HARD-GATE>
 warrior-phanes NÃO DEVE promover um insight a Idea sem que TODAS as

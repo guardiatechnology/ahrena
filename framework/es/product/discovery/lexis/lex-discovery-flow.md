@@ -8,13 +8,13 @@ Garantizar que toda Idea en Ahrena tenga origen rastreable en insights aprobados
 
 ## Ley
 
-> **Toda Idea en Ahrena (`docs/discovery/{topic}/ideas/{NNN}-{slug}.md`) DEBE haber sido creada por `warrior-phanes` exclusivamente a partir de uno o más insights cuyo `status` sea `approved`, con todos los 5 campos obligatorios del schema completados, y el insight de origen DEBE ser actualizado a `status: promoted` con `idea_ref` apuntando a la Idea creada. Todo cambio de `status` de un insight a cualquier valor distinto de `proposed` DEBE ser conducido por decisión humana explícita registrada (mensaje en la sesión, comentario en PR, o instrucción literal); `warrior-pitia` NO PUEDE alterar status por iniciativa propia, excepto la creación inicial en `proposed`.**
+> **Toda Idea en Ahrena (`docs/discovery/{topic}/ideas/{NNN}-{slug}.md`) DEBE haber sido creada por `warrior-phanes` exclusivamente a partir de uno o más insights cuyo `status` sea `approved`, con los 5 campos de contenido obligatorios (`problem`, `hypothesis`, `target_user`, `success_metric`, `effort_estimate`) completados, y el insight de origen DEBE ser actualizado a `status: promoted` con `idea_ref` apuntando a la Idea creada. Todo cambio de `status` de un insight a cualquier valor distinto de `proposed` DEBE ser conducido por decisión humana explícita registrada (mensaje en la sesión, comentario en PR, o instrucción literal); `warrior-pitia` NO DEBE alterar status por iniciativa propia, excepto la creación inicial en `proposed`.**
 
 ## Cobertura
 
 - **Se aplica a:** todos los insights e ideas producidos en el contexto Ahrena, en cualquier proyecto que adopte el framework
 - **Agentes vinculados:** `warrior-pitia`, `warrior-phanes`, y cualquier otro agente que cree o modifique archivos bajo `docs/discovery/`
-- **Excepciones:** Ninguna. Las Lexis no admiten excepciones
+- **Excepciones:** Ninguna. Las Lexis no admiten excepciones. (Los HARD-GATEs abajo declaran *carve-outs de precondición* — no excepciones de la Ley. El carve-out del HG2 — creación inicial en `proposed` — es parte integral de la regla, no derogación.)
 
 <HARD-GATE>
 warrior-phanes NO DEBE promover un insight a Idea sin que TODAS las

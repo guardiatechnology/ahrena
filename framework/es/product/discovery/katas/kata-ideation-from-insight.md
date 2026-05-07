@@ -23,17 +23,19 @@ Estandarizar cómo `warrior-phanes` lee un insight aprobado y produce una Idea e
 
 ```
 Progreso:
-- [ ] 1. Validación de las precondiciones del HARD-GATE 1
+- [ ] 1. Validación preflight de input (HG1 a, d)
 - [ ] 2. Lectura de los insights de origen
-- [ ] 3. Síntesis de los 5 campos obligatorios de la Idea
-- [ ] 4. Generación del archivo de la Idea
-- [ ] 5. Actualización del/los insight(s) de origen
-- [ ] 6. Validación final
+- [ ] 3. Síntesis de los 5 campos de contenido obligatorios
+- [ ] 4. Validación preflight de output (HG1 b, c) — antes de la escritura
+- [ ] 5. Generación del archivo de la Idea
+- [ ] 6. Actualización del/los insight(s) de origen
+- [ ] 7. Validación post-escritura (HG1 e) con rollback
+- [ ] 8. Validación final integral
 ```
 
-### Paso 1: Validación de las precondiciones del HARD-GATE 1
+### Paso 1: Validación preflight de input (HG1 a, d)
 
-Para cada insight en `insight_path`, verificar **antes de cualquier escritura**:
+Para cada insight en `insight_path`, verificar **antes de cualquier lectura o síntesis**:
 
 - [ ] (a) `insight.status == approved` (lee el front-matter; si difiere de `approved`, abortar e informar al humano)
 - [ ] (d) Todos los insights en `insight_path` tienen el mismo `topic` (si diverge, abortar; una Idea no puede mezclar topics)
@@ -55,7 +57,7 @@ Leer íntegramente el/los archivo(s) de insight, capturando:
 
 Acumular el contenido como base para la síntesis de la Idea.
 
-### Paso 3: Síntesis de los 5 campos obligatorios
+### Paso 3: Síntesis de los 5 campos de contenido obligatorios
 
 Para cada campo obligatorio, aplicar la heurística:
 
@@ -69,7 +71,16 @@ Para cada campo obligatorio, aplicar la heurística:
 
 La síntesis es proposición inicial — `warrior-prometheus` posteriormente refina al transformarla en PRD.
 
-### Paso 4: Generación del archivo de la Idea
+### Paso 4: Validación preflight de output (HG1 b, c) — ANTES de la escritura
+
+Sobre la Idea sintetizada (en memoria, antes de grabar archivo), verificar:
+
+- [ ] (b) `linked_insights[]` de la Idea tiene al menos 1 entrada (será completado por los `id` de los insights leídos en el Paso 2)
+- [ ] (c) Los 5 campos de contenido obligatorios — `problem`, `hypothesis`, `target_user`, `success_metric`, `effort_estimate` — tienen texto sustantivo (no placeholder crudo como "TBD" ni cadena vacía). Si la heurística del Paso 3 no logró producir contenido para algún campo, **interrumpir** e informar al humano qué evidencia adicional destraba
+
+Si cualquier (b) o (c) falla, **abortar antes de grabar** — ningún archivo se crea, ningún insight se actualiza.
+
+### Paso 5: Generación del archivo de la Idea
 
 1. Determinar `{NNN}`: próximo secuencial dentro de `docs/discovery/{topic}/ideas/`
 2. Determinar `{slug}`: kebab-case corto resumiendo la Idea (no copiar del insight; puede ser distinto)
@@ -78,7 +89,7 @@ La síntesis es proposición inicial — `warrior-prometheus` posteriormente ref
 5. Estructurar el cuerpo Markdown en las 3 secciones: **Síntesis**, **Insights de origen** (lista enumerada referenciando `linked_insights[]`), **Próximos pasos** (sugerencias de validación adicional, sin decisión de prioridad)
 6. Crear directorios intermedios si es necesario y grabar el archivo
 
-### Paso 5: Actualización del/los insight(s) de origen
+### Paso 6: Actualización del/los insight(s) de origen
 
 Para cada insight en `linked_insights[]`:
 
@@ -87,17 +98,33 @@ Para cada insight en `linked_insights[]`:
 3. Actualizar `updated_at` al timestamp actual
 4. Mantener el resto del archivo intocado (cuerpo del insight permanece como auditoría)
 
-Esta actualización es **la única transición de status que `warrior-phanes` ejecuta autónomamente** — autorizada por HARD-GATE 1 (e), con la precondición de que la Idea haya sido creada con éxito en la etapa anterior.
+Esta actualización es **la única transición de status que `warrior-phanes` ejecuta autónomamente** — autorizada por HARD-GATE 1 (e), con la precondición de que la Idea haya sido creada con éxito en el Paso 5.
 
-### Paso 6: Validación final
+### Paso 7: Validación post-escritura (HG1 e) con rollback
 
-Antes de entregar:
+Tras el Paso 6, verificar que **todos** los insights en `linked_insights[]` fueron actualizados:
+
+- [ ] Cada insight de origen tiene `status: promoted` persistido en disco
+- [ ] Cada insight de origen tiene `idea_ref` apuntando al `id` de la Idea creada
+- [ ] Cada insight de origen tiene `updated_at` actualizado
+
+Si cualquier insight quedó sin actualizar (error de grabación, permiso, conflicto), ejecutar **rollback transaccional**:
+
+1. Eliminar el archivo de la Idea creado en el Paso 5 (`docs/discovery/{topic}/ideas/{NNN}-{slug}.md`)
+2. Revertir cualquier actualización parcial en los insights que sí persistieron (restaurar `status` original, `idea_ref: null`, `updated_at` anterior)
+3. Reportar al humano qué operación falló y cuál es el estado restaurado
+
+El objetivo del rollback es mantener la invariante: *Idea existe ⇔ todos sus `linked_insights[]` están `promoted` con `idea_ref` correcto*. No puede haber Idea huérfana ni insight `promoted` sin Idea.
+
+### Paso 8: Validación final integral
+
+Antes de entregar (después de que el Paso 7 pase limpio):
 
 - [ ] HARD-GATE 1 (a): `status == approved` en todos los insights de origen (validado en Paso 1)
-- [ ] HARD-GATE 1 (b): `linked_insights[]` de la Idea tiene al menos 1 entrada
-- [ ] HARD-GATE 1 (c): Los 5 campos obligatorios de la Idea están completados con texto no vacío (no placeholder crudo como "TBD")
-- [ ] HARD-GATE 1 (d): `topic` de la Idea coincide con el `topic` de TODOS los `linked_insights[]`
-- [ ] HARD-GATE 1 (e): Todos los insights de origen fueron actualizados a `status: promoted` con `idea_ref` correcto
+- [ ] HARD-GATE 1 (b): `linked_insights[]` de la Idea tiene al menos 1 entrada (validado en Paso 4)
+- [ ] HARD-GATE 1 (c): Los 5 campos de contenido obligatorios de la Idea tienen texto sustantivo (validado en Paso 4)
+- [ ] HARD-GATE 1 (d): `topic` de la Idea coincide con el `topic` de TODOS los `linked_insights[]` (validado en Paso 1)
+- [ ] HARD-GATE 1 (e): Todos los insights de origen fueron actualizados a `status: promoted` con `idea_ref` correcto (validado en Paso 7)
 - [ ] El `id` de la Idea es único dentro del topic
 - [ ] El contenido respeta `lex-tone` y el idioma confirma con `language.default`
 - [ ] Ningún insight tuvo campo además de `status`, `idea_ref` y `updated_at` modificado

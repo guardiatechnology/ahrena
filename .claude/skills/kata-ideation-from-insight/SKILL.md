@@ -11,17 +11,19 @@ description: "Promotion of an Approved Insight to an Idea. Product Discovery —
 
 ```
 Progress:
-- [ ] 1. Validate HARD-GATE 1 preconditions
+- [ ] 1. Input preflight validation (HG1 a, d)
 - [ ] 2. Read source insights
-- [ ] 3. Synthesize the 5 mandatory Idea fields
-- [ ] 4. Generate the Idea file
-- [ ] 5. Update the source insight(s)
-- [ ] 6. Final validation
+- [ ] 3. Synthesize the 5 mandatory content fields
+- [ ] 4. Output preflight validation (HG1 b, c) — before write
+- [ ] 5. Generate the Idea file
+- [ ] 6. Update the source insight(s)
+- [ ] 7. Post-write validation (HG1 e) with rollback
+- [ ] 8. Integral final validation
 ```
 
-### Step 1: Validate HARD-GATE 1 preconditions
+### Step 1: Input preflight validation (HG1 a, d)
 
-For each insight in `insight_path`, verify **before any write**:
+For each insight in `insight_path`, verify **before any read or synthesis**:
 
 - [ ] (a) `insight.status == approved` (read the front-matter; if other than `approved`, abort and inform the human)
 - [ ] (d) All insights in `insight_path` share the same `topic` (if divergent, abort; an Idea cannot mix topics)
@@ -43,7 +45,7 @@ Read the insight file(s) in full, capturing:
 
 Accumulate the content as the basis for the Idea synthesis.
 
-### Step 3: Synthesize the 5 mandatory fields
+### Step 3: Synthesize the 5 mandatory content fields
 
 For each mandatory field, apply the heuristic:
 
@@ -57,7 +59,16 @@ For each mandatory field, apply the heuristic:
 
 The synthesis is an initial proposition — `warrior-prometheus` later refines it when transforming it into a PRD.
 
-### Step 4: Generate the Idea file
+### Step 4: Output preflight validation (HG1 b, c) — BEFORE write
+
+On the synthesized Idea (in memory, before writing the file), verify:
+
+- [ ] (b) The Idea's `linked_insights[]` has at least 1 entry (will be filled with the `id`s of the insights read in Step 2)
+- [ ] (c) The 5 mandatory content fields — `problem`, `hypothesis`, `target_user`, `success_metric`, `effort_estimate` — have substantive text (no raw placeholder such as "TBD" or empty string). If the Step 3 heuristic could not produce content for some field, **interrupt** and inform the human which additional evidence unblocks
+
+If any of (b) or (c) fails, **abort before writing** — no file is created, no insight is updated.
+
+### Step 5: Generate the Idea file
 
 1. Determine `{NNN}`: next sequential number within `docs/discovery/{topic}/ideas/`
 2. Determine `{slug}`: short kebab-case summarizing the Idea (do not copy from the insight; it MAY differ)
@@ -66,7 +77,7 @@ The synthesis is an initial proposition — `warrior-prometheus` later refines i
 5. Structure the Markdown body in the 3 sections: **Synthesis**, **Source insights** (numbered list referencing `linked_insights[]`), **Next steps** (suggestions for additional validation, no priority decision)
 6. Create intermediate directories if needed and write the file
 
-### Step 5: Update the source insight(s)
+### Step 6: Update the source insight(s)
 
 For each insight in `linked_insights[]`:
 
@@ -75,17 +86,33 @@ For each insight in `linked_insights[]`:
 3. Update `updated_at` to the current timestamp
 4. Keep the rest of the file untouched (the insight body remains as audit trail)
 
-This update is **the only status transition `warrior-phanes` executes autonomously** — authorized by HARD-GATE 1 (e), with the precondition that the Idea was successfully created in the previous step.
+This update is **the only status transition `warrior-phanes` executes autonomously** — authorized by HARD-GATE 1 (e), with the precondition that the Idea was successfully created in Step 5.
 
-### Step 6: Final validation
+### Step 7: Post-write validation (HG1 e) with rollback
 
-Before delivering:
+After Step 6, verify that **all** insights in `linked_insights[]` were updated:
+
+- [ ] Each source insight has `status: promoted` persisted on disk
+- [ ] Each source insight has `idea_ref` pointing to the created Idea's `id`
+- [ ] Each source insight has `updated_at` updated
+
+If any insight failed to update (write error, permission, conflict), execute a **transactional rollback**:
+
+1. Delete the Idea file created in Step 5 (`docs/discovery/{topic}/ideas/{NNN}-{slug}.md`)
+2. Revert any partial update on the insights that did persist (restore original `status`, `idea_ref: null`, prior `updated_at`)
+3. Report to the human which operation failed and the restored state
+
+The rollback's goal is to keep the invariant: *Idea exists ⇔ all of its `linked_insights[]` are `promoted` with correct `idea_ref`*. There MUST NOT be an orphan Idea nor a `promoted` insight without an Idea.
+
+### Step 8: Integral final validation
+
+Before delivering (after Step 7 has passed cleanly):
 
 - [ ] HARD-GATE 1 (a): `status == approved` in all source insights (validated in Step 1)
-- [ ] HARD-GATE 1 (b): The Idea's `linked_insights[]` has at least 1 entry
-- [ ] HARD-GATE 1 (c): The 5 mandatory Idea fields are filled with non-empty text (no raw placeholder such as "TBD")
-- [ ] HARD-GATE 1 (d): The Idea's `topic` matches the `topic` of ALL `linked_insights[]`
-- [ ] HARD-GATE 1 (e): All source insights have been updated to `status: promoted` with the correct `idea_ref`
+- [ ] HARD-GATE 1 (b): The Idea's `linked_insights[]` has at least 1 entry (validated in Step 4)
+- [ ] HARD-GATE 1 (c): The 5 mandatory content fields of the Idea have substantive text (validated in Step 4)
+- [ ] HARD-GATE 1 (d): The Idea's `topic` matches the `topic` of ALL `linked_insights[]` (validated in Step 1)
+- [ ] HARD-GATE 1 (e): All source insights have been updated to `status: promoted` with the correct `idea_ref` (validated in Step 7)
 - [ ] The Idea's `id` is unique within the topic
 - [ ] The content respects `lex-tone` and the language matches `language.default`
 - [ ] No insight had any field besides `status`, `idea_ref`, and `updated_at` modified

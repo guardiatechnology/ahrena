@@ -1,5 +1,5 @@
 ---
-description: "Schema YAML do front-matter de insights/{NNN}-{slug}.md e ideas/{NNN}-{slug}.md, máquina de estados de 9 status, e endereçamento canônico em docs/discovery/{topic}/."
+description: "YAML front-matter schema for insights/{NNN}-{slug}.md and ideas/{NNN}-{slug}.md, 9-status state machine, and canonical addressing under docs/discovery/{topic}/."
 alwaysApply: false
 ---
 

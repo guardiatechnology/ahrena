@@ -9,13 +9,13 @@ paths:
 
 ## Law
 
-> **Every Idea in Ahrena (`docs/discovery/{topic}/ideas/{NNN}-{slug}.md`) MUST have been created by `warrior-phanes` exclusively from one or more insights whose `status` is `approved`, with all 5 mandatory schema fields filled, and the source insight MUST be updated to `status: promoted` with `idea_ref` pointing to the created Idea. Every change of an insight `status` to any value other than `proposed` MUST be driven by an explicit, recorded human decision (session message, PR comment, or literal instruction); `warrior-pitia` MUST NOT change status on its own initiative, except for the initial creation in `proposed`.**
+> **Every Idea in Ahrena (`docs/discovery/{topic}/ideas/{NNN}-{slug}.md`) MUST have been created by `warrior-phanes` exclusively from one or more insights whose `status` is `approved`, with the 5 mandatory content fields (`problem`, `hypothesis`, `target_user`, `success_metric`, `effort_estimate`) filled, and the source insight MUST be updated to `status: promoted` with `idea_ref` pointing to the created Idea. Every change of an insight `status` to any value other than `proposed` MUST be driven by an explicit, recorded human decision (session message, PR comment, or literal instruction); `warrior-pitia` MUST NOT change status on its own initiative, except for the initial creation in `proposed`.**
 
 ## Coverage
 
 - **Applies to:** all insights and ideas produced in the Ahrena context, in any project that adopts the framework
 - **Bound agents:** `warrior-pitia`, `warrior-phanes`, and any other agent that creates or modifies files under `docs/discovery/`
-- **Exceptions:** None. Lexis admit no exceptions
+- **Exceptions:** None. Lexis admit no exceptions. (The HARD-GATEs below declare *precondition carve-outs* — not Law exceptions. The HG2 carve-out — initial creation in `proposed` — is integral to the rule, not derogation.)
 
 <HARD-GATE>
 warrior-phanes MUST NOT promote an insight to an Idea without ALL

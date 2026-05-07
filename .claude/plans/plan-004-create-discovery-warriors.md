@@ -1,11 +1,14 @@
 ---
 plan_id: "004"
 title: "create-discovery-warriors"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#48"
+follow_ups:
+  - "guardiatechnology/ahrena#52 — ADR for top-level clade product/"
+  - "guardiatechnology/ahrena#53 — sync targets regress legitimate content from main"
 created_at: "2026-05-05T00:00:00Z"
-updated_at: "2026-05-06T01:10:00Z"
+updated_at: "2026-05-07T03:00:00Z"
 ---
 
 # Plan: Create Product Discovery warriors (Pítia + Phanes)
