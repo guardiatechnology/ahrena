@@ -288,6 +288,14 @@ Para a **última camada**, troque `Refs #${ISSUE_NUMBER}` por `Closes #${ISSUE_N
 Idêntico ao caminho vanilla — `gs` não diferencia por camada quando se trata de mirror do issue. Reutilize o loop com `gh pr edit`:
 
 ```bash
+# Popular PR_NUMBERS a partir das branches da stack (gs stack submit
+# imprime as URLs, mas para o loop precisamos dos números):
+PR_NUMBERS=()
+for i in $(seq 1 "$N"); do
+  BRANCH="feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}"
+  PR_NUMBERS+=("$(gh pr view "$BRANCH" --json number --jq .number)")
+done
+
 LABELS=$(gh issue view "$ISSUE_NUMBER" --repo "$OWNER/$REPO" \
   --json labels --jq '[.labels[].name] | join(",")')
 

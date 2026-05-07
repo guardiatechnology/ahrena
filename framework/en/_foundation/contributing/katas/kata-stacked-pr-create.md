@@ -288,6 +288,14 @@ For the **last layer**, swap `Refs #${ISSUE_NUMBER}` for `Closes #${ISSUE_NUMBER
 Identical to the vanilla path — `gs` does not differentiate per layer when mirroring the issue. Reuse the loop with `gh pr edit`:
 
 ```bash
+# Populate PR_NUMBERS from the stack branches (gs stack submit prints
+# the URLs, but the loop below needs the numeric IDs):
+PR_NUMBERS=()
+for i in $(seq 1 "$N"); do
+  BRANCH="feat/${ISSUE_NUMBER}-stack-${i}-${LAYER_SLUG_i}"
+  PR_NUMBERS+=("$(gh pr view "$BRANCH" --json number --jq .number)")
+done
+
 LABELS=$(gh issue view "$ISSUE_NUMBER" --repo "$OWNER/$REPO" \
   --json labels --jq '[.labels[].name] | join(",")')
 
