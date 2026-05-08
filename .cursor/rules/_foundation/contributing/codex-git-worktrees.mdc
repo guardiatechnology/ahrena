@@ -171,7 +171,24 @@ Git restrictions:
 
 ---
 
-## 6. Troubleshooting
+## 6. Shared worktree for Stacked Pull Requests
+
+When a feature is decomposed into N stacked layers (Stacked PRs), the "one worktree per branch" rule from sections 2-4 **does not apply**. The whole stack operates inside **a single** shared worktree.
+
+| Aspect | Standard worktree (1-1) | Shared worktree (Stacked PRs) |
+|---|---|---|
+| Number of worktrees | One per branch | One per stack (N branches inside) |
+| Directory | `.worktrees/{N}-{slug}/` of the main issue | `.worktrees/{N}-{slug}/` of the stack issue |
+| Active branch | Always the same | Switched via `git checkout` between layers |
+| Cleanup | Remove on PR merge | Remove **only** after every PR in the stack is merged |
+
+The binding rule lives in `lex-git-worktrees` §5 ("Shared worktree for Stacked Pull Requests"). The full operation (stack creation, cascade rebase, bottom-up merge) is in `codex-stacked-prs` and in `kata-stacked-pr-create`, `kata-stacked-pr-rebase`, `kata-stacked-pr-merge`.
+
+**Why a single worktree:** switching branches inside the same checkout is cheaper than recreating a worktree per layer. The cost of `git checkout` across stack branches is negligible because they share the same `.git/`. Replicating `node_modules/` or IDE state across N worktrees would be wasteful for a job that is conceptually one cohesive unit.
+
+---
+
+## 7. Troubleshooting
 
 | Problem | Likely cause | Solution |
 |---|---|---|
@@ -182,7 +199,7 @@ Git restrictions:
 
 ---
 
-## 7. Best practices
+## 8. Best practices
 
 1. **Name descriptively.** The slug should be human-readable — anyone running `ls ..` should understand the worktree's purpose without opening it.
 2. **One worktree per issue.** Do not reuse worktrees across different issues — create a new one for each task.
