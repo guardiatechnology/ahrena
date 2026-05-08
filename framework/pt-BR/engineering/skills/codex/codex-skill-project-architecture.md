@@ -10,7 +10,7 @@ Este Codex define **somente o layout do projeto fonte e o ciclo dev/build/dist**
 
 - Detalhes do formato Anthropic Agent Skills → `codex-skill-anthropic-agent-skills`
 - Convenção de tools MCP e widgets React (manifestos, bindings) → `codex-skill-tools-and-widgets`
-- Estrutura final do pacote em `.dist/` → `lex-skill-package-structure` + codex correspondente
+- Estrutura final do pacote em `.dist/` → `lex-skill-package-structure`
 
 ## Contexto
 
@@ -24,21 +24,21 @@ Este Codex define **somente o layout do projeto fonte e o ciclo dev/build/dist**
 
 ```
 skills/{slug}/
-├── SKILL.md # Frontmatter Agent Skills + corpo (orquestra os demais artefatos)
-├── .skill-manifest.json # Esqueleto; preenchido com refs+hashes pelo build
-├── skill.config.json # Config local do projeto (idioma, runtimes, ports do dev server)
-├── references/ # Markdown adicional (level-3 da spec) — opcional
-├── scripts/ # JS ou Python — utilitários executáveis pelo agente — opcional
-│ ├── package.json # quando JS
-│ ├── pyproject.toml # quando Python
-│ └── src/
-├── tools/ # MCP tools (lógica) — convenção Ahrena, opcional
-│ ├── mcp.config.json
-│ └── handlers/
-└── widgets/ # React (TS) — UI — convenção Ahrena, opcional
- ├── package.json
- ├── manifest.json
- └── src/
+├── SKILL.md                    # Frontmatter Agent Skills + corpo (orquestra os demais artefatos)
+├── .skill-manifest.json        # Esqueleto; preenchido com refs+hashes pelo build
+├── skill.config.json           # Config local do projeto (idioma, runtimes, ports do dev server)
+├── references/                 # Markdown adicional (level-3 da spec) — opcional
+├── scripts/                    # JS ou Python — utilitários executáveis pelo agente — opcional
+│   ├── package.json            # quando JS
+│   ├── pyproject.toml          # quando Python
+│   └── src/
+├── tools/                      # MCP tools (lógica) — convenção Ahrena, opcional
+│   ├── mcp.config.json
+│   └── handlers/
+└── widgets/                    # React (TS) — UI — convenção Ahrena, opcional
+    ├── package.json
+    ├── manifest.json
+    └── src/
 ```
 
 `{slug}` é kebab-case válido per spec Anthropic (`a-z`, `0-9`, hífen; sem hífen no início/fim; sem `--`; **idêntico ao `name` no SKILL.md**).
@@ -68,9 +68,9 @@ name: scheduled-payments-skill
 description: Schedules and approves bank transfers using widgets connected to Python tools. Use when the user wants to create or approve a scheduled transfer.
 license: Apache-2.0
 metadata:
- version: "0.1.0"
- language: pt-BR
- spec_version: "agentskills.io/specification@2026-04"
+  version: "0.1.0"
+  language: pt-BR
+  spec_version: "agentskills.io/specification@2026-04"
 ---
 
 # Scheduled Payments Skill
@@ -92,38 +92,28 @@ Recomendações da spec se aplicam: **< 500 linhas**, **< 5.000 tokens**, conte�
 
 ### `skill.config.json`
 
-Configuração local do projeto, **não vai para o pacote final**. Lida pelo `kata-init-skill` (scaffold) e pela stack de build/release do projeto consumidor.
+Configuração local do projeto, **não vai para o pacote final**. Lida pelo `kata-init-skill` (scaffold) e pelo stack de build/release do projeto consumidor.
 
 Esqueleto canônico:
 
 ```json
 {
- "schema_version": 1,
- "language": "pt-BR",
- "runtimes": {
- "scripts": "python | node",
- "widgets": "react"
- },
- "dev_server": {
- "widgets_port": 5173,
- "scripts_port": 5174,
- "tools_stub_port": 5175
- },
- "build": {
- "bundler": "vite",
- "minify": true,
- "source_maps": false
- },
- "external_refs": [
- {
- "kind": "lexis",
- "id": "_foundation/tooling/lexis/lex-mcp"
- }
- ]
+  "schema_version": 1,
+  "language": "pt-BR",
+  "runtimes": {
+    "scripts": "python | node",
+    "widgets": "react"
+  },
+  "external_refs": [
+    {
+      "kind": "lexis",
+      "id": "_foundation/tooling/lexis/lex-mcp"
+    }
+  ]
 }
 ```
 
-`external_refs` lista artefatos do framework Ahrena (lex/codex/kata) que devem ser snapshotados em `references/` durante o build. A resolução é responsabilidade do build do projeto consumidor.
+`external_refs` lista artefatos do framework Ahrena (lex/codex/kata) que o stack de build do projeto consumidor snapshota em `references/` no momento da entrega, validados por `lex-skill-package-structure`. Chaves específicas do stack (bundler, ports, runners) pertencem à configuração própria do projeto consumidor, não ao `skill.config.json`.
 
 ### Subdiretórios — papel e detalhes
 
@@ -186,33 +176,31 @@ Detalhamento de manifest, props, eventos e binding com scripts/tools em `codex-s
 ### Ciclo dev → build → dist
 
 ```
-skills/{slug}/ # FONTE (versionada, autoria com Pilares)
- │
- ▼
- localhost — widgets HMR + script runner + tools stub
- │
- ▼
-.build/{slug}/ # INTERMEDIÁRIO (gitignored)
- ├── widgets/ (React compilado)
- ├── scripts/ (deps lockadas)
- ├── tools/ (config validada)
- ├── references/ (snapshots de external_refs)
- ├── SKILL.md (paths reescritos)
- ├── .skill-manifest.json (com hashes)
- └── {slug}.zip (testável em outro agente)
- │
- ▼
-.dist/{slug}.skill # ENTREGA (committed)
+skills/{slug}/                            # FONTE (versionada, autoria com Pilares)
+       │
+       │ stack de dev/build/release do projeto consumidor
+       ▼
+.build/{slug}/                            # INTERMEDIÁRIO (gitignored)
+   ├── widgets/    (React compilado)
+   ├── scripts/    (deps lockadas)
+   ├── tools/      (config validada)
+   ├── references/ (snapshots de external_refs)
+   ├── SKILL.md    (paths reescritos)
+   ├── .skill-manifest.json (com hashes)
+   └── {slug}.zip  (testável em outro agente)
+       │
+       │ passo de packaging do projeto consumidor
+       ▼
+.dist/{slug}.skill                        # ENTREGA (committed, validada por lex-skill-package-structure)
 ```
 
-Regras (algumas ainda só consagradas no PR 1, outras codificadas em PRs futuros):
+Regras:
 
 - **Fonte é a verdade.** `.build/` e `.dist/` são derivados; nenhum agente edita esses diretórios manualmente
 - **`.build/` é gitignored.** `.dist/` é committed (consumível por agentes que não têm Ahrena)
 - **Determinismo.** Build deve produzir hashes idênticos para mesmo input; ordering lexicográfico, sem timestamps voláteis
 - **Snapshots por commit hash.** `.skill-manifest.json` registra `source_commit` para cada ref do framework
-
-No PR 1 (scaffold), apenas o layout fonte é estabelecido; build e packaging são placeholders.
+- **Build agnóstico.** Bundler, runtime, ferramenta de packaging, ports — tudo decidido pelo stack do projeto consumidor. Ahrena valida apenas a forma do output via `lex-skill-package-structure`.
 
 ### Diretivas relacionadas
 
@@ -220,9 +208,9 @@ No PR 1 (scaffold), apenas o layout fonte é estabelecido; build e packaging sã
 
 ```yaml
 paths:
- skills_root: skills # diretório fonte dos projetos de skill
- skills_build: .build # intermediário (gitignored)
- skills_dist: .dist # entrega final (committed)
+  skills_root: skills        # diretório fonte dos projetos de skill
+  skills_build: .build       # intermediário (gitignored)
+  skills_dist: .dist         # entrega final (committed)
 ```
 
 Projetos podem sobrescrever (ex.: `skills_root: my-skills/`); agentes consultam a chave em vez de assumir literal.

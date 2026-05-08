@@ -102,10 +102,10 @@ Progreso:
 ### Paso 8: Reportar
 
 1. Mostrar al usuario:
- - Ruta del proyecto creado
- - Slug, description, language, license aplicados
- - Subdirectorios incluidos (widgets/scripts/tools, según opt-outs)
- - Próximos pasos: editar el cuerpo del `SKILL.md`, agregar componentes en `widgets/src/`, etc.
+   - Ruta del proyecto creado
+   - Slug, description, language, license aplicados
+   - Subdirectorios incluidos (widgets/scripts/tools, según opt-outs)
+   - Próximos pasos: editar el cuerpo del `SKILL.md`, agregar componentes en `widgets/src/`, etc.
 2. Apuntar a `codex-skill-project-architecture` para la autoría.
 
 ## Salidas
@@ -123,21 +123,21 @@ Progreso:
 
 ```
 /cry-new-skill scheduled-payments-skill \
- description="Schedules and approves bank transfers using widgets connected to Python tools. Use when the user wants to create or approve a scheduled transfer." \
- license=Apache-2.0
+  description="Schedules and approves bank transfers using widgets connected to Python tools. Use when the user wants to create or approve a scheduled transfer." \
+  license=Apache-2.0
 ```
 
 ### Salida esperada
 
 ```
 ✅ Proyecto creado: skills/scheduled-payments-skill/
- ├── SKILL.md (name: scheduled-payments-skill, language: es, license: Apache-2.0)
- ├── skill.config.json
- ├── .skill-manifest.json
- ├── references/REFERENCE.md
- ├── scripts/ (Python — pyproject.toml a agregar al iniciar)
- ├── tools/ (mcp.config.json placeholder)
- └── widgets/ (React — package.json + tsconfig.json listos)
+   ├── SKILL.md                 (name: scheduled-payments-skill, language: es, license: Apache-2.0)
+   ├── skill.config.json
+   ├── .skill-manifest.json
+   ├── references/REFERENCE.md
+   ├── scripts/                 (Python — pyproject.toml a agregar al iniciar)
+   ├── tools/                   (mcp.config.json placeholder)
+   └── widgets/                 (React — package.json + tsconfig.json listos)
 
 .gitignore actualizado: .build/ agregado.
 

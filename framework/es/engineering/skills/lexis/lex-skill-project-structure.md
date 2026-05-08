@@ -47,10 +47,10 @@ Subdirectorios fuera de esa lista exigen justificación explícita en el `SKILL.
 | Tipo | Path default | Versionado | Quién escribe |
 |------|--------------|:----------:|---------------|
 | Fuente | `skills/{slug}/` | Sí | Autor (humano o agente, durante la autoría) |
-| Intermedio | `.build/{slug}/` | **No** (en `.gitignore`) | Build (consuming project's stack) |
-| Entrega | `.dist/{slug}.skill` | Sí | Packaging (consuming project's stack) |
+| Intermedio | `.build/{slug}/` | **No** (en `.gitignore`) | Build (stack del proyecto consumidor) |
+| Entrega | `.dist/{slug}.skill` | Sí | Packaging (stack del proyecto consumidor) |
 
-Editar `.build/` o `.dist/` manualmente rompe el determinismo y la auditabilidad del build. **Los cambios entran por la fuente**, siempre.
+Editar `.build/` o `.dist/` manualmente rompe el determinismo del build y la auditabilidad. **Los cambios entran por la fuente**, siempre.
 
 ### 5. Conformidad con Pilares y Lexis aplicables
 
@@ -87,55 +87,55 @@ El repositorio con proyectos de skill **debe** tener `.build/` en `.gitignore` (
 
 ```
 skills/scheduled-payments-skill/
-├── SKILL.md # frontmatter con name: scheduled-payments-skill
+├── SKILL.md                    # frontmatter con name: scheduled-payments-skill
 ├── skill.config.json
-├── .skill-manifest.json # esqueleto
+├── .skill-manifest.json        # esqueleto
 ├── widgets/
-│ ├── package.json
-│ └── src/transfer-form/index.tsx
+│   ├── package.json
+│   └── src/transfer-form/index.tsx
 └── scripts/
- └── src/validate_amount.py
+    └── src/validate_amount.py
 
-.build/ # gitignored
-.dist/ # committed (output dir)
+.build/                         # gitignored
+.dist/                          # committed
 ```
 
 ```yaml
 # SKILL.md
 ---
-name: scheduled-payments-skill # idéntico al directorio
+name: scheduled-payments-skill   # idéntico al directorio
 description: Schedules and approves bank transfers using widgets connected to Python tools. Use when the user wants to create or approve a scheduled transfer.
 license: Apache-2.0
 metadata:
- version: "0.1.0"
- language: pt-BR
+  version: "0.1.0"
+  language: pt-BR
 ---
 ```
 
 ### Incorrecto
 
 ```
-my-skills/payments/ # ❌ fuera de paths.skills_root sin override declarado
-skills/Payments_Skill/ # ❌ slug con underscore y mayúscula
-skills/payments-skill/SKILL.md # ❌ frontmatter con name: payments (no coincide con el directorio)
-.build/payments-skill/widgets/ # ❌ edición directa en el intermedio
-.dist/payments-skill.skill/ # ❌ edición directa en la entrega
+my-skills/payments/              # ❌ fuera de paths.skills_root sin override declarado
+skills/Payments_Skill/           # ❌ slug con underscore y mayúscula
+skills/payments-skill/SKILL.md   # ❌ frontmatter con name: payments (no coincide con el directorio)
+.build/payments-skill/widgets/   # ❌ edición directa en el intermedio
+.dist/payments-skill.skill/      # ❌ edición directa en la entrega
 ```
 
 ```
 skills/payments-skill/
 ├── SKILL.md
-└── widgets/src/Form.jsx # ❌ TS strict no aplicado, viola lex-frontend-typing
- # incluso dentro de un proyecto de skill, lex-frontend-* vale
+└── widgets/src/Form.jsx         # ❌ TS strict no aplicado, viola lex-frontend-typing
+                                 # incluso dentro de un proyecto de skill, lex-frontend-* vale
 ```
 
 ## Validación Automatizada
 
 - **Herramienta:**
- - `kata-init-skill` valida slug, frontmatter, presencia de archivos obligatorios en la creación
- - PR review (humano) verifica el layout mientras `kata-quality-gate` no integra
- - Lint genérico (existente) detecta violación de `lex-frontend-*` / `lex-python-*` dentro del proyecto, sin necesidad de regla nueva
- - El `.gitignore` raíz contiene `.build/` (verificable por inspección)
+  - `kata-init-skill` valida slug, frontmatter, presencia de archivos obligatorios en la creación
+  - PR review (humano) verifica el layout mientras `kata-quality-gate` no integra
+  - Lint genérico (existente) detecta violación de `lex-frontend-*` / `lex-python-*` dentro del proyecto, sin necesidad de regla nueva
+  - El `.gitignore` raíz contiene `.build/` (verificable por inspección)
 - **Momento:** scaffold (`kata-init-skill`); PR review; futura integración en el Gate 2
 - **Métrica:** 0 proyectos de skill con `name` divergente del slug; 0 commits que editan `.build/` o `.dist/` directamente; 100 % de los proyectos con `SKILL.md` + `skill.config.json` en la raíz
 

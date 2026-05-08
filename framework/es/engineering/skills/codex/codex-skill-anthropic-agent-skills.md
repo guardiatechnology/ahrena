@@ -24,11 +24,11 @@ Un skill es un directorio con, como mínimo, un `SKILL.md`:
 
 ```
 skill-name/
-├── SKILL.md # Obligatorio — metadata + instrucciones
-├── scripts/ # Opcional — código ejecutable
-├── references/ # Opcional — documentación adicional
-├── assets/ # Opcional — plantillas, recursos estáticos
-└── ... # Cualquier otro archivo
+├── SKILL.md          # Obligatorio — metadata + instrucciones
+├── scripts/          # Opcional — código ejecutable
+├── references/       # Opcional — documentación adicional
+├── assets/           # Opcional — plantillas, recursos estáticos
+└── ...               # Cualquier otro archivo
 ```
 
 **Restricción importante:** el nombre del directorio raíz **DEBE** ser idéntico al valor del campo `name` en el frontmatter.
@@ -196,11 +196,11 @@ La documentación de Anthropic es explícita: tratar el skill como software inst
 - Llamadas de red (los skills que consultan URLs externas tienen riesgo amplificado)
 - Patrones de acceso a archivo / bash incompatibles con el `description`
 
-Los skills producidos en el Ahrena son auditables por la trilla de commit (refs con snapshot por hash, manifest determinístico en).
+Los skills producidos en el Ahrena son auditables por la trilla de commit (refs con snapshot por hash, manifest determinístico exigido por `lex-skill-package-structure`).
 
 ## Restricciones
 
-- La spec **no define** layout para tools MCP ni widgets UI. La convención Ahrena (`codex-skill-tools-and-widgets`,) crea directorios `tools/` y `widgets/` adicionales — los agentes que solo conocen la spec ignoran esos directorios. Documentar la convención como "extensión Ahrena" es obligatorio en el SKILL.md generado.
+- La spec **no define** layout para tools MCP ni widgets UI. La convención Ahrena (`codex-skill-tools-and-widgets`) crea directorios `tools/` y `widgets/` adicionales — los agentes que solo conocen la spec ignoran esos directorios. Documentar la convención como "extensión Ahrena" es obligatorio en el SKILL.md generado.
 - La spec **no define** el versionado del skill en sí — el Ahrena lo coloca en `metadata.version` (semver según `lex-semantic-version`).
 - La spec **no define** internacionalización — el Ahrena lo coloca en `metadata.language`. Cada skill empaquetado es monoidioma.
 
@@ -224,3 +224,4 @@ Los skills producidos en el Ahrena son auditables por la trilla de commit (refs 
 - `codex-skill-project-architecture` — layout del proyecto fuente Ahrena (`skills/{slug}/`)
 - `codex-skill-tools-and-widgets` — convención Ahrena para `tools/` (MCP) y `widgets/` (React)
 - `lex-skill-project-structure` — ley del layout del proyecto fuente
+- `lex-skill-package-structure` — ley del paquete `.skill` entregado

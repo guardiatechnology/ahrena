@@ -30,5 +30,5 @@ scripts/
     └── ...
 ```
 
-The build step (PR 2) freezes dependencies and copies runnable artifacts
+The consuming project's build step freezes dependencies and copies runnable artifacts
 into `.build/{slug}/scripts/`.

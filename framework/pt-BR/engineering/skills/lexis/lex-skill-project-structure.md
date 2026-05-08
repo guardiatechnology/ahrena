@@ -47,10 +47,10 @@ Subdiretórios fora dessa lista exigem justificativa explícita no `SKILL.md` ou
 | Tipo | Path default | Versionado | Quem escreve |
 |------|--------------|:----------:|--------------|
 | Fonte | `skills/{slug}/` | Sim | Autor (humano ou agente, durante autoria) |
-| Intermediário | `.build/{slug}/` | **Não** (em `.gitignore`) | Build (consuming project's stack) |
-| Entrega | `.dist/{slug}.skill` | Sim | Packaging (consuming project's stack) |
+| Intermediário | `.build/{slug}/` | **Não** (em `.gitignore`) | Build (stack do projeto consumidor) |
+| Entrega | `.dist/{slug}.skill` | Sim | Packaging (stack do projeto consumidor) |
 
-Editar `.build/` ou `.dist/` manualmente quebra determinismo e auditabilidade do build. **Mudanças entram pela fonte**, sempre.
+Editar `.build/` ou `.dist/` manualmente quebra determinismo do build e auditabilidade. **Mudanças entram pela fonte**, sempre.
 
 ### 5. Conformidade com Pilares e Lexis aplicáveis
 
@@ -87,55 +87,55 @@ O repositório com projetos de skill **deve** ter `.build/` em `.gitignore` (rai
 
 ```
 skills/scheduled-payments-skill/
-├── SKILL.md # frontmatter com name: scheduled-payments-skill
+├── SKILL.md                    # frontmatter com name: scheduled-payments-skill
 ├── skill.config.json
-├── .skill-manifest.json # esqueleto
+├── .skill-manifest.json        # esqueleto
 ├── widgets/
-│ ├── package.json
-│ └── src/transfer-form/index.tsx
+│   ├── package.json
+│   └── src/transfer-form/index.tsx
 └── scripts/
- └── src/validate_amount.py
+    └── src/validate_amount.py
 
-.build/ # gitignored
-.dist/ # committed (output dir)
+.build/                         # gitignored
+.dist/                          # committed
 ```
 
 ```yaml
 # SKILL.md
 ---
-name: scheduled-payments-skill # idêntico ao diretório
+name: scheduled-payments-skill   # idêntico ao diretório
 description: Schedules and approves bank transfers using widgets connected to Python tools. Use when the user wants to create or approve a scheduled transfer.
 license: Apache-2.0
 metadata:
- version: "0.1.0"
- language: pt-BR
+  version: "0.1.0"
+  language: pt-BR
 ---
 ```
 
 ### Incorreto
 
 ```
-my-skills/payments/ # ❌ fora de paths.skills_root sem override declarado
-skills/Payments_Skill/ # ❌ slug com underscore e maiúscula
-skills/payments-skill/SKILL.md # ❌ frontmatter com name: payments (não casa com diretório)
-.build/payments-skill/widgets/ # ❌ edição direta no intermediário
-.dist/payments-skill.skill/ # ❌ edição direta na entrega
+my-skills/payments/              # ❌ fora de paths.skills_root sem override declarado
+skills/Payments_Skill/           # ❌ slug com underscore e maiúscula
+skills/payments-skill/SKILL.md   # ❌ frontmatter com name: payments (não casa com diretório)
+.build/payments-skill/widgets/   # ❌ edição direta no intermediário
+.dist/payments-skill.skill/      # ❌ edição direta na entrega
 ```
 
 ```
 skills/payments-skill/
 ├── SKILL.md
-└── widgets/src/Form.jsx # ❌ TS strict não aplicado, viola lex-frontend-typing
- # mesmo dentro de projeto de skill, lex-frontend-* vale
+└── widgets/src/Form.jsx         # ❌ TS strict não aplicado, viola lex-frontend-typing
+                                 # mesmo dentro de projeto de skill, lex-frontend-* vale
 ```
 
 ## Validação Automatizada
 
 - **Ferramenta:**
- - `kata-init-skill` valida slug, frontmatter, presença de arquivos obrigatórios na criação
- - PR review (humano) confere layout enquanto `kata-quality-gate` não integra
- - Lint genérico (existente) detecta violação de `lex-frontend-*` / `lex-python-*` dentro do projeto, sem necessidade de regra nova
- - `.gitignore` raiz contém `.build/` (verificável por inspeção)
+  - `kata-init-skill` valida slug, frontmatter, presença de arquivos obrigatórios na criação
+  - PR review (humano) confere layout enquanto `kata-quality-gate` não integra
+  - Lint genérico (existente) detecta violação de `lex-frontend-*` / `lex-python-*` dentro do projeto, sem necessidade de regra nova
+  - `.gitignore` raiz contém `.build/` (verificável por inspeção)
 - **Momento:** scaffold (`kata-init-skill`); PR review; futura integração no Gate 2
 - **Métrica:** 0 projetos de skill com `name` divergente do slug; 0 commits que editam `.build/` ou `.dist/` diretamente; 100% dos projetos com `SKILL.md` + `skill.config.json` na raiz
 

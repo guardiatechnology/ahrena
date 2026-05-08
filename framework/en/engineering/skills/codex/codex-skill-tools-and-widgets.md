@@ -28,10 +28,10 @@ MCP tools bundled with the skill expose domain capabilities that the external ag
 
 ```
 tools/
-├── mcp.config.json # tool registry
-└── handlers/ # implementations
- ├── validate_amount.py
- └── ...
+├── mcp.config.json     # tool registry
+└── handlers/           # implementations
+    ├── validate_amount.py
+    └── ...
 ```
 
 Handler languages: Python (default — aligned with `codex-python-architecture`) or JavaScript/TypeScript (Node). Mixing is permitted.
@@ -40,26 +40,26 @@ Handler languages: Python (default — aligned with `codex-python-architecture`)
 
 ```json
 {
- "schema_version": 1,
- "mcp": {
- "name": "{slug}-tools",
- "description": "MCP tools bundled with this skill (Ahrena convention).",
- "tools": [
- {
- "name": "validate_amount",
- "description": "Validate that a transfer amount is within the allowed range and currency.",
- "input_schema": {
- "type": "object",
- "properties": {
- "amount": { "type": "integer", "minimum": 1 },
- "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
- },
- "required": ["amount", "currency"]
- },
- "handler": "handlers/validate_amount.py:run"
- }
- ]
- }
+  "schema_version": 1,
+  "mcp": {
+    "name": "{slug}-tools",
+    "description": "MCP tools bundled with this skill (Ahrena convention).",
+    "tools": [
+      {
+        "name": "validate_amount",
+        "description": "Validate that a transfer amount is within the allowed range and currency.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "amount": { "type": "integer", "minimum": 1 },
+            "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+          },
+          "required": ["amount", "currency"]
+        },
+        "handler": "handlers/validate_amount.py:run"
+      }
+    ]
+  }
 }
 ```
 
@@ -87,58 +87,58 @@ Widgets are React (TypeScript) components rendered by the host agent on the chat
 
 ```
 widgets/
-├── package.json # React 18 + TS strict + Vite
-├── tsconfig.json # strict: true, noUncheckedIndexedAccess: true
-├── manifest.json # registry of exposed components
+├── package.json        # React 18 + TS strict + Vite
+├── tsconfig.json       # strict: true, noUncheckedIndexedAccess: true
+├── manifest.json       # registry of exposed components
 └── src/
- ├── components/ # reusable primitives
- ├── features/ # blocks per feature
- └── transfer-form/ # example feature component
- └── index.tsx
+    ├── components/     # reusable primitives
+    ├── features/       # blocks per feature
+    └── transfer-form/  # example feature component
+        └── index.tsx
 ```
 
 #### `manifest.json` — schema
 
 ```json
 {
- "schema_version": 1,
- "components": [
- {
- "name": "TransferForm",
- "entry": "src/transfer-form/index.tsx",
- "props_schema": {
- "type": "object",
- "properties": {
- "default_amount": { "type": "integer" },
- "currency": { "type": "string" }
- }
- },
- "events": [
- {
- "name": "submit",
- "payload_schema": {
- "type": "object",
- "properties": {
- "amount": { "type": "integer" },
- "currency": { "type": "string" }
- },
- "required": ["amount", "currency"]
- }
- }
- ],
- "bindings": [
- {
- "kind": "tool",
- "ref": "validate_amount"
- },
- {
- "kind": "script",
- "ref": "scripts/src/format_currency.py",
- "called_via": "http://localhost:5174/format-currency"
- }
- ]
- }
- ]
+  "schema_version": 1,
+  "components": [
+    {
+      "name": "TransferForm",
+      "entry": "src/transfer-form/index.tsx",
+      "props_schema": {
+        "type": "object",
+        "properties": {
+          "default_amount": { "type": "integer" },
+          "currency": { "type": "string" }
+        }
+      },
+      "events": [
+        {
+          "name": "submit",
+          "payload_schema": {
+            "type": "object",
+            "properties": {
+              "amount": { "type": "integer" },
+              "currency": { "type": "string" }
+            },
+            "required": ["amount", "currency"]
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "kind": "tool",
+          "ref": "validate_amount"
+        },
+        {
+          "kind": "script",
+          "ref": "scripts/src/format_currency.py",
+          "called_via": "http://localhost:5174/format-currency"
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -165,7 +165,7 @@ Widgets explicitly declare their external dependencies in `bindings[]`. The host
 `called_via` in `kind: script` bindings:
 
 - In **dev**, points to the local script runner (`http://localhost:{scripts_port}/...`)
-- In **prod**, it is rewritten by the build: it becomes a relative path the host resolves via the equivalent MCP tool, or an ephemeral endpoint. The consuming project's build stack is responsible for that rewrite according to `skill.config.json`.
+- In **prod**, it is rewritten by the consuming project's build stack: it becomes a relative path the host resolves via the equivalent MCP tool, or an ephemeral endpoint. The rewrite is part of the build, not of the spec.
 
 ### Reuse of codex and Lexis
 
@@ -183,7 +183,7 @@ Widgets explicitly declare their external dependencies in `bindings[]`. The host
 | `SKILL.md`, frontmatter, body | Defined | Unchanged |
 | `references/`, `scripts/`, `assets/` | Defined | Unchanged — Ahrena does not modify these directories |
 | `tools/`, `widgets/` | **Not covered** | Added — spec-only agents ignore |
-| `.skill-manifest.json` | Not covered | Ahrena root manifest (audit, hashes — see `lex-skill-project-structure`) |
+| `.skill-manifest.json` | Not covered | Ahrena root manifest (audit, hashes — see `lex-skill-project-structure` and `lex-skill-package-structure`) |
 
 When the spec evolves and covers tools/widgets, this codex documents the transition (mapping, deprecations). Skills that adopted the convention continue working as long as Ahrena agents recognize the layout — migration to the canonical form of the spec will be incremental.
 
@@ -192,7 +192,7 @@ When the spec evolves and covers tools/widgets, this codex documents the transit
 - The author **does not infer** bindings — every external dependency is declared in `manifest.json` (widgets) or `mcp.config.json` (tools)
 - Widget **does not import** a script directly; always crosses an HTTP/MCP boundary
 - `bindings[].kind: script` is resolved with `called_via` in dev and rewritten by the build for prod — do not use a hardcoded production URL
-- Manifests MUST be validated by the consuming project's build before packaging; a schema failure aborts with a specific error
+- Manifests are validated before build by the consuming project's build stack; a schema failure aborts with a specific error
 
 ## Glossary
 
