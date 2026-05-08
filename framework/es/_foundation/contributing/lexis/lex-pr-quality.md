@@ -137,6 +137,19 @@ exige justificación explícita en el PR.
 </HARD-GATE>
 ```
 
+### Aplicación a Stacked PRs
+
+En flujos de **stacked Pull Requests** (`codex-stacked-prs`), cada capa de la cadena es un **PR real** en GitHub. El HARD-GATE de arriba se evalúa **por PR de la stack**, no una sola vez para la cadena completa: cada capa debe satisfacer **todos** los criterios (a)–(h) antes de ser mergeada. Los criterios en sí no cambian; solo el alcance de aplicación es por capa.
+
+Implicaciones operativas:
+
+- **Labels del issue (d):** reflejadas en todos los PRs de la stack.
+- **Label de tamaño (e):** calculada a partir del diff de **cada capa** contra su base (no contra `main` de la stack completa).
+- **Closes/Refs (c, vía `lex-issue-first`):** las capas intermedias usan `Refs #N`; la última usa `Closes #N`.
+- **Reviewers de CODEOWNERS (h):** solicitados en cada PR; pueden ser los mismos cuando los archivos tocados mapean al mismo owner.
+
+`kata-stacked-pr-create` automatiza el mirroring en todas las capas para reducir el esfuerzo manual, pero no relaja ningún criterio.
+
 ## Ejemplos
 
 ### Correcto
