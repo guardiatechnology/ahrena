@@ -8,21 +8,21 @@
 
 ```
 skills/{slug}/
-├── SKILL.md                    # Agent Skills frontmatter + body (orchestrates the other artifacts)
-├── .skill-manifest.json        # Skeleton; populated with refs+hashes by the build (PR 2/3)
-├── skill.config.json           # Local project config (language, runtimes, dev server ports)
-├── references/                 # Additional Markdown (level-3 of the spec) — optional
-├── scripts/                    # JS or Python — utilities executable by the agent — optional
-│   ├── package.json            # when JS
-│   ├── pyproject.toml          # when Python
-│   └── src/
-├── tools/                      # MCP tools (logic) — Ahrena convention, optional
-│   ├── mcp.config.json
-│   └── handlers/
-└── widgets/                    # React (TS) — UI — Ahrena convention, optional
-    ├── package.json
-    ├── manifest.json
-    └── src/
+├── SKILL.md # Agent Skills frontmatter + body (orchestrates the other artifacts)
+├── .skill-manifest.json # Skeleton; populated with refs+hashes by the build
+├── skill.config.json # Local project config (language, runtimes, dev server ports)
+├── references/ # Additional Markdown (level-3 of the spec) — optional
+├── scripts/ # JS or Python — utilities executable by the agent — optional
+│ ├── package.json # when JS
+│ ├── pyproject.toml # when Python
+│ └── src/
+├── tools/ # MCP tools (logic) — Ahrena convention, optional
+│ ├── mcp.config.json
+│ └── handlers/
+└── widgets/ # React (TS) — UI — Ahrena convention, optional
+ ├── package.json
+ ├── manifest.json
+ └── src/
 ```
 
 `{slug}` is valid kebab-case per the Anthropic spec (`a-z`, `0-9`, hyphen; no leading/trailing hyphen; no `--`; **identical to `name` in SKILL.md**).
@@ -52,9 +52,9 @@ name: scheduled-payments-skill
 description: Schedules and approves bank transfers using widgets connected to Python tools. Use when the user wants to create or approve a scheduled transfer.
 license: Apache-2.0
 metadata:
-  version: "0.1.0"
-  language: pt-BR
-  spec_version: "agentskills.io/specification@2026-04"
+ version: "0.1.0"
+ language: pt-BR
+ spec_version: "agentskills.io/specification@2026-04"
 ---
 
 # Scheduled Payments Skill
