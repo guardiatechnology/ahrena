@@ -48,6 +48,34 @@ Progresso:
 3. Executar `git diff --name-only {base}...HEAD` para lista de arquivos modificados.
 4. Detectar stack (`*.py` → Python; `*.ts` → Node/TS; etc.).
 5. Ler `quality.coverage_threshold` de `.ahrena/.directives` (padrão: `80`).
+6. **Detectar modo de execução** lendo o front-matter de `.ahrena/workflow/issue-{n}/checkpoint.md`:
+   - Se `stack.approved: true` está presente, modo é **por camada** (ver seção dedicada abaixo); identificar a camada corrente (`stack.decomposition[i].status: in-progress`) e filtrar `covers_acs` + `components`.
+   - Caso contrário, modo é **PR único** (comportamento padrão; passos 2-8 rodam sobre o conjunto completo de ACs e componentes).
+
+### Modo por camada (Stacked PRs)
+
+Quando o checkpoint contém `stack.approved: true`, esta kata é invocada **uma vez por camada** antes da camada submeter seu PR. Cada execução opera sobre subsets, não sobre o conjunto completo:
+
+| Check | Escopo no modo por camada |
+|---|---|
+| Check 1 — AC ↔ teste | Filtrar pelo subset `stack.decomposition[i].covers_acs`. ACs fora da camada **não** são avaliados nesta execução; aparecerão em camada posterior |
+| Check 2 — Scope creep | Comparar arquivos modificados desde a camada anterior contra `stack.decomposition[i].components` (não contra a tabela completa da Fase 3) |
+| Check 3 — Best practices | Aplicar Lexis sobre arquivos modificados na camada corrente (mesmas regras; escopo menor) |
+| Check 4 — Testes | Executar suíte completa (testes não são particionáveis por camada com segurança) |
+| Check 5 — Cobertura | Avaliar contra threshold sobre o conjunto completo do diff até a camada corrente (acumulado base→camada N) |
+| Check 6 — Tipos | Mesma regra; escopo = arquivos da camada |
+| Check 7 — Performance budget | Mesma regra; aplicar quando a camada toca código sensível a performance |
+
+**Transição de status:**
+- A camada começa em `pending` e Athena promove para `in-progress` ao iniciar Fase 4 daquela camada.
+- Quando os 7 checks retornam ✅ para a camada, esta kata atualiza `stack.decomposition[i].status: submitted` no checkpoint.
+- Após o PR da camada ser mergeado, Athena (ou `kata-stacked-pr-merge`) atualiza para `merged`.
+
+**Validação agregada final:** quando todas as camadas atingem `submitted`, a kata roda uma passada agregada que confirma:
+1. Toda AC numerada na Fase 2 foi coberta por **alguma** camada (sem AC órfão).
+2. Todo componente declarado na Fase 3 foi tocado por **alguma** camada (sem componente órfão).
+
+Se a validação agregada falhar, retorna `no-go` e o relatório aponta os elementos órfãos. Em fluxo PR único (sem `stack`), a validação agregada é trivialmente equivalente ao Check 1 do conjunto completo e não gera passada extra.
 
 ### Passo 2: Check 1 — Rastreabilidade AC ↔ teste (bidirecional)
 
@@ -188,9 +216,11 @@ Estrutura:
    - resultado: `go` ou `no-go`
    - Se `go`: próxima fase = 7
    - Se `no-go`: próxima fase = 4 (retornar para correções)
+   - **Modo por camada:** atualizar adicionalmente `stack.decomposition[i].status` da camada corrente — `submitted` quando `go`; manter `in-progress` quando `no-go`. A `phase_next` permanece em 4 enquanto houver camada pendente.
 2. Informar ao `warrior-athena`:
-   - Se `go`: avançar para `kata-pr-prepare`
-   - Se `no-go`: apresentar relatório ao humano e aguardar direção (corrigir ou ampliar ACs)
+   - Se `go` (PR único): avançar para `kata-pr-prepare` (ou `kata-contributing-pr` em fluxos novos).
+   - Se `go` (modo por camada): liberar a camada para submissão via `kata-stacked-pr-create`; se ainda houver camada pendente, retornar à Fase 4 para a próxima.
+   - Se `no-go`: apresentar relatório ao humano e aguardar direção (corrigir ou ampliar ACs).
 
 ## Saídas
 
@@ -206,10 +236,13 @@ Estrutura:
 - **Ordem dos checks é mandatória:** checks 1-3 (análise estática) antes de 4-6 (execução); se análise falha, ainda executar os demais para reportar panorama completo.
 - **Threshold configurável mas não opcional:** `quality.coverage_threshold` pode ser ajustado em `.directives`, mas Check 5 é sempre executado.
 - **Sem override para `no-go`:** a única saída legítima de `no-go` é corrigir a implementação ou renegociar os ACs (via Gate 1). Nenhum humano ou agente pode marcar como `go` manualmente.
-- **Destino fixo:** `docs/issues/issue-{n}/06-quality-report.md` (conforme `lex-issue-driven`).
+- **Destino fixo:** `docs/issues/issue-{n}/06-quality-report.md` (conforme `lex-issue-driven`). No modo por camada, o relatório acumula uma seção por camada e uma seção final agregada.
+- **Subset por camada não relaxa critérios:** o filtro de ACs/componentes apenas reduz o escopo da execução; thresholds (cobertura, performance) e estritude dos checks permanecem idênticos.
 
 ## Referências
 
-- `lex-issue-driven` — leis do fluxo, em particular as regras de rastreabilidade e scope creep
-- `codex-issue-workflow` — detalhamento completo dos 6 checks
+- `lex-issue-driven` — leis do fluxo, em particular as regras de rastreabilidade, scope creep e a Regra 11 (Gate 2 por camada quando há stack aprovada)
+- `codex-issue-workflow` — detalhamento completo dos 7 checks
+- `codex-stacked-prs` — modelo conceitual e Decision Checklist para stacked PRs
+- `kata-stacked-pr-create` — invocado pela Fase 7 quando há stack aprovada
 - `lex-python-typing`, `lex-python-testing`, `lex-python-security`, `lex-python-immutability`, `lex-python-error-handling`, `lex-conventional-commits` — Lexis verificadas no Check 3
