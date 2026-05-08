@@ -234,7 +234,7 @@ language: pt-BR
 - [x] Trim cross-refs em codex-skill-tools-and-widgets, codex-skill-project-architecture, codex-skill-anthropic-agent-skills, lex-skill-project-structure, kata-init-skill, cry-new-skill (3 idiomas)
 - [x] `skill.config.json`: drop blocos `dev_server` e `build` (template + hello-skill)
 - [x] Sync `.cursor/` e `.claude/`
-- [ ] Commits atômicos + PR #63
+- [x] Commits atômicos + PR #64
 
 ### `lex-skill-package-structure` — entregue **junto** ao cleanup PR #64
 
