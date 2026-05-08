@@ -142,6 +142,19 @@ explicit justification in the PR.
 </HARD-GATE>
 ```
 
+### Application to Stacked PRs
+
+In **stacked Pull Request** flows (`codex-stacked-prs`), every layer of the chain is a **real PR** on GitHub. The HARD-GATE above is evaluated **per PR of the stack**, not once for the whole chain: each layer must satisfy **all** criteria (a)–(h) before merging. The criteria themselves do not change; only the application scope is per layer.
+
+Operational implications:
+
+- **Issue labels (d):** mirrored on every PR of the stack.
+- **Size label (e):** computed from **each layer's** diff against its base (not against `main` for the whole stack).
+- **Closes/Refs (c, via `lex-issue-first`):** intermediate layers use `Refs #N`; the last layer uses `Closes #N`.
+- **CODEOWNERS reviewers (h):** requested on every PR; they may be the same when the touched files map to the same owner.
+
+`kata-stacked-pr-create` automates mirroring across all layers to reduce manual effort, but does not relax any criterion.
+
 ## Examples
 
 ### Correct

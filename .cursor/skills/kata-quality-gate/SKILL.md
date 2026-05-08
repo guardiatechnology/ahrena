@@ -31,6 +31,34 @@ Progress:
 3. Run `git diff --name-only {base}...HEAD` for the list of modified files.
 4. Detect stack (`*.py` → Python; `*.ts` → Node/TS; etc.).
 5. Read `quality.coverage_threshold` from `.ahrena/.directives` (default: `80`).
+6. **Detect execution mode** by reading the front-matter of `.ahrena/workflow/issue-{n}/checkpoint.md`:
+   - If `stack.approved: true` is present, the mode is **per layer** (see dedicated section below); identify the current layer (`stack.decomposition[i].status: in-progress`) and filter `covers_acs` + `components`.
+   - Otherwise, the mode is **single PR** (default behavior; steps 2-8 run over the full set of ACs and components).
+
+### Per-layer (Stacked PRs) Mode
+
+When the checkpoint contains `stack.approved: true`, this kata is invoked **once per layer** before the layer submits its PR. Each execution operates on subsets, not on the full set:
+
+| Check | Scope in per-layer mode |
+|---|---|
+| Check 1 — AC ↔ test | Filter by the `stack.decomposition[i].covers_acs` subset. ACs outside the layer are **not** evaluated in this run; they will appear in a later layer |
+| Check 2 — Scope creep | Compare files modified since the previous layer against `stack.decomposition[i].components` (not the full Phase 3 table) |
+| Check 3 — Best practices | Apply Lexis to files modified in the current layer (same rules; smaller scope) |
+| Check 4 — Tests | Run the full suite (tests cannot be safely partitioned by layer) |
+| Check 5 — Coverage | Evaluate against the threshold over the cumulative diff up to the current layer (base→layer N) |
+| Check 6 — Types | Same rule; scope = layer files |
+| Check 7 — Performance budget | Same rule; apply when the layer touches performance-sensitive code |
+
+**Status transitions:**
+- The layer starts as `pending`; Athena promotes it to `in-progress` when starting Phase 4 for that layer.
+- When the 7 checks return ✅ for the layer, this kata updates `stack.decomposition[i].status: submitted` in the checkpoint.
+- After the layer's PR merges, Athena (or `kata-stacked-pr-merge`) updates it to `merged`.
+
+**Final aggregate validation:** when every layer reaches `submitted`, the kata runs a final aggregate pass that confirms:
+1. Every numbered AC from Phase 2 was covered by **some** layer (no orphan AC).
+2. Every component declared in Phase 3 was touched by **some** layer (no orphan component).
+
+If aggregate validation fails, returns `no-go` and the report points out the orphan elements. In single-PR flows (no `stack`), aggregate validation is trivially equivalent to Check 1 over the full set and adds no extra pass.
 
 ### Step 2: Check 1 — Bidirectional AC ↔ test traceability
 
@@ -236,9 +264,11 @@ Structure:
    - result: `go` or `no-go`
    - If `go`: next phase = 7
    - If `no-go`: next phase = 4 (return for corrections)
+   - **Per-layer mode:** additionally update `stack.decomposition[i].status` for the current layer — `submitted` when `go`; keep `in-progress` when `no-go`. `phase_next` stays at 4 while any layer is pending.
 2. Inform `warrior-athena`:
-   - If `go`: advance to `kata-pr-prepare`
-   - If `no-go`: present the report to the human and await direction (fix or expand ACs)
+   - If `go` (single PR): advance to `kata-pr-prepare` (or `kata-contributing-pr` in newer flows).
+   - If `go` (per-layer mode): release the layer for submission via `kata-stacked-pr-create`; if any layer is still pending, return to Phase 4 for the next.
+   - If `no-go`: present the report to the human and await direction (fix or expand ACs).
 
 ## Outputs
 
@@ -254,4 +284,5 @@ Structure:
 - **Check ordering is mandatory:** checks 1-3 (static analysis) before 4-6 (execution); if static analysis fails, still run the rest to report the complete picture.
 - **Threshold configurable but not optional:** `quality.coverage_threshold` may be adjusted in `.directives`, but Check 5 is always executed.
 - **No override for `no-go`:** the only legitimate way out of `no-go` is to fix the implementation or renegotiate ACs (via Gate 1). No human or agent can manually flip to `go`.
-- **Fixed destination:** `docs/issues/issue-{n}/06-quality-report.md` (per `lex-issue-driven`).
+- **Fixed destination:** `docs/issues/issue-{n}/06-quality-report.md` (per `lex-issue-driven`). In per-layer mode, the report accumulates one section per layer plus a final aggregate section.
+- **Per-layer subset does not relax criteria:** the AC/component filter only narrows the execution scope; thresholds (coverage, performance) and check strictness remain identical.
