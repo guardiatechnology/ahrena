@@ -236,15 +236,17 @@ language: pt-BR
 - [x] Sync `.cursor/` e `.claude/`
 - [ ] Commits atômicos + PR #63
 
-### Reescopo futuro — `lex-skill-package-structure` (separado, sem prescrever build)
+### `lex-skill-package-structure` — entregue **junto** ao cleanup PR #64
 
-- [ ] Abrir issue dedicada: lei do **output** `.skill` (frontmatter, `.skill-manifest.json` válido, `references/` com snapshots, files+sha256) — agnostic a **como** o build produz
-- [ ] Não prescreve Vite/uv/ports/zip; apenas valida o que o consumidor recebe
-- [ ] HARD-GATE para review: `.dist/{slug}.skill` MUST contém manifest válido antes de merge
+- [x] **Lexis** `lex-skill-package-structure` (3 idiomas) — lei do output `.skill`, agnostic ao build
+  - HARD-GATE com 5 critérios canônicos: frontmatter Anthropic válido; manifest contra schema (com `framework.ahrena_commit` não-vazio); `files[].sha256` confere; `references[].source_commit` não-vazio + `snapshot_sha256` confere; zero arquivos órfãos
+  - Schema canônico do `.skill-manifest.json` documentado na lei
+  - Não prescreve Vite/uv/ports/zip — stack do projeto consumidor decide o build
+- [x] `framework/platforms.yaml`: registro em cursor.rules + claude-code.rules (com glob `.dist/**`)
 
 ### Pós-cleanup — arquivar plan-010
 
-- [ ] Após merge do #63: mover este plano para `.claude/plans/archive/`
+- [ ] Após merge do #64: mover este plano para `.claude/plans/archive/`
 
 ## Dependências
 
