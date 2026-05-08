@@ -218,33 +218,35 @@ language: pt-BR
 - [ ] Abrir PR (lex-pr-quality) com `Closes #58`
 - [ ] Após merge: registrar progresso e abrir issue do PR 2
 
-### PR 2 — build pipeline (issue #60)
+### PR 2 — build pipeline (issue #60) — **REVERTIDO no PR de cleanup #63**
 
-- [x] Abrir issue `feat: external skills build pipeline (2/3)` — guardiatechnology/ahrena#60
-- [x] Criar branch `feat/60-external-skills-build` + worktree
-- [x] **Codex** `codex-skill-tools-and-widgets` (pt-BR + es + en)
-- [x] **Codex** `codex-skill-build-pipeline` (pt-BR + es + en)
-- [x] **Kata** `kata-skill-dev-server` (pt-BR + es + en) — Vite default, runtime de scripts, ports configuráveis
-- [x] **Kata** `kata-build-skill` (pt-BR + es + en) — pipeline determinístico em 6 phases
-- [x] **Cry** `cry-skill-dev`, `cry-skill-build` (pt-BR + es + en)
-- [x] Atualizar `framework/platforms.yaml` (cursor.rules + claude-code.docs com 2 novos codex)
-- [x] Sync `.cursor/` e `.claude/` (`scripts/install.py --self`)
-- [x] **Smoke documental:** enriquecer `skills/hello-skill/` com widget React (Hello), script Python (format_greeting), tool handler MCP, bindings consistentes; manifests parseiam, refs apontam para arquivos existentes
-- [ ] **Smoke 2 operacional:** `cry-skill-dev hello-skill` sobe widget HMR e script runner — depende de implementação executável dos katas (futura iteração; PR 2 entrega documentação)
-- [ ] **Smoke 3 operacional:** `cry-skill-build hello-skill` produz `.build/hello-skill/` + zip — idem
-- [ ] **Smoke 7 operacional:** widget React chama script Python via localhost — idem
-- [ ] Commits atômicos assinados
-- [ ] Abrir PR 2 com `Closes #60`
+- [x] Mergeado em main como `feat: external skills build pipeline (2/3)` — guardiatechnology/ahrena#60 / PR #61
+- [x] Conteúdo entregue: codex-skill-tools-and-widgets, codex-skill-build-pipeline, kata-skill-dev-server, kata-build-skill, cry-skill-dev, cry-skill-build (3 idiomas)
+- [~] **Reescopado:** após review com o maintainer, `codex-skill-build-pipeline`, `kata-skill-dev-server`, `kata-build-skill`, `cry-skill-dev`, `cry-skill-build` foram **removidos** no PR de cleanup (issue #63). Razão: Ahrena governa **autoria** + **estrutura de saída**; build/release pertence à stack do projeto consumidor (Makefile, GitHub Actions, npm scripts, uv). A spec não deve prescrever Vite/uv/ports/comandos zip.
+- [x] Mantidos: `codex-skill-tools-and-widgets` (convenção de manifestos — autoria) + smoke `skills/hello-skill/` (widget + script + tool + manifests).
 
-### PR 3 — packaging + determinismo (a abrir depois do PR 2)
+### PR cleanup — issue #63
 
-- [ ] **Lexis** `lex-skill-package-structure` (com HARD-GATE)
-- [ ] **Lexis** `lex-skill-export-determinism`
-- [ ] **Kata** `kata-package-skill`
-- [ ] **Smoke 4:** zip de `.build/` carrega em agente externo (Claude Code de outro projeto) e funciona
-- [ ] **Smoke 5:** `kata-package-skill` produz `.dist/hello-skill.skill` consumível
-- [ ] **Smoke 6:** rebuild idêntico → mesmos hashes (determinismo)
-- [ ] Após merge: arquivar este plano em `.claude/plans/archive/`
+- [x] Abrir issue `chore(framework): remove prescriptive build/release artifacts` — guardiatechnology/ahrena#63
+- [x] Branch `chore/63-cleanup-prescriptive-build` + worktree
+- [x] `git rm` 5 fontes × 3 idiomas (15) + 13 derivados (`.cursor/.claude/`)
+- [x] `framework/platforms.yaml`: 2 keys removidas (codex-skill-build-pipeline em cursor.rules + claude-code.docs)
+- [x] Trim cross-refs em codex-skill-tools-and-widgets, codex-skill-project-architecture, codex-skill-anthropic-agent-skills, lex-skill-project-structure, kata-init-skill, cry-new-skill (3 idiomas)
+- [x] `skill.config.json`: drop blocos `dev_server` e `build` (template + hello-skill)
+- [x] Sync `.cursor/` e `.claude/`
+- [x] Commits atômicos + PR #64
+
+### `lex-skill-package-structure` — entregue **junto** ao cleanup PR #64
+
+- [x] **Lexis** `lex-skill-package-structure` (3 idiomas) — lei do output `.skill`, agnostic ao build
+  - HARD-GATE com 5 critérios canônicos: frontmatter Anthropic válido; manifest contra schema (com `framework.ahrena_commit` não-vazio); `files[].sha256` confere; `references[].source_commit` não-vazio + `snapshot_sha256` confere; zero arquivos órfãos
+  - Schema canônico do `.skill-manifest.json` documentado na lei
+  - Não prescreve Vite/uv/ports/zip — stack do projeto consumidor decide o build
+- [x] `framework/platforms.yaml`: registro em cursor.rules + claude-code.rules (com glob `.dist/**`)
+
+### Pós-cleanup — arquivar plan-010
+
+- [ ] Após merge do #64: mover este plano para `.claude/plans/archive/`
 
 ## Dependências
 

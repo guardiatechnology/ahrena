@@ -28,7 +28,7 @@
 | `SKILL.md` | Frontmatter Anthropic Agent Skills + cuerpo Markdown |
 | `skill.config.json` | Configuración local del proyecto (idioma, runtimes, ports del dev server, refs externas a snapshotar) |
 
-`.skill-manifest.json` esqueleto **debe existir** después del scaffold, pero es **escrito** únicamente por el build (PR 2/3). En el PR 1 el esqueleto contiene `schema_version` y campos vacíos.
+`.skill-manifest.json` esqueleto **debe existir** después del scaffold, pero es **escrito** únicamente por el build. En el PR 1 el esqueleto contiene `schema_version` y campos vacíos.
 
 ### 3. Subdirectorios opcionales
 
@@ -47,10 +47,10 @@ Subdirectorios fuera de esa lista exigen justificación explícita en el `SKILL.
 | Tipo | Path default | Versionado | Quién escribe |
 |------|--------------|:----------:|---------------|
 | Fuente | `skills/{slug}/` | Sí | Autor (humano o agente, durante la autoría) |
-| Intermedio | `.build/{slug}/` | **No** (en `.gitignore`) | Build (`kata-build-skill`, PR 2) |
-| Entrega | `.dist/{slug}.skill` | Sí | Packaging (`kata-package-skill`, PR 3) |
+| Intermedio | `.build/{slug}/` | **No** (en `.gitignore`) | Build (stack del proyecto consumidor) |
+| Entrega | `.dist/{slug}.skill` | Sí | Packaging (stack del proyecto consumidor) |
 
-Editar `.build/` o `.dist/` manualmente rompe el determinismo (`lex-skill-export-determinism`, PR 3) y la auditabilidad. **Los cambios entran por la fuente**, siempre.
+Editar `.build/` o `.dist/` manualmente rompe el determinismo del build y la auditabilidad. **Los cambios entran por la fuente**, siempre.
 
 ### 5. Conformidad con Pilares y Lexis aplicables
 
@@ -78,7 +78,7 @@ El repositorio con proyectos de skill **debe** tener `.build/` en `.gitignore` (
 ## Consecuencias de Violación
 
 1. **Bloqueo en revisión:** un PR que contenga un proyecto fuera del layout (slug fuera del regex, sin `SKILL.md`, sin `skill.config.json`, edición directa en `.build/`/`.dist/`) es rechazado por el reviewer (humano o Gate 2 cuando `kata-quality-gate` integre la verificación).
-2. **Alerta:** divergencia entre `slug` del directorio y `name` del frontmatter detectada por `kata-init-skill` o por el build (PR 2) → error inmediato con instrucción de corrección.
+2. **Alerta:** divergencia entre `slug` del directorio y `name` del frontmatter detectada por `kata-init-skill` o por el build → error inmediato con instrucción de corrección.
 3. **Remediación:** mover archivos a `skills/{slug}/`, crear los archivos obligatorios ausentes, renombrar el directorio/`name` para que coincidan, o descartar los cambios en `.build/`/`.dist/` y rehacer por la fuente.
 
 ## Ejemplos
@@ -97,7 +97,7 @@ skills/scheduled-payments-skill/
     └── src/validate_amount.py
 
 .build/                         # gitignored
-.dist/                          # vacío hasta el PR 3 — committed
+.dist/                          # committed
 ```
 
 ```yaml

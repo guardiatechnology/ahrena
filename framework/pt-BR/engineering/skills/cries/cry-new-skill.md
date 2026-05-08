@@ -86,7 +86,6 @@ Próximos passos:
 - Editar SKILL.md (corpo)
 - Adicionar componentes em widgets/src/
 - Adicionar handlers em tools/handlers/
-- cry-skill-dev / cry-skill-build chegam no PR 2
 ```
 
 ## Restrições

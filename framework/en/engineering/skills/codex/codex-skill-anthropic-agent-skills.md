@@ -13,7 +13,7 @@ Canonical source of the spec: [agentskills.io/specification](https://agentskills
 ## Context
 
 - **Domain:** external skill format (final delivery consumed by agents outside Ahrena)
-- **Audience:** skill authors, `kata-init-skill`, `kata-build-skill`, `kata-package-skill` (future PRs)
+- **Audience:** skill authors, `kata-init-skill`
 - **Update:** when the official spec evolves; review `metadata.spec_version` of the produced skill
 
 ## Content
@@ -76,7 +76,7 @@ Most skills do not need the field.
 
 #### `metadata`
 
-Free-form map. Ahrena conventions (not from the spec) consumed by `kata-build-skill`:
+Free-form map. Ahrena conventions (not from the spec) that the consuming project's build may honor:
 
 | Key | Ahrena use |
 |-----|------------|
@@ -186,7 +186,7 @@ The spec maintains the [`skills-ref`](https://github.com/agentskills/agentskills
 skills-ref validate ./my-skill
 ```
 
-Checks valid frontmatter, naming, and minimum structure. `kata-build-skill` (PR 2) will integrate this validation.
+Checks valid frontmatter, naming, and minimum structure. The consuming project's build stack may integrate this validation.
 
 ### Security
 
@@ -196,11 +196,11 @@ Anthropic documentation is explicit: treat a skill as installed software. A mali
 - Network calls (skills that fetch external URLs have amplified risk)
 - File access / bash patterns inconsistent with the `description`
 
-Skills produced in Ahrena are auditable through the commit trail (refs snapshotted with hash, deterministic manifest in `lex-skill-export-determinism` in PR 3).
+Skills produced in Ahrena are auditable through the commit trail (refs snapshotted with hash, deterministic manifest enforced by `lex-skill-package-structure`).
 
 ## Restrictions
 
-- The spec **does not define** layout for MCP tools nor UI widgets. The Ahrena convention (`codex-skill-tools-and-widgets`, in PR 2) creates additional `tools/` and `widgets/` directories — agents that only know the spec ignore these directories. Documenting the convention as an "Ahrena extension" is mandatory in the generated SKILL.md.
+- The spec **does not define** layout for MCP tools nor UI widgets. The Ahrena convention (`codex-skill-tools-and-widgets`) creates additional `tools/` and `widgets/` directories — agents that only know the spec ignore these directories. Documenting the convention as an "Ahrena extension" is mandatory in the generated SKILL.md.
 - The spec **does not define** versioning of the skill itself — Ahrena puts it in `metadata.version` (semver per `lex-semantic-version`).
 - The spec **does not define** internationalization — Ahrena puts it in `metadata.language`. Each packaged skill is single-language.
 
@@ -222,5 +222,6 @@ Skills produced in Ahrena are auditable through the commit trail (refs snapshott
 - [Engineering blog — Equipping agents for the real world with Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 - [Authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
 - `codex-skill-project-architecture` — Ahrena source project layout (`skills/{slug}/`)
-- `codex-skill-tools-and-widgets` — Ahrena convention for `tools/` (MCP) and `widgets/` (React) [PR 2]
+- `codex-skill-tools-and-widgets` — Ahrena convention for `tools/` (MCP) and `widgets/` (React)
 - `lex-skill-project-structure` — law of the source project layout
+- `lex-skill-package-structure` — law of the delivered `.skill` package

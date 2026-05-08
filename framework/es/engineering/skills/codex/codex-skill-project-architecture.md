@@ -9,15 +9,14 @@ Cada skill externo es un **proyecto de primera clase** en el repositorio Ahrena,
 Este Codex define **únicamente el layout del proyecto fuente y el ciclo dev/build/dist**. No cubre:
 
 - Detalles del formato Anthropic Agent Skills → `codex-skill-anthropic-agent-skills`
-- Convención de tools MCP y widgets React (manifestos, bindings) → `codex-skill-tools-and-widgets` [PR 2]
-- Pipeline de build, hashing, ordering → `codex-skill-build-pipeline` [PR 2]
-- Estructura final del paquete en `.dist/` → `lex-skill-package-structure` + codex correspondiente [PR 3]
+- Convención de tools MCP y widgets React (manifestos, bindings) → `codex-skill-tools-and-widgets`
+- Estructura final del paquete en `.dist/` → `lex-skill-package-structure`
 
 ## Contexto
 
 - **Dominio:** proyectos de skill versionados en el repositorio Ahrena
 - **Público objetivo:** autores de skill, `kata-init-skill`, agentes que delegan edición (`warrior-hephaestus` para widgets, `warrior-apollo` para scripts/tools Python)
-- **Actualización:** cuando la convención de subdirectorios cambie; cuando se introduzcan nuevos tipos de artefacto en el PR 2/3
+- **Actualización:** cuando la convención de subdirectorios cambie; cuando se introduzcan nuevos tipos de artefacto
 
 ## Contenido
 
@@ -26,7 +25,7 @@ Este Codex define **únicamente el layout del proyecto fuente y el ciclo dev/bui
 ```
 skills/{slug}/
 ├── SKILL.md                    # Frontmatter Agent Skills + cuerpo (orquesta los demás artefactos)
-├── .skill-manifest.json        # Esqueleto; rellenado con refs+hashes por el build (PR 2/3)
+├── .skill-manifest.json        # Esqueleto; rellenado con refs+hashes por el build
 ├── skill.config.json           # Config local del proyecto (idioma, runtimes, ports del dev server)
 ├── references/                 # Markdown adicional (level-3 de la spec) — opcional
 ├── scripts/                    # JS o Python — utilitarios ejecutables por el agente — opcional
@@ -93,7 +92,7 @@ Las recomendaciones de la spec se aplican: **< 500 líneas**, **< 5 000 tokens**
 
 ### `skill.config.json`
 
-Configuración local del proyecto, **no entra al paquete final**. Leída por `kata-init-skill` (scaffold), `kata-skill-dev-server` (dev) y `kata-build-skill` (build) — todos en el PR 2.
+Configuración local del proyecto, **no entra al paquete final**. Leída por `kata-init-skill` (scaffold) y por el stack de build/release del proyecto consumidor.
 
 Esqueleto canónico:
 
@@ -105,16 +104,6 @@ Esqueleto canónico:
     "scripts": "python | node",
     "widgets": "react"
   },
-  "dev_server": {
-    "widgets_port": 5173,
-    "scripts_port": 5174,
-    "tools_stub_port": 5175
-  },
-  "build": {
-    "bundler": "vite",
-    "minify": true,
-    "source_maps": false
-  },
   "external_refs": [
     {
       "kind": "lexis",
@@ -124,7 +113,7 @@ Esqueleto canónico:
 }
 ```
 
-`external_refs` lista artefactos del framework Ahrena (lex/codex/kata) que serán snapshotados en `references/` durante el build. Por ahora (PR 1) el campo existe en el scaffold pero la resolución real queda en el PR 2.
+`external_refs` lista artefactos del framework Ahrena (lex/codex/kata) que el stack de build del proyecto consumidor snapshotea en `references/` en el momento de la entrega, validados por `lex-skill-package-structure`. Las claves específicas del stack (bundler, ports, runners) pertenecen a la configuración propia del proyecto consumidor, no al `skill.config.json`.
 
 ### Subdirectorios — papel y detalles
 
@@ -150,13 +139,13 @@ Cada script sigue las Lexis y codex de su lenguaje **sin ajuste**:
 | Logging | `lex-logging-decorator` (cross-language) | `lex-logging-decorator` |
 | Seguridad | `lex-python-security` | `lex-frontend-security` |
 
-Los detalles de la **conexión script ↔ widget** quedan en `codex-skill-tools-and-widgets` (PR 2).
+Los detalles de la **conexión script ↔ widget** quedan en `codex-skill-tools-and-widgets`.
 
 #### `tools/` (convención Ahrena, opcional)
 
 MCP tools que el agente externo invoca durante la ejecución del skill. Sirven como herramientas de dominio propias del skill, sin exponer artefactos brutos del Ahrena.
 
-El detalle (manifest, registro, conexión) está en `codex-skill-tools-and-widgets` (PR 2). En el PR 1 (scaffold), el directorio existe vacío con `mcp.config.json` placeholder y un ejemplo trivial en `handlers/`.
+El detalle (manifest, registro, conexión) está en `codex-skill-tools-and-widgets`. En el PR 1 (scaffold), el directorio existe vacío con `mcp.config.json` placeholder y un ejemplo trivial en `handlers/`.
 
 #### `widgets/` (convención Ahrena, opcional)
 
@@ -170,7 +159,7 @@ Componentes React que el agente renderiza en el chat. **La arquitectura hereda �
 - Tests según `lex-frontend-testing`
 - Design system Guardia según `lex-design-system-library` cuando el widget se renderice en superficie Guardia
 
-El detalle de manifest, props, eventos y binding con scripts/tools está en `codex-skill-tools-and-widgets` (PR 2). En el PR 1, el directorio viene vacío con `package.json` mínimo y un componente de ejemplo.
+El detalle de manifest, props, eventos y binding con scripts/tools está en `codex-skill-tools-and-widgets`. En el PR 1, el directorio viene vacío con `package.json` mínimo y un componente de ejemplo.
 
 ### Reuso de codex y Lexis durante la autoría
 
@@ -189,11 +178,7 @@ El detalle de manifest, props, eventos y binding con scripts/tools está en `cod
 ```
 skills/{slug}/                            # FUENTE (versionada, autoría con Pilares)
        │
-       │ kata-skill-dev-server (PR 2)
-       ▼
-   localhost — widgets HMR + script runner + tools stub
-       │
-       │ kata-build-skill (PR 2)
+       │ stack de dev/build/release del proyecto consumidor
        ▼
 .build/{slug}/                            # INTERMEDIO (gitignored)
    ├── widgets/    (React compilado)
@@ -204,19 +189,18 @@ skills/{slug}/                            # FUENTE (versionada, autoría con Pil
    ├── .skill-manifest.json (con hashes)
    └── {slug}.zip  (testeable en otro agente)
        │
-       │ kata-package-skill (PR 3)
+       │ paso de packaging del proyecto consumidor
        ▼
-.dist/{slug}.skill                        # ENTREGA (committed)
+.dist/{slug}.skill                        # ENTREGA (committed, validada por lex-skill-package-structure)
 ```
 
-Reglas (algunas todavía solo consagradas en el PR 1, otras codificadas en PRs futuros):
+Reglas:
 
 - **La fuente es la verdad.** `.build/` y `.dist/` son derivados; ningún agente edita esos directorios manualmente
 - **`.build/` es gitignored.** `.dist/` es committed (consumible por agentes que no tienen Ahrena)
-- **Determinismo en el PR 3.** El build debe producir hashes idénticos para el mismo input; ordering lexicográfico, sin timestamps volátiles
-- **Snapshots por commit hash en el PR 3.** `.skill-manifest.json` registra `source_commit` para cada ref del framework
-
-En el PR 1 (scaffold), solo se establece el layout fuente; build y packaging son placeholders.
+- **Determinismo.** El build debe producir hashes idénticos para el mismo input; ordering lexicográfico, sin timestamps volátiles
+- **Snapshots por commit hash.** `.skill-manifest.json` registra `source_commit` para cada ref del framework
+- **Build agnóstico.** Bundler, runtime, herramienta de packaging, ports — todo decidido por el stack del proyecto consumidor. Ahrena valida solo la forma del output vía `lex-skill-package-structure`.
 
 ### Directivas relacionadas
 

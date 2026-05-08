@@ -9,7 +9,7 @@
 ```
 skills/{slug}/
 ├── SKILL.md                    # Agent Skills frontmatter + body (orchestrates the other artifacts)
-├── .skill-manifest.json        # Skeleton; populated with refs+hashes by the build (PR 2/3)
+├── .skill-manifest.json        # Skeleton; populated with refs+hashes by the build
 ├── skill.config.json           # Local project config (language, runtimes, dev server ports)
 ├── references/                 # Additional Markdown (level-3 of the spec) — optional
 ├── scripts/                    # JS or Python — utilities executable by the agent — optional

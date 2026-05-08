@@ -74,7 +74,6 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/engineering/platform/codex-restful-status-codes.md`
 - `.claude/docs/engineering/quality/codex-test-strategy.md`
 - `.claude/docs/engineering/skills/codex-skill-anthropic-agent-skills.md`
-- `.claude/docs/engineering/skills/codex-skill-build-pipeline.md`
 - `.claude/docs/engineering/skills/codex-skill-project-architecture.md`
 - `.claude/docs/engineering/skills/codex-skill-tools-and-widgets.md`
 - `.claude/docs/engineering/sre/codex-incident-response.md`

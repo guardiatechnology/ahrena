@@ -106,7 +106,7 @@ Progreso:
    - Slug, description, language, license aplicados
    - Subdirectorios incluidos (widgets/scripts/tools, según opt-outs)
    - Próximos pasos: editar el cuerpo del `SKILL.md`, agregar componentes en `widgets/src/`, etc.
-2. Apuntar a `codex-skill-project-architecture` para la autoría y (más adelante) `cry-skill-dev` / `cry-skill-build` cuando el PR 2 entregue
+2. Apuntar a `codex-skill-project-architecture` para la autoría.
 
 ## Salidas
 
@@ -145,7 +145,6 @@ Próximos pasos:
 - Editar skills/scheduled-payments-skill/SKILL.md (cuerpo)
 - Agregar componentes en widgets/src/
 - Agregar handlers en tools/handlers/
-- Esperar cry-skill-dev y cry-skill-build (PR 2 del plan-010) para correr en localhost
 ```
 
 ## Restricciones

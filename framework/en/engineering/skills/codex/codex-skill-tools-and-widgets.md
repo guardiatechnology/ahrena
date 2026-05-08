@@ -11,12 +11,12 @@ External agents that only know the spec **ignore** these directories — they co
 ## Context
 
 - **Domain:** internal structure of `tools/` and `widgets/` inside skill projects, and the binding contract between them
-- **Audience:** skill authors who need their own UI or MCP logic; `kata-skill-dev-server`, `kata-build-skill`, `kata-package-skill`
+- **Audience:** skill authors who need their own UI or MCP logic
 - **Update:** when manifest schemas evolve; when the Anthropic spec absorbs equivalent primitives (if it occurs, this codex documents the transition)
 
 ## Status — Convention, not Spec
 
-> **Attention:** `tools/` and `widgets/` are **not** part of the Anthropic Agent Skills spec. This is an Ahrena framework convention. The `SKILL.md` generated in projects with these directories **MUST** include an explicit warning header (per `kata-build-skill`, PR 2 itself, and `kata-package-skill`, PR 3) so external consumers know what to expect.
+> **Attention:** `tools/` and `widgets/` are **not** part of the Anthropic Agent Skills spec. This is an Ahrena framework convention. The `SKILL.md` generated in projects with these directories **MUST** include an explicit warning header so external consumers know what to expect.
 
 ## Content
 
@@ -165,7 +165,7 @@ Widgets explicitly declare their external dependencies in `bindings[]`. The host
 `called_via` in `kind: script` bindings:
 
 - In **dev**, points to the local script runner (`http://localhost:{scripts_port}/...`)
-- In **prod**, it is rewritten by the build: it becomes a relative path the host resolves via the equivalent MCP tool, or an ephemeral endpoint. `kata-build-skill` applies this rewrite according to `skill.config.json`.
+- In **prod**, it is rewritten by the consuming project's build stack: it becomes a relative path the host resolves via the equivalent MCP tool, or an ephemeral endpoint. The rewrite is part of the build, not of the spec.
 
 ### Reuse of codex and Lexis
 
@@ -183,7 +183,7 @@ Widgets explicitly declare their external dependencies in `bindings[]`. The host
 | `SKILL.md`, frontmatter, body | Defined | Unchanged |
 | `references/`, `scripts/`, `assets/` | Defined | Unchanged — Ahrena does not modify these directories |
 | `tools/`, `widgets/` | **Not covered** | Added — spec-only agents ignore |
-| `.skill-manifest.json` | Not covered | Ahrena root manifest (audit, hashes — see `lex-skill-project-structure` and PR 3) |
+| `.skill-manifest.json` | Not covered | Ahrena root manifest (audit, hashes — see `lex-skill-project-structure` and `lex-skill-package-structure`) |
 
 When the spec evolves and covers tools/widgets, this codex documents the transition (mapping, deprecations). Skills that adopted the convention continue working as long as Ahrena agents recognize the layout — migration to the canonical form of the spec will be incremental.
 
@@ -192,22 +192,19 @@ When the spec evolves and covers tools/widgets, this codex documents the transit
 - The author **does not infer** bindings — every external dependency is declared in `manifest.json` (widgets) or `mcp.config.json` (tools)
 - Widget **does not import** a script directly; always crosses an HTTP/MCP boundary
 - `bindings[].kind: script` is resolved with `called_via` in dev and rewritten by the build for prod — do not use a hardcoded production URL
-- Manifests are validated before build (`kata-build-skill`); a schema failure aborts with a specific error
+- Manifests are validated before build by the consuming project's build stack; a schema failure aborts with a specific error
 
 ## Glossary
 
 | Term | Definition |
 |------|------------|
 | Binding | Explicit declaration, in the widget's `manifest.json`, of a dependency on an MCP tool or a script |
-| Tool stub | Local mock implementation that `kata-skill-dev-server` brings up to test bindings without needing the real host agent |
-| Script runner | Local HTTP/JSON server brought up by `kata-skill-dev-server` to expose scripts to widgets during dev |
 | Root manifest | `.skill-manifest.json` at the project root — distinct from the manifests of `tools/` and `widgets/` |
 
 ## References
 
 - `codex-skill-anthropic-agent-skills` — external spec
 - `codex-skill-project-architecture` — project layout and role of the directories
-- `codex-skill-build-pipeline` — how the build resolves bindings, validates manifests, freezes artifacts
 - `codex-frontend-architecture` — architecture applied to widgets
 - `codex-python-architecture`, `codex-python-tooling` — architecture applied to Python handlers
 - `codex-mcp-common` — shared MCP server patterns

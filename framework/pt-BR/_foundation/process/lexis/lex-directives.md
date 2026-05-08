@@ -62,8 +62,8 @@ O agente **DEVE** aplicar cada seção da diretiva ao comportamento corresponden
 | `naming.tone_and_writing_style` | Aplicar o tom e o estilo ao produzir artefatos e comunicação. Ver `lex-tone`. |
 | `stacked_prs.tool` | Selecionar a ferramenta para operar Stacked Pull Requests quando aplicável: `vanilla` (default — `git` + `gh` puros) ou `gs` (git-spice). Ver `codex-stacked-prs`. |
 | `paths.skills_root` | Diretório raiz dos projetos de skill externos (default `skills`). Ver `lex-skill-project-structure`. |
-| `paths.skills_build` | Diretório de intermediários do build de skills (default `.build`, gitignored). Consumido por `kata-build-skill` (PR 2). |
-| `paths.skills_dist` | Diretório de entrega final de skills empacotados (default `.dist`, committed). Consumido por `kata-package-skill` (PR 3). |
+| `paths.skills_build` | Diretório de intermediários do build de skills (default `.build`, gitignored). Escrito pelo stack de build do projeto consumidor. |
+| `paths.skills_dist` | Diretório de entrega final de skills empacotados (default `.dist`, committed). Validado por `lex-skill-package-structure`. |
 
 Manuais complementares para interpretação das seções: `codex-directives` (visão geral do arquivo), `codex-paths` (caminhos canônicos), `codex-naming` (convenções de nomenclatura).
 

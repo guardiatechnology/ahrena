@@ -34,7 +34,7 @@ paths:
 | `SKILL.md` | Anthropic Agent Skills frontmatter + Markdown body |
 | `skill.config.json` | Local project configuration (language, runtimes, dev server ports, external refs to snapshot) |
 
-A `.skill-manifest.json` skeleton MUST exist after scaffold but is **written** only by the build (PR 2/3). In PR 1 the skeleton holds `schema_version` and empty fields.
+A `.skill-manifest.json` skeleton MUST exist after scaffold but is **written** only by the build. In PR 1 the skeleton holds `schema_version` and empty fields.
 
 ### 3. Optional subdirectories
 
@@ -53,10 +53,10 @@ Subdirectories outside this list require explicit justification in `SKILL.md` or
 | Type | Default path | Versioned | Writer |
 |------|--------------|:---------:|--------|
 | Source | `skills/{slug}/` | Yes | Author (human or agent, during authoring) |
-| Intermediate | `.build/{slug}/` | **No** (in `.gitignore`) | Build (`kata-build-skill`, PR 2) |
-| Delivery | `.dist/{slug}.skill` | Yes | Packaging (`kata-package-skill`, PR 3) |
+| Intermediate | `.build/{slug}/` | **No** (in `.gitignore`) | Build (consuming project's stack) |
+| Delivery | `.dist/{slug}.skill` | Yes | Packaging (consuming project's stack) |
 
-Editing `.build/` or `.dist/` manually breaks determinism (`lex-skill-export-determinism`, PR 3) and auditability. **Changes flow through the source**, always.
+Editing `.build/` or `.dist/` manually breaks build determinism and auditability. **Changes flow through the source**, always.
 
 ### 5. Conformance with applicable Pillars and Lexis
 
@@ -97,7 +97,7 @@ skills/scheduled-payments-skill/
     └── src/validate_amount.py
 
 .build/                         # gitignored
-.dist/                          # empty until PR 3 — committed
+.dist/                          # committed
 ```
 
 ```yaml
