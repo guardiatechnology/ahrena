@@ -10,11 +10,11 @@ A skill is a directory with, at minimum, a `SKILL.md`:
 
 ```
 skill-name/
-├── SKILL.md # Required — metadata + instructions
-├── scripts/ # Optional — executable code
-├── references/ # Optional — additional documentation
-├── assets/ # Optional — templates, static resources
-└── ... # Any other files
+├── SKILL.md          # Required — metadata + instructions
+├── scripts/          # Optional — executable code
+├── references/       # Optional — additional documentation
+├── assets/           # Optional — templates, static resources
+└── ...               # Any other files
 ```
 
 **Important restriction:** the root directory name **MUST** be identical to the value of the `name` field in the frontmatter.
@@ -182,10 +182,10 @@ Anthropic documentation is explicit: treat a skill as installed software. A mali
 - Network calls (skills that fetch external URLs have amplified risk)
 - File access / bash patterns inconsistent with the `description`
 
-Skills produced in Ahrena are auditable through the commit trail (refs snapshotted with hash, deterministic manifest in).
+Skills produced in Ahrena are auditable through the commit trail (refs snapshotted with hash, deterministic manifest enforced by `lex-skill-package-structure`).
 
 ## Restrictions
 
-- The spec **does not define** layout for MCP tools nor UI widgets. The Ahrena convention (`codex-skill-tools-and-widgets`,) creates additional `tools/` and `widgets/` directories — agents that only know the spec ignore these directories. Documenting the convention as an "Ahrena extension" is mandatory in the generated SKILL.md.
+- The spec **does not define** layout for MCP tools nor UI widgets. The Ahrena convention (`codex-skill-tools-and-widgets`) creates additional `tools/` and `widgets/` directories — agents that only know the spec ignore these directories. Documenting the convention as an "Ahrena extension" is mandatory in the generated SKILL.md.
 - The spec **does not define** versioning of the skill itself — Ahrena puts it in `metadata.version` (semver per `lex-semantic-version`).
 - The spec **does not define** internationalization — Ahrena puts it in `metadata.language`. Each packaged skill is single-language.
