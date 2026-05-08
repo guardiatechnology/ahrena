@@ -105,12 +105,6 @@ cursor:
     _foundation/contributing/codex/codex-git-workflow:
       alwaysApply: false
       description: "When contributing, follow the complete Issue → Branch → Commits → PR → Review → Merge workflow from this codex."
-    _foundation/contributing/codex/codex-git-worktrees:
-      alwaysApply: false
-      description: "When creating, using, or removing git worktrees for branch-based tasks, follow conventions, lifecycle, and commands from this codex."
-    _foundation/contributing/lexis/lex-git-worktrees:
-      alwaysApply: false
-      description: "Every branch-based task by an AI agent MUST run inside a dedicated git worktree (.worktrees/{N}-{slug}/) with a corresponding GitHub issue."
     _foundation/contributing/lexis/lex-issue-quality:
       alwaysApply: false
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
@@ -366,15 +360,21 @@ cursor:
     _foundation/tooling/codex/codex-mcp-common:
       alwaysApply: false
       description: "Shared MCP patterns (auth, config, fallback, failure signals) — preamble consumed by all codex-mcp-{server} references."
-    _foundation/tooling/lexis/lex-skill-project-structure:
+    engineering/skills/lexis/lex-skill-project-structure:
       alwaysApply: false
       description: "When creating or editing an external skill project under skills/{slug}/, enforce canonical layout, slug==frontmatter name, and source/build/dist separation."
-    _foundation/tooling/codex/codex-skill-anthropic-agent-skills:
+    engineering/skills/codex/codex-skill-anthropic-agent-skills:
       alwaysApply: false
       description: "When authoring SKILL.md or validating a skill package, follow the Anthropic Agent Skills spec (frontmatter fields, naming limits, progressive disclosure)."
-    _foundation/tooling/codex/codex-skill-project-architecture:
+    engineering/skills/codex/codex-skill-project-architecture:
       alwaysApply: false
       description: "When scaffolding or editing skills/{slug}/, follow the Ahrena project layout and reuse codex-frontend-architecture / codex-python-architecture for widgets and scripts/tools."
+    engineering/skills/codex/codex-skill-tools-and-widgets:
+      alwaysApply: false
+      description: "When defining tools/ (MCP) or widgets/ (React) inside a skill project, follow the Ahrena convention for mcp.config.json, manifest.json, and widget↔script bindings."
+    engineering/skills/codex/codex-skill-build-pipeline:
+      alwaysApply: false
+      description: "When building a skill, follow the deterministic 6-phase pipeline (Validate, Build widgets, Freeze scripts, Resolve tools, Rewrite bindings, Emit) with default tooling (Vite, uv, Node 20)."
     engineering/quality/lexis/lex-test-pyramid:
       alwaysApply: false
       description: "When authoring test suites, enforce 70/20/10 distribution (unit/integration/E2E); E2E only for critical journeys."
@@ -501,7 +501,7 @@ claude-code:
       description: "When running or suggesting shell commands, use terminal type from .ahrena/.directives."
     _foundation/tooling/lexis/lex-mcp:
       description: "When an MCP server is active for the current operation, use MCP tool over CLI. Credentials via env vars only."
-    _foundation/tooling/lexis/lex-skill-project-structure:
+    engineering/skills/lexis/lex-skill-project-structure:
       paths: ["skills/**", "**/skills/**"]
       description: "When creating or editing an external skill project under skills/{slug}/, enforce canonical layout, slug==frontmatter name, and source/build/dist separation."
     engineering/workflow/lexis/lex-issue-driven:
@@ -674,12 +674,16 @@ claude-code:
       description: "When using Figma MCP server, reference tools (get_file, get_component, get_local_variables, etc.) from this codex."
     _foundation/tooling/codex/codex-mcp-common:
       description: "Shared MCP patterns — consulted alongside any server-specific MCP codex."
-    _foundation/tooling/codex/codex-skill-anthropic-agent-skills:
+    engineering/skills/codex/codex-skill-anthropic-agent-skills:
       description: "When authoring SKILL.md or validating a skill package, follow the Anthropic Agent Skills spec (frontmatter fields, naming limits, progressive disclosure)."
-    _foundation/tooling/codex/codex-skill-project-architecture:
+    engineering/skills/codex/codex-skill-project-architecture:
       description: "When scaffolding or editing skills/{slug}/, follow the Ahrena project layout and reuse codex-frontend-architecture / codex-python-architecture for widgets and scripts/tools."
     _foundation/tooling/codex/codex-git-spice:
       description: "When operating Stacked PRs and stacked_prs.tool=gs, consult this codex for git-spice install, setup, command catalog, vanilla→gs mapping, and force-push semantics."
+    engineering/skills/codex/codex-skill-tools-and-widgets:
+      description: "When defining tools/ (MCP) or widgets/ (React) inside a skill project, follow the Ahrena convention for mcp.config.json, manifest.json, and widget↔script bindings."
+    engineering/skills/codex/codex-skill-build-pipeline:
+      description: "When building a skill, follow the deterministic 6-phase pipeline (Validate, Build widgets, Freeze scripts, Resolve tools, Rewrite bindings, Emit) with default tooling (Vite, uv, Node 20)."
     engineering/workflow/codex/codex-issue-workflow:
       description: "Reference for the 7-phase Issue-Driven flow, the 2 gates, MADR format, and delegation."
     engineering/frontend/codex/codex-frontend-architecture:

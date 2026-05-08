@@ -33,8 +33,6 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/_foundation/tooling/codex-mcp-figma.md`
 - `.claude/docs/_foundation/tooling/codex-mcp-github.md`
 - `.claude/docs/_foundation/tooling/codex-mcp-notion.md`
-- `.claude/docs/_foundation/tooling/codex-skill-anthropic-agent-skills.md`
-- `.claude/docs/_foundation/tooling/codex-skill-project-architecture.md`
 - `.claude/docs/_foundation/tooling/codex-terminal-type.md`
 - `.claude/docs/design/brand/codex-brand-colors.md`
 - `.claude/docs/design/brand/codex-brand-essence.md`
@@ -75,6 +73,10 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/engineering/platform/codex-restful-sorting.md`
 - `.claude/docs/engineering/platform/codex-restful-status-codes.md`
 - `.claude/docs/engineering/quality/codex-test-strategy.md`
+- `.claude/docs/engineering/skills/codex-skill-anthropic-agent-skills.md`
+- `.claude/docs/engineering/skills/codex-skill-build-pipeline.md`
+- `.claude/docs/engineering/skills/codex-skill-project-architecture.md`
+- `.claude/docs/engineering/skills/codex-skill-tools-and-widgets.md`
 - `.claude/docs/engineering/sre/codex-incident-response.md`
 - `.claude/docs/engineering/workflow/codex-issue-workflow.md`
 - `.claude/docs/product/discovery/codex-discovery-artifacts.md`

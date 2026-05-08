@@ -114,20 +114,20 @@ skills/{slug}/                        kata-build-skill                 .build/{s
 
 | Pilar | Arquivo | Papel |
 |---|---|---|
-| Codex | `_foundation/tooling/codex/codex-skill-project-architecture.md` | Layout `skills/{slug}/`, papel de cada subdir, fluxo dev → build → dist, binding widget ↔ script, `skill.config` |
-| Codex | `_foundation/tooling/codex/codex-skill-anthropic-agent-skills.md` | Manual da spec Anthropic (frontmatter, file refs, packaging) com URL e versão validadas |
-| Codex | `_foundation/tooling/codex/codex-skill-tools-and-widgets.md` | Convenção Ahrena para `tools/` (MCP) e `widgets/` (React + manifest); aviso "não é parte da spec Anthropic" |
-| Codex | `_foundation/tooling/codex/codex-skill-build-pipeline.md` | Pipeline de build determinística, cache, hashes, ordering, integração com Vite/esbuild |
-| Lexis | `_foundation/tooling/lexis/lex-skill-project-structure.md` | Obriga layout `skills/{slug}/`, presença de `SKILL.md` + `skill.config`, separação fonte/build/dist |
-| Lexis | `_foundation/tooling/lexis/lex-skill-package-structure.md` | Frontmatter SKILL.md obrigatório, `.skill-manifest.json` válido, refs com hash; HARD-GATE bloqueia entrega sem manifest válido |
-| Lexis | `_foundation/tooling/lexis/lex-skill-export-determinism.md` | Snapshot por commit hash, ordering lexicográfico, sem timestamps voláteis, rebuild idêntico |
-| Kata | `_foundation/tooling/katas/kata-init-skill.md` | Scaffold de `skills/{slug}/` com templates de `SKILL.md`, `skill.config`, subdirs vazios, `.gitignore` herdado |
-| Kata | `_foundation/tooling/katas/kata-build-skill.md` | Compila widgets, congela scripts, valida tools, escreve `.build/{slug}/` + zip |
-| Kata | `_foundation/tooling/katas/kata-package-skill.md` | A partir de `.build/{slug}/`, snapshota refs externas com commit hash, escreve `.dist/{slug}.skill` |
-| Kata | `_foundation/tooling/katas/kata-skill-dev-server.md` | Sobe dev server (widgets HMR + script runner + tools stub) em localhost |
-| Cry | `_foundation/tooling/cries/cry-new-skill.md` | Atalho — invoca `kata-init-skill` |
-| Cry | `_foundation/tooling/cries/cry-skill-dev.md` | Atalho — invoca `kata-skill-dev-server` |
-| Cry | `_foundation/tooling/cries/cry-skill-build.md` | Atalho — invoca `kata-build-skill` (e opcionalmente `kata-package-skill`) |
+| Codex | `engineering/skills/codex/codex-skill-project-architecture.md` | Layout `skills/{slug}/`, papel de cada subdir, fluxo dev → build → dist, binding widget ↔ script, `skill.config` |
+| Codex | `engineering/skills/codex/codex-skill-anthropic-agent-skills.md` | Manual da spec Anthropic (frontmatter, file refs, packaging) com URL e versão validadas |
+| Codex | `engineering/skills/codex/codex-skill-tools-and-widgets.md` | Convenção Ahrena para `tools/` (MCP) e `widgets/` (React + manifest); aviso "não é parte da spec Anthropic" |
+| Codex | `engineering/skills/codex/codex-skill-build-pipeline.md` | Pipeline de build determinística, cache, hashes, ordering, integração com Vite/esbuild |
+| Lexis | `engineering/skills/lexis/lex-skill-project-structure.md` | Obriga layout `skills/{slug}/`, presença de `SKILL.md` + `skill.config`, separação fonte/build/dist |
+| Lexis | `engineering/skills/lexis/lex-skill-package-structure.md` | Frontmatter SKILL.md obrigatório, `.skill-manifest.json` válido, refs com hash; HARD-GATE bloqueia entrega sem manifest válido |
+| Lexis | `engineering/skills/lexis/lex-skill-export-determinism.md` | Snapshot por commit hash, ordering lexicográfico, sem timestamps voláteis, rebuild idêntico |
+| Kata | `engineering/skills/katas/kata-init-skill.md` | Scaffold de `skills/{slug}/` com templates de `SKILL.md`, `skill.config`, subdirs vazios, `.gitignore` herdado |
+| Kata | `engineering/skills/katas/kata-build-skill.md` | Compila widgets, congela scripts, valida tools, escreve `.build/{slug}/` + zip |
+| Kata | `engineering/skills/katas/kata-package-skill.md` | A partir de `.build/{slug}/`, snapshota refs externas com commit hash, escreve `.dist/{slug}.skill` |
+| Kata | `engineering/skills/katas/kata-skill-dev-server.md` | Sobe dev server (widgets HMR + script runner + tools stub) em localhost |
+| Cry | `engineering/skills/cries/cry-new-skill.md` | Atalho — invoca `kata-init-skill` |
+| Cry | `engineering/skills/cries/cry-skill-dev.md` | Atalho — invoca `kata-skill-dev-server` |
+| Cry | `engineering/skills/cries/cry-skill-build.md` | Atalho — invoca `kata-build-skill` (e opcionalmente `kata-package-skill`) |
 | Templates | `templates/skill-project-sample/` | Diretório-template com `SKILL.md`, `skill.config.json`, `widgets/package.json`, `scripts/`, `tools/` mínimos |
 
 ### Atualizações em artefatos existentes
@@ -218,16 +218,23 @@ language: pt-BR
 - [ ] Abrir PR (lex-pr-quality) com `Closes #58`
 - [ ] Após merge: registrar progresso e abrir issue do PR 2
 
-### PR 2 — build pipeline (a abrir depois do PR 1 mergear)
+### PR 2 — build pipeline (issue #60)
 
-- [ ] **Codex** `codex-skill-tools-and-widgets` (pt-BR + traduções)
-- [ ] **Codex** `codex-skill-build-pipeline` (pt-BR + traduções)
-- [ ] **Kata** `kata-skill-dev-server` (Vite default, runtime de scripts, ports)
-- [ ] **Kata** `kata-build-skill`
-- [ ] **Cry** `cry-skill-dev`, `cry-skill-build`
-- [ ] **Smoke 2:** `cry-skill-dev hello-skill` sobe widget HMR e script runner em localhost
-- [ ] **Smoke 3:** `cry-skill-build hello-skill` produz `.build/hello-skill/` + zip
-- [ ] **Smoke 7:** widget React chama script Python via localhost (binding manifest)
+- [x] Abrir issue `feat: external skills build pipeline (2/3)` — guardiatechnology/ahrena#60
+- [x] Criar branch `feat/60-external-skills-build` + worktree
+- [x] **Codex** `codex-skill-tools-and-widgets` (pt-BR + es + en)
+- [x] **Codex** `codex-skill-build-pipeline` (pt-BR + es + en)
+- [x] **Kata** `kata-skill-dev-server` (pt-BR + es + en) — Vite default, runtime de scripts, ports configuráveis
+- [x] **Kata** `kata-build-skill` (pt-BR + es + en) — pipeline determinístico em 6 phases
+- [x] **Cry** `cry-skill-dev`, `cry-skill-build` (pt-BR + es + en)
+- [x] Atualizar `framework/platforms.yaml` (cursor.rules + claude-code.docs com 2 novos codex)
+- [x] Sync `.cursor/` e `.claude/` (`scripts/install.py --self`)
+- [x] **Smoke documental:** enriquecer `skills/hello-skill/` com widget React (Hello), script Python (format_greeting), tool handler MCP, bindings consistentes; manifests parseiam, refs apontam para arquivos existentes
+- [ ] **Smoke 2 operacional:** `cry-skill-dev hello-skill` sobe widget HMR e script runner — depende de implementação executável dos katas (futura iteração; PR 2 entrega documentação)
+- [ ] **Smoke 3 operacional:** `cry-skill-build hello-skill` produz `.build/hello-skill/` + zip — idem
+- [ ] **Smoke 7 operacional:** widget React chama script Python via localhost — idem
+- [ ] Commits atômicos assinados
+- [ ] Abrir PR 2 com `Closes #60`
 
 ### PR 3 — packaging + determinismo (a abrir depois do PR 2)
 

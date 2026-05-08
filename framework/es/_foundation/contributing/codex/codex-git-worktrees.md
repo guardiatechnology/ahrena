@@ -180,7 +180,24 @@ Restricciones de git:
 
 ---
 
-## 6. Resolución de problemas
+## 6. Worktree compartido para Stacked Pull Requests
+
+Cuando una feature se descompone en N capas apiladas (Stacked PRs), la regla "un worktree por branch" de las secciones 2-4 **no se aplica**. La pila completa opera dentro de **un único** worktree compartido.
+
+| Aspecto | Worktree estándar (1-1) | Worktree compartido (Stacked PRs) |
+|---|---|---|
+| Cantidad de worktrees | Uno por branch | Uno por pila (N branches dentro) |
+| Directorio | `.worktrees/{N}-{slug}/` de la issue principal | `.worktrees/{N}-{slug}/` de la issue de la pila |
+| Branch activo | Siempre el mismo | Alternado vía `git checkout` entre las capas |
+| Cleanup | Eliminar al fusionar el PR | Eliminar **solo** cuando todos los PRs de la pila se fusionen |
+
+La norma vinculante está en `lex-git-worktrees` §5 ("Shared worktree for Stacked Pull Requests"). La operación completa (creación de la pila, rebase en cascada, merge bottom-up) está en `codex-stacked-prs` y en los `kata-stacked-pr-create`, `kata-stacked-pr-rebase`, `kata-stacked-pr-merge`.
+
+**Por qué worktree único:** alternar branches dentro del mismo checkout es más barato que recrear worktree por capa. El costo del `git checkout` entre branches de la pila es despreciable porque comparten el mismo `.git/`. Replicar `node_modules/` o el estado del IDE en N worktrees sería desperdicio para un trabajo cohesivo conceptualmente único.
+
+---
+
+## 7. Resolución de problemas
 
 | Problema | Causa probable | Solución |
 |---|---|---|
@@ -191,7 +208,7 @@ Restricciones de git:
 
 ---
 
-## 7. Buenas prácticas
+## 8. Buenas prácticas
 
 1. **Nombrar descriptivamente.** El slug debe ser legible por humanos — quien ejecute `ls ..` debe entender el propósito del worktree sin abrirlo.
 2. **Un worktree por issue.** No reutilizar worktrees de diferentes issues — crear uno nuevo para cada tarea.
