@@ -363,6 +363,9 @@ cursor:
     engineering/skills/lexis/lex-skill-project-structure:
       alwaysApply: false
       description: "When creating or editing an external skill project under skills/{slug}/, enforce canonical layout, slug==frontmatter name, and source/build/dist separation."
+    engineering/skills/lexis/lex-skill-package-structure:
+      alwaysApply: false
+      description: "When reviewing a PR that adds or modifies a packaged .skill in .dist/, enforce all 5 criteria (frontmatter, manifest schema, files+sha256, references+source_commit, no orphans). Agnostic to build stack."
     engineering/skills/codex/codex-skill-anthropic-agent-skills:
       alwaysApply: false
       description: "When authoring SKILL.md or validating a skill package, follow the Anthropic Agent Skills spec (frontmatter fields, naming limits, progressive disclosure)."
@@ -501,6 +504,9 @@ claude-code:
     engineering/skills/lexis/lex-skill-project-structure:
       paths: ["skills/**", "**/skills/**"]
       description: "When creating or editing an external skill project under skills/{slug}/, enforce canonical layout, slug==frontmatter name, and source/build/dist separation."
+    engineering/skills/lexis/lex-skill-package-structure:
+      paths: [".dist/**"]
+      description: "When reviewing a PR that adds or modifies a packaged .skill in .dist/, enforce all 5 criteria (frontmatter, manifest schema, files+sha256, references+source_commit, no orphans). Agnostic to build stack."
     engineering/workflow/lexis/lex-issue-driven:
       paths: ["docs/issues/**", ".ahrena/workflow/**"]
       description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
