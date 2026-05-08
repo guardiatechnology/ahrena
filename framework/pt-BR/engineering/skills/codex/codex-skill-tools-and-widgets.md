@@ -11,12 +11,12 @@ Agentes externos que conhecem apenas a spec **ignoram** esses diretórios — el
 ## Contexto
 
 - **Domínio:** estrutura interna de `tools/` e `widgets/` dentro de projetos de skill, e o contrato de binding entre eles
-- **Público-alvo:** autores de skill que precisam de UI ou lógica MCP própria; `kata-skill-dev-server`, `kata-build-skill`, `kata-package-skill`
+- **Público-alvo:** autores de skill que precisam de UI ou lógica MCP própria
 - **Atualização:** quando o schema dos manifestos evoluir; quando a spec Anthropic absorver primitivas equivalentes (caso ocorra, este codex documenta a transição)
 
 ## Status — Convenção, não Spec
 
-> **Atenção:** `tools/` e `widgets/` **não** fazem parte da spec Anthropic Agent Skills. Esta é uma convenção do framework Ahrena. O `SKILL.md` gerado em projetos com esses diretórios **deve** incluir um cabeçalho de aviso explícito (per `kata-build-skill`, PR 2 mesmo, e `kata-package-skill`, PR 3) para que consumidores externos saibam o que esperar.
+> **Atenção:** `tools/` e `widgets/` **não** fazem parte da spec Anthropic Agent Skills. Esta é uma convenção do framework Ahrena. O `SKILL.md` gerado em projetos com esses diretórios **deve** incluir um cabeçalho de aviso explícito para que consumidores externos saibam o que esperar.
 
 ## Conteúdo
 
@@ -28,10 +28,10 @@ Tools MCP empacotadas com o skill expõem capacidades de domínio que o agente e
 
 ```
 tools/
-├── mcp.config.json     # registro das tools
-└── handlers/           # implementações
-    ├── validate_amount.py
-    └── ...
+├── mcp.config.json # registro das tools
+└── handlers/ # implementações
+ ├── validate_amount.py
+ └── ...
 ```
 
 Linguagens dos handlers: Python (default — alinhado a `codex-python-architecture`) ou JavaScript/TypeScript (Node). Mistura é permitida.
@@ -40,26 +40,26 @@ Linguagens dos handlers: Python (default — alinhado a `codex-python-architectu
 
 ```json
 {
-  "schema_version": 1,
-  "mcp": {
-    "name": "{slug}-tools",
-    "description": "MCP tools bundled with this skill (Ahrena convention).",
-    "tools": [
-      {
-        "name": "validate_amount",
-        "description": "Validate that a transfer amount is within the allowed range and currency.",
-        "input_schema": {
-          "type": "object",
-          "properties": {
-            "amount": { "type": "integer", "minimum": 1 },
-            "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
-          },
-          "required": ["amount", "currency"]
-        },
-        "handler": "handlers/validate_amount.py:run"
-      }
-    ]
-  }
+ "schema_version": 1,
+ "mcp": {
+ "name": "{slug}-tools",
+ "description": "MCP tools bundled with this skill (Ahrena convention).",
+ "tools": [
+ {
+ "name": "validate_amount",
+ "description": "Validate that a transfer amount is within the allowed range and currency.",
+ "input_schema": {
+ "type": "object",
+ "properties": {
+ "amount": { "type": "integer", "minimum": 1 },
+ "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+ },
+ "required": ["amount", "currency"]
+ },
+ "handler": "handlers/validate_amount.py:run"
+ }
+ ]
+ }
 }
 ```
 
@@ -87,58 +87,58 @@ Widgets são componentes React (TypeScript) renderizados pelo agente host na sup
 
 ```
 widgets/
-├── package.json        # React 18 + TS strict + Vite
-├── tsconfig.json       # strict: true, noUncheckedIndexedAccess: true
-├── manifest.json       # registro dos componentes expostos
+├── package.json # React 18 + TS strict + Vite
+├── tsconfig.json # strict: true, noUncheckedIndexedAccess: true
+├── manifest.json # registro dos componentes expostos
 └── src/
-    ├── components/     # primitivos reutilizáveis
-    ├── features/       # blocos por feature
-    └── transfer-form/  # exemplo de componente de feature
-        └── index.tsx
+ ├── components/ # primitivos reutilizáveis
+ ├── features/ # blocos por feature
+ └── transfer-form/ # exemplo de componente de feature
+ └── index.tsx
 ```
 
 #### `manifest.json` — schema
 
 ```json
 {
-  "schema_version": 1,
-  "components": [
-    {
-      "name": "TransferForm",
-      "entry": "src/transfer-form/index.tsx",
-      "props_schema": {
-        "type": "object",
-        "properties": {
-          "default_amount": { "type": "integer" },
-          "currency": { "type": "string" }
-        }
-      },
-      "events": [
-        {
-          "name": "submit",
-          "payload_schema": {
-            "type": "object",
-            "properties": {
-              "amount": { "type": "integer" },
-              "currency": { "type": "string" }
-            },
-            "required": ["amount", "currency"]
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "kind": "tool",
-          "ref": "validate_amount"
-        },
-        {
-          "kind": "script",
-          "ref": "scripts/src/format_currency.py",
-          "called_via": "http://localhost:5174/format-currency"
-        }
-      ]
-    }
-  ]
+ "schema_version": 1,
+ "components": [
+ {
+ "name": "TransferForm",
+ "entry": "src/transfer-form/index.tsx",
+ "props_schema": {
+ "type": "object",
+ "properties": {
+ "default_amount": { "type": "integer" },
+ "currency": { "type": "string" }
+ }
+ },
+ "events": [
+ {
+ "name": "submit",
+ "payload_schema": {
+ "type": "object",
+ "properties": {
+ "amount": { "type": "integer" },
+ "currency": { "type": "string" }
+ },
+ "required": ["amount", "currency"]
+ }
+ }
+ ],
+ "bindings": [
+ {
+ "kind": "tool",
+ "ref": "validate_amount"
+ },
+ {
+ "kind": "script",
+ "ref": "scripts/src/format_currency.py",
+ "called_via": "http://localhost:5174/format-currency"
+ }
+ ]
+ }
+ ]
 }
 ```
 
@@ -165,7 +165,7 @@ Widgets declaram explicitamente as dependências externas em `bindings[]`. O hos
 `called_via` em bindings `kind: script`:
 
 - Em **dev**, aponta para o script runner local (`http://localhost:{scripts_port}/...`)
-- Em **prod**, é reescrito pelo build: vira um caminho relativo que o host resolve via tool MCP equivalente, ou um endpoint efêmero. `kata-build-skill` aplica essa reescrita conforme `skill.config.json`.
+- Em **prod**, é reescrito pelo build: vira um caminho relativo que o host resolve via tool MCP equivalente, ou um endpoint efêmero. A stack de build do projeto consumidor é responsável por essa reescrita conforme `skill.config.json`.
 
 ### Reuso de codex e Lexis
 
@@ -183,7 +183,7 @@ Widgets declaram explicitamente as dependências externas em `bindings[]`. O hos
 | `SKILL.md`, frontmatter, body | Definidos | Inalterados |
 | `references/`, `scripts/`, `assets/` | Definidos | Inalterados — Ahrena não modifica esses diretórios |
 | `tools/`, `widgets/` | **Não cobertos** | Adicionados — agentes spec-only ignoram |
-| `.skill-manifest.json` | Não coberto | Manifesto raiz Ahrena (auditoria, hashes — ver `lex-skill-project-structure` e PR 3) |
+| `.skill-manifest.json` | Não coberto | Manifesto raiz Ahrena (auditoria, hashes — ver `lex-skill-project-structure`) |
 
 Quando a spec evoluir e cobrir tools/widgets, este codex documenta a transição (mapeamento, depreciações). Skills que adotaram a convenção continuam funcionando enquanto agentes Ahrena reconhecerem o layout — a migração para a forma canônica da spec será incremental.
 
@@ -192,22 +192,19 @@ Quando a spec evoluir e cobrir tools/widgets, este codex documenta a transição
 - O autor **não infere** binding — toda dependência externa é declarada em `manifest.json` (widgets) ou `mcp.config.json` (tools)
 - Widget **não importa** script diretamente; sempre cruza fronteira HTTP/MCP
 - `bindings[].kind: script` é resolvido com `called_via` em dev e reescrito pelo build para prod — não usar URL hardcoded de produção
-- Manifestos são validados antes de build (`kata-build-skill`); falha de schema aborta com erro específico
+- Manifestos devem ser validados pelo build do projeto consumidor antes do empacotamento; falha de schema aborta com erro específico
 
 ## Glossário
 
 | Termo | Definição |
 |-------|-----------|
 | Binding | Declaração explícita, no `manifest.json` do widget, de dependência a uma tool MCP ou a um script |
-| Tool stub | Implementação local mock que o `kata-skill-dev-server` levanta para testar bindings sem precisar do agente host real |
-| Script runner | Servidor HTTP/JSON local levantado pelo `kata-skill-dev-server` para expor scripts a widgets durante dev |
 | Manifesto raiz | `.skill-manifest.json` na raiz do projeto — distinto dos manifestos de `tools/` e `widgets/` |
 
 ## Referências
 
 - `codex-skill-anthropic-agent-skills` — spec externa
 - `codex-skill-project-architecture` — layout do projeto e papel dos diretórios
-- `codex-skill-build-pipeline` — como build resolve bindings, valida manifestos, congela artefatos
 - `codex-frontend-architecture` — arquitetura aplicada aos widgets
 - `codex-python-architecture`, `codex-python-tooling` — arquitetura aplicada a handlers Python
 - `codex-mcp-common` — padrões compartilhados de servidores MCP

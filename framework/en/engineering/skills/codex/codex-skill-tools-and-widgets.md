@@ -11,12 +11,12 @@ External agents that only know the spec **ignore** these directories — they co
 ## Context
 
 - **Domain:** internal structure of `tools/` and `widgets/` inside skill projects, and the binding contract between them
-- **Audience:** skill authors who need their own UI or MCP logic; `kata-skill-dev-server`, `kata-build-skill`, `kata-package-skill`
+- **Audience:** skill authors who need their own UI or MCP logic
 - **Update:** when manifest schemas evolve; when the Anthropic spec absorbs equivalent primitives (if it occurs, this codex documents the transition)
 
 ## Status — Convention, not Spec
 
-> **Attention:** `tools/` and `widgets/` are **not** part of the Anthropic Agent Skills spec. This is an Ahrena framework convention. The `SKILL.md` generated in projects with these directories **MUST** include an explicit warning header (per `kata-build-skill`, PR 2 itself, and `kata-package-skill`, PR 3) so external consumers know what to expect.
+> **Attention:** `tools/` and `widgets/` are **not** part of the Anthropic Agent Skills spec. This is an Ahrena framework convention. The `SKILL.md` generated in projects with these directories **MUST** include an explicit warning header so external consumers know what to expect.
 
 ## Content
 
@@ -28,10 +28,10 @@ MCP tools bundled with the skill expose domain capabilities that the external ag
 
 ```
 tools/
-├── mcp.config.json     # tool registry
-└── handlers/           # implementations
-    ├── validate_amount.py
-    └── ...
+├── mcp.config.json # tool registry
+└── handlers/ # implementations
+ ├── validate_amount.py
+ └── ...
 ```
 
 Handler languages: Python (default — aligned with `codex-python-architecture`) or JavaScript/TypeScript (Node). Mixing is permitted.
@@ -40,26 +40,26 @@ Handler languages: Python (default — aligned with `codex-python-architecture`)
 
 ```json
 {
-  "schema_version": 1,
-  "mcp": {
-    "name": "{slug}-tools",
-    "description": "MCP tools bundled with this skill (Ahrena convention).",
-    "tools": [
-      {
-        "name": "validate_amount",
-        "description": "Validate that a transfer amount is within the allowed range and currency.",
-        "input_schema": {
-          "type": "object",
-          "properties": {
-            "amount": { "type": "integer", "minimum": 1 },
-            "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
-          },
-          "required": ["amount", "currency"]
-        },
-        "handler": "handlers/validate_amount.py:run"
-      }
-    ]
-  }
+ "schema_version": 1,
+ "mcp": {
+ "name": "{slug}-tools",
+ "description": "MCP tools bundled with this skill (Ahrena convention).",
+ "tools": [
+ {
+ "name": "validate_amount",
+ "description": "Validate that a transfer amount is within the allowed range and currency.",
+ "input_schema": {
+ "type": "object",
+ "properties": {
+ "amount": { "type": "integer", "minimum": 1 },
+ "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+ },
+ "required": ["amount", "currency"]
+ },
+ "handler": "handlers/validate_amount.py:run"
+ }
+ ]
+ }
 }
 ```
 
@@ -87,58 +87,58 @@ Widgets are React (TypeScript) components rendered by the host agent on the chat
 
 ```
 widgets/
-├── package.json        # React 18 + TS strict + Vite
-├── tsconfig.json       # strict: true, noUncheckedIndexedAccess: true
-├── manifest.json       # registry of exposed components
+├── package.json # React 18 + TS strict + Vite
+├── tsconfig.json # strict: true, noUncheckedIndexedAccess: true
+├── manifest.json # registry of exposed components
 └── src/
-    ├── components/     # reusable primitives
-    ├── features/       # blocks per feature
-    └── transfer-form/  # example feature component
-        └── index.tsx
+ ├── components/ # reusable primitives
+ ├── features/ # blocks per feature
+ └── transfer-form/ # example feature component
+ └── index.tsx
 ```
 
 #### `manifest.json` — schema
 
 ```json
 {
-  "schema_version": 1,
-  "components": [
-    {
-      "name": "TransferForm",
-      "entry": "src/transfer-form/index.tsx",
-      "props_schema": {
-        "type": "object",
-        "properties": {
-          "default_amount": { "type": "integer" },
-          "currency": { "type": "string" }
-        }
-      },
-      "events": [
-        {
-          "name": "submit",
-          "payload_schema": {
-            "type": "object",
-            "properties": {
-              "amount": { "type": "integer" },
-              "currency": { "type": "string" }
-            },
-            "required": ["amount", "currency"]
-          }
-        }
-      ],
-      "bindings": [
-        {
-          "kind": "tool",
-          "ref": "validate_amount"
-        },
-        {
-          "kind": "script",
-          "ref": "scripts/src/format_currency.py",
-          "called_via": "http://localhost:5174/format-currency"
-        }
-      ]
-    }
-  ]
+ "schema_version": 1,
+ "components": [
+ {
+ "name": "TransferForm",
+ "entry": "src/transfer-form/index.tsx",
+ "props_schema": {
+ "type": "object",
+ "properties": {
+ "default_amount": { "type": "integer" },
+ "currency": { "type": "string" }
+ }
+ },
+ "events": [
+ {
+ "name": "submit",
+ "payload_schema": {
+ "type": "object",
+ "properties": {
+ "amount": { "type": "integer" },
+ "currency": { "type": "string" }
+ },
+ "required": ["amount", "currency"]
+ }
+ }
+ ],
+ "bindings": [
+ {
+ "kind": "tool",
+ "ref": "validate_amount"
+ },
+ {
+ "kind": "script",
+ "ref": "scripts/src/format_currency.py",
+ "called_via": "http://localhost:5174/format-currency"
+ }
+ ]
+ }
+ ]
 }
 ```
 
@@ -165,7 +165,7 @@ Widgets explicitly declare their external dependencies in `bindings[]`. The host
 `called_via` in `kind: script` bindings:
 
 - In **dev**, points to the local script runner (`http://localhost:{scripts_port}/...`)
-- In **prod**, it is rewritten by the build: it becomes a relative path the host resolves via the equivalent MCP tool, or an ephemeral endpoint. `kata-build-skill` applies this rewrite according to `skill.config.json`.
+- In **prod**, it is rewritten by the build: it becomes a relative path the host resolves via the equivalent MCP tool, or an ephemeral endpoint. The consuming project's build stack is responsible for that rewrite according to `skill.config.json`.
 
 ### Reuse of codex and Lexis
 
@@ -183,7 +183,7 @@ Widgets explicitly declare their external dependencies in `bindings[]`. The host
 | `SKILL.md`, frontmatter, body | Defined | Unchanged |
 | `references/`, `scripts/`, `assets/` | Defined | Unchanged — Ahrena does not modify these directories |
 | `tools/`, `widgets/` | **Not covered** | Added — spec-only agents ignore |
-| `.skill-manifest.json` | Not covered | Ahrena root manifest (audit, hashes — see `lex-skill-project-structure` and PR 3) |
+| `.skill-manifest.json` | Not covered | Ahrena root manifest (audit, hashes — see `lex-skill-project-structure`) |
 
 When the spec evolves and covers tools/widgets, this codex documents the transition (mapping, deprecations). Skills that adopted the convention continue working as long as Ahrena agents recognize the layout — migration to the canonical form of the spec will be incremental.
 
@@ -192,22 +192,19 @@ When the spec evolves and covers tools/widgets, this codex documents the transit
 - The author **does not infer** bindings — every external dependency is declared in `manifest.json` (widgets) or `mcp.config.json` (tools)
 - Widget **does not import** a script directly; always crosses an HTTP/MCP boundary
 - `bindings[].kind: script` is resolved with `called_via` in dev and rewritten by the build for prod — do not use a hardcoded production URL
-- Manifests are validated before build (`kata-build-skill`); a schema failure aborts with a specific error
+- Manifests MUST be validated by the consuming project's build before packaging; a schema failure aborts with a specific error
 
 ## Glossary
 
 | Term | Definition |
 |------|------------|
 | Binding | Explicit declaration, in the widget's `manifest.json`, of a dependency on an MCP tool or a script |
-| Tool stub | Local mock implementation that `kata-skill-dev-server` brings up to test bindings without needing the real host agent |
-| Script runner | Local HTTP/JSON server brought up by `kata-skill-dev-server` to expose scripts to widgets during dev |
 | Root manifest | `.skill-manifest.json` at the project root — distinct from the manifests of `tools/` and `widgets/` |
 
 ## References
 
 - `codex-skill-anthropic-agent-skills` — external spec
 - `codex-skill-project-architecture` — project layout and role of the directories
-- `codex-skill-build-pipeline` — how the build resolves bindings, validates manifests, freezes artifacts
 - `codex-frontend-architecture` — architecture applied to widgets
 - `codex-python-architecture`, `codex-python-tooling` — architecture applied to Python handlers
 - `codex-mcp-common` — shared MCP server patterns

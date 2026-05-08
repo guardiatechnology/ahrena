@@ -50,7 +50,7 @@ Tarea:
 Invoque kata-init-skill con los parámetros arriba. El kata:
 1. Valida slug y description per codex-skill-anthropic-agent-skills
 2. Copia framework/templates/skill-project-sample/ a
-   {paths.skills_root}/{slug}/, sustituyendo placeholders
+ {paths.skills_root}/{slug}/, sustituyendo placeholders
 3. Aplica opt-outs (with_widgets, with_tools, with_scripts)
 4. Garantiza .gitignore con .build/
 5. Reporta el resultado
@@ -66,19 +66,19 @@ para la autoría. En caso de error, mensaje específico y corrección sugerida.
 
 ```
 /cry-new-skill scheduled-payments-skill \
-  description="Schedules and approves bank transfers using widgets connected to Python tools. Use when the user wants to create or approve a scheduled transfer." \
-  license=Apache-2.0
+ description="Schedules and approves bank transfers using widgets connected to Python tools. Use when the user wants to create or approve a scheduled transfer." \
+ license=Apache-2.0
 ```
 
 **Salida esperada:**
 
 ```
 ✅ Proyecto creado: skills/scheduled-payments-skill/
-   SKILL.md, skill.config.json, .skill-manifest.json
-   widgets/ (React + TS)
-   scripts/ (Python)
-   tools/ (MCP placeholder)
-   references/REFERENCE.md
+ SKILL.md, skill.config.json, .skill-manifest.json
+ widgets/ (React + TS)
+ scripts/ (Python)
+ tools/ (MCP placeholder)
+ references/REFERENCE.md
 
 .gitignore: .build/ agregado.
 
@@ -86,7 +86,6 @@ Próximos pasos:
 - Editar SKILL.md (cuerpo)
 - Agregar componentes en widgets/src/
 - Agregar handlers en tools/handlers/
-- cry-skill-dev / cry-skill-build llegan en el PR 2
 ```
 
 ## Restricciones
