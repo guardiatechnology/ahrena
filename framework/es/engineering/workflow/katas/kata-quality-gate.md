@@ -71,11 +71,11 @@ Cuando el checkpoint contiene `stack.approved: true`, esta kata se invoca **una 
 - Cuando los 7 checks retornan ✅ para la capa, esta kata actualiza `stack.decomposition[i].status: submitted` en el checkpoint.
 - Tras el merge del PR de la capa, Athena (o `kata-stacked-pr-merge`) actualiza a `merged`.
 
-**Validación agregada final:** cuando todas las capas alcanzan `submitted`, la kata corre una pasada agregada que confirma:
+**Validación agregada final:** disparada automáticamente al **final de la ejecución de la última capa** — es decir, en la misma invocación de `kata-quality-gate` que promueve la última capa `pending` a `submitted`. Después de que los 7 checks con alcance de capa retornan ✅, la kata corre una pasada agregada adicional que confirma:
 1. Todo AC numerado en la Fase 2 fue cubierto por **alguna** capa (sin AC huérfano).
 2. Todo componente declarado en la Fase 3 fue tocado por **alguna** capa (sin componente huérfano).
 
-Si la validación agregada falla, retorna `no-go` y el informe apunta los elementos huérfanos. En flujo PR único (sin `stack`), la validación agregada es trivialmente equivalente al Check 1 del conjunto completo y no genera pasada extra.
+Si la validación agregada falla, el resultado general de la capa se rebaja a `no-go` y el informe apunta los elementos huérfanos. En flujo PR único (sin `stack`), la validación agregada es trivialmente equivalente al Check 1 del conjunto completo y no genera pasada extra.
 
 ### Paso 2: Check 1 — Trazabilidad bidireccional AC ↔ prueba
 
@@ -218,7 +218,7 @@ Estructura:
    - Si `no-go`: siguiente fase = 4 (regresar para correcciones)
    - **Modo por capa:** actualizar adicionalmente `stack.decomposition[i].status` de la capa actual — `submitted` cuando `go`; mantener `in-progress` cuando `no-go`. `phase_next` permanece en 4 mientras haya capa pendiente.
 2. Informar a `warrior-athena`:
-   - Si `go` (PR único): avanzar a `kata-pr-prepare` (o `kata-contributing-pr` en flujos nuevos).
+   - Si `go` (PR único): avanzar a `kata-contributing-pr` (según Regla 12 de `lex-issue-driven`).
    - Si `go` (modo por capa): liberar la capa para someter vía `kata-stacked-pr-create`; si aún hay capa pendiente, regresar a la Fase 4 para la siguiente.
    - Si `no-go`: presentar informe al humano y esperar dirección (corregir o ampliar ACs).
 
