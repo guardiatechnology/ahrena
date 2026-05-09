@@ -71,11 +71,11 @@ When the checkpoint contains `stack.approved: true`, this kata is invoked **once
 - When the 7 checks return ✅ for the layer, this kata updates `stack.decomposition[i].status: submitted` in the checkpoint.
 - After the layer's PR merges, Athena (or `kata-stacked-pr-merge`) updates it to `merged`.
 
-**Final aggregate validation:** when every layer reaches `submitted`, the kata runs a final aggregate pass that confirms:
+**Final aggregate validation:** triggered automatically at the **end of the last layer's run** — i.e., on the same `kata-quality-gate` invocation that flips the final `pending` layer to `submitted`. After the 7 layer-scoped checks return ✅, the kata performs an additional aggregate pass that confirms:
 1. Every numbered AC from Phase 2 was covered by **some** layer (no orphan AC).
 2. Every component declared in Phase 3 was touched by **some** layer (no orphan component).
 
-If aggregate validation fails, returns `no-go` and the report points out the orphan elements. In single-PR flows (no `stack`), aggregate validation is trivially equivalent to Check 1 over the full set and adds no extra pass.
+If aggregate validation fails, the layer's overall result is downgraded to `no-go` and the report points out the orphan elements. In single-PR flows (no `stack`), aggregate validation is trivially equivalent to Check 1 over the full set and adds no extra pass.
 
 ### Step 2: Check 1 — Bidirectional AC ↔ test traceability
 
@@ -283,7 +283,7 @@ Structure:
    - If `no-go`: next phase = 4 (return for corrections)
    - **Per-layer mode:** additionally update `stack.decomposition[i].status` for the current layer — `submitted` when `go`; keep `in-progress` when `no-go`. `phase_next` stays at 4 while any layer is pending.
 2. Inform `warrior-athena`:
-   - If `go` (single PR): advance to `kata-pr-prepare` (or `kata-contributing-pr` in newer flows).
+   - If `go` (single PR): advance to `kata-contributing-pr` (per `lex-issue-driven` Rule 12).
    - If `go` (per-layer mode): release the layer for submission via `kata-stacked-pr-create`; if any layer is still pending, return to Phase 4 for the next.
    - If `no-go`: present the report to the human and await direction (fix or expand ACs).
 
