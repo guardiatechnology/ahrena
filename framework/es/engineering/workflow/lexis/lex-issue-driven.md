@@ -278,7 +278,7 @@ La regla de referencia de la issue paraguas (Regla 5 de `codex-stacked-prs`, sec
 # ❌ Athena propone descomposición en stack pero inicia la Fase 4 sin aprobación en el Gate 1:
 # (la descomposición requiere aprobación humana explícita; el checkpoint debe registrar stack.approved: true)
 
-# ❌ La capa 2 comienza antes de que la capa 1 esté lista para review (status submitted):
+# ❌ La capa 2 comienza antes de que la capa 1 alcance `submitted`:
 # (las capas tienen dependencia secuencial; Athena delega la capa N+1 solo después de que N transite a submitted)
 ```
 
