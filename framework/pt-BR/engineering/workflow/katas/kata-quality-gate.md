@@ -71,11 +71,11 @@ Quando o checkpoint contém `stack.approved: true`, esta kata é invocada **uma 
 - Quando os 7 checks retornam ✅ para a camada, esta kata atualiza `stack.decomposition[i].status: submitted` no checkpoint.
 - Após o PR da camada ser mergeado, Athena (ou `kata-stacked-pr-merge`) atualiza para `merged`.
 
-**Validação agregada final:** quando todas as camadas atingem `submitted`, a kata roda uma passada agregada que confirma:
+**Validação agregada final:** disparada automaticamente ao **final da execução da última camada** — ou seja, na mesma invocação de `kata-quality-gate` que promove a última camada `pending` para `submitted`. Depois que os 7 checks com escopo da camada retornam ✅, a kata roda uma passada agregada adicional que confirma:
 1. Toda AC numerada na Fase 2 foi coberta por **alguma** camada (sem AC órfão).
 2. Todo componente declarado na Fase 3 foi tocado por **alguma** camada (sem componente órfão).
 
-Se a validação agregada falhar, retorna `no-go` e o relatório aponta os elementos órfãos. Em fluxo PR único (sem `stack`), a validação agregada é trivialmente equivalente ao Check 1 do conjunto completo e não gera passada extra.
+Se a validação agregada falhar, o resultado geral da camada é rebaixado para `no-go` e o relatório aponta os elementos órfãos. Em fluxo PR único (sem `stack`), a validação agregada é trivialmente equivalente ao Check 1 do conjunto completo e não gera passada extra.
 
 ### Passo 2: Check 1 — Rastreabilidade AC ↔ teste (bidirecional)
 
@@ -218,7 +218,7 @@ Estrutura:
    - Se `no-go`: próxima fase = 4 (retornar para correções)
    - **Modo por camada:** atualizar adicionalmente `stack.decomposition[i].status` da camada corrente — `submitted` quando `go`; manter `in-progress` quando `no-go`. A `phase_next` permanece em 4 enquanto houver camada pendente.
 2. Informar ao `warrior-athena`:
-   - Se `go` (PR único): avançar para `kata-pr-prepare` (ou `kata-contributing-pr` em fluxos novos).
+   - Se `go` (PR único): avançar para `kata-contributing-pr` (conforme Regra 12 de `lex-issue-driven`).
    - Se `go` (modo por camada): liberar a camada para submissão via `kata-stacked-pr-create`; se ainda houver camada pendente, retornar à Fase 4 para a próxima.
    - Se `no-go`: apresentar relatório ao humano e aguardar direção (corrigir ou ampliar ACs).
 
