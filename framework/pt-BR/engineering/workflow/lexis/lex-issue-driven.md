@@ -93,6 +93,26 @@ delegations:
     started_at: "..."
     completed_at: "..."
     output_refs: ["docs/..."]
+    layer: 1                          # opcional; presente apenas em fluxos com stack
+# Bloco opcional. Presente apenas quando a Fase 3 propôs decomposição
+# em camadas e o humano aprovou no Gate 1. Ausência = fluxo PR único
+# (comportamento padrão; preserva schema_version 1).
+stack:
+  approved: false                     # vira true após Gate 1 aprovar a decomposição
+  tool: vanilla                       # eco de .directives.stacked_prs.tool (vanilla | gs)
+  decomposition:
+    - layer: 1
+      slug: schema
+      covers_acs: [AC-1, AC-2]
+      components: ["db/migrations/*", "models/*"]
+      status: pending                 # pending | in-progress | submitted | merged
+      pr: null                        # owner/repo#N quando submetido
+    - layer: 2
+      slug: api
+      covers_acs: [AC-3, AC-4]
+      components: ["api/routers/*", "use_cases/*"]
+      status: pending
+      pr: null
 updated_at: "2026-04-16T15:00:00Z"
 ---
 
@@ -142,6 +162,47 @@ Quando detectado, o agente **DEVE** apresentar duas opções ao usuário:
 - Ampliar os ACs (nova iteração do Gate 1) para cobrir o código adicional.
 - Remover o código além do escopo do PR atual e abrir nova issue para ele.
 
+Em fluxos com `stack.approved: true`, o escopo de cada checagem de scope creep é a **camada corrente**, não a stack inteira (ver Regra 11).
+
+### 10. Decomposição em stacked PRs na Fase 3
+
+Durante a Fase 3 (Architecture), `warrior-athena` **DEVE** consultar a Decision Checklist canônica de [`codex-stacked-prs`](../../../_foundation/contributing/codex/codex-stacked-prs.md) (seção 2) contra o escopo declarado e os ACs numerados na Fase 2:
+
+1. **Avaliar sinais altos e anti-sinais** conforme a checklist (≥ 3 sinais altos AND 0 anti-sinais → propor stack; caso contrário, PR único).
+2. **Se a checklist aprovar:** registrar uma seção `## Stacked PR Decomposition` em `docs/issues/issue-{n}/03-architecture.md` contendo:
+   - Tabela de camadas com colunas `Layer | Slug | ACs cobertos | Componentes tocados | Justificativa de independência de review`
+   - Ferramenta selecionada (lookup em `.directives.stacked_prs.tool`; default `vanilla`)
+   - Mapeamento explícito AC ↔ camada (cada AC pertence a exatamente uma camada)
+3. **Se a checklist reprovar:** registrar `Single PR — checklist not met` na mesma seção, citando os sinais avaliados; seguir o fluxo padrão de PR único.
+
+A decomposição proposta **NÃO PODE** ser aplicada antes da aprovação humana no Gate 1. Athena apresenta a decomposição como parte do design e aguarda revisão.
+
+A escolha da ferramenta (`vanilla` vs. `gs`) é decisão do projeto via `.directives` — Athena apenas lê o valor; nunca modifica a diretiva. Quando `stacked_prs.tool: gs` está configurado mas `git-spice` não está disponível no ambiente, `kata-stacked-pr-create` cai no caminho `vanilla` com warning.
+
+### 11. Gate 2 por camada quando há stack aprovada
+
+Quando o checkpoint contém `stack.approved: true`, `kata-quality-gate` **DEVE** rodar **por camada** antes de cada PR ser submetido, não uma única vez no final:
+
+1. **AC ↔ test traceability** (Regra 3) é avaliada apenas contra o subset de ACs cobertos pela camada (`stack.decomposition[i].covers_acs`), não contra o conjunto completo.
+2. **Scope creep** (Regra 6) é avaliado apenas contra os componentes declarados pela camada na Fase 3 (`stack.decomposition[i].components`).
+3. Cada `decomposition[i].status` só transita de `in-progress` para `submitted` quando os 7 checks da `kata-quality-gate` passarem para a camada.
+4. Validação agregada final (após todas as camadas com status `submitted`) confirma que **toda** AC foi coberta por alguma camada (não há AC órfão) e que **todo** componente tocado foi declarado em alguma camada (não há componente órfão).
+
+Em fluxos sem stack (bloco `stack` ausente), Gate 2 roda uma única vez sobre o escopo completo (comportamento atual preservado).
+
+### 12. Roteamento do PR na Fase 7
+
+A Fase 7 escolhe o kata de criação de PR com base no estado de `stack`:
+
+| Estado do checkpoint | Kata invocado |
+|---|---|
+| `stack` ausente OU `stack.approved: false` | `kata-contributing-pr` (PR único — comportamento atual) |
+| `stack.approved: true` | `kata-stacked-pr-create` |
+
+`kata-stacked-pr-create` lê `.directives.stacked_prs.tool` e segue a variante correspondente (vanilla ou gs). Cada PR criado pela cadeia atualiza a entrada correspondente em `stack.decomposition[i].pr` no checkpoint, com formato `owner/repo#N`.
+
+A regra de referência da issue guarda-chuva (Regra 5 do `codex-stacked-prs`, seção 1.2) é aplicada por `kata-stacked-pr-create`: camadas intermediárias usam `Refs #N`; a última usa `Closes #N` para fechar a issue automaticamente no merge.
+
 ## Abrangência
 
 - **Aplica-se a:** qualquer invocação de `/cry-implement-issue` e qualquer atividade conduzida por `warrior-athena`.
@@ -177,6 +238,24 @@ Quando detectado, o agente **DEVE** apresentar duas opções ao usuário:
 # PR criado com body referenciando os artefatos acima
 ```
 
+```
+# Fluxo com stacked PR aprovado no Gate 1:
+/cry-implement-issue 64 guardiatechnology/ahrena
+
+# Athena lê a issue #64 (5 ACs, ~900 linhas previstas, schema+API+UI):
+#   Decision Checklist: 4 sinais altos, 0 anti-sinais → propõe stack
+# docs/issues/issue-64/03-architecture.md inclui:
+#   ## Stacked PR Decomposition
+#     Layer 1 (schema):  AC-1, AC-2  — db/migrations/*, models/*
+#     Layer 2 (api):     AC-3, AC-4  — routers/*, use_cases/*
+#     Layer 3 (ui):      AC-5       — frontend/components/*
+# Gate 1 aprovado → checkpoint grava stack.approved: true
+# Apollo implementa Layer 1; Gate 2 roda contra AC-1, AC-2 e components da camada 1 → ✅ submitted
+# Apollo implementa Layer 2; Gate 2 roda contra AC-3, AC-4 → ✅ submitted
+# Hephaestus implementa Layer 3; Gate 2 roda contra AC-5 → ✅ submitted
+# kata-stacked-pr-create cria 3 PRs encadeados; última camada usa Closes #64
+```
+
 ### Incorreto
 
 ```
@@ -195,10 +274,16 @@ Quando detectado, o agente **DEVE** apresentar duas opções ao usuário:
 
 # ❌ Modificação de arquivo fora do escopo declarado:
 # (Gate 2 bloqueia; usuário decide entre ampliar AC ou abrir nova issue)
+
+# ❌ Athena propõe decomposição em stack mas inicia Fase 4 sem aprovação no Gate 1:
+# (Decomposição precisa de aprovação humana explícita; checkpoint deve registrar stack.approved: true)
+
+# ❌ Camada 2 começa antes da camada 1 atingir `submitted`:
+# (Camadas têm dependência sequencial; Athena delega camada N+1 só após N transitar para submitted)
 ```
 
 ## Validação Automatizada
 
-- **Ferramenta:** `kata-quality-gate` (Gate 2) executa a verificação de rastreabilidade, scope creep e best practices antes do PR; `scripts/validate.py` verifica a presença obrigatória de artefatos em `docs/issues/issue-{n}/` quando o fluxo é concluído.
-- **Momento:** Gate 1 (antes da Fase 4), Gate 2 (antes da Fase 7).
-- **Métrica:** 100% das issues passam por ambos os gates; 100% dos ACs têm pelo menos um teste; 0 testes sem AC correspondente; 100% das decisões arquiteturais relevantes têm ADR em `docs/adr/`.
+- **Ferramenta:** `kata-quality-gate` (Gate 2) executa a verificação de rastreabilidade, scope creep e best practices antes do PR; `scripts/validate.py` verifica a presença obrigatória de artefatos em `docs/issues/issue-{n}/` quando o fluxo é concluído. Quando o checkpoint contém `stack.approved: true`, `kata-quality-gate` roda por camada e a validação agregada confirma cobertura de ACs e componentes.
+- **Momento:** Gate 1 (antes da Fase 4), Gate 2 (antes de cada camada submetida em fluxos com stack; antes da Fase 7 em fluxo PR único).
+- **Métrica:** 100% das issues passam por ambos os gates; 100% dos ACs têm pelo menos um teste; 0 testes sem AC correspondente; 100% das decisões arquiteturais relevantes têm ADR em `docs/adr/`; 0 fluxos com `stack.approved: true` que avancem da Fase 3 para a Fase 4 sem aprovação humana no Gate 1.
