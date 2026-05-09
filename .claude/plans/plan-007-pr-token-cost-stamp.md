@@ -109,7 +109,7 @@ Marcadores HTML garantem idempotência: re-rodar substitui o bloco em vez de dup
 - [x] 14. Rodar `python3 scripts/install.py --self --target . --platform {claude-code,cursor}` no worktree
 - [x] 15. Smoke ccusage: `daily --project=<id> --since=<date>` retornou dados reais agregados; subcomando `daily` (não `session`) usado para o filtro `--project`; PROJECT_ID derivado de `dirname "$(git rev-parse --git-common-dir)"` para suportar worktrees
 - [x] 16. Smoke fallback: `scripts/pr-cost-stamp.sh --project ahrena --since 20260508` retornou JSON com `totals` (11 sessões), `breakdown` por modelo, `cost_unavailable: true` por design
-- [ ] 17. Commits atômicos por artefato; subject em inglês + body bilíngue; assinados
+- [x] 17. Commits atômicos por artefato; subject em inglês + body bilíngue; assinados (5 commits: codex+platforms, kata, script, integração, sync+plan)
 - [ ] 18. Push e abrir PR via `kata-contributing-pr` — esta própria PR vai trazer o stamp (dogfooding)
 - [ ] 19. Após merge: arquivar plan e remover worktree
 

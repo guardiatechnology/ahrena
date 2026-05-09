@@ -120,23 +120,24 @@ Regras de formatação:
    ```bash
    CURRENT_BODY=$(gh pr view $PR_NUMBER --json body --jq .body)
    ```
-2. Aplicar upsert por marcadores:
+2. Aplicar upsert por marcadores. Usar `perl` (portátil entre macOS/Linux; o `awk` BWK do macOS não lida bem com variáveis multi-linha):
    ```bash
-   START='<!-- ahrena:cost-stamp:start -->'
-   END='<!-- ahrena:cost-stamp:end -->'
+   echo "$CURRENT_BODY" > /tmp/pr-body.in
+   echo "$RENDERED_BLOCK" > /tmp/pr-body.block
 
-   if grep -q "$START" <<< "$CURRENT_BODY"; then
+   if grep -q '<!-- ahrena:cost-stamp:start -->' /tmp/pr-body.in; then
      # substituir bloco existente
-     NEW_BODY=$(awk -v start="$START" -v end="$END" -v block="$RENDERED_BLOCK" '
-       BEGIN{p=1}
-       $0 ~ start {print block; p=0}
-       p {print}
-       $0 ~ end {p=1; next}
-     ' <<< "$CURRENT_BODY")
+     perl -0777 -i -pe '
+       BEGIN { local $/; open(my $fh, "<", "/tmp/pr-body.block") or die; $b = <$fh>; chomp $b; }
+       s|<!-- ahrena:cost-stamp:start -->.*?<!-- ahrena:cost-stamp:end -->|$b|s
+     ' /tmp/pr-body.in
    else
-     # anexar ao final do body
-     NEW_BODY="${CURRENT_BODY}"$'\n\n'"${RENDERED_BLOCK}"
+     # anexar ao final do body separado por linha em branco
+     printf "\n\n" >> /tmp/pr-body.in
+     cat /tmp/pr-body.block >> /tmp/pr-body.in
    fi
+
+   NEW_BODY=$(cat /tmp/pr-body.in)
    ```
 3. Atualizar a PR:
    ```bash
