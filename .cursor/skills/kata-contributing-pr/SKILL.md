@@ -17,7 +17,8 @@ Progress:
 - [ ] 4. Compose PR (template in .ahrena/contributing_templates/)
 - [ ] 5. Create PR via GitHub MCP (or gh)
 - [ ] 6. Apply labels and assignee
-- [ ] 7. Final verification
+- [ ] 7. Stamp cost (optional, per `.directives`)
+- [ ] 8. Final verification
 ```
 
 ### Step 1: Analyze changes
@@ -83,7 +84,15 @@ Apply labels manually:
    - `breaking change 💥` — if any commit introduces an incompatible API change
    - `security 🛡️` — if the PR resolves a security issue
 
-### Step 7: Final verification
+### Step 7: Stamp cost (optional)
+
+Optional step, gated by `pr_cost_tracking.enabled: true` in `.ahrena/.directives`. Non-blocking: stamp failure does not block the PR.
+
+1. Consult `.ahrena/.directives`. If `pr_cost_tracking.enabled` is absent or `false`, skip this step.
+2. Invoke `kata-pr-cost-stamp` with `$PR_NUMBER` recorded in Step 5.
+3. If the stamp fails (network, tool unavailable, parsing), log a warning and proceed to Step 8.
+
+### Step 8: Final verification
 
 - [ ] The PR was created successfully
 - [ ] The title follows Conventional Commits in English
@@ -94,6 +103,7 @@ Apply labels manually:
 - [ ] The PR is self-assigned (`@me`)
 - [ ] All commits are signed (GPG verified)
 - [ ] The source branch follows `lex-git-branches` format
+- [ ] Cost stamp executed successfully or skipped per `pr_cost_tracking.enabled` in `.directives` (Step 7)
 
 ## Outputs
 

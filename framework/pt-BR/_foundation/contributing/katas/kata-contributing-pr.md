@@ -30,7 +30,8 @@ Progresso:
 - [ ] 4. Compor o PR (template em .ahrena/contributing_templates/)
 - [ ] 5. Criar PR via GitHub MCP (ou gh)
 - [ ] 6. Aplicar labels e assignee
-- [ ] 7. Verificação final
+- [ ] 7. Estampar custo (opcional, conforme `.directives`)
+- [ ] 8. Verificação final
 ```
 
 ### Passo 1: Analisar as mudanças
@@ -96,7 +97,15 @@ Aplicar labels manualmente:
    - `breaking change 💥` — se algum commit introduz uma mudança incompatível de API
    - `security 🛡️` — se o PR resolve um problema de segurança
 
-### Passo 7: Verificação final
+### Passo 7: Estampar custo (opcional)
+
+Passo opcional, ativado por `pr_cost_tracking.enabled: true` em `.ahrena/.directives`. Não-bloqueante: uma falha do stamp não impede a PR.
+
+1. Consultar `.ahrena/.directives`. Se `pr_cost_tracking.enabled` estiver ausente ou `false`, pular este passo.
+2. Invocar `kata-pr-cost-stamp` com `$PR_NUMBER` registrado no Passo 5.
+3. Se o stamp falhar (rede, ferramenta indisponível, parsing), registrar aviso no log e prosseguir para o Passo 8.
+
+### Passo 8: Verificação final
 
 - [ ] O PR foi criado com sucesso
 - [ ] O título segue Conventional Commits em inglês
@@ -107,6 +116,7 @@ Aplicar labels manualmente:
 - [ ] O PR está auto-atribuído (`@me`)
 - [ ] Todos os commits estão assinados (verificação GPG)
 - [ ] A branch de origem segue o formato `lex-git-branches`
+- [ ] Stamp de custo executado com sucesso ou pulado conforme `pr_cost_tracking.enabled` em `.directives` (Passo 7)
 
 ## Saídas
 
@@ -132,5 +142,7 @@ Aplicar labels manualmente:
 - `codex-commit-standards` — Padrões de mensagem de commit
 - `kata-commit` — Procedimento para realizar commits em conformidade
 - `kata-contribute` — Procedimento canônico de PR (esta Kata se alinha ou reutiliza ele)
+- `kata-pr-cost-stamp` — Passo opcional que estampa custo de tokens (Claude Code) na PR
+- `codex-pr-cost-tracking` — Manual de referência do stamp de custo
 - cry-new-pr, cry-contribute — Atalhos que invocam esta Kata
 - `.ahrena/contributing_templates/pull_request_template.md` — Template de PR (fonte canônica após o install)

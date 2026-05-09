@@ -165,6 +165,9 @@ cursor:
     _foundation/tooling/codex/codex-git-spice:
       alwaysApply: false
       description: "When operating Stacked PRs and stacked_prs.tool=gs, consult this codex for git-spice install, setup, command catalog, vanilla→gs mapping, and force-push semantics."
+    _foundation/tooling/codex/codex-pr-cost-tracking:
+      alwaysApply: false
+      description: "When pr_cost_tracking.enabled is true and a PR is created or updated, consult this codex for data source (Claude Code JSONL logs), ccusage invocation, fallback path, output format, idempotency markers, privacy notes, and known limitations."
     documentation/i18n/lexis/lex-language:
       alwaysApply: false
       description: "When translating technical docs, preserve structure and semantics; apply cross-cutting translation rules."

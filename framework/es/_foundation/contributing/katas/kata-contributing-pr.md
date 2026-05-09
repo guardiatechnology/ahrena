@@ -30,7 +30,8 @@ Progreso:
 - [ ] 4. Componer el PR (template en .ahrena/contributing_templates/)
 - [ ] 5. Crear PR mediante GitHub MCP (o gh)
 - [ ] 6. Aplicar labels y assignee
-- [ ] 7. Verificación final
+- [ ] 7. Estampar costo (opcional, según `.directives`)
+- [ ] 8. Verificación final
 ```
 
 ### Paso 1: Analizar los cambios
@@ -96,7 +97,15 @@ Aplicar labels manualmente:
    - `breaking change 💥` — si algún commit introduce un cambio de API incompatible
    - `security 🛡️` — si el PR resuelve un problema de seguridad
 
-### Paso 7: Verificación final
+### Paso 7: Estampar costo (opcional)
+
+Paso opcional, condicionado por `pr_cost_tracking.enabled: true` en `.ahrena/.directives`. No bloqueante: una falla del stamp no impide el PR.
+
+1. Consultar `.ahrena/.directives`. Si `pr_cost_tracking.enabled` está ausente o es `false`, omitir este paso.
+2. Invocar `kata-pr-cost-stamp` con `$PR_NUMBER` registrado en el Paso 5.
+3. Si el stamp falla (red, herramienta no disponible, parsing), registrar warning en el log y continuar al Paso 8.
+
+### Paso 8: Verificación final
 
 - [ ] El PR fue creado correctamente
 - [ ] El título sigue Conventional Commits en inglés
@@ -107,6 +116,7 @@ Aplicar labels manualmente:
 - [ ] El PR está auto-asignado (`@me`)
 - [ ] Todos los commits están firmados (verificación GPG)
 - [ ] La rama de origen sigue el formato `lex-git-branches`
+- [ ] Stamp de costo ejecutado con éxito u omitido según `pr_cost_tracking.enabled` en `.directives` (Paso 7)
 
 ## Salidas
 
@@ -132,5 +142,7 @@ Aplicar labels manualmente:
 - `codex-commit-standards` — Estándares de mensaje de commit
 - `kata-commit` — Procedimiento para realizar commits conformes
 - `kata-contribute` — Procedimiento canónico de PR (esta Kata se alinea con o reutiliza dicho procedimiento)
+- `kata-pr-cost-stamp` — Paso opcional que estampa costo de tokens (Claude Code) en el PR
+- `codex-pr-cost-tracking` — Manual de referencia del stamp de costo
 - cry-new-pr, cry-contribute — Atajos que invocan esta Kata
 - `.ahrena/contributing_templates/pull_request_template.md` — Template de PR (fuente canónica tras el install)
