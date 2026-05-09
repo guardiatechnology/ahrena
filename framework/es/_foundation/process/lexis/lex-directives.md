@@ -64,6 +64,10 @@ El agente **DEBE** aplicar cada sección de la directiva al comportamiento corre
 | `paths.skills_root` | Directorio raíz de los proyectos de skill externos (default `skills`). Ver `lex-skill-project-structure`. |
 | `paths.skills_build` | Directorio de intermediarios del build de skills (default `.build`, gitignored). Escrito por el stack de build del proyecto consumidor. |
 | `paths.skills_dist` | Directorio de entrega final de skills empaquetados (default `.dist`, committed). Validado por `lex-skill-package-structure`. |
+| `pr_cost_tracking.enabled` | Cuando es `true`, activar el stamp de costo de tokens (Claude Code) en el body de los PRs vía `kata-pr-cost-stamp`. Default `false`. Ver `codex-pr-cost-tracking`. |
+| `pr_cost_tracking.currency` | Moneda exhibida en el bloque. Default `USD`. |
+| `pr_cost_tracking.include_cache_breakdown` | Mostrar cache reads/writes por separado en el bloque. Default `true`. |
+| `pr_cost_tracking.window_override_days` | (Opcional) Override de la ventana `[branch_creation_date, now]` en días. |
 
 Manuales complementarios para interpretación de las secciones: `codex-directives` (visión general del archivo), `codex-paths` (rutas canónicas), `codex-naming` (convenciones de nomenclatura).
 

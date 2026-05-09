@@ -113,6 +113,21 @@ language:
 #   tool: vanilla   # vanilla | gs
 
 
+# ─── PR Cost Tracking ───────────────────────────────────────────
+# Computes Claude Code token consumption and estimated USD cost
+# for the development that produced each PR, and stamps the
+# result in the PR body via kata-pr-cost-stamp. Disabled by
+# default to keep cost data inside teams that explicitly opt in.
+# See codex-pr-cost-tracking and kata-pr-cost-stamp.
+
+# pr_cost_tracking:
+#   enabled: false                 # true | false
+#   currency: USD                  # currency for display
+#   include_cache_breakdown: true  # show cache reads/writes separately
+#   # window_override_days: 14     # override [branch_creation_date, now]
+#   # mask_absolute_cost: false    # future: replace USD value with qualitative band
+
+
 # ─── Naming ─────────────────────────────────────────────────────
 # Canonical naming conventions for files, directories, and
 # framework artifacts.
