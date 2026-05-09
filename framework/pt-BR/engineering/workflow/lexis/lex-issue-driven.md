@@ -278,7 +278,7 @@ A regra de referência da issue guarda-chuva (Regra 5 do `codex-stacked-prs`, se
 # ❌ Athena propõe decomposição em stack mas inicia Fase 4 sem aprovação no Gate 1:
 # (Decomposição precisa de aprovação humana explícita; checkpoint deve registrar stack.approved: true)
 
-# ❌ Camada 2 começa antes da camada 1 estar pronta para review (status submitted):
+# ❌ Camada 2 começa antes da camada 1 atingir `submitted`:
 # (Camadas têm dependência sequencial; Athena delega camada N+1 só após N transitar para submitted)
 ```
 
