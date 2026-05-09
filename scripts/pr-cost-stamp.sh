@@ -105,10 +105,14 @@ fi
 # Convert YYYYMMDD into ISO8601 boundary for string comparison against `timestamp`.
 SINCE_ISO="${SINCE:0:4}-${SINCE:4:2}-${SINCE:6:2}T00:00:00.000Z"
 
-# Build aggregation across all matching JSONL files.
+# Build aggregation across matching JSONL files.
 # `cwd` field in each line is the absolute project path; we match its basename.
+# Optimization: Claude Code stores logs at `~/.claude/projects/<project-id>/<session>.jsonl`,
+# so we limit depth to 2 and scope to directories whose name contains $PROJECT (the basename).
+# A worktree directory under the same repo carries the project name in its hash directory too,
+# so this scope covers both the main checkout and worktrees.
 # Portable file collection (no `mapfile` — bash 3.2 on macOS lacks it).
-JSONL_FILE_LIST=$(find "$CLAUDE_ROOT" -type f -name "*.jsonl" 2>/dev/null)
+JSONL_FILE_LIST=$(find "$CLAUDE_ROOT" -maxdepth 2 -type f -name "*.jsonl" -path "*/*${PROJECT}*/*" 2>/dev/null)
 
 if [[ -z "$JSONL_FILE_LIST" ]]; then
   jq -n \
@@ -142,7 +146,7 @@ fi
 # resulting stream into an array.
 # Each line either has shape {sessionId, cwd, timestamp, message:{usage:{...}, model}}
 # or is a non-message event we skip.
-AGGREGATE=$(find "$CLAUDE_ROOT" -type f -name "*.jsonl" -exec cat {} + 2>/dev/null | \
+AGGREGATE=$(find "$CLAUDE_ROOT" -maxdepth 2 -type f -name "*.jsonl" -path "*/*${PROJECT}*/*" -exec cat {} + 2>/dev/null | \
   jq -s --arg project "$PROJECT" --arg since "$SINCE_ISO" '
   [
     .[]
@@ -180,7 +184,7 @@ AGGREGATE=$(find "$CLAUDE_ROOT" -type f -name "*.jsonl" -exec cat {} + 2>/dev/nu
         | sort_by(-(.input_tokens + .output_tokens))
       )
     }
-' 2>/dev/null || echo '{}')
+' 2>/dev/null || echo '{"totals":{"sessions":0,"input_tokens":0,"output_tokens":0,"cache_read_tokens":0,"cache_creation_tokens":0,"cost_usd":null},"breakdown":[]}')
 
 # Add meta block.
 echo "$AGGREGATE" | jq \

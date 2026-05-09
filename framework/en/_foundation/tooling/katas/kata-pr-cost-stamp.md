@@ -46,9 +46,10 @@ Progress:
 2. `PR_NUMBER` from input or from `gh pr view --json number --jq .number`.
 3. `HEAD_REF=$(gh pr view $PR_NUMBER --json headRefName --jq .headRefName)`.
 4. `BASE_REF=$(gh pr view $PR_NUMBER --json baseRefName --jq .baseRefName)`.
-5. `SINCE_DATE`: date of the first commit on the branch in `YYYYMMDD`.
+5. `SINCE_DATE`: date of the first commit on the branch in `YYYYMMDD`. If the branch has no commits over the base (fresh branch or resolution error), fall back to today's date to avoid passing an empty string to `ccusage`/the fallback script:
    ```bash
    SINCE_DATE=$(git log --reverse $BASE_REF..$HEAD_REF --format=%cd --date=format:%Y%m%d | head -1)
+   [ -z "$SINCE_DATE" ] && SINCE_DATE=$(date +%Y%m%d)
    ```
 6. Resolve the main repository root directory (not the worktree, when applicable):
    ```bash
@@ -72,7 +73,18 @@ RAW=$(npx --yes ccusage@latest daily \
 Notes:
 - Subcommand is `daily`. `session` does not accept `--project`. The `--project=<id>` form (with `=`) preserves the leading `-` of the id.
 - `--offline` uses the pricing table embedded in `ccusage`; remove to force online fetch when online is available and current.
-- JSON output contains `daily` (entries by date) and `totals` (aggregate), with `modelBreakdowns` per entry. For unique session count, make a complementary call `ccusage session --since "$SINCE_DATE" --json` and filter by `cwd` in the JSONL line.
+- JSON output contains `daily` (entries by date) and `totals` (aggregate), with `modelBreakdowns` per entry.
+
+**Unique session count** (complementary call; `daily` does not expose it):
+
+```bash
+SESSIONS=$(npx --yes ccusage@latest session \
+  --since "$SINCE_DATE" \
+  --json --offline 2>/dev/null \
+  | jq --arg pid "$PROJECT_ID" '[.sessions[] | select(.sessionId | startswith($pid))] | length')
+```
+
+`sessionId` in `ccusage session --json` is prefixed with the project id (same format as `--project=<id>`), which allows filtering via `startswith`. A session here is a Claude Code session (one continuous conversation), not an individual commit: 6 commits inside the same conversation count as 1 session.
 
 **Fallback — `scripts/pr-cost-stamp.sh`:**
 
@@ -120,25 +132,32 @@ Formatting rules:
    ```bash
    CURRENT_BODY=$(gh pr view $PR_NUMBER --json body --jq .body)
    ```
-2. Apply marker-based upsert. Use `perl` (portable between macOS/Linux; macOS BWK `awk` does not handle multi-line variables well):
+2. Apply marker-based upsert via Python — safe literal substitution, no backreference interpolation (`$1`, `\1`, `\n`, etc.) inside the rendered block:
    ```bash
    echo "$CURRENT_BODY" > /tmp/pr-body.in
    echo "$RENDERED_BLOCK" > /tmp/pr-body.block
 
-   if grep -q '<!-- ahrena:cost-stamp:start -->' /tmp/pr-body.in; then
-     # replace existing block
-     perl -0777 -i -pe '
-       BEGIN { local $/; open(my $fh, "<", "/tmp/pr-body.block") or die; $b = <$fh>; chomp $b; }
-       s|<!-- ahrena:cost-stamp:start -->.*?<!-- ahrena:cost-stamp:end -->|$b|s
-     ' /tmp/pr-body.in
-   else
-     # append to end of body separated by a blank line
-     printf "\n\n" >> /tmp/pr-body.in
-     cat /tmp/pr-body.block >> /tmp/pr-body.in
-   fi
+   python3 - <<'PY'
+   import re, pathlib
+   body = pathlib.Path("/tmp/pr-body.in").read_text()
+   block = pathlib.Path("/tmp/pr-body.block").read_text().rstrip("\n")
+   pattern = re.compile(
+       r"<!-- ahrena:cost-stamp:start -->.*?<!-- ahrena:cost-stamp:end -->",
+       re.DOTALL,
+   )
+   if pattern.search(body):
+       # replace existing block; lambda forces literal replacement
+       new_body = pattern.sub(lambda _: block, body)
+   else:
+       # append to end of body separated by a blank line
+       new_body = body.rstrip("\n") + "\n\n" + block + "\n"
+   pathlib.Path("/tmp/pr-body.in").write_text(new_body)
+   PY
 
    NEW_BODY=$(cat /tmp/pr-body.in)
    ```
+
+   Why Python and not `awk`/`perl`/`sed`: macOS BWK `awk` does not pass multi-line variables; `perl`'s `s///` (without `e`) interprets sequences like `\n` in the replacement; `sed` requires heavy escaping of special characters. Python with `lambda _: block` in `re.sub` substitutes the block literally, without re-interpreting backreferences. Python 3 is present by default on macOS, Linux, and most CI runners.
 3. Update the PR:
    ```bash
    gh pr edit $PR_NUMBER --body "$NEW_BODY"

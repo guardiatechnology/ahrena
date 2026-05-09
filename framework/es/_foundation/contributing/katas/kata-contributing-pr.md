@@ -116,6 +116,7 @@ Paso opcional, condicionado por `pr_cost_tracking.enabled: true` en `.ahrena/.di
 - [ ] El PR está auto-asignado (`@me`)
 - [ ] Todos los commits están firmados (verificación GPG)
 - [ ] La rama de origen sigue el formato `lex-git-branches`
+- [ ] Stamp de costo ejecutado con éxito u omitido según `pr_cost_tracking.enabled` en `.directives` (Paso 7)
 
 ## Salidas
 

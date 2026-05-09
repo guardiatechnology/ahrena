@@ -29,7 +29,7 @@ This Codex is the reference for computing tokens consumed and estimated USD cost
 | Log location | `~/.claude/projects/<project-hash>/*.jsonl` |
 | Granularity | one JSONL line per turn; each turn carries `usage.input_tokens`, `usage.output_tokens`, `usage.cache_read_input_tokens`, `usage.cache_creation_input_tokens`, `model`, `cwd`, `sessionId`, `timestamp` |
 | Project hash | derived by Claude Code from the project's absolute path; `ccusage` translates the hash back to the project name via `--project` or `--instances` |
-| Time window | `[branch_creation_date, now]` by default; optional override via `pr_cost_tracking.window_override_days` |
+| Time window | `[branch_creation_date, now]` by default. The `pr_cost_tracking.window_override_days` subkey is reserved for a future iteration; the kata does not consume it in this version. |
 
 ### Supported tools
 

@@ -103,6 +103,7 @@ Optional step, gated by `pr_cost_tracking.enabled: true` in `.ahrena/.directives
 - [ ] The PR is self-assigned (`@me`)
 - [ ] All commits are signed (GPG verified)
 - [ ] The source branch follows `lex-git-branches` format
+- [ ] Cost stamp executed successfully or skipped per `pr_cost_tracking.enabled` in `.directives` (Step 7)
 
 ## Outputs
 

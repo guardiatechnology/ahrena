@@ -29,7 +29,7 @@ Este Codex é a referência para computar tokens consumidos e custo estimado em 
 | Local dos logs | `~/.claude/projects/<project-hash>/*.jsonl` |
 | Granularidade | uma linha JSONL por turno; cada turno traz `usage.input_tokens`, `usage.output_tokens`, `usage.cache_read_input_tokens`, `usage.cache_creation_input_tokens`, `model`, `cwd`, `sessionId`, `timestamp` |
 | Hash do projeto | derivado pelo Claude Code a partir do path absoluto do projeto; o `ccusage` traduz o hash de volta para o nome do projeto via `--project` ou `--instances` |
-| Janela temporal | `[branch_creation_date, now]` por padrão; opcional override via `pr_cost_tracking.window_override_days` |
+| Janela temporal | `[branch_creation_date, now]` por padrão. A subchave `pr_cost_tracking.window_override_days` está reservada para iteração futura; o kata não a consome nesta versão. |
 
 ### Ferramentas suportadas
 
