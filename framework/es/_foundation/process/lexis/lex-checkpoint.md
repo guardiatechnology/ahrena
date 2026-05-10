@@ -80,7 +80,7 @@ La delimitación entre plan y checkpoint es categórica:
 
 | Contenido | Vive en |
 |---|---|
-| Objetivo, Steps `[x]`, Status (`pending → in-progress → done`), Decisiones cerradas, Riesgos, Verificación | Plan (`.claude/plans/plan-NNN-{slug}.md`) — committed |
+| Objetivo, Steps `[x]`, Status (`pending → in-progress → done`), Decisiones cerradas, Riesgos, Verificación | Plan (`{plans_dir}/plan-NNN-{slug}.md`, resuelto por `paths.plans` en `.ahrena/.directives` o por default por agente) — committed |
 | Activity, Progress detallado, Artifacts produced, Next steps de una task | Plan — committed |
 | Foco general de la ventana de trabajo (Session focus) | Checkpoint — gitignored |
 | Punteros para múltiples planes activos (Active plans) | Checkpoint — gitignored |

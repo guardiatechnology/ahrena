@@ -43,7 +43,7 @@ Progress:
 ### Step 1: Collect session context
 
 1. Capture **Session focus** from the active context or ask the user in 1-3 sentences.
-2. List **Active plans** — for each plan in use in the session, generate an entry `\`plan-NNN\` — slug; 1-line context ≤ 80 chars`. Infer from context or consult active `.claude/plans/plan-*.md` files (status `in-progress`).
+2. List **Active plans** — for each plan in use in the session, generate an entry `\`plan-NNN\` — slug; 1-line context ≤ 80 chars`. Infer from context or consult active `plan-*.md` files (status `in-progress`) in the plans directory resolved by `paths.plans` in `.ahrena/.directives` (per-agent default: `.claude/plans/` for Claude Code; `.cursor/plans/` for Cursor; `.plans/` for unknown).
 3. Collect **Open threads** — ask the user or extract from recent conversation history pending decisions that did not become a plan.
 4. Collect **Notes** — additional free text. May be empty.
 

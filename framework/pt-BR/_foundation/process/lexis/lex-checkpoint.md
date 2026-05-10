@@ -1,6 +1,6 @@
 # Lexis: Checkpoint de Sessão
 
-> **Prefixo:** `lex-` | **Tipo:** Lei Inquebável | **Escopo:** Contexto de sessão entre conversas com agentes IA, complementar a `lex-agent-planning`
+> **Prefixo:** `lex-` | **Tipo:** Lei Inquebrável | **Escopo:** Contexto de sessão entre conversas com agentes IA, complementar a `lex-agent-planning`
 
 ## Propósito
 
@@ -10,7 +10,7 @@ Esta Lexis existe para garantir que **o contexto de sessão fora do plano** seja
 
 ## Lei
 
-> **Todo agente DEVE verificar o arquivo `.checkpoint` ao iniciar uma sessão e DEVE salvar o checkpoint sob demanda do usuário ou ao encerrar a sessão quando houve mudança de contexto. O conteúdo do `.checkpoint` MUST seguir o schema canônico (Session focus, Active plans, Open threads, Notes) e NÃO DEVE duplicar o que vive no plano (Activity, Steps, Decisões fechadas, Riscos, Artifacts). Sobreposição com `lex-agent-planning` é PROIBIDA.**
+> **Todo agente DEVE verificar o arquivo `.checkpoint` ao iniciar uma sessão e DEVE salvar o checkpoint sob demanda do usuário ou ao encerrar a sessão quando houve mudança de contexto. O conteúdo do `.checkpoint` DEVE seguir o schema canônico (Session focus, Active plans, Open threads, Notes) e NÃO DEVE duplicar o que vive no plano (Activity, Steps, Decisões fechadas, Riscos, Artifacts). Sobreposição com `lex-agent-planning` é PROIBIDA.**
 
 ## Regras
 
@@ -80,7 +80,7 @@ A delimitação entre plano e checkpoint é categórica:
 
 | Conteúdo | Vive em |
 |---|---|
-| Objetivo, Steps `[x]`, Status (`pending → in-progress → done`), Decisões fechadas, Riscos, Verificação | Plano (`.claude/plans/plan-NNN-{slug}.md`) — committed |
+| Objetivo, Steps `[x]`, Status (`pending → in-progress → done`), Decisões fechadas, Riscos, Verificação | Plano (`{plans_dir}/plan-NNN-{slug}.md`, resolvido por `paths.plans` em `.ahrena/.directives` ou padrão por agente) — committed |
 | Activity, Progress detalhado, Artifacts produced, Next steps de uma task | Plano — committed |
 | Foco geral da janela de trabalho (Session focus) | Checkpoint — gitignored |
 | Ponteiros para múltiplos planos ativos (Active plans) | Checkpoint — gitignored |

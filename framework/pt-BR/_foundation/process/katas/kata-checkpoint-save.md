@@ -43,7 +43,7 @@ Progresso:
 ### Passo 1: Coletar contexto da sessão
 
 1. Capturar **Session focus** do contexto ativo ou pedir ao usuário em 1-3 frases.
-2. Listar **Active plans** — para cada plano em uso na sessão, gerar entrada `\`plan-NNN\` — slug; 1-line context ≤ 80 chars`. Inferir do contexto ou consultar `.claude/plans/plan-*.md` ativos (status `in-progress`).
+2. Listar **Active plans** — para cada plano em uso na sessão, gerar entrada `\`plan-NNN\` — slug; 1-line context ≤ 80 chars`. Inferir do contexto ou consultar `plan-*.md` ativos (status `in-progress`) no diretório de planos resolvido por `paths.plans` em `.ahrena/.directives` (padrão por agente: `.claude/plans/` para Claude Code; `.cursor/plans/` para Cursor; `.plans/` para desconhecido).
 3. Coletar **Open threads** — perguntar ao usuário ou extrair do histórico recente da conversa decisões pendentes que não viraram plano.
 4. Coletar **Notes** — texto livre adicional. Pode ser vazio.
 

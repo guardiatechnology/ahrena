@@ -42,7 +42,7 @@ Invocar kata-checkpoint-save con:
 
 - Workspace root: {{pwd}}
 - Session focus: {{--focus si se proporciona, si no inferir del contexto de la sesión}}
-- Active plans: {{inferir de los planes con status: in-progress en .claude/plans/}}
+- Active plans: {{inferir de los planes con status: in-progress en el directorio resuelto por paths.plans en .ahrena/.directives (default por agente)}}
 - Open threads: {{recolectar del contexto + agregar --add-thread si se proporciona}}
 - Notes: {{recolectar del contexto + agregar --note si se proporciona}}
 - Dry-run: {{flag --dry-run}}
@@ -103,7 +103,7 @@ Agregando 1 hilo y 1 nota al contexto.
 
 ## Restricciones
 
-- NO modifica planes (`.claude/plans/plan-*.md`) — `cry-checkpoint` cubre solo `.checkpoint`
+- NO modifica planes (`plan-*.md` en el directorio resuelto por `paths.plans`) — `cry-checkpoint` cubre solo `.checkpoint`
 - NO escribe contenido que duplica el plan — kata-checkpoint-save valida y bloquea
 - La salida respeta el tono Guardia (`lex-tone`, `lex-brand-voice`) — directo, sin buzzwords
 - No commitea `.checkpoint` — sigue gitignore según `lex-checkpoint` regla 4
