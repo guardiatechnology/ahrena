@@ -52,8 +52,12 @@ def _default_lang(root: Path) -> str:
                     val = lang_section.get("default")
                     if isinstance(val, str) and val.strip():
                         return val
-        except yaml.YAMLError:
-            pass
+        except yaml.YAMLError as exc:
+            print(
+                f"WARNING: could not parse {directives} (yaml.YAMLError): {exc}. "
+                "Falling back to default language 'pt-BR'.",
+                file=sys.stderr,
+            )
     return "pt-BR"
 
 
