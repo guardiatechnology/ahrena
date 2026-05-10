@@ -268,14 +268,21 @@ def load_mcp_server_config(ahrena_dir: Path, server_name: str) -> dict | None:
 
 
 def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: bool = False) -> None:
-    """Merge MCP server configs into .cursor/mcp.json and .claude/settings.json.
+    """Merge MCP server configs into platform-specific files.
 
     Reads mcp.servers list from directives. For each server, loads the
     platform-specific block from framework/mcp/<name>.json (or the user
     override in .ahrena/mcp/<name>.json) and merges it additively.
 
-    Cursor:      .cursor/mcp.json       → {"mcpServers": {...}}
-    Claude Code: .claude/settings.json  → {"mcpServers": {...}}
+    Cursor:      .cursor/mcp.json        → {"mcpServers": {...}}
+    Claude Code: .mcp.json (project root) → {"mcpServers": {...}}
+                 .claude/settings.json    → {"enabledMcpjsonServers": [...]}
+
+    Note for Claude Code: the project-level Claude Code schema rejects
+    a top-level `mcpServers` field in `.claude/settings.json`. Servers
+    must be declared in `.mcp.json` at the project root, then approved
+    via `enabledMcpjsonServers` in settings.json. This function writes
+    both.
 
     Merge is additive — existing entries for other servers are preserved.
     Only the keys listed in mcp.servers are written/overwritten.
@@ -305,7 +312,8 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
         if cursor_mcp:
             print(f"    [DRY-RUN] .cursor/mcp.json ({', '.join(cursor_mcp)})")
         if claude_mcp:
-            print(f"    [DRY-RUN] .claude/settings.json ({', '.join(claude_mcp)})")
+            print(f"    [DRY-RUN] .mcp.json ({', '.join(claude_mcp)})")
+            print(f"    [DRY-RUN] .claude/settings.json enabledMcpjsonServers ({', '.join(claude_mcp)})")
         return
 
     # ── Cursor: .cursor/mcp.json ──────────────────────────────────
@@ -327,8 +335,25 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
         )
         print(f"  Updated .cursor/mcp.json ({', '.join(cursor_mcp)})")
 
-    # ── Claude Code: .claude/settings.json ───────────────────────
+    # ── Claude Code: .mcp.json (project root) + settings approval ─
     if claude_mcp:
+        # 1. Declare servers in the project-level .mcp.json
+        mcpjson_path = target_dir / ".mcp.json"
+        existing_mj: dict = {}
+        if mcpjson_path.exists():
+            try:
+                existing_mj = json.loads(mcpjson_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                existing_mj = {}
+        existing_mj.setdefault("mcpServers", {})
+        existing_mj["mcpServers"].update(claude_mcp)
+        mcpjson_path.write_text(
+            json.dumps(existing_mj, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"  Updated .mcp.json ({', '.join(claude_mcp)})")
+
+        # 2. Pre-approve in .claude/settings.json via enabledMcpjsonServers
         claude_dir = target_dir / ".claude"
         claude_dir.mkdir(parents=True, exist_ok=True)
         settings_path = claude_dir / "settings.json"
@@ -338,13 +363,18 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
                 existing_s = json.loads(settings_path.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):
                 existing_s = {}
-        existing_s.setdefault("mcpServers", {})
-        existing_s["mcpServers"].update(claude_mcp)
+        enabled = existing_s.get("enabledMcpjsonServers", [])
+        if not isinstance(enabled, list):
+            enabled = []
+        for name in claude_mcp:
+            if name not in enabled:
+                enabled.append(name)
+        existing_s["enabledMcpjsonServers"] = enabled
         settings_path.write_text(
             json.dumps(existing_s, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
         )
-        print(f"  Updated .claude/settings.json ({', '.join(claude_mcp)})")
+        print(f"  Updated .claude/settings.json enabledMcpjsonServers ({', '.join(claude_mcp)})")
 
 
 def _framework_rel_path_to_rule_key(rel_path: Path) -> str:
