@@ -45,7 +45,7 @@ MCP é o **único** mecanismo onde Claude Code/Cursor integram tools de forma na
 | `ahrena_resolve_ref` | `ref: str` (e.g., `"lex-idempotency"`, `"codex-component-api"`) | `{path, full_name, type, exists}` | "Esse ref existe? Onde fica?" |
 | `ahrena_get_directives` | `(none)` | Conteúdo de `.ahrena/.directives` parseado | Agente externo lendo configuração do projeto |
 | `ahrena_list_cries` | `(none)` | Array de cries com descriptions | Self-discovery em sessão Strands |
-| `ahrena_get_topology` | `(none)` | `docs/internal/warrior-topology-2026.md` (criado em plan-011) | Agente quer entender a topologia atual |
+| `ahrena_get_topology` | `(none)` | `docs/internal/warrior-topology-2026.md` (criado em plan-011) | Agente quer entender a topologia atual — **DEFERIDO até plan-011 mergear** (não shipa nesta iteração) |
 
 ### Decisões fechadas
 
@@ -59,7 +59,7 @@ MCP é o **único** mecanismo onde Claude Code/Cursor integram tools de forma na
 | Search engine | `whoosh` (Python pure) ou `ripgrep` shell-out (mais rápido, requer rg installed) | Codex documenta os dois; defaulta para ripgrep se disponível |
 | Caching | Cache de file content e search index em memória; invalidate em `mtime` change | Performance |
 | Auth | Sem auth (server local stdio) | MCP local, baixo risco |
-| Registro como MCP server | `framework/mcp/ahrena.json` com config para Cursor (`.cursor/mcp.json`) e Claude Code (`.claude/settings.json` mcpServers) | Mesmo padrão dos demais (github.json, notion.json, figma.json) |
+| Registro como MCP server | `framework/mcp/ahrena.json` com config para Cursor (`.cursor/mcp.json` `mcpServers`) e Claude Code (`.mcp.json` no root + `enabledMcpjsonServers` em `.claude/settings.json` — Claude Code rejeita `mcpServers` em settings) | Mesmo padrão dos demais (github.json, notion.json, figma.json), com o ajuste de schema do Claude Code corrigido pelo `fix(install)` desta PR |
 | Adoção | **Default-on** — `framework/.directives.sample` contém `mcp.servers: [ahrena]` descomentado por padrão; `install.py` mergeia `framework/mcp/ahrena.json` em todo projeto que adota Ahrena. Adopter opta-OUT comentando a linha em `.ahrena/.directives` | Performance benefit é universal e sem custo material; manter como opt-in repete fricção desnecessária. `lex-mcp` rule 3 (servidor declarado em `mcp.servers`) continua atendida porque o `.directives.sample` já declara |
 | HARD-GATE | Não — server é tooling opcional, não Lex | Adoção orgânica |
 | Idiomas dos artefatos do framework | Codex em 3 idiomas (pt-BR canonical + es + en); cry em 3 idiomas | `lex-framework-language` |
@@ -95,7 +95,7 @@ flowchart TB
     subgraph MCPSrv["Ahrena MCP server (subprocesso Python, stdio)"]
         direction TB
         Srv["server.py · JSON-RPC stdio"]
-        Tools8["8 tools<br/>ahrena_query_lex · ahrena_get_codex<br/>ahrena_list_warriors · ahrena_search<br/>ahrena_resolve_ref · ahrena_list_cries<br/>ahrena_get_directives · ahrena_get_topology"]
+        Tools7["7 tools (v0.1.0a1)<br/>ahrena_query_lex · ahrena_get_codex<br/>ahrena_list_warriors · ahrena_search<br/>ahrena_resolve_ref · ahrena_list_cries<br/>ahrena_get_directives<br/><br/>(ahrena_get_topology deferred to plan-011)"]
         Cache["loader + search<br/>cache + mtime invalidate"]
     end
 
@@ -122,7 +122,7 @@ flowchart TB
     NativeDisp -- "@import" --> Docs
 
     LLM -- "5· tool call ahrena_*" --> Srv
-    Srv --> Tools8 --> Cache --> Framework
+    Srv --> Tools7 --> Cache --> Framework
 ```
 
 **Leitura em uma sentença:** o Claude Code consome `.claude/` por mecanismos nativos (rules eager, Agent, Skill, slash, `@` import), enquanto o MCP server vive como subprocesso paralelo que lê `framework/` direto e responde a tool calls — ambos têm `framework/` como fonte única.
@@ -204,7 +204,7 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 |---|---|---|
 | Canal v1 | GitHub Releases (wheel `.whl` + sdist anexados na tag) | Sem dependência de PyPI público inicial. Bom enquanto o pacote ainda é alpha/beta. |
 | Canal v2 | PyPI público | Após maturidade. Habilita `uvx ahrena-mcp` zero-install — padrão de fato para MCP servers em 2026. |
-| Versionamento | SemVer (governado por `lex-semantic-version`) | `0.1.0a1` (alpha) → `0.1.0b1` (beta) → `0.1.0` (stable) → `1.0.0` quando o contrato das 8 tools congela |
+| Versionamento | SemVer (governado por `lex-semantic-version`) | `0.1.0a1` (alpha) → `0.1.0b1` (beta) → `0.1.0` (stable) → `1.0.0` quando o contrato (7 tools desta iteração + `ahrena_get_topology` quando plan-011 mergear) congela |
 | Trigger | Tag push `v*.*.*` em `main` | GitHub Action automatiza build + release. Tag assinada (`lex-signed-commits`). |
 | Compat Python | 3.10–3.13 | Janela alinhada à `mcp` SDK e ao stack do framework |
 | Comando recomendado em `framework/mcp/ahrena.json` | v1 (pré-PyPI): `pipx run --spec <release-url> ahrena-mcp` · v2 (pós-PyPI): `uvx ahrena-mcp` | Adopter externo sem `pip install -e` |
@@ -215,7 +215,7 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 |---|---|
 | `.github/workflows/ahrena-mcp-release.yml` | GitHub Action: on tag `v*.*.*` build sdist + wheel via `python -m build`; cria GitHub Release; anexa artefatos. Quando habilitado PyPI: trusted publisher OIDC + `pypa/gh-action-pypi-publish`. |
 | `tools/ahrena-mcp/CHANGELOG.md` | Formato Keep-a-Changelog. Entrada inicial `0.1.0a1`. |
-| `tools/ahrena-mcp/.gitignore` | `.venv/`, `dist/`, `*.egg-info/`, `__pycache__/` |
+| `tools/ahrena-mcp/.gitignore` | `.venv/`, `dist/`, `build/`, `*.egg-info/`, `__pycache__/`, `.pytest_cache/`, `.mypy_cache/`, `.coverage`, `*.pyc` |
 | Atualização de `framework/mcp/ahrena.json` | `command` passa para `uvx`/`pipx run` quando release v1 disponível (substitui o `python -m ahrena_mcp.server` do spike) |
 | Atualização de `codex-ahrena-mcp.md` (3 idiomas) | Seção "Instalação" reflete release path como caminho recomendado; `pip install -e` vira nota para contributors |
 | Atualização de `cry-ahrena-mcp-install.md` (3 idiomas) | Atalho usa `uvx` / `pipx run` |
@@ -228,7 +228,7 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 - [ ] 34. Promover `version` em `pyproject.toml` de `0.1.0a0` → `0.1.0a1`
 - [ ] 35. Commit + push em `main`; tag `v0.1.0a1` assinada; verificar GitHub Release gerado com `.whl` anexado
 - [ ] 36. Smoke test de consumo externo: em projeto sandbox **sem** clone do Ahrena, configurar `.claude/settings.json` com `pipx run --spec <whl-url> ahrena-mcp --root <ahrena-repo>`; abrir Claude Code; validar `tools/list` e uma `tools/call`
-- [ ] 37. Quando contrato das 8 tools estável (após uso real por apollo-agents): configurar trusted publisher OIDC no PyPI
+- [ ] 37. Quando contrato das tools (7 atuais + topology) estável após uso real por apollo-agents: configurar trusted publisher OIDC no PyPI
 - [ ] 38. Tag `v0.1.0` (release stable) com publicação em PyPI via Action
 - [ ] 39. Atualizar `framework/mcp/ahrena.json` para `command: uvx`, `args: ["ahrena-mcp", "--root", "${workspaceFolder}"]`
 - [ ] 40. Atualizar `codex-ahrena-mcp` e `cry-ahrena-mcp-install` (3 idiomas) para refletir o caminho `uvx`
@@ -299,7 +299,7 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 - **Performance do search em framework grande.** Mitigação: indexer (whoosh) com cache; ripgrep como fallback rápido; budget de < 200ms por query no smoke test
 - **Conflito com Headroom MCP server (plan-008)** se ambos ativos. Mitigação: nomes distintos (`ahrena` vs `headroom`); cada um expõe tools próprias; coexistência testada em smoke test 16
 - **Loader quebra se framework está em estado inconsistente** (e.g., artefato presente em pt-BR mas não em es). Mitigação: loader é resiliente (retorna apenas o que existe; warn quando lang missing); não crasha
-- **Tools demais inflam contexto do agente** que conecta. Mitigação: 8 tools é número moderado; cada uma com description curta; codex documenta quando NÃO usar (e.g., para carregar muitos artefatos de uma vez é melhor ler arquivo direto)
+- **Tools demais inflam contexto do agente** que conecta. Mitigação: 7 tools nesta iteração (8 com topology) é número moderado; cada uma com description curta; codex documenta quando NÃO usar (e.g., para carregar muitos artefatos de uma vez é melhor ler arquivo direto)
 - **Apollo-agents (plan-013) não usar a tool por desconhecimento.** Mitigação: warrior `apollo-agents` lista `ahrena_*` tools nas suas Katas/Codex de referência; smoke test 17 valida
 - **Server rodando indefinitivamente em background causa leak.** Mitigação: stdio transport encerra com cliente; servidor é stateless além do cache; sem leak conhecido
 
@@ -307,7 +307,7 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 
 1. Pacote `tools/ahrena-mcp/` instalável via `pip install -e tools/ahrena-mcp`
 2. `python -m ahrena_mcp.server --root .` sobe corretamente em stdio
-3. 8 tools expostas via `tools/list` MCP RPC
+3. 7 tools expostas via `tools/list` MCP RPC nesta iteração (`ahrena_get_topology` shipa em PR posterior, após plan-011 produzir o topology doc)
 4. Smoke tests Claude Code, Cursor, apollo-agents passam
 5. `framework/mcp/ahrena.json` segue padrão dos demais
 6. `scripts/install.py` mergeia config quando `ahrena` em `mcp.servers`

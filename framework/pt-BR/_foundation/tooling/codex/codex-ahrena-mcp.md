@@ -76,7 +76,7 @@ lang (string, opcional)    — default: language.default
 **`ahrena_search`**
 ```
 query (string, obrigatório) — termo de busca
-pilar (string, opcional)    — "lexis" | "codex" | "katas" | "warriors" | "cries"; vazio = todos
+pilar (string, opcional)    — "lexis" \| "codex" \| "katas" \| "warriors" \| "cries"; vazio = todos
 lang  (string, opcional)    — default: language.default
 limit (integer, opcional)   — default: 30
 ```
