@@ -273,18 +273,27 @@ AGGREGATE=$(find "$CLAUDE_ROOT" -maxdepth 2 -type f -name "*.jsonl" -path "*/*${
         cache_creation_tokens: ([$turns[].cache_create] | add // 0),
         cost_usd: null,
         active_minutes: (
+          # Per-session active duration. JSONL timestamps follow the
+          # Claude Code contract YYYY-MM-DDTHH:MM:SS.fffZ -- trailing Z
+          # required, fractional part stripped before fromdateiso8601
+          # (which is strict). If a future log format ever emits a non-Z
+          # offset, the outer 2>/dev/null fallback would silently zero
+          # everything; that risk is acceptable while the contract is
+          # fixed.
+          #
+          # For each group, sum the deltas between consecutive turns when
+          # the gap is <= idle_gap; gaps larger than idle_gap contribute 0
+          # (real idle). The outer if . < 60 then 60 floors single-turn
+          # sessions to one minute (range(1;1) is empty, so the inner sum
+          # is 0 and the floor lifts it to 60s).
           $time_turns
           | group_by(.session)
           | map(
               sort_by(.timestamp)
               | [.[].timestamp | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601]
-              | if length == 0 then 0
-                elif length == 1 then 60
-                else
-                  ([range(1; length) as $i | (.[$i] - .[$i-1])
-                    | if . <= $gap then . else 0 end] | add // 0)
-                  | if . < 60 then 60 else . end
-                end
+              | ([range(1; length) as $i | (.[$i] - .[$i-1])
+                  | if . <= $gap then . else 0 end] | add // 0)
+              | if . < 60 then 60 else . end
             )
           | add // 0
           | . / 60
@@ -307,6 +316,11 @@ AGGREGATE=$(find "$CLAUDE_ROOT" -maxdepth 2 -type f -name "*.jsonl" -path "*/*${
 ' 2>/dev/null || echo '{"totals":{"sessions":0,"input_tokens":0,"output_tokens":0,"cache_read_tokens":0,"cache_creation_tokens":0,"cost_usd":null,"active_minutes":0},"breakdown":[]}')
 
 # Add calendar_minutes (from --calendar-start/--calendar-end) and meta block.
+# `cost_unavailable` and `reason` describe a property of this script itself
+# (it never computes USD cost), not a runtime fallback decision. The kata
+# pairs this output with `ccusage`'s totalCost when ccusage is available;
+# the reason text is intentionally neutral so downstream consumers do not
+# infer "ccusage is missing" from this field.
 echo "$AGGREGATE" | jq \
   --arg project "$PROJECT" \
   --arg since "$SINCE" \
@@ -326,6 +340,6 @@ echo "$AGGREGATE" | jq \
       calendar_start: (if $cal_start == "" then null else $cal_start end),
       calendar_end:   (if $cal_end   == "" then null else $cal_end   end),
       cost_unavailable: true,
-      reason: "fallback mode does not compute USD cost; install Node.js to use ccusage"
+      reason: "this script does not compute USD cost; pair with ccusage when available"
     }
   }'
