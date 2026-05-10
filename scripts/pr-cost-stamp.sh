@@ -112,16 +112,49 @@ if ! [[ "$IDLE_GAP_MIN" =~ ^[0-9]+$ ]]; then
 fi
 IDLE_GAP_SEC=$(( IDLE_GAP_MIN * 60 ))
 
+# Normalize an ISO 8601 timestamp to canonical UTC form `YYYY-MM-DDTHH:MM:SSZ`.
+# jq's fromdateiso8601 is strict ("%Y-%m-%dT%H:%M:%SZ" only) — it rejects both
+# fractional seconds and explicit ±HH:MM offsets. We pre-process here so:
+#   (a) the bash-level calendar computation succeeds on either form;
+#   (b) string comparisons against JSONL `timestamp` (which Claude Code emits
+#       as fractional-Z) stay coherent — the JSONL side is normalized inline
+#       in the same jq filter.
+normalize_iso() {
+  jq -n --arg t "$1" -r '
+    def to_epoch:
+      . as $orig
+      | sub("\\.[0-9]+(?=$|Z|[+-])"; "")
+      | if test("[+-][0-9]{2}:[0-9]{2}$") then
+          capture("^(?<dt>.+)(?<sign>[+-])(?<oh>[0-9]{2}):(?<om>[0-9]{2})$") as $m
+          | (($m.dt + "Z") | fromdateiso8601)
+            - (if $m.sign == "+" then 1 else -1 end)
+              * (($m.oh | tonumber) * 3600 + ($m.om | tonumber) * 60)
+        elif test("Z$") then
+          fromdateiso8601
+        else
+          ((. + "Z") | fromdateiso8601)
+        end;
+    if $t == "" then "" else ($t | to_epoch | strftime("%Y-%m-%dT%H:%M:%SZ")) end
+  ' 2>/dev/null || echo ""
+}
+
 # Resolve calendar window (jq does the parsing so we stay portable).
 CALENDAR_MINUTES_JSON="null"
 if [[ -n "$CAL_START" ]]; then
   if [[ -z "$CAL_END" ]]; then
     CAL_END=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   fi
-  CALENDAR_MINUTES_JSON=$(jq -n --arg s "$CAL_START" --arg e "$CAL_END" '
-    def parse: sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601;
-    (($e | parse) - ($s | parse)) / 60 | floor
-  ' 2>/dev/null || echo "null")
+  CAL_START=$(normalize_iso "$CAL_START")
+  CAL_END=$(normalize_iso "$CAL_END")
+  if [[ -z "$CAL_START" || -z "$CAL_END" ]]; then
+    echo "pr-cost-stamp.sh: failed to normalize --calendar-start/--calendar-end" >&2
+    CAL_START=""
+    CAL_END=""
+  else
+    CALENDAR_MINUTES_JSON=$(jq -n --arg s "$CAL_START" --arg e "$CAL_END" '
+      (($e | fromdateiso8601) - ($s | fromdateiso8601)) / 60 | floor
+    ' 2>/dev/null || echo "null")
+  fi
 fi
 
 CLAUDE_ROOT="${HOME}/.claude/projects"
@@ -222,9 +255,14 @@ AGGREGATE=$(find "$CLAUDE_ROOT" -maxdepth 2 -type f -name "*.jsonl" -path "*/*${
       }
   ] as $turns
   | (
+      # Normalize JSONL timestamps (which Claude Code emits with fractional
+      # seconds, e.g. "2026-05-09T22:29:33.123Z") to the canonical no-fractional
+      # form, so lexicographic comparisons against the already-normalized
+      # calendar bounds are coherent.
       $turns
-      | if $cal_start != "" then map(select(.timestamp >= $cal_start)) else . end
-      | if $cal_end   != "" then map(select(.timestamp <= $cal_end))   else . end
+      | map(. + { ts_norm: (.timestamp | sub("\\.[0-9]+(?=$|Z|[+-])"; "")) })
+      | if $cal_start != "" then map(select(.ts_norm >= $cal_start)) else . end
+      | if $cal_end   != "" then map(select(.ts_norm <= $cal_end))   else . end
     ) as $time_turns
   | {
       totals: {
