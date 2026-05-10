@@ -116,15 +116,17 @@ if [[ -n "$KNOWN_AI" ]]; then
   EXTRA_AI_JSON=$(printf '%s' "$KNOWN_AI" | jq -R -c 'split(",") | map(. | gsub("^[[:space:]]+|[[:space:]]+$"; ""))' 2>/dev/null || echo "[]")
 fi
 
-# Fetch reviews + comments via gh REST API. We use --json reviews,comments first
-# (covers PR-level), then complement with `gh api` for the user.type field
-# (the GraphQL author block does not expose type reliably for bots).
-REVIEW_JSON=$(gh api "/repos/${REPO}/pulls/${PR}/reviews" 2>/dev/null || echo "[]")
+# Fetch reviews + comments via gh REST API. The GitHub API paginates these
+# endpoints (default 30 items per page); use `--paginate` and merge the
+# resulting page array via `jq -s 'add // []'` so PRs with many reviews/comments
+# are aggregated correctly. The trailing `|| echo "[]"` plus the `// []`
+# default keep the JSON shape stable when the call fails or returns nothing.
+REVIEW_JSON=$(gh api --paginate "/repos/${REPO}/pulls/${PR}/reviews" 2>/dev/null | jq -s 'add // []' 2>/dev/null || echo "[]")
 COMMENT_JSON="[]"
 if [[ "$INCLUDE_COMMENTS" -eq 1 ]]; then
   # Both inline review-comments and issue-level comments contribute.
-  INLINE=$(gh api "/repos/${REPO}/pulls/${PR}/comments" 2>/dev/null || echo "[]")
-  ISSUE=$(gh api "/repos/${REPO}/issues/${PR}/comments" 2>/dev/null || echo "[]")
+  INLINE=$(gh api --paginate "/repos/${REPO}/pulls/${PR}/comments" 2>/dev/null | jq -s 'add // []' 2>/dev/null || echo "[]")
+  ISSUE=$(gh api --paginate "/repos/${REPO}/issues/${PR}/comments" 2>/dev/null | jq -s 'add // []' 2>/dev/null || echo "[]")
   COMMENT_JSON=$(jq -n --argjson a "$INLINE" --argjson b "$ISSUE" '$a + $b')
 fi
 

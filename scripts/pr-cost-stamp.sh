@@ -198,11 +198,13 @@ if [[ -n "$BRANCH" || -n "$PURPOSE" ]]; then
   if [[ -z "$BRANCHES_SIDECAR" ]]; then
     BRANCHES_SIDECAR="${CLAUDE_ROOT}/*/branches.jsonl"
   fi
-  # Use shell glob to expand the pattern; tolerate misses.
+  # Use shell glob to expand the pattern; tolerate misses. Set IFS=$'\n' for
+  # the array assignment so paths containing spaces (common on macOS with
+  # `~/Library/...` style HOMEs and Windows usernames) survive word-splitting.
   SIDECAR_FILES=()
   # shellcheck disable=SC2206
   shopt -s nullglob
-  SIDECAR_FILES=( $BRANCHES_SIDECAR )
+  IFS=$'\n' SIDECAR_FILES=( $BRANCHES_SIDECAR )
   shopt -u nullglob
 
   if [[ ${#SIDECAR_FILES[@]} -eq 0 ]]; then
