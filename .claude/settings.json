@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh *)",
+      "Bash(git *)",
+      "Bash(ls *)",
+      "Bash(cd *)",
+      "Bash(curl *)",
+      "Bash(make *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(cat *)",
+      "Bash(head *)"
+    ]
+  },
+  "enabledMcpjsonServers": ["ahrena"]
+}

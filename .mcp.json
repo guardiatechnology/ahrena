@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "ahrena": {
+      "command": "/Users/seguim/workspace/guardia/tooling/ahrena/tools/ahrena-mcp/.venv/bin/python",
+      "args": [
+        "-m",
+        "ahrena_mcp.server",
+        "--root",
+        "/Users/seguim/workspace/guardia/tooling/ahrena"
+      ]
+    }
+  }
+}
