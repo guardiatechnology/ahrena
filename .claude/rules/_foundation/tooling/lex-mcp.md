@@ -50,6 +50,20 @@ If the required MCP server is unavailable mid-operation (server down, missing en
 
 Common failure signals and their typical cause are listed in `codex-mcp-common` — consult before surfacing to the user.
 
+### 5. Transport preference when declaring an MCP server
+
+When declaring an MCP server in `framework/mcp/{name}.json` (or its override at `.ahrena/mcp/{name}.json`), the agent **MUST** choose the transport in the following preference order:
+
+1. **Remote HTTP** — server hosted by the vendor, accessed over HTTPS. Preferred whenever the vendor offers an official endpoint.
+2. **Native binary** stdio — executable distributed by the vendor (e.g., `github-mcp-server`). Second choice when no remote HTTP exists.
+3. **npx** (npm package) — only when the server has neither remote HTTP nor an official binary.
+
+Each tier adds a class of local dependency: remote HTTP requires zero runtime; binary requires only the executable; npx requires Node.js. The order minimizes the install surface in the development environment.
+
+Deviations from the order **MUST** be justified in a `_comment` inside the server JSON. Legitimate reasons include: (a) the preferred tier does not exist for the vendor; (b) the team needs a feature specific to the lower tier (e.g., shared configuration via environment variable instead of per-user OAuth). Reasons such as "personal preference" or "I'm used to it" are not legitimate.
+
+The trade-off rationale per tier (latency, version control, updates, local dependency) lives in `codex-mcp-common`. Docker is not part of the hierarchy today; when an MCP server in Docker is adopted, its tier **MUST** be defined by ADR.
+
 ## Examples
 
 ### Correct

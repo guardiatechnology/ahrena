@@ -56,6 +56,20 @@ Si el servidor MCP requerido no está disponible a mitad de operación (servidor
 
 Las señales comunes de falla y sus causas típicas están listadas en `codex-mcp-common` — consultar antes de presentar al usuario.
 
+### 5. Preferencia de transporte al declarar un servidor MCP
+
+Al declarar un servidor MCP en `framework/mcp/{nombre}.json` (o en el override `.ahrena/mcp/{nombre}.json`), el agente **DEBE** elegir el transporte en el siguiente orden de preferencia:
+
+1. **HTTP remoto** — servidor hospedado por el proveedor, accedido vía URL HTTPS. Se prefiere cuando el proveedor ofrece un endpoint oficial.
+2. **Binario nativo** stdio — ejecutable distribuido por el proveedor (ej.: `github-mcp-server`). Segunda opción cuando no hay HTTP remoto.
+3. **npx** (paquete npm) — solo cuando el servidor no tiene HTTP remoto ni binario oficial.
+
+Cada nivel agrega una clase de dependencia local: HTTP remoto exige cero runtime; el binario exige solo el ejecutable; npx exige Node.js. El orden minimiza la superficie de instalación en el entorno de desarrollo.
+
+Las desviaciones al orden **DEBEN** justificarse en un comentario (`_comment`) dentro del JSON del servidor. Justificaciones legítimas incluyen: (a) el nivel preferido no existe para el proveedor; (b) el equipo necesita una característica específica del nivel inferior (ej.: configuración compartida vía variable de ambiente en lugar de OAuth-per-user). Justificaciones como "preferencia personal" o "ya estoy acostumbrado" no son legítimas.
+
+La racional de los trade-offs por nivel (latencia, control de versión, actualización, dependencia local) está en `codex-mcp-common`. Docker no forma parte de la jerarquía hoy; cuando se adopte un servidor MCP en Docker, su nivel **DEBE** definirse por ADR.
+
 ## Alcance
 
 - **Aplica a:** todas las operaciones donde un servidor MCP activo provee una herramienta equivalente a la operación solicitada.

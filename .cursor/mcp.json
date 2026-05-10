@@ -5,6 +5,13 @@
       "headers": {
         "Authorization": "Bearer ${env:GITHUB_PAT}"
       }
+    },
+    "ahrena": {
+      "command": "ahrena-mcp",
+      "args": [
+        "--root",
+        "${workspaceFolder}"
+      ]
     }
   }
 }

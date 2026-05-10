@@ -28,6 +28,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/_foundation/process/codex-paths.md`
 - `.claude/docs/_foundation/process/codex-platforms.md`
 - `.claude/docs/_foundation/quality/codex-tone.md`
+- `.claude/docs/_foundation/tooling/codex-ahrena-mcp.md`
 - `.claude/docs/_foundation/tooling/codex-git-spice.md`
 - `.claude/docs/_foundation/tooling/codex-make.md`
 - `.claude/docs/_foundation/tooling/codex-mcp-common.md`
