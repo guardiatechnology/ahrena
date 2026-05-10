@@ -347,6 +347,120 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
         print(f"  Updated .claude/settings.json ({', '.join(claude_mcp)})")
 
 
+def install_pr_cost_attribution_hook(
+    ahrena_dir: Path,
+    target_dir: Path,
+    directives: dict,
+    dry_run: bool = False,
+) -> None:
+    """Wire pr-cost-attribution.sh into project .claude/settings.json hooks.
+
+    Activated when:
+      pr_cost_tracking.enabled == true
+      AND pr_cost_tracking.attribution_mode == "hook"  (default when omitted)
+
+    Side effects:
+      1. Copies framework/templates/claude-code-hooks/pr-cost-attribution.sh
+         to <target>/.claude/hooks/pr-cost-attribution.sh (chmod +x).
+      2. Adds hook entries to <target>/.claude/settings.json under
+         `hooks.UserPromptSubmit` and `hooks.SessionStart`. Existing entries
+         from other tooling are preserved; idempotent re-runs do not duplicate.
+    """
+    import json
+
+    enabled = bool(get_directive(directives, "pr_cost_tracking", "enabled", default=False))
+    if not enabled:
+        return
+
+    mode = str(
+        get_directive(directives, "pr_cost_tracking", "attribution_mode", default="hook")
+    ).strip().lower()
+    if mode != "hook":
+        return  # legacy "project" mode does not require the hook
+
+    src_hook = ahrena_dir / "framework" / "templates" / "claude-code-hooks" / "pr-cost-attribution.sh"
+    if not src_hook.exists():
+        print(
+            f"  WARNING: pr-cost-attribution.sh not found at {src_hook} — skipping hook install",
+            file=sys.stderr,
+        )
+        return
+
+    claude_dir = target_dir / ".claude"
+    hooks_dir = claude_dir / "hooks"
+    hook_dst = hooks_dir / "pr-cost-attribution.sh"
+    settings_path = claude_dir / "settings.json"
+
+    # The command we wire into settings.json. Using $CLAUDE_PROJECT_DIR keeps
+    # the path portable across machines (Claude Code expands it at runtime).
+    hook_cmd = "$CLAUDE_PROJECT_DIR/.claude/hooks/pr-cost-attribution.sh"
+
+    if dry_run:
+        print(f"    [DRY-RUN] .claude/hooks/pr-cost-attribution.sh (copy from framework template)")
+        print(f"    [DRY-RUN] .claude/settings.json (wire UserPromptSubmit + SessionStart)")
+        return
+
+    # ── 1. Copy hook script ──
+    hooks_dir.mkdir(parents=True, exist_ok=True)
+    hook_dst.write_text(src_hook.read_text(encoding="utf-8"), encoding="utf-8")
+    hook_dst.chmod(0o755)
+
+    # ── 2. Merge hooks block into settings.json ──
+    existing: dict = {}
+    if settings_path.exists():
+        try:
+            existing = json.loads(settings_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            existing = {}
+
+    hooks_block = existing.get("hooks")
+    if not isinstance(hooks_block, dict):
+        hooks_block = {}
+
+    def _merge_event(event_name: str, matcher: str) -> None:
+        groups = hooks_block.get(event_name)
+        if not isinstance(groups, list):
+            groups = []
+        # Idempotency: drop any existing matcher-group whose hooks include our
+        # command, then append a single canonical entry.
+        cleaned: list = []
+        for g in groups:
+            if not isinstance(g, dict):
+                cleaned.append(g)
+                continue
+            inner = g.get("hooks")
+            if not isinstance(inner, list):
+                cleaned.append(g)
+                continue
+            ours = any(
+                isinstance(h, dict)
+                and h.get("type") == "command"
+                and isinstance(h.get("command"), str)
+                and "pr-cost-attribution.sh" in h["command"]
+                for h in inner
+            )
+            if not ours:
+                cleaned.append(g)
+        cleaned.append(
+            {
+                "matcher": matcher,
+                "hooks": [{"type": "command", "command": hook_cmd}],
+            }
+        )
+        hooks_block[event_name] = cleaned
+
+    _merge_event("UserPromptSubmit", "")
+    _merge_event("SessionStart", "startup")
+    existing["hooks"] = hooks_block
+
+    claude_dir.mkdir(parents=True, exist_ok=True)
+    settings_path.write_text(
+        json.dumps(existing, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    print("  Wired PR cost attribution hook (UserPromptSubmit, SessionStart) into .claude/settings.json")
+
+
 def _framework_rel_path_to_rule_key(rel_path: Path) -> str:
     """Convert framework-relative path (e.g. en/_foundation/process/lexis/lex-directives.md) to rule key."""
     parts = list(rel_path.parts)
@@ -1225,6 +1339,10 @@ def install_claude_code(ahrena_dir: Path, target_dir: Path, dry_run: bool = Fals
     # MCP: merge server configs (also runs during sync-claude-code)
     directives = parse_directives(directives_path.read_text(encoding="utf-8"))
     install_mcp(ahrena_dir, target_dir, directives, dry_run=dry_run)
+
+    # PR cost attribution hook: opt-in via pr_cost_tracking.enabled in .directives.
+    # Keeps the hook script under .claude/hooks/ and wires it into settings.json.
+    install_pr_cost_attribution_hook(ahrena_dir, target_dir, directives, dry_run=dry_run)
 
 
 def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) -> None:
