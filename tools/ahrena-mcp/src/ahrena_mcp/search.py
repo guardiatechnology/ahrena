@@ -130,9 +130,7 @@ def _py_search(
     pattern = re.compile(re.escape(query), re.IGNORECASE)
     hits: list[Hit] = []
     seen: set[Path] = set()
-    for (art_lang, _), artifact in loader._cache.items():
-        if lang and art_lang != lang:
-            continue
+    for artifact in loader.iter_artifacts(lang=lang):
         if pilar and artifact.pilar != pilar:
             continue
         if artifact.path in seen:

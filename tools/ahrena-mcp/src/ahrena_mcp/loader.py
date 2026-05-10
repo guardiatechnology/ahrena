@@ -103,15 +103,24 @@ class FrameworkLoader:
         self._content_cache[artifact.path] = (artifact.mtime, content)
         return content
 
+    def iter_artifacts(self, lang: str | None = None) -> Iterator[Artifact]:
+        """Iterate over all indexed artifacts. Optionally filter by lang.
+
+        Public iteration entrypoint — consumers MUST use this instead
+        of reaching into ``_cache`` directly.
+        """
+        for (a_lang, _), art in self._cache.items():
+            if lang and a_lang != lang:
+                continue
+            yield art
+
     def iter_pilar(
         self,
         pilar: str,
         lang: str = "pt-BR",
         clade: str | None = None,
     ) -> Iterator[Artifact]:
-        for (a_lang, _), art in self._cache.items():
-            if a_lang != lang:
-                continue
+        for art in self.iter_artifacts(lang=lang):
             if art.pilar != pilar:
                 continue
             if clade and art.clade != clade:
