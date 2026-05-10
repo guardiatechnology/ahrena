@@ -1,131 +1,155 @@
 # Lexis: Checkpoint de Sesión
 
-> **Prefijo:** `lex-` | **Tipo:** Ley Inquebrantable | **Alcance:** Todas las sesiones de trabajo con agentes IA
+> **Prefijo:** `lex-` | **Tipo:** Ley Inviolable | **Alcance:** Contexto de sesión entre conversaciones con agentes de IA, complementario a `lex-agent-planning`
 
 ## Propósito
 
-Las sesiones de trabajo con agentes de IA son efímeras: al cerrarse, todo el contexto acumulado (decisiones tomadas, progreso parcial, próximos pasos) se pierde. Esto genera retrabajo, inconsistencia y pérdida de continuidad.
+Las sesiones con agentes de IA son efímeras — al cerrarse, el contexto acumulado fuera del plan (hilos paralelos, scratchpad pre-plan, hand-off entre múltiples planes activos, anotaciones de retomada) se pierde. `lex-agent-planning` cubre la fuente de verdad de la **task** (committed, con Steps `[x]`, Decisiones cerradas, Riesgos). El checkpoint cubre la **sesión** — lo que no cabe en un único plan.
 
-El checkpoint es un mecanismo del Ahrena que persiste el contexto de una actividad en un archivo `.checkpoint`, permitiendo que cualquier agente — en la misma sesión o en sesiones futuras — retome el trabajo exactamente donde se dejó.
-
-Esta Lexis existe para garantizar que **ningún contexto relevante se pierda entre sesiones** y que **ninguna actividad comience sin verificar antes si hay trabajo previo guardado**.
+Esta Lexis existe para garantizar que **el contexto de sesión fuera del plan** sea recuperable entre conversaciones, sin duplicar lo que el plan ya registra. El checkpoint es scratchpad de ventana de trabajo, no duplicado del plan.
 
 ## Ley
 
-> **Todo agente DEBE verificar el archivo `.checkpoint` antes de iniciar cualquier actividad y DEBE guardar el checkpoint al concluir cada actividad o al cerrar una sesión.**
+> **Todo agente DEBE verificar el archivo `.checkpoint` al iniciar una sesión y DEBE guardar el checkpoint bajo demanda del usuario o al cerrar la sesión cuando hubo cambio de contexto. El contenido del `.checkpoint` DEBE seguir el schema canónico (Session focus, Active plans, Open threads, Notes) y NO DEBE duplicar lo que vive en el plan (Activity, Steps, Decisiones cerradas, Riesgos, Artifacts). La superposición con `lex-agent-planning` está PROHIBIDA.**
 
 ## Reglas
 
 ### 1. Verificación obligatoria al iniciar
 
-Antes de iniciar cualquier actividad, el agente **DEBE**:
+Al iniciar una sesión, el agente **DEBE**:
 
 1. Verificar si existe un archivo `.checkpoint` en la raíz del workspace.
-2. Si existe, leer su contenido y presentar al usuario un resumen del contexto guardado.
-3. Preguntar al usuario si desea **retomar** la actividad guardada o **iniciar una nueva** (descartando el checkpoint anterior).
-4. Si no existe, proseguir con normalidad.
+2. Si existe y está en el schema nuevo (4 secciones canónicas): leer y presentar al usuario un resumen (Session focus + Active plans + Open threads).
+3. Si existe y está en el schema antiguo (Activity/Status/Progress/Decisions made/Next steps/Artifacts produced): emitir warning de deprecation, proseguir como si no hubiera checkpoint, y marcarlo para sobrescritura en la próxima invocación de save.
+4. Preguntar al usuario si desea **retomar** el contexto guardado o **iniciar una nueva ventana** (descartando el checkpoint anterior).
+5. Si no existe, proseguir normalmente. La ausencia de `.checkpoint` es un escenario válido — no es violación.
 
-### 2. Guardado obligatorio al concluir
+### 2. Guardado bajo demanda + fin de sesión
 
-Al concluir una actividad o cerrar una sesión, el agente **DEBE**:
+El agente **DEBE** persistir el checkpoint:
 
-1. Preguntar al usuario su preferencia de guardado (solo la primera vez de la sesión):
-   - **Automático:** el checkpoint se guarda automáticamente al final de cada actividad, sin preguntar de nuevo.
-   - **Manual:** el agente pregunta antes de cada guardado si el usuario desea guardar.
-2. Respetar la preferencia indicada durante el resto de la sesión.
-3. Persistir el checkpoint en el archivo `.checkpoint` en la raíz del workspace.
+1. **Bajo demanda** — cuando el usuario invoque `cry-checkpoint` o lo solicite explícitamente.
+2. **Al cerrar la sesión** — solo si hubo cambio real de contexto (nuevo Session focus, nuevo Active plan, nuevo Open thread, nuevas Notes). Cerrar sesión sin cambio de contexto NO requiere save.
 
-### 3. Estructura del checkpoint
+La obligación automática de guardar después de cada activity fue eliminada — la granularidad de activity ya vive en el plan (`lex-agent-planning`).
 
-El archivo `.checkpoint` debe contener, como mínimo:
+### 3. Schema canónico
+
+El archivo `.checkpoint` **DEBE** contener exactamente las 4 secciones siguientes, en cualquier orden:
 
 ```markdown
-# Checkpoint
+# Session checkpoint
 
-- **Actividad:** [descripción breve de la actividad en curso]
-- **Estado:** [en curso | concluido | bloqueado]
-- **Fecha:** [fecha y hora del guardado]
-- **Sesión:** [identificador de la sesión o chat]
+- **Last update:** YYYY-MM-DDTHH:MM:SSZ
+- **Session id:** {chat/session id o commit short SHA del HEAD}
 
-## Contexto
+## Session focus
 
-[Resumen de lo discutido, decidido o producido]
+{1-3 frases describiendo el foco general de la ventana de trabajo. No es Activity formal — es el puntero mental que ayuda al agente a reorientarse al retomar. Ejemplo: "Reposicionando lex-checkpoint en paralelo con revisión de plan-026."}
 
-## Progreso
+## Active plans
 
-- [x] [etapa concluida]
-- [ ] [próxima etapa pendiente]
+{Lista de plan-IDs activos en la sesión, con 1 línea de contexto cada uno. No duplicar contenido del plan — solo punteros.}
 
-## Decisiones tomadas
+- `plan-026` — commit-readiness-observer; aguardando ajuste de dependencia de `.checkpoint`
+- `plan-040` — reposicionamiento del `.checkpoint`; en redacción de los artefactos pt-BR
 
-- [decisión 1]
-- [decisión 2]
+## Open threads
 
-## Próximos pasos
+{Hilos de conversación que no se convirtieron en plan formal pero deben retomarse. Cada hilo en 1-2 líneas. Cubre lo que escapa de un único plan — decisiones pendientes transversales, ideas paralelas que merecen retorno.}
 
-1. [acción pendiente]
-2. [acción pendiente]
+- Evaluar si `lex-agent-planning` debería absorber "Risks de la sesión" como categoría no bloqueante
+- Decidir si los Brand-related cries deben vivir en `_foundation` o en `design/`
 
-## Artefactos producidos
+## Notes
 
-- [ruta/del/archivo-1]
-- [ruta/del/archivo-2]
+{Texto libre. Pensamientos, enlaces, referencias, snippets, recordatorios. Sin schema obligatorio. Es el scratchpad puro.}
 ```
+
+Los campos `Activity`, `Status`, `Progress`, `Decisions made`, `Next steps`, `Artifacts produced` (del schema antiguo) **NO PUEDEN** aparecer en el checkpoint nuevo — ese contenido vive en el plan (`lex-agent-planning`).
 
 ### 4. Responsabilidad compartida
 
 - Cualquier agente (Warrior) que actúe en la sesión **hereda** esta obligación.
-- El checkpoint es **agnóstico de disciplina** — se aplica a actividades de cualquier Clade.
+- El checkpoint es **agnóstico de disciplina** — se aplica a sesiones en cualquier Clade.
 - El archivo `.checkpoint` **no debe ser commiteado** en el repositorio (debe estar en `.gitignore`).
 
-## Alcance
+### 5. Relación con `lex-agent-planning`
 
-- **Se aplica a:** todas las sesiones de trabajo con agentes IA, en cualquier Clade y Subclade
+La delimitación entre plan y checkpoint es categórica:
+
+| Contenido | Vive en |
+|---|---|
+| Objetivo, Steps `[x]`, Status (`pending → in-progress → done`), Decisiones cerradas, Riesgos, Verificación | Plan (`.claude/plans/plan-NNN-{slug}.md`) — committed |
+| Activity, Progress detallado, Artifacts produced, Next steps de una task | Plan — committed |
+| Foco general de la ventana de trabajo (Session focus) | Checkpoint — gitignored |
+| Punteros para múltiples planes activos (Active plans) | Checkpoint — gitignored |
+| Hilos paralelos que no se convirtieron en plan (Open threads) | Checkpoint — gitignored |
+| Scratchpad libre, enlaces, recordatorios (Notes) | Checkpoint — gitignored |
+
+En caso de duda, el contenido va al plan. El plan vence en durabilidad (committed) y en alcance (cubre task; el checkpoint cubre sesión).
+
+## Cobertura
+
+- **Aplica a:** todas las sesiones con agentes de IA en cualquier Clade
 - **Agentes vinculados:** todos los Warriors y agentes genéricos
-- **Excepciones:** Ninguna. Las Lexis no admiten excepciones.
+- **Excepciones:** Ninguna. Lexis no admite excepciones.
 
 ## Consecuencias de Violación
 
-1. **Pérdida de contexto:** sesiones sin checkpoint resultan en retrabajo y pérdida de decisiones ya tomadas.
-2. **Alerta al usuario:** si el agente detecta que una sesión anterior no guardó checkpoint, debe alertar al usuario sobre la posible pérdida de contexto.
-3. **Remediación:** el agente debe intentar reconstruir el contexto a partir del historial disponible (archivos modificados, git log, transcripts) y guardar un checkpoint retroactivo.
+1. **Superposición con plan:** si el checkpoint contiene contenido del schema antiguo (Activity, Progress, Artifacts produced), `kata-checkpoint-read` emite warning e ignora el contenido — no hay pérdida de datos real porque la fuente de verdad es el plan.
+2. **Pérdida de contexto de sesión:** las sesiones sin checkpoint resultan en pérdida de Open threads y Notes; el plan permanece intacto.
+3. **Remediación:** el agente sobrescribe el `.checkpoint` antiguo en la próxima invocación de save con el schema nuevo. El contenido redundante con el plan se descarta.
 
 ## Ejemplos
 
 ### Correcto
 
 ```
-Agente: Encontré un checkpoint guardado:
-  - Actividad: Implementación del módulo de autenticación
-  - Estado: en curso
-  - Última sesión: 2026-03-07 14:30
-  - Progreso: 3 de 5 etapas concluidas
+Agente: Encontré un `.checkpoint` en el schema nuevo:
+  - Session focus: Reposicionando lex-checkpoint en paralelo con revisión de plan-026
+  - Active plans: plan-026, plan-040
+  - Open threads: 2 ítems pendientes
 
-  ¿Desea retomar esta actividad o iniciar una nueva?
+  ¿Desea retomar este contexto o iniciar una nueva ventana?
 
 Usuario: Retomar.
 
-Agente: Perfecto. Retomando desde donde quedamos...
-  Próximos pasos pendientes:
-  1. Implementar refresh token
-  2. Añadir pruebas de integración
+Agente: Continuando. Plan-040 estaba en redacción de los artefactos pt-BR.
+        Open threads pendientes:
+          1. Evaluar absorción de "Risks de la sesión" en lex-agent-planning
+          2. Decidir clade de los Brand-related cries
+        ¿Sigo con plan-040 o trato uno de los hilos primero?
 ```
 
 ### Incorrecto
 
 ```
-Agente: ¡Hola! ¿En qué puedo ayudarte?
+Agente: Encontré un `.checkpoint`:
+  ## Activity: Implementación del módulo X
+  ## Progress: [x] step 1 [ ] step 2
+  ## Artifacts produced: app/foo.py, tests/test_foo.py
 
-Usuario: Sigamos con la implementación del módulo de autenticación.
+# ❌ Schema antiguo. El contenido ya está (o debería estar) en el plan.
+# El agente DEBE emitir warning de deprecation, ignorar el contenido,
+# y proseguir como si no hubiera checkpoint.
+```
 
-Agente: ¡Claro! Empecemos de cero. ¿Cuál es el alcance?
+```
+# Checkpoint que duplica plan — VIOLA LA LEY
+# .checkpoint
+## Active plans
+- plan-040
 
-# ❌ El agente ignoró el checkpoint existente y obligó al usuario
-# a re-explicar todo el contexto de la sesión anterior.
+## Progress
+- [x] Reescribir lex-checkpoint
+- [ ] Reescribir codex-checkpoint
+
+# ❌ Progress vive en el plan. El checkpoint solo apunta (Active plans).
 ```
 
 ## Validación Automatizada
 
-- **Herramienta:** verificación por el propio agente al iniciar y finalizar cada sesión
-- **Momento:** inicio de cada sesión (lectura) y fin de cada actividad (escritura)
-- **Métrica:** 100 % de las sesiones deben tener el checkpoint verificado a la entrada y guardado a la salida
+- **Herramienta:** `kata-checkpoint-read` valida el schema canónico al leer; lint del checkpoint en CI verifica que las secciones obligatorias del schema antiguo estén ausentes (Activity, Progress, Artifacts produced)
+- **Momento:** inicio de sesión (read) y save (bajo demanda + fin de sesión con cambio)
+- **Métrica:** 0 ocurrencias de secciones del schema antiguo en `.checkpoint` recién escrito; 100% de `.checkpoint` adherentes al schema canónico
