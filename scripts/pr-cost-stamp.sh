@@ -21,7 +21,7 @@
 
 set -euo pipefail
 
-VERSION="1.1.0"
+VERSION="1.2.0"
 
 usage() {
   cat <<USAGE
@@ -40,6 +40,11 @@ Time aggregates (optional):
   --calendar-start <ISO8601> Lower bound for calendar duration (e.g. branch first commit).
   --calendar-end   <ISO8601> Upper bound for calendar duration. Default: current UTC time.
 
+Branch / purpose attribution (optional, requires pr-cost-attribution.sh hook):
+  --branch <name>            Restrict to turns whose sidecar entry shows branch == <name>.
+  --purpose <dev|review>     Restrict to turns whose sidecar entry shows purpose == <value>.
+  --branches-sidecar <glob>  Override sidecar discovery (default: ~/.claude/projects/*/branches.jsonl).
+
 Other:
   --version                  Print version and exit
   -h, --help                 Print this help and exit
@@ -47,6 +52,10 @@ Other:
 Output: JSON on stdout with keys totals, breakdown, meta.
 totals.active_minutes is always present (0 when no matching turns).
 totals.calendar_minutes is present only when --calendar-start is provided.
+meta.warnings carries advisories (e.g. when --branch/--purpose are passed but
+no branches.jsonl sidecar is available, the script falls back to project+since
+filtering and emits "no branch attribution data; counts may include off-branch
+sessions").
 USAGE
 }
 
@@ -55,6 +64,9 @@ SINCE=""
 IDLE_GAP_MIN="10"
 CAL_START=""
 CAL_END=""
+BRANCH=""
+PURPOSE=""
+BRANCHES_SIDECAR=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -76,6 +88,18 @@ while [[ $# -gt 0 ]]; do
       ;;
     --calendar-end)
       CAL_END="${2:-}"
+      shift 2
+      ;;
+    --branch)
+      BRANCH="${2:-}"
+      shift 2
+      ;;
+    --purpose)
+      PURPOSE="${2:-}"
+      shift 2
+      ;;
+    --branches-sidecar)
+      BRANCHES_SIDECAR="${2:-}"
       shift 2
       ;;
     --version)
@@ -159,6 +183,49 @@ fi
 
 CLAUDE_ROOT="${HOME}/.claude/projects"
 
+# ── Build session_id → (branch, purpose) map from branches.jsonl sidecars ──
+# When the consumer asks for --branch or --purpose, we need to know which
+# session_id correspond to which branch/purpose. The pr-cost-attribution.sh
+# hook records one entry per turn; here we collapse to per-session by taking
+# the LAST entry for each session_id (so a session that ended on a given
+# branch/purpose is classified that way). The hook is best-effort, so the
+# absence of a sidecar entry for a given session is expected and handled
+# downstream as "unattributed" (see WARNINGS below).
+SESSION_ATTRS_JSON="{}"
+WARNINGS_JSON="[]"
+
+if [[ -n "$BRANCH" || -n "$PURPOSE" ]]; then
+  if [[ -z "$BRANCHES_SIDECAR" ]]; then
+    BRANCHES_SIDECAR="${CLAUDE_ROOT}/*/branches.jsonl"
+  fi
+  # Use shell glob to expand the pattern; tolerate misses.
+  SIDECAR_FILES=()
+  # shellcheck disable=SC2206
+  shopt -s nullglob
+  SIDECAR_FILES=( $BRANCHES_SIDECAR )
+  shopt -u nullglob
+
+  if [[ ${#SIDECAR_FILES[@]} -eq 0 ]]; then
+    WARNINGS_JSON='["no branch attribution data; counts may include off-branch sessions"]'
+  else
+    # Concat all sidecars and reduce to map session_id → {branch, purpose, ts}
+    # keeping the entry with the LATEST ts per session_id.
+    SESSION_ATTRS_JSON=$(cat "${SIDECAR_FILES[@]}" 2>/dev/null | jq -s '
+      [
+        .[]
+        | select(type == "object")
+        | select((.session_id // "") != "")
+      ]
+      | group_by(.session_id)
+      | map(
+          sort_by(.ts // "") | last
+          | { (.session_id): { branch: (.branch // ""), purpose: (.purpose // "") } }
+        )
+      | add // {}
+    ' 2>/dev/null || echo "{}")
+  fi
+fi
+
 # Empty-result emitter (no logs / no matches). Keeps schema stable so the kata
 # always finds the keys it expects.
 emit_empty() {
@@ -170,7 +237,10 @@ emit_empty() {
     --arg cal_start "$CAL_START" \
     --arg cal_end "$CAL_END" \
     --arg idle_gap_min "$IDLE_GAP_MIN" \
+    --arg branch "$BRANCH" \
+    --arg purpose "$PURPOSE" \
     --argjson calendar_minutes "$CALENDAR_MINUTES_JSON" \
+    --argjson warnings "$WARNINGS_JSON" \
     --arg reason "$reason" \
     '{
       totals: {
@@ -192,6 +262,9 @@ emit_empty() {
         idle_gap_minutes: ($idle_gap_min | tonumber),
         calendar_start: (if $cal_start == "" then null else $cal_start end),
         calendar_end:   (if $cal_end   == "" then null else $cal_end   end),
+        branch:  (if $branch  == "" then null else $branch  end),
+        purpose: (if $purpose == "" then null else $purpose end),
+        warnings: $warnings,
         cost_unavailable: true,
         reason: $reason
       }
@@ -237,6 +310,9 @@ AGGREGATE=$(find "$CLAUDE_ROOT" -maxdepth 2 -type f -name "*.jsonl" -path "*/*${
     --arg since "$SINCE_ISO" \
     --arg cal_start "$CAL_START" \
     --arg cal_end "$CAL_END" \
+    --arg branch "$BRANCH" \
+    --arg purpose "$PURPOSE" \
+    --argjson session_attrs "$SESSION_ATTRS_JSON" \
     --argjson gap "$IDLE_GAP_SEC" '
   [
     .[]
@@ -244,6 +320,21 @@ AGGREGATE=$(find "$CLAUDE_ROOT" -maxdepth 2 -type f -name "*.jsonl" -path "*/*${
     | select((.cwd // "") | tostring | split("/") | last == $project)
     | select((.timestamp // "") >= $since)
     | select(.message.usage != null)
+    | . as $row
+    | ($session_attrs[($row.sessionId // "")] // null) as $attr
+    # When --branch is requested, accept the turn only if its session_id maps
+    # to that branch in the sidecar. Sessions with no sidecar entry are
+    # excluded (matches the contract: "branch attribution requested → only
+    # attributed turns count"). The legacy mode without --branch keeps all
+    # sessions.
+    | select(
+        ($branch == "")
+        or (($attr // {}) | (.branch // "") == $branch)
+      )
+    | select(
+        ($purpose == "")
+        or (($attr // {}) | (.purpose // "") == $purpose)
+      )
     | {
         session: .sessionId,
         model: (.message.model // "unknown"),
@@ -328,7 +419,10 @@ echo "$AGGREGATE" | jq \
   --arg cal_start "$CAL_START" \
   --arg cal_end "$CAL_END" \
   --arg idle_gap_min "$IDLE_GAP_MIN" \
+  --arg branch "$BRANCH" \
+  --arg purpose "$PURPOSE" \
   --argjson calendar_minutes "$CALENDAR_MINUTES_JSON" \
+  --argjson warnings "$WARNINGS_JSON" \
   '. + {
     totals: (.totals + { calendar_minutes: $calendar_minutes }),
     meta: {
@@ -339,6 +433,9 @@ echo "$AGGREGATE" | jq \
       idle_gap_minutes: ($idle_gap_min | tonumber),
       calendar_start: (if $cal_start == "" then null else $cal_start end),
       calendar_end:   (if $cal_end   == "" then null else $cal_end   end),
+      branch:  (if $branch  == "" then null else $branch  end),
+      purpose: (if $purpose == "" then null else $purpose end),
+      warnings: $warnings,
       cost_unavailable: true,
       reason: "this script does not compute USD cost; pair with ccusage when available"
     }
