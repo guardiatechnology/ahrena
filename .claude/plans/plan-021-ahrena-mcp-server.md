@@ -5,7 +5,7 @@ status: in-progress
 agent: claude
 issue: "guardiatechnology/ahrena#74"
 created_at: "2026-05-07T22:30:00Z"
-updated_at: "2026-05-09T04:00:00Z"
+updated_at: "2026-05-10T14:00:00Z"
 ---
 
 # Plano: Ahrena MCP Server — framework como recurso queryable por agentes externos
@@ -52,7 +52,7 @@ MCP é o **único** mecanismo onde Claude Code/Cursor integram tools de forma na
 | Decisão | Valor | Por quê |
 |---|---|---|
 | Linguagem do server | Python 3.10+ usando `mcp` SDK (oficial Anthropic) | Continuidade com `install.py` e `validate.py`; cumpre folgado o budget de latência (<200ms query, <500ms search); barreira de contribuição baixa |
-| Empacotamento | Pacote em `tools/ahrena-mcp/` com `pyproject.toml` próprio. Instalação dev via `pip install -e`; distribuição externa via release wheel + `uvx` (ver §Release & Distribution) | Não polui root; viabiliza adopter externo sem clone do repo Ahrena |
+| Empacotamento | Pacote em `tools/ahrena-mcp/` com `pyproject.toml` próprio. Instalação **canônica** via `pipx install -e .ahrena/tools/ahrena-mcp` rodada pelo próprio `scripts/install.py` (que copia o source do pacote para `.ahrena/tools/`). Console script `ahrena-mcp` declarado em `[project.scripts]` resolve via `PATH`. Distribuição em PyPI (ver §Release & Distribution) é conveniência adicional para adopter sem clone — não é pré-requisito | Sem path absoluto, sem dep de PyPI para default-on funcionar; `install.py` é o único canal de instalação do framework e do server |
 | Localização do conteúdo | Server lê `framework/{lang}/...` do repo onde está rodando OU de path declarado em config | Trabalha em qualquer projeto que adote Ahrena |
 | Discovery do framework | (a) `--root` flag, (b) env var `AHRENA_ROOT`, (c) walk para cima procurando `.ahrena/` | Conveniente |
 | Idiomas suportados | Cada tool aceita `lang` parameter; defaulta a `language.default` lido de `.directives` | i18n nativo |
@@ -60,7 +60,7 @@ MCP é o **único** mecanismo onde Claude Code/Cursor integram tools de forma na
 | Caching | Cache de file content e search index em memória; invalidate em `mtime` change | Performance |
 | Auth | Sem auth (server local stdio) | MCP local, baixo risco |
 | Registro como MCP server | `framework/mcp/ahrena.json` com config para Cursor (`.cursor/mcp.json` `mcpServers`) e Claude Code (`.mcp.json` no root + `enabledMcpjsonServers` em `.claude/settings.json` — Claude Code rejeita `mcpServers` em settings) | Mesmo padrão dos demais (github.json, notion.json, figma.json), com o ajuste de schema do Claude Code corrigido pelo `fix(install)` desta PR |
-| Adoção | **Default-on** — `framework/.directives.sample` contém `mcp.servers: [ahrena]` descomentado por padrão; `install.py` mergeia `framework/mcp/ahrena.json` em todo projeto que adota Ahrena. Adopter opta-OUT comentando a linha em `.ahrena/.directives` | Performance benefit é universal e sem custo material; manter como opt-in repete fricção desnecessária. `lex-mcp` rule 3 (servidor declarado em `mcp.servers`) continua atendida porque o `.directives.sample` já declara |
+| Adoção | **Default-on, instalação pelo próprio framework** — `framework/.directives.sample` contém `mcp.servers: [ahrena]` descomentado; `install.py` (a) copia `tools/ahrena-mcp/` para `.ahrena/tools/`, (b) roda `pipx install -e <path>` (silencioso na primeira instalação; com prompt em re-instalação interativa), (c) mergeia `framework/mcp/ahrena.json` em `.cursor/mcp.json` + `.mcp.json` no root + `enabledMcpjsonServers` em `.claude/settings.json`. Adopter opta-OUT comentando a linha em `.ahrena/.directives` | Performance benefit é universal e sem custo material. Honesto: server fica realmente disponível pós-`make install` sem PyPI nem path absoluto. Quando `pipx` está ausente, `install.py` warns + skips (não-fatal). `lex-mcp` rule 3 continua atendida pelo `.directives.sample` |
 | HARD-GATE | Não — server é tooling opcional, não Lex | Adoção orgânica |
 | Idiomas dos artefatos do framework | Codex em 3 idiomas (pt-BR canonical + es + en); cry em 3 idiomas | `lex-framework-language` |
 
@@ -192,11 +192,19 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 
 ## Release & Distribution
 
-> Adicionado em 2026-05-09 após validação do spike. Cobre o caminho do pacote `tools/ahrena-mcp/` para instalação **fora** do repo Ahrena. **Não rodar antes** dos Steps 1–30 estarem mergeados — release sem o pacote estável é desperdício de tag.
+> Adicionado em 2026-05-09; ajustado em 2026-05-10 após o pivô arquitetural do PR #76 review. **Não bloqueia default-on** — `scripts/install.py` já cuida de tudo via `pipx install -e .ahrena/tools/ahrena-mcp/`. Esta seção cobre o caminho complementar: publicar o pacote para adopter **sem clone do repo Ahrena**.
 
-### Por que release importa
+### Por que release ainda faz sentido (mesmo com pipx no install.py)
 
-`pip install -e tools/ahrena-mcp` exige que o adopter clone o repo Ahrena inteiro. Para projetos externos (Strands, outras adopters do framework, time de produto), isso é fricção real: o servidor é o que muda; o `framework/` mora no repo Ahrena ou em qualquer projeto que rode `install.py`. Release publica o **servidor** como artefato consumível por `uvx ahrena-mcp` ou `pipx run`, e o adopter aponta `--root` para o repo Ahrena que ele já tem.
+A instalação canônica via `install.py` resolve o caso "adopter já clonou ou rodou bootstrap do framework" — copia `tools/ahrena-mcp/` para `.ahrena/tools/` e instala via pipx em PATH. **Default-on funciona honestamente**, sem PyPI.
+
+Release continua útil para casos ortogonais:
+
+- **Agente externo sem framework instalado** (Strands em projeto não-Ahrena, script CI ad-hoc): `uvx ahrena-mcp --root /path/to/some/ahrena/repo` resolve sem clone.
+- **Distribuição binary-like sem dep de Python no host do adopter**: PyPI + `pipx install ahrena-mcp` é one-liner.
+- **Versionamento independente**: release tags permitem pin de versão do server sem precisar de upgrade do framework inteiro.
+
+Em outras palavras: pré-pivô, release era condição para default-on. Pós-pivô, release é facilidade adicional.
 
 ### Decisões de release
 
@@ -207,7 +215,7 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 | Versionamento | SemVer (governado por `lex-semantic-version`) | `0.1.0a1` (alpha) → `0.1.0b1` (beta) → `0.1.0` (stable) → `1.0.0` quando o contrato (7 tools desta iteração + `ahrena_get_topology` quando plan-011 mergear) congela |
 | Trigger | Tag push `v*.*.*` em `main` | GitHub Action automatiza build + release. Tag assinada (`lex-signed-commits`). |
 | Compat Python | 3.10–3.13 | Janela alinhada à `mcp` SDK e ao stack do framework |
-| Comando recomendado em `framework/mcp/ahrena.json` | v1 (pré-PyPI): `pipx run --spec <release-url> ahrena-mcp` · v2 (pós-PyPI): `uvx ahrena-mcp` | Adopter externo sem `pip install -e` |
+| Comando em `framework/mcp/ahrena.json` | `command: "ahrena-mcp", args: ["--root", "${workspaceFolder}"]` em todas as fases | `install.py` instala o pacote via pipx → console script `ahrena-mcp` resolve via `PATH`. Mesma config funciona para fases v1 (GitHub Release) e v2 (PyPI/`uvx`); só muda como adopters externos obtêm o pacote. Sem mudança em `ahrena.json` por release |
 
 ### Artefatos a criar (release)
 
@@ -216,9 +224,9 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 | `.github/workflows/ahrena-mcp-release.yml` | GitHub Action: on tag `v*.*.*` build sdist + wheel via `python -m build`; cria GitHub Release; anexa artefatos. Quando habilitado PyPI: trusted publisher OIDC + `pypa/gh-action-pypi-publish`. |
 | `tools/ahrena-mcp/CHANGELOG.md` | Formato Keep-a-Changelog. Entrada inicial `0.1.0a1`. |
 | `tools/ahrena-mcp/.gitignore` | `.venv/`, `dist/`, `build/`, `*.egg-info/`, `__pycache__/`, `.pytest_cache/`, `.mypy_cache/`, `.coverage`, `*.pyc` |
-| Atualização de `framework/mcp/ahrena.json` | `command` passa para `uvx`/`pipx run` quando release v1 disponível (substitui o `python -m ahrena_mcp.server` do spike) |
+| Atualização de `framework/mcp/ahrena.json` | (Já feito em commit `chore(framework): ahrena.json uses bare 'ahrena-mcp' command (PATH-based)`.) `command: "ahrena-mcp"` permanece estável entre releases |
 | Atualização de `codex-ahrena-mcp.md` (3 idiomas) | Seção "Instalação" reflete release path como caminho recomendado; `pip install -e` vira nota para contributors |
-| Atualização de `cry-ahrena-mcp-install.md` (3 idiomas) | Atalho usa `uvx` / `pipx run` |
+| Atualização de `cry-ahrena-mcp-install.md` (3 idiomas) | Atalho aciona `scripts/install.py` (instalação canônica). `pipx run` / `uvx` documentados como alternativas para adopter externo sem framework |
 
 ### Steps adicionais (após 1–30 mergeados)
 
@@ -227,25 +235,26 @@ Os arquivos em `.claude/` **são o wiring nativo** do Claude Code (governança e
 - [ ] 33. Criar `.github/workflows/ahrena-mcp-release.yml` (build sdist + wheel; on tag push; cria GitHub Release; anexa artefatos)
 - [ ] 34. Promover `version` em `pyproject.toml` de `0.1.0a0` → `0.1.0a1`
 - [ ] 35. Commit + push em `main`; tag `v0.1.0a1` assinada; verificar GitHub Release gerado com `.whl` anexado
-- [ ] 36. Smoke test de consumo externo: em projeto sandbox **sem** clone do Ahrena, configurar `.claude/settings.json` com `pipx run --spec <whl-url> ahrena-mcp --root <ahrena-repo>`; abrir Claude Code; validar `tools/list` e uma `tools/call`
+- [ ] 36. Smoke test de consumo externo: em projeto sandbox **sem** clone do Ahrena, validar `pipx install --spec <whl-url> ahrena-mcp` + `pipx run` no `command` do `.mcp.json`; abrir Claude Code; validar `tools/list` e uma `tools/call`
 - [ ] 37. Quando contrato das tools (7 atuais + topology) estável após uso real por apollo-agents: configurar trusted publisher OIDC no PyPI
 - [ ] 38. Tag `v0.1.0` (release stable) com publicação em PyPI via Action
-- [ ] 39. Atualizar `framework/mcp/ahrena.json` para `command: uvx`, `args: ["ahrena-mcp", "--root", "${workspaceFolder}"]`
-- [ ] 40. Atualizar `codex-ahrena-mcp` e `cry-ahrena-mcp-install` (3 idiomas) para refletir o caminho `uvx`
+- [ ] 39. Documentar (em `codex-ahrena-mcp`) o caminho alternativo para adopter externo: `uvx ahrena-mcp --root <repo>` ou `pipx install ahrena-mcp` quando não há `install.py` rodando localmente. **Não alterar** `framework/mcp/ahrena.json` — `command: "ahrena-mcp"` continua válido (a diferença está em onde o pacote vem)
+- [ ] 40. (Removido — `framework/mcp/ahrena.json` não precisa atualização entre fases)
 - [ ] 41. Anunciar release no canal interno + abrir issue de adoção em projetos consumidores conhecidos (apollo-agents, Strands)
 
 ### Verificação adicional (release)
 
 12. `.whl` publicado em GitHub Release na tag `v0.1.0a1`
-13. Em projeto sandbox sem Ahrena clonado, `pipx run --spec <whl-url> ahrena-mcp --root <repo>` sobe e responde `tools/list`
+13. Em projeto sandbox sem Ahrena clonado, `pipx install --spec <whl-url> ahrena-mcp` sobe o pacote em PATH; `tools/list` responde
 14. Após PyPI: `uvx ahrena-mcp --root <repo>` funciona end-to-end em sandbox limpa (Python apenas, sem clone)
 15. `CHANGELOG.md` atualizado em cada tag
-16. `framework/mcp/ahrena.json` versionado contém o comando final (`uvx`)
+16. `framework/mcp/ahrena.json` permanece com `command: "ahrena-mcp"` em todas as fases (sem alteração entre v1 e v2)
 
 ### Riscos adicionais (release)
 
 - **Nome `ahrena-mcp` ocupado em PyPI.** Mitigação: pre-check antes do step 37; fallback `guardia-ahrena-mcp` ou `ahrena-framework-mcp`; manter consistência em GitHub Releases.
-- **`uv`/`uvx` ausente em projetos legados de adopters.** Mitigação: codex documenta `pipx run` e `pip install` como caminhos alternativos. Não impor `uv` como única via.
+- **`pipx` ausente no host do adopter.** Mitigação: `install.py` detecta a ausência, imprime `WARNING` com instruções (`https://pipx.pypa.io/stable/installation/`) e segue (não-fatal). Adopter pode (a) instalar pipx e re-rodar `install.py`, (b) instalar manualmente via `pip install --user .ahrena/tools/ahrena-mcp` ajustando PATH. Documentar em `codex-ahrena-mcp`.
+- **`uv`/`uvx` ausente em projetos legados** que tentam consumo externo. Mitigação: codex documenta `pipx install` e `pip install` como caminhos alternativos para o caso "sem framework instalado". Não impor `uv` como única via.
 - **Adopter externo aponta `--root` para diretório sem `framework/`.** Mitigação: já implementado no spike — server falha cedo com mensagem `"framework/ not found under <root>"`. Codex enfatiza esse pré-requisito.
 - **Quebra de contrato entre 0.1.x e 0.2.x consumida por apollo-agents.** Mitigação: SemVer rigoroso; 0.x admite breaking changes em minor mas anuncia em CHANGELOG; estável só após `1.0.0`.
 - **GitHub Actions secret/PyPI token roubado.** Mitigação: trusted publisher OIDC dispensa token; restringir workflow a tag push em `main`.
