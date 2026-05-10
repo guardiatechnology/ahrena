@@ -1,11 +1,11 @@
 ---
 name: kata-pr-cost-stamp
-description: "Stamp token cost (Claude Code) on the PR. Compute tokens consumed and USD cost of AI assistance during PR development and stamp the result in the PR body via gh pr edit"
+description: "Stamp token cost and implementation time (Claude Code) on the PR. Compute tokens, USD cost, and implementation time of AI assistance during PR development and stamp the result in the PR body via gh pr edit"
 ---
 
-# Kata: Stamp token cost (Claude Code) on the PR
+# Kata: Stamp token cost and implementation time (Claude Code) on the PR
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Compute tokens consumed and USD cost of AI assistance during PR development and stamp the result in the PR body via `gh pr edit`
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Compute tokens, USD cost, and implementation time of AI assistance during PR development and stamp the result in the PR body via `gh pr edit`
 
 ## Workflow
 
@@ -13,18 +13,20 @@ description: "Stamp token cost (Claude Code) on the PR. Compute tokens consumed 
 Progress:
 - [ ] 1. Verify preconditions and directives
 - [ ] 2. Resolve PR context
-- [ ] 3. Compute usage via ccusage (or fallback)
-- [ ] 4. Render markdown block
-- [ ] 5. Upsert into the PR body
-- [ ] 6. Final check
+- [ ] 3. Compute tokens and cost via ccusage (or fallback)
+- [ ] 4. Compute implementation time (active + calendar)
+- [ ] 5. Render markdown block
+- [ ] 6. Upsert into the PR body
+- [ ] 7. Final check
 ```
 
 ### Step 1: Verify preconditions and directives
 
 1. Consult `.ahrena/.directives` per `lex-directives`.
 2. Read `pr_cost_tracking.enabled`. If `false` or absent → exit silently with message `pr-cost-stamp: disabled in directives, skipping`.
-3. Verify availability of `gh` (authenticated) and `git`. If missing → exit with warning, do not propagate the error.
-4. Try `npx ccusage@latest --version` (timeout 30s). Success → `ccusage` is the backend. Failure → try `scripts/pr-cost-stamp.sh --version`. Failure → exit with warning `pr-cost-stamp: no backend available, skipping`.
+3. Read `pr_cost_tracking.idle_gap_minutes` (default `10`). This value is the gap (in minutes) that splits active windows inside a Claude Code session for the active-time computation.
+4. Verify availability of `gh` (authenticated), `git`, and `scripts/pr-cost-stamp.sh` (present and executable; required to compute time). Any absence → exit with warning, do not propagate the error.
+5. Try `npx ccusage@latest --version` (timeout 30s). Success → `ccusage` is the token/USD backend. Failure → `scripts/pr-cost-stamp.sh` covers tokens too (without cost). In both paths, the script is the single source of truth for the time aggregates (active + calendar) — `ccusage` does not expose per-turn `timestamp` in any subcommand.
 
 ### Step 2: Resolve PR context
 
@@ -32,20 +34,31 @@ Progress:
 2. `PR_NUMBER` from input or from `gh pr view --json number --jq .number`.
 3. `HEAD_REF=$(gh pr view $PR_NUMBER --json headRefName --jq .headRefName)`.
 4. `BASE_REF=$(gh pr view $PR_NUMBER --json baseRefName --jq .baseRefName)`.
-5. `SINCE_DATE`: date of the first commit on the branch in `YYYYMMDD`. If the branch has no commits over the base (fresh branch or resolution error), fall back to today's date to avoid passing an empty string to `ccusage`/the fallback script:
+5. `SINCE_DATE` (`YYYYMMDD` for `--since`) and `BRANCH_FIRST_COMMIT_ISO` (ISO 8601 for `--calendar-start`). If the branch has no commits over the base (fresh branch or resolution error), fall back to today's date:
    ```bash
    SINCE_DATE=$(git log --reverse $BASE_REF..$HEAD_REF --format=%cd --date=format:%Y%m%d | head -1)
-   [ -z "$SINCE_DATE" ] && SINCE_DATE=$(date +%Y%m%d)
+   BRANCH_FIRST_COMMIT_ISO=$(git log --reverse $BASE_REF..$HEAD_REF --format=%cI | head -1)
+   [ -z "$SINCE_DATE" ] && SINCE_DATE=$(date -u +%Y%m%d)
+   [ -z "$BRANCH_FIRST_COMMIT_ISO" ] && BRANCH_FIRST_COMMIT_ISO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
    ```
-6. Resolve the main repository root directory (not the worktree, when applicable):
+6. `PR_END_ISO`: upper bound of the calendar window. If the PR is already merged, use `mergedAt`; otherwise current UTC time:
+   ```bash
+   MERGED_AT=$(gh pr view $PR_NUMBER --json mergedAt --jq .mergedAt)
+   if [ -n "$MERGED_AT" ] && [ "$MERGED_AT" != "null" ]; then
+     PR_END_ISO="$MERGED_AT"
+   else
+     PR_END_ISO=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+   fi
+   ```
+7. Resolve the main repository root directory (not the worktree, when applicable):
    ```bash
    MAIN_DIR=$(cd "$(dirname "$(git rev-parse --git-common-dir)")" && pwd)
    ```
    `git rev-parse --git-common-dir` points to the main repository's `.git/` even from worktrees, ensuring sessions recorded in main and in worktrees aggregate together.
-7. `PROJECT_BASENAME=$(basename "$MAIN_DIR")` — used by the fallback (basename match against `cwd` in the JSONL).
-8. `PROJECT_ID=$(echo "$MAIN_DIR" | tr / -)` — Claude Code-style id (path with `/` → `-`, leading `-`); used by `ccusage`'s `--project=<id>` filter.
+8. `PROJECT_BASENAME=$(basename "$MAIN_DIR")` — used by the fallback and by the time computation (basename match against `cwd` in the JSONL).
+9. `PROJECT_ID=$(echo "$MAIN_DIR" | tr / -)` — Claude Code-style id (path with `/` → `-`, leading `-`); used by `ccusage`'s `--project=<id>` filter.
 
-### Step 3: Compute usage via ccusage (or fallback)
+### Step 3: Compute tokens and cost via ccusage (or fallback)
 
 **Preferred — `ccusage`:**
 
@@ -82,9 +95,34 @@ RAW=$(scripts/pr-cost-stamp.sh \
 
 JSON output with schema equivalent to `ccusage` (keys `totals`, `breakdown`, `meta`).
 
-### Step 4: Render markdown block
+### Step 4: Compute implementation time (active + calendar)
 
-From the JSON in `RAW`, assemble:
+Time always comes from `scripts/pr-cost-stamp.sh`, regardless of the token backend, because `ccusage` does not expose per-turn `timestamp` in any subcommand (validated against `docs/guide/json-output.md`).
+
+```bash
+TIME_RAW=$(scripts/pr-cost-stamp.sh \
+  --project "$PROJECT_BASENAME" \
+  --since "$SINCE_DATE" \
+  --idle-gap-minutes "$IDLE_GAP_MINUTES" \
+  --calendar-start "$BRANCH_FIRST_COMMIT_ISO" \
+  --calendar-end   "$PR_END_ISO")
+
+ACTIVE_MIN=$(echo "$TIME_RAW" | jq -r '.totals.active_minutes')
+CALENDAR_MIN=$(echo "$TIME_RAW" | jq -r '.totals.calendar_minutes')
+```
+
+When the token backend is already the script itself (fallback path), a single invocation covers everything — pass `--idle-gap-minutes`, `--calendar-start`, and `--calendar-end` on the Step 3 call and reuse `totals.active_minutes` and `totals.calendar_minutes`.
+
+Computation model (encoded in the script, do not reimplement in the kata):
+
+- **Active time:** sum, per `sessionId`, of windows with gap ≤ `idle_gap_minutes` between consecutive turns. Each session with at least one turn has a 60-second floor to keep short sessions from registering as zero. Windows with a larger gap contribute zero (reflects real idle time).
+- **Calendar time:** `(calendar_end − calendar_start) / 60`, in minutes, with `floor`.
+
+Both fields come back as **integer minutes**; the renderer (Step 5) converts them to `Xh Ymin`.
+
+### Step 5: Render markdown block
+
+From the JSON in `RAW` and the minutes derived in `TIME_RAW`, assemble:
 
 ```markdown
 <!-- ahrena:cost-stamp:start -->
@@ -98,10 +136,12 @@ From the JSON in `RAW`, assemble:
 | Cache reads | <cache_read_tokens> |
 | Cache writes | <cache_create_tokens> |
 | Estimated cost | $<cost_usd> USD |
+| Active time | <active_time_human> |
+| Calendar time | <calendar_time_human> (<since_date> → <pr_end_date>) |
 | Models | <model_breakdown> |
 
-_Computed by `kata-pr-cost-stamp` on <utc_now>. Window: <since_date> → now. Source: <tool_name> <tool_version>._
-_Estimate based on Anthropic public pricing; the actual invoice comes from the console._
+_Computed by `kata-pr-cost-stamp` on <utc_now>. Window: <since_date> → <pr_end_date>. Source: <tool_name> <tool_version>. Idle gap: <idle_gap_minutes>min._
+_Estimates based on Anthropic public pricing; the actual invoice comes from the console._
 <!-- ahrena:cost-stamp:end -->
 ```
 
@@ -110,9 +150,14 @@ Formatting rules:
 - Numbers with thousands separator per locale (`en` uses comma). For `pt-BR` and `es` apply the appropriate separator.
 - `cost_usd` with 2 decimals.
 - `model_breakdown`: list of `<model_id> (<percent>%)` ordered by share descending, comma-separated.
-- `<utc_now>` in ISO 8601 with `Z` suffix.
+- `<utc_now>`, `<since_date>`, and `<pr_end_date>` in ISO 8601 with `Z` suffix (or plain date for `since_date`/`pr_end_date` when time-of-day adds no context).
+- **Humanized time** from integer minutes:
+  - `< 60min` → `"<n>min"` (e.g., `47min`)
+  - `< 24h`  → `"<h>h <m>min"` (e.g., `2h 47min`); omit `<m>min` when zero (`3h`)
+  - `≥ 24h` → `"<d>d <h>h"` (e.g., `1d 4h`); omit `<h>h` when zero (`2d`)
+- If `active_minutes` or `calendar_minutes` is `0`, render `0min`.
 
-### Step 5: Upsert into the PR body
+### Step 6: Upsert into the PR body
 
 1. Get the current body:
    ```bash
@@ -149,12 +194,14 @@ Formatting rules:
    gh pr edit $PR_NUMBER --body "$NEW_BODY"
    ```
 
-### Step 6: Final check
+### Step 7: Final check
 
 - [ ] `pr_cost_tracking.enabled: true` confirmed in `.directives`
-- [ ] Backend identified (`ccusage` or fallback) and version recorded in the block
-- [ ] Usage JSON obtained without error
-- [ ] Rendered block contains `start`/`end` markers on dedicated lines
+- [ ] Token backend identified (`ccusage` or fallback) and version recorded in the block
+- [ ] `scripts/pr-cost-stamp.sh` invoked for time, with `--idle-gap-minutes`, `--calendar-start`, and `--calendar-end` populated
+- [ ] Token JSON and time JSON obtained without error
+- [ ] "Active time" and "Calendar time" rows present in the rendered block
+- [ ] Block contains `start`/`end` markers on dedicated lines
 - [ ] Updated body contains exactly one occurrence of the markers
 - [ ] `gh pr view $PR_NUMBER --json body` shows the block visible and formatted
 
@@ -179,6 +226,8 @@ PR_NUMBER=67
 ```
 pr-cost-stamp: backend=ccusage version=1.x project=ahrena since=20260507
 pr-cost-stamp: 3 sessions, 245892 input, 18432 output, $4.32 USD
+pr-cost-stamp: time backend=pr-cost-stamp.sh 1.1.0 idle_gap=10min
+pr-cost-stamp: active 167min (2h 47min), calendar 1680min (1d 4h)
 pr-cost-stamp: PR #67 body updated (block upserted)
 ```
 
@@ -193,3 +242,4 @@ See `codex-pr-cost-tracking` → "Block format" section.
 - **No PII in body:** no session content (messages, code, prompts) is stamped; only aggregates.
 - **Idempotency required:** re-execution without new sessions produces the same body.
 - **Respect directive:** `pr_cost_tracking.enabled: false` or absent → kata is a no-op.
+- **Active time is heuristic:** depends on `idle_gap_minutes` to separate engaged work from idle gaps; cross-machine does not capture sessions on other machines; in stacked PRs the windows of layers overlap. Limitations documented in `codex-pr-cost-tracking`.
