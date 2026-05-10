@@ -72,6 +72,8 @@ Example: session with turns at `t=0s, t=30s, t=65s, t=9000s, t=9020s` and `idle_
 - 20s ≤ 600 → add 20s
 - Total: 85s = 1min (after the script applies the floor).
 
+Single-turn case: a session with a single turn yields an empty delta sum (range from 1 to 1 has no elements), and the floor lifts the result to the documented 60-second minimum.
+
 #### Calendar-time calculation
 
 `floor((calendar_end − calendar_start) / 60)` in minutes. `calendar_start` = first commit of the branch (`git log --reverse <base>..<head> --format=%cI | head -1`); `calendar_end` = PR `mergedAt` or current UTC time when still open.

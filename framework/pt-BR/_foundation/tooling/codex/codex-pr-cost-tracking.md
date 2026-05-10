@@ -77,6 +77,8 @@ Exemplo: sessão com turnos em `t=0s, t=30s, t=65s, t=9000s, t=9020s` e `idle_ga
 - 20s ≤ 600 → soma 20s
 - Total: 85s = 1min (após piso aplicado pelo script).
 
+Caso single-turn: uma sessão com apenas um turno produz soma vazia de deltas (o intervalo de 1 a 1 não tem elementos), e o piso eleva o resultado ao mínimo documentado de 60 segundos.
+
 #### Cálculo do tempo de calendário
 
 `floor((calendar_end − calendar_start) / 60)` em minutos. `calendar_start` = primeiro commit da branch (`git log --reverse <base>..<head> --format=%cI | head -1`); `calendar_end` = `mergedAt` da PR ou hora atual em UTC quando ainda aberta.
