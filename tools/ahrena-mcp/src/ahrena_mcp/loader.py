@@ -35,11 +35,22 @@ class Artifact:
 class FrameworkLoader:
     def __init__(self, root: Path) -> None:
         self.root = root.resolve()
-        self.framework_dir = self.root / "framework"
-        if not self.framework_dir.is_dir():
+        # framework/ can live at the root (source Ahrena repo) OR inside
+        # .ahrena/ (adopter project, post-install). Prefer the latter when
+        # both exist since adopters consume the framework copy under
+        # .ahrena/framework/, not whatever may happen to be at the root.
+        adopter_fw = self.root / ".ahrena" / "framework"
+        source_fw = self.root / "framework"
+        if adopter_fw.is_dir():
+            self.framework_dir = adopter_fw
+        elif source_fw.is_dir():
+            self.framework_dir = source_fw
+        else:
             raise FileNotFoundError(
-                f"framework/ not found under {self.root}. "
-                "Run from an Ahrena repo root or pass --root."
+                f"framework/ not found under {self.root} "
+                f"(checked {adopter_fw} and {source_fw}). "
+                "Pass --root pointing at an Ahrena repo or at a project that "
+                "has .ahrena/framework/ installed."
             )
         self._cache: dict[tuple[str, str], Artifact] = {}
         self._content_cache: dict[Path, tuple[float, str]] = {}

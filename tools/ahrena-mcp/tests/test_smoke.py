@@ -87,3 +87,38 @@ def test_available_languages_nonempty(loader: FrameworkLoader) -> None:
 
 def test_search_empty_query_returns_empty(loader: FrameworkLoader) -> None:
     assert fw_search(loader, "   ", limit=10) == []
+
+
+def test_loader_finds_framework_in_adopter_layout(tmp_path: Path) -> None:
+    """The loader MUST also discover framework/ under .ahrena/ (post-install)."""
+    adopter_fw = tmp_path / ".ahrena" / "framework" / "pt-BR" / "_foundation" / "process" / "lexis"
+    adopter_fw.mkdir(parents=True)
+    (adopter_fw / "lex-sample.md").write_text("# Sample Lex\n", encoding="utf-8")
+
+    loader = FrameworkLoader(tmp_path)
+    assert loader.framework_dir == (tmp_path / ".ahrena" / "framework").resolve()
+    artifact = loader.get("lex-sample", "pt-BR")
+    assert artifact is not None
+    assert artifact.pilar == "lexis"
+
+
+def test_loader_prefers_adopter_layout_over_source_layout(tmp_path: Path) -> None:
+    """When both root/framework/ and root/.ahrena/framework/ exist, prefer adopter."""
+    src_fw = tmp_path / "framework" / "pt-BR" / "_foundation" / "process" / "lexis"
+    src_fw.mkdir(parents=True)
+    (src_fw / "lex-from-source.md").write_text("# source\n", encoding="utf-8")
+
+    adopter_fw = tmp_path / ".ahrena" / "framework" / "pt-BR" / "_foundation" / "process" / "lexis"
+    adopter_fw.mkdir(parents=True)
+    (adopter_fw / "lex-from-adopter.md").write_text("# adopter\n", encoding="utf-8")
+
+    loader = FrameworkLoader(tmp_path)
+    assert ".ahrena" in str(loader.framework_dir)
+    assert loader.get("lex-from-adopter", "pt-BR") is not None
+    assert loader.get("lex-from-source", "pt-BR") is None  # source layout ignored
+
+
+def test_loader_raises_when_neither_layout_exists(tmp_path: Path) -> None:
+    """A root with no framework/ at all MUST raise FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        FrameworkLoader(tmp_path)
