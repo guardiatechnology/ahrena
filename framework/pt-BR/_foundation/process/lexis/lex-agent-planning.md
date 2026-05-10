@@ -74,8 +74,21 @@ done → archived
 ## Relação com outros artefatos
 
 - **Issue GitHub:** um plano referencia uma issue; uma issue pode ter múltiplos planos (ex.: design, implementação, testes)
-- **Checkpoint (`.checkpoint`):** o checkpoint rastreia estado de sessão; o plano rastreia intenção e progresso estruturado — são complementares, não excludentes
+- **Checkpoint (`.checkpoint`):** o plano cobre **task** (committed, com Steps, Decisões, Riscos); o checkpoint cobre **sessão** (foco da janela, hand-off entre planos, threads paralelas, scratchpad). Sobreposição é PROIBIDA — ver `lex-checkpoint` regra 5
 - **ADR:** quando um plano identifica uma decisão arquitetural relevante, um ADR DEVE ser aberto conforme `lex-issue-driven`
+
+### Plano vs `.checkpoint` — o que vai onde
+
+| Conteúdo | Vive em |
+|---|---|
+| Objetivo, Steps `[x]`, Status (`pending → in-progress → done`), Decisões fechadas, Riscos, Verificação | Plano — committed |
+| Activity, Progress detalhado, Artifacts produced, Next steps de uma task | Plano — committed |
+| Foco geral da janela de trabalho (Session focus) | `.checkpoint` — gitignored |
+| Ponteiros para múltiplos planos ativos (Active plans) | `.checkpoint` — gitignored |
+| Threads paralelas que não viraram plano (Open threads) | `.checkpoint` — gitignored |
+| Scratchpad livre, links, lembretes (Notes) | `.checkpoint` — gitignored |
+
+Em caso de dúvida, conteúdo vai para o plano. Plano vence em durabilidade (committed) e em escopo (cobre task; checkpoint cobre sessão).
 
 ## Exemplos
 

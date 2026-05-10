@@ -92,6 +92,7 @@ Cuando todos los pasos estén `[x]`:
 2. Actualizar `updated_at`
 3. Informar al usuario: "Tarea completada. Plan en `{path}` marcado como `done`."
 4. Recordar al usuario que el plan debe commitearse junto con los artefactos producidos
+5. (Opcional) Sugerir invocar `cry-checkpoint` para actualizar `Active plans` en el `.checkpoint` removiendo este plan de la lista, en caso de que estuviera listado allí
 
 ## Salidas
 
@@ -160,5 +161,6 @@ Agente: "Este es el plan para completar la migración de feature-design-docs.
 
 - `lex-agent-planning` — Ley
 - `codex-agent-planning` — Manual con plantilla completa y buenas prácticas
-- `lex-checkpoint` — Seguimiento del estado de sesión (complementario)
+- `lex-checkpoint` — Scratchpad de **sesión** (delimitación clara: plan = task; checkpoint = sesión)
+- `cry-checkpoint` — Atajo para registrar plan-id en `Active plans` cuando múltiples planes coexisten en la sesión
 - `lex-directives` — Lectura de `.ahrena/.directives`

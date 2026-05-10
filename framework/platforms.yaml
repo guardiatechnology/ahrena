@@ -29,7 +29,10 @@ cursor:
       description: "Read .ahrena/.directives before producing any artifact. Apply at session start."
     _foundation/process/lexis/lex-checkpoint:
       alwaysApply: true
-      description: "Check .checkpoint at session start; save checkpoint when concluding activity or ending session."
+      description: "Read .checkpoint at session start; save it on demand or at end of session when context changed. Schema is canonical (Session focus, Active plans, Open threads, Notes); must not duplicate plan content."
+    _foundation/process/codex/codex-checkpoint:
+      alwaysApply: false
+      description: "When operating .checkpoint (read, save, troubleshoot), consult this codex for typical usage, schema details, and delineation against lex-agent-planning."
     _foundation/process/lexis/lex-platforms-rules:
       alwaysApply: false
       description: "When creating or publishing a Lexis or Codex, add its rule key to cursor.rules in platforms.yaml with at least description."
@@ -493,7 +496,9 @@ claude-code:
       description: "Read .ahrena/.directives before producing any artifact — language, paths, naming, tone all come from here."
     _foundation/process/lexis/lex-checkpoint:
       paths: ["**/.checkpoint"]
-      description: "Check .checkpoint at session start; save progress when concluding an activity."
+      description: "Read .checkpoint at session start; save it on demand or at end of session when context changed. Schema is canonical (Session focus, Active plans, Open threads, Notes); must not duplicate plan content."
+    _foundation/process/codex/codex-checkpoint:
+      description: "When operating .checkpoint (read, save, troubleshoot), consult this codex for typical usage, schema details, and delineation against lex-agent-planning."
     _foundation/process/lexis/lex-platforms-rules:
       description: "When creating or publishing a Lexis or Codex, add its rule key to platforms.yaml cursor.rules."
     _foundation/process/lexis/lex-naming:

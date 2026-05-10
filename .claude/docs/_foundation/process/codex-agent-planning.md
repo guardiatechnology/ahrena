@@ -143,14 +143,33 @@ Total: ~18 files.
 
 ```
 GitHub Issue
-    └── Plan (task plan)
+    └── Plan (task plan — committed)
             ├── ADR (if relevant architectural decision)
-            └── Checkpoint (session state — .checkpoint)
+            └── ─ ─ ─ do not confuse with ─ ─ ─
+                Checkpoint (.checkpoint — gitignored, session)
 ```
 
 - A plan **references** an issue but does not replace it
 - A plan may **generate** an ADR when an impactful decision is identified during execution
-- The **checkpoint** captures where the agent stopped in the session; the plan captures what the agent intends to do
+- The **checkpoint** is NOT subordinate to the plan; it is a parallel artifact of **session**, not of **task**
+
+### Plan vs `.checkpoint` — canonical delineation
+
+The plan covers the **task**: Objective, Scope, `[x]` Steps, closed Decisions, Risks, Verification. Committed.
+The checkpoint covers the **session**: Session focus, Active plans (pointers), Open threads, Notes. Gitignored.
+
+| Content | Plan | Checkpoint |
+|---|:---:|:---:|
+| `[x]` Steps | ✅ | ❌ |
+| Closed task decisions | ✅ | ❌ |
+| Task risks | ✅ | ❌ |
+| Artifacts produced | ✅ | ❌ |
+| Overall focus of the working window | ❌ | ✅ |
+| List of plans active in the session | ❌ | ✅ |
+| Parallel threads that did not become a plan | ❌ | ✅ |
+| Free scratchpad, links, reminders | ❌ | ✅ |
+
+If content repeats in both, there is overlap — the plan wins (committed). Overlap is FORBIDDEN per `lex-checkpoint` rule 5 and per `lex-agent-planning` "Relationship to Other Artifacts".
 
 ---
 
