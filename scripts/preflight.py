@@ -20,6 +20,7 @@ from __future__ import annotations
 import os
 import platform as _platform
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -136,6 +137,11 @@ def install_tool(spec: ToolSpec, os_kind: str, *, dry_run: bool = False) -> bool
 
     Returns True on success. On unsupported OS or install failure the agent
     is expected to communicate with the user and let them install manually.
+
+    Contract: `install_hints[os_kind]` is a static command string the
+    framework owns. We tokenize with `shlex.split` and run with
+    `shell=False` to remove the shell-injection surface from any future
+    consumer that composes a `ToolSpec` from non-static input.
     """
     cmd = spec.install_hints.get(os_kind)
     if not cmd:
@@ -147,7 +153,12 @@ def install_tool(spec: ToolSpec, os_kind: str, *, dry_run: bool = False) -> bool
         print("  [DRY-RUN] Skipped.")
         return False
     try:
-        proc = subprocess.run(cmd, shell=True, check=False, timeout=600)
+        argv = shlex.split(cmd)
+    except ValueError as exc:
+        print(f"  Install failed (could not parse command {cmd!r}): {exc}")
+        return False
+    try:
+        proc = subprocess.run(argv, check=False, timeout=600)
     except (subprocess.TimeoutExpired, OSError) as exc:
         print(f"  Install failed: {exc}")
         return False
@@ -259,10 +270,18 @@ def _print_install_hints(missing: Tuple[ToolReport, ...]) -> None:
 # Reusable specs. Consumers compose tier lists from these.
 
 
+def _python_executable_name() -> str:
+    """Return the canonical Python executable name for the current OS.
+
+    Windows ships Python as `python.exe`; POSIX systems expose `python3`.
+    Mirrors the same conditional already in the framework's Makefile so the
+    preflight does not flag a false positive on Windows hosts.
+    """
+    return "python" if _platform.system() == "Windows" else "python3"
+
+
 PYTHON = ToolSpec(
-    # Windows ships Python as `python.exe`; POSIX systems expose `python3`.
-    # Mirrors the same conditional already in the framework's Makefile.
-    name="python" if _platform.system() == "Windows" else "python3",
+    name=_python_executable_name(),
     purpose="Python interpreter (3.8+) — runs Ahrena scripts",
     version_flag="--version",
     min_version=(3, 8),

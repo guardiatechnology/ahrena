@@ -92,7 +92,11 @@ def _write_directives(target_dir: Path, text: str) -> None:
 
 
 _ACTIVE_BLOCK_RE = re.compile(
-    r"^(mcp:\s*\n\s*servers:\s*\n)((?:\s*-\s*\S+\s*\n)*)",
+    # `(?:\n|$)` (instead of strictly `\n`) tolerates a final entry that sits
+    # at end-of-file without a trailing newline — which happens after a manual
+    # edit. Without it, the body capture stops at the previous entry and the
+    # new server gets inserted in the middle of the existing list.
+    r"^(mcp:\s*\n\s*servers:\s*\n)((?:\s*-\s*\S+\s*(?:\n|$))*)",
     re.MULTILINE,
 )
 
@@ -113,7 +117,10 @@ def _ensure_server_in_directives(text: str, server: str) -> str:
             return text
         indent_m = re.match(r"(\s*)-", body)
         indent = indent_m.group(1) if indent_m else "    "
-        new_body = body + f"{indent}- {server}\n"
+        # Normalize body to end with `\n` so the new entry sits on its own line
+        # even when the captured block's last entry was at EOF without one.
+        normalized = body if body.endswith("\n") else body + "\n"
+        new_body = normalized + f"{indent}- {server}\n"
         return text[: m.start()] + header + new_body + text[m.end():]
 
     block = f"mcp:\n  servers:\n    - {server}\n"
@@ -188,14 +195,30 @@ def cmd_enable(
         else:
             unresolved.append(entry)
     # Unrecognised `requires` entries mean the framework cannot guarantee a
-    # working environment for the server — fail loudly instead of silently
-    # ignoring them (silent ignore would surface as confusing runtime errors).
+    # working environment for the server — silent ignore would surface as
+    # confusing runtime errors. Default to fatal under --non-interactive
+    # (CI must never proceed past unknown deps), and prompt the human in
+    # interactive sessions so a known-safe entry can still be skipped.
     if unresolved:
-        print(f"  ERROR: unrecognised requires entries for '{server}': {unresolved}")
-        print(f"  Either remove them from the server JSON, override the config at")
-        print(f"  .ahrena/mcp/{server}.json, or extend _REQUIRES_RESOLVER in mcp_enable.py")
-        print(f"  to handle the new dependency type.")
-        return 3
+        msg = f"unrecognised requires entries for '{server}': {unresolved}"
+        remediation = (
+            f"  Either remove them from the server JSON, override the config at\n"
+            f"  .ahrena/mcp/{server}.json, or extend _REQUIRES_RESOLVER in mcp_enable.py\n"
+            f"  to handle the new dependency type."
+        )
+        if non_interactive:
+            print(f"  ERROR: {msg}")
+            print(remediation)
+            return 3
+        print(f"  WARNING: {msg}")
+        print(remediation)
+        try:
+            answer = input("  Proceed anyway? [y/N] ").strip().lower()
+        except EOFError:
+            answer = "n"
+        if answer not in {"y", "yes"}:
+            print(f"  Activation of '{server}' cancelled.")
+            return 3
 
     if specs:
         interactive = False if non_interactive else None
