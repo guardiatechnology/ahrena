@@ -155,14 +155,33 @@ Total: ~18 archivos.
 
 ```
 Issue de GitHub
-    └── Plan (plan de tarea)
+    └── Plan (plan de tarea — committed)
             ├── ADR (si hay decisión arquitectónica relevante)
-            └── Checkpoint (estado de sesión — .checkpoint)
+            └── ─ ─ ─ no confundir con ─ ─ ─
+                Checkpoint (.checkpoint — gitignored, sesión)
 ```
 
 - Un plan **referencia** un issue pero no lo reemplaza
 - Un plan puede **generar** un ADR cuando se identifica una decisión de impacto durante la ejecución
-- El **checkpoint** captura dónde se detuvo el agente en la sesión; el plan captura lo que el agente pretende hacer
+- El **checkpoint** NO está subordinado al plan; es artefacto paralelo de **sesión**, no de **task**
+
+### Plan vs `.checkpoint` — delimitación canónica
+
+Plan cubre **task**: Objetivo, Alcance, Steps `[x]`, Decisiones cerradas, Riesgos, Verificación. Committed.
+Checkpoint cubre **sesión**: Session focus, Active plans (punteros), Open threads, Notes. Gitignored.
+
+| Contenido | Plan | Checkpoint |
+|---|:---:|:---:|
+| Steps `[x]` | ✅ | ❌ |
+| Decisiones cerradas de la task | ✅ | ❌ |
+| Riesgos de la task | ✅ | ❌ |
+| Artifacts produced | ✅ | ❌ |
+| Foco general de la ventana de trabajo | ❌ | ✅ |
+| Lista de planes activos en la sesión | ❌ | ✅ |
+| Hilos paralelos que no se convirtieron en plan | ❌ | ✅ |
+| Scratchpad libre, enlaces, recordatorios | ❌ | ✅ |
+
+Si el contenido se repite en ambos, hay superposición — el plan vence (committed). La superposición está PROHIBIDA por `lex-checkpoint` regla 5 y por `lex-agent-planning` "Relación con otros artefactos".
 
 ---
 
