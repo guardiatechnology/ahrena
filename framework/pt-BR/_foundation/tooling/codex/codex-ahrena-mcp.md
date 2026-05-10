@@ -21,20 +21,20 @@ A configuração canônica está em `framework/mcp/ahrena.json`. O `install.py` 
 **Cursor (`.cursor/mcp.json`):**
 ```json
 "ahrena": {
-  "command": "uvx",
-  "args": ["ahrena-mcp"]
+  "command": "ahrena-mcp",
+  "args": ["--root", "${workspaceFolder}"]
 }
 ```
 
 **Claude Code (`.mcp.json` no root do projeto + `enabledMcpjsonServers` em `.claude/settings.json`):**
 ```json
 "ahrena": {
-  "command": "uvx",
-  "args": ["ahrena-mcp"]
+  "command": "ahrena-mcp",
+  "args": ["--root", "${workspaceFolder}"]
 }
 ```
 
-> O comando `uvx ahrena-mcp` resolve o pacote publicado em PyPI sob demanda (zero-install). Pré-requisito: `uv` instalado no host (`brew install uv` no macOS, `pipx install uv` em outros ambientes). Antes da release v1, configure manualmente um `command` apontando para um Python que tenha `pip install -e <ahrena-repo>/tools/ahrena-mcp` aplicado (ver §Instalação interim).
+> O comando `ahrena-mcp` é o console script declarado em `tools/ahrena-mcp/pyproject.toml` (`[project.scripts]`). Ele fica disponível em `PATH` após o `install.py` rodar `pipx install -e .ahrena/tools/ahrena-mcp` (ver §Instalação). Não há dependência de PyPI nem de `uv`/`uvx` para o caminho default-on funcionar.
 
 ### Ferramentas disponíveis
 
@@ -109,26 +109,34 @@ Sem parâmetros. Retorna o YAML parseado de `.ahrena/.directives`.
 
 ### Instalação
 
-#### Adoção padrão (default-on)
+#### Adoção padrão (default-on, via `install.py`)
 
-Toda nova adoção do framework Ahrena ativa `ahrena` automaticamente:
+Toda adoção do framework Ahrena ativa `ahrena` automaticamente. O `scripts/install.py` faz tudo:
 
-1. `framework/.directives.sample` lista `mcp.servers: [ahrena]` descomentado por padrão.
-2. `scripts/install.py` mergeia `framework/mcp/ahrena.json` em `.cursor/mcp.json` e `.mcp.json` no root do projeto, e adiciona `ahrena` ao `enabledMcpjsonServers` em `.claude/settings.json`.
-3. Adopter executa `make install` (ou equivalente) — pronto.
+1. **Copia o source do pacote** — `tools/ahrena-mcp/` (do source repo Ahrena) é copiado para `.ahrena/tools/ahrena-mcp/` no projeto adopter, sem `.venv` nem caches.
+2. **Instala via `pipx`** — `pipx install -e .ahrena/tools/ahrena-mcp`. O console script `ahrena-mcp` (declarado em `pyproject.toml`) fica disponível em `PATH`.
+3. **Mergeia configs MCP** — `framework/mcp/ahrena.json` é mergeado em `.cursor/mcp.json` (Cursor) e `.mcp.json` no root + `enabledMcpjsonServers: ["ahrena"]` em `.claude/settings.json` (Claude Code).
+4. **Pré-requisito ativador** — `framework/.directives.sample` lista `mcp.servers: [ahrena]` descomentado por padrão; quando `ahrena` está em `mcp.servers`, os passos acima rodam.
 
-Para opt-out: comentar a linha `- ahrena` em `.ahrena/.directives` antes do install. Para desativar pós-install: remover `ahrena` de `enabledMcpjsonServers` (Claude Code) ou de `mcpServers` em `.cursor/mcp.json` e `.mcp.json` (ambas plataformas).
+Adopter roda `make install` (ou equivalente `python3 .ahrena/install.py`) — pronto. Após reinício do cliente MCP (Claude Code/Cursor), as 7 ferramentas `ahrena_*` aparecem.
 
-#### Instalação interim (pré-release)
+**Comportamento em re-install / update:**
+- Primeira vez (não-instalado): `pipx install` silencioso.
+- Pacote já instalado + sessão interativa: prompt `[y/N]` para reinstalar (default-no, preserva).
+- Pacote já instalado + não-TTY (CI): preserva sem prompt.
 
-Antes do release `v0.1.0a1` (ver `.claude/plans/plan-021-ahrena-mcp-server.md` §Release & Distribution), `uvx ahrena-mcp` falha porque o pacote ainda não está em PyPI. Workaround:
+**Opt-out:** comentar a linha `- ahrena` em `.ahrena/.directives` antes do install. Para desativar pós-install: rodar `scripts/uninstall.py` (que chama `pipx uninstall ahrena-mcp` best-effort) ou remover `ahrena` de `enabledMcpjsonServers` no `.claude/settings.json` + de `mcpServers` em `.cursor/mcp.json` e `.mcp.json`.
 
-1. Clonar o repo Ahrena (já feito se você consome o framework).
-2. `pip install -e <ahrena-repo>/tools/ahrena-mcp` no Python que será usado pelo MCP client.
-3. Substituir, em `.ahrena/mcp/ahrena.json` (override local), o `command` por `python` e `args` por `["-m", "ahrena_mcp.server"]`.
-4. Rodar `install.py` novamente para mergear o override.
+#### Quando `pipx` não está disponível
 
-Após release v1, esse passo desaparece — `uvx ahrena-mcp` resolve automaticamente.
+`install.py` detecta a ausência de `pipx` no `PATH`, imprime `WARNING` no `stderr` com o link de instalação ([pipx.pypa.io](https://pipx.pypa.io/stable/installation/)), e segue (não-fatal). Caminhos para destravar:
+
+1. **Instalar pipx e re-rodar `install.py`** (recomendado): `brew install pipx` (macOS), `python3 -m pip install --user pipx` + `python3 -m pipx ensurepath` (Linux/Windows).
+2. **Instalar manualmente sem pipx**: `pip install --user .ahrena/tools/ahrena-mcp` e ajustar `PATH` para incluir `~/.local/bin` (Linux/macOS) ou `%APPDATA%\Python\Scripts` (Windows). O `command: ahrena-mcp` em `.mcp.json` continua válido.
+
+#### Adopter externo sem framework instalado (após release)
+
+Para agentes ou scripts que **não** rodam o `install.py` (Strands em projeto não-Ahrena, CI ad-hoc), ver `.claude/plans/plan-021-ahrena-mcp-server.md` §Release & Distribution. Após release v1 (PyPI), o caminho recomendado é `uvx ahrena-mcp --root <repo-ahrena>` (zero-install) ou `pipx install ahrena-mcp` (persistente). Pré-release, `pipx install --spec <github-release-url> ahrena-mcp`.
 
 ### Performance
 
@@ -157,7 +165,7 @@ Quando o servidor sobe em um projeto Ahrena, o walk-up encontra `.ahrena/` autom
 ### Limitações conhecidas (spike inicial)
 
 - **Sem `ahrena_get_topology`** até `docs/internal/warrior-topology-2026.md` existir (depende de plan-011).
-- **Cache só por `mtime`** — edições concorrentes no framework durante uma sessão longa só são detectadas no próximo `get`.
+- **Cache só por `mtime` em arquivos já indexados** — `loader.get()` re-scaneia quando `mtime` muda, mas **não detecta arquivos novos nem deleções** durante uma sessão longa do server (o índice é construído no boot e atualizado por arquivo individual). Em prática isso raramente importa (artefatos do framework mudam pouco intra-sessão); quando importar, reiniciar o cliente MCP recria o índice.
 - **Sem parsing de frontmatter** — tools retornam markdown bruto. Filtragem por metadados (e.g., `alwaysApply: true`) é responsabilidade do consumer.
 - **Search cross-language pode dedup parcial** — um termo presente em pt-BR e en aparece duas vezes na lista de hits (uma por idioma) quando `lang` não é especificado.
 
