@@ -1,17 +1,12 @@
 {
-  "_comment": "Ahrena MCP: Notion server config. Merged into platform MCP files during install. Do not edit — override via .ahrena/mcp/notion.json instead.",
+  "_comment": "Ahrena MCP: Notion server config. HTTP-first per lex-mcp §5. Both platforms use the official remote endpoint at mcp.notion.com/mcp; auth is per-user OAuth (browser flow on first call). Teams that prefer a shared NOTION_API_KEY (legacy npx path) override this file in .ahrena/mcp/notion.json with their justification — see codex-mcp-notion. Merged into platform MCP files during install.",
   "cursor": {
-    "command": "npx",
-    "args": ["-y", "@notionhq/notion-mcp-server"],
-    "env": {
-      "NOTION_API_KEY": "${env:NOTION_API_KEY}"
-    }
+    "url": "https://mcp.notion.com/mcp",
+    "requires": []
   },
   "claude-code": {
-    "command": "npx",
-    "args": ["-y", "@notionhq/notion-mcp-server"],
-    "env": {
-      "NOTION_API_KEY": "${NOTION_API_KEY}"
-    }
+    "type": "http",
+    "url": "https://mcp.notion.com/mcp",
+    "requires": []
   }
 }

@@ -29,6 +29,46 @@ Cada servidor MCP se define por un template JSON en `framework/mcp/<name>.json` 
 
 El merge es **aditivo**: las entradas gestionadas por el usuario para otros servidores se preservan; solo los servidores listados en `mcp.servers` en `.ahrena/.directives` se escriben/sobrescriben.
 
+### Preferencia de transporte — racional de los trade-offs
+
+`lex-mcp` §5 establece el orden obligatorio al declarar un servidor MCP: **HTTP remoto → binario nativo → npx**. Cada nivel agrega una clase distinta de dependencia local. Trade-offs por nivel:
+
+| Nivel | Dep. local | Latencia | Actualización | Control de versión | Cuándo preferir |
+|---|---|---|---|---|---|
+| HTTP remoto | ninguna | red + servidor hospedado | proveedor (server-side) | proveedor | default cuando el proveedor ofrece endpoint oficial |
+| Binario nativo stdio | ejecutable instalado | stdio local | release versionado | usuario (elige la versión instalada) | sin HTTP; el proveedor publica binario oficial |
+| npx | Node.js + caché npm | stdio local con overhead de Node | en cada ejecución (`npx -y`) | paquete npm | sin HTTP ni binario oficial |
+
+**Por qué HTTP es el default:**
+- Cero dependencia local — el usuario no instala runtime ni binario; el servidor evoluciona sin release manual.
+- Auth estandarizada vía header (`Authorization: Bearer ...`) o OAuth-per-user, ambos soportados por las plataformas (Cursor y Claude Code).
+- Las fallas se exponen en status HTTP claros (401/403/429/5xx) con retry exponencial automático en los clientes oficiales.
+
+**Por qué el binario es la segunda opción:**
+- Funciona offline y tiene latencia mínima (sin hop de red).
+- Ofrece control preciso de versión — útil cuando el proveedor introduce breaking changes entre releases.
+- Costo: el usuario debe instalar/actualizar manualmente (o vía gestor de paquetes).
+
+**Por qué npx queda al final:**
+- Arrastra Node.js como dependencia transitiva — runtime pesado para un único caso de uso.
+- `npx -y` descarga/cachea en cada ejecución fría, introduciendo latencia inicial.
+- Los paquetes npm de terceros pueden ser archivados o comprometidos sin aviso (cadena de suministro más frágil que vendor-hosted).
+
+Las desviaciones al orden (ej.: usar npx cuando HTTP existe) **DEBEN** justificarse en un comentario (`_comment`) dentro del JSON del servidor — ver ejemplo abajo. Justificaciones comunes aceptables: necesidad de configuración compartida vía env var (en lugar de OAuth-per-user), entorno air-gapped, dependencia de una característica presente solo en el nivel inferior.
+
+```json
+{
+  "_comment": "Override: el equipo prefiere NOTION_API_KEY compartido en lugar del OAuth-per-user del endpoint HTTP oficial. Decisión registrada en ADR-NN.",
+  "cursor": {
+    "command": "npx",
+    "args": ["-y", "@notionhq/notion-mcp-server"],
+    "env": { "NOTION_API_KEY": "${env:NOTION_API_KEY}" }
+  }
+}
+```
+
+Docker no forma parte de la jerarquía hoy. Cuando se adopte un servidor MCP en Docker, su nivel **DEBE** definirse por ADR (decisión sobre overhead vs. aislamiento).
+
 ### Autenticación — regla uniforme
 
 Todas las credenciales de servidor MCP **DEBEN**:

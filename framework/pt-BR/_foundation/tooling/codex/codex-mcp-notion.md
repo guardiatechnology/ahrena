@@ -16,25 +16,46 @@ Este Codex é a referência para usar o **servidor MCP do Notion** em projetos A
 
 ### Configuração por plataforma
 
+As duas plataformas consomem o **servidor remoto oficial da Notion** em `https://mcp.notion.com/mcp` (degrau 1 da preferência de transporte definida em `lex-mcp` §5 — zero dependência local). Auth é via **OAuth-per-user**: na primeira chamada, cada usuário autentica via browser; o token é gerenciado pela plataforma.
+
 **Cursor (`.cursor/mcp.json`):**
 ```json
 "notion": {
-  "command": "npx",
-  "args": ["-y", "@notionhq/notion-mcp-server"],
-  "env": { "NOTION_API_KEY": "${env:NOTION_API_KEY}" }
+  "url": "https://mcp.notion.com/mcp"
 }
 ```
 
-**Claude Code (`.claude/settings.json`):**
+**Claude Code (`.mcp.json`):**
 ```json
 "notion": {
-  "command": "npx",
-  "args": ["-y", "@notionhq/notion-mcp-server"],
-  "env": { "NOTION_API_KEY": "${NOTION_API_KEY}" }
+  "type": "http",
+  "url": "https://mcp.notion.com/mcp"
 }
 ```
 
-> A variável `NOTION_API_KEY` deve estar definida no ambiente. Obtenha uma integration key em [notion.so/my-integrations](https://www.notion.so/my-integrations). A integration DEVE ter acesso às páginas/databases alvo (share explícito no Notion). Nunca hardcode tokens em arquivos rastreados (ver `lex-mcp`).
+> Mudança de UX: a versão anterior (npx + `NOTION_API_KEY` compartilhado) foi substituída pelo endpoint hosted com OAuth-per-user. Cada membro do time autentica individualmente; não há mais variável de ambiente para configurar.
+
+#### Override para o caminho npx legacy (NOTION_API_KEY compartilhado)
+
+Times que dependem da configuração compartilhada via env var (CI sem browser disponível, integrations específicas com permissões finas) podem sobrescrever o JSON do servidor em `.ahrena/mcp/notion.json` com um desvio justificado por `_comment`, conforme `lex-mcp` §5:
+
+```json
+{
+  "_comment": "Override: usando NOTION_API_KEY compartilhado por <razão — ex.: CI headless>. Decisão registrada em ADR-NN.",
+  "cursor": {
+    "command": "npx",
+    "args": ["-y", "@notionhq/notion-mcp-server"],
+    "env": { "NOTION_API_KEY": "${env:NOTION_API_KEY}" }
+  },
+  "claude-code": {
+    "command": "npx",
+    "args": ["-y", "@notionhq/notion-mcp-server"],
+    "env": { "NOTION_API_KEY": "${NOTION_API_KEY}" }
+  }
+}
+```
+
+Obtenha uma integration key em [notion.so/my-integrations](https://www.notion.so/my-integrations). A integration DEVE ter acesso às páginas/databases alvo (share explícito no Notion). O override exige Node.js no host; rode `make mcp-enable SERVER=notion PLATFORM=...` e o preflight oferece instalar quando faltar. Nunca hardcode tokens em arquivos rastreados (ver `lex-mcp`).
 
 ### Ferramentas disponíveis
 

@@ -418,10 +418,14 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
             continue
         cursor_block = raw.get("cursor")
         claude_block = raw.get("claude-code")
+        # `requires` is Ahrena-internal metadata used by mcp_enable.py to install
+        # local dependencies before activating the server; it is NOT part of the
+        # MCP server spec and MUST NOT leak into the platform config files.
+        ahrena_meta_keys = {"requires"}
         if cursor_block and isinstance(cursor_block, dict):
-            cursor_mcp[server_name] = cursor_block
+            cursor_mcp[server_name] = {k: v for k, v in cursor_block.items() if k not in ahrena_meta_keys}
         if claude_block and isinstance(claude_block, dict):
-            claude_mcp[server_name] = claude_block
+            claude_mcp[server_name] = {k: v for k, v in claude_block.items() if k not in ahrena_meta_keys}
 
     if dry_run:
         if cursor_mcp:
@@ -1254,9 +1258,9 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     # mcp.servers in .directives; idempotent across re-runs.
     install_mcp_package(ahrena_dir, getattr(args, "dry_run", False))
 
-    # 3. Copy scripts for future use (install, update, uninstall)
+    # 3. Copy scripts for future use (install, update, uninstall, preflight, mcp_enable)
     scripts_src = source_dir / "scripts"
-    for script_name in ("install.py", "update.py", "uninstall.py"):
+    for script_name in ("install.py", "update.py", "uninstall.py", "preflight.py", "mcp_enable.py"):
         src = scripts_src / script_name
         if src.exists():
             shutil.copy2(src, ahrena_dir / script_name)
@@ -1938,7 +1942,31 @@ offline (run this script directly from a cloned Ahrena repo):
         "--skip-rtk", action="store_true",
         help="skip RTK (Rust Token Killer) installation and hook initialization",
     )
+    parser.add_argument(
+        "--skip-preflight", action="store_true",
+        help="skip preflight checks for host tooling (git, make, gh, gpg)",
+    )
+    parser.add_argument(
+        "--non-interactive", action="store_true",
+        help="never prompt; soft preflight failures become warnings only",
+    )
     return parser
+
+
+def _run_preflight(args: argparse.Namespace) -> None:
+    """Run hard + soft preflight checks. Hard exits the process on failure;
+    soft only warns or offers install. No-op for --skip-preflight or --clean."""
+    if args.skip_preflight or args.clean:
+        return
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import preflight as _preflight  # type: ignore[import-not-found]
+    except ImportError as exc:
+        print(f"  Preflight unavailable ({exc}); skipping host-tool checks.")
+        return
+    interactive = False if args.non_interactive else None
+    _preflight.run("hard", _preflight.HARD_TOOLS, interactive=interactive)
+    _preflight.run("soft", _preflight.SOFT_TOOLS, interactive=interactive)
 
 
 def main() -> None:
@@ -1953,6 +1981,8 @@ def main() -> None:
 
     print("Ahrena: AI-First Capability Framework — Installer")
     print("=" * 52)
+
+    _run_preflight(args)
 
     # ── Clean mode ──
     if args.clean:

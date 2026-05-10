@@ -20,7 +20,7 @@ alwaysApply: false
 }
 ```
 
-**Claude Code (`.claude/settings.json`):**
+**Claude Code (`.mcp.json`):**
 ```json
 "figma": {
   "command": "npx",
@@ -29,7 +29,23 @@ alwaysApply: false
 }
 ```
 
+> Figma sits at tier 3 (npx) of the transport preference (`lex-mcp` §5) because Figma does not currently publish an official remote HTTP endpoint nor a standalone binary. Node.js is therefore a lazy dependency: installed on demand by `make mcp-enable SERVER=figma PLATFORM=...` via the preflight.
+>
 > The `FIGMA_API_KEY` variable must be defined in the environment. Generate a Personal Access Token in Figma → Settings → Account → Personal access tokens. The token needs read access to the target file. Never hardcode tokens in tracked files (see `lex-mcp`).
+
+#### Local alternative: Figma Dev Mode MCP server
+
+When the Figma desktop app is running with the Dev Mode panel active, it exposes a local MCP server at `http://127.0.0.1:3845/sse`. This is not a hosted endpoint (it still requires the desktop app running), but it eliminates npx/Node and surfaces some additional Dev Mode tools (selected component on canvas, code suggestions). Configuration:
+
+```json
+{
+  "_comment": "Override: using the local Figma Dev Mode MCP server. Requires the Figma desktop app running with Dev Mode active.",
+  "cursor": { "url": "http://127.0.0.1:3845/sse" },
+  "claude-code": { "type": "http", "url": "http://127.0.0.1:3845/sse" }
+}
+```
+
+Save as `.ahrena/mcp/figma.json` to override the default (npx) config. The override requires Figma desktop open on the machine; it does not work in CI or headless servers.
 
 ### How to get the Figma File ID
 

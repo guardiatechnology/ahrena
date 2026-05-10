@@ -16,6 +16,8 @@ Este Codex es la referencia para usar el **servidor MCP de GitHub** en proyectos
 
 ### Configuración por plataforma
 
+Ambas plataformas consumen el **servidor remoto oficial hospedado por GitHub** en `https://api.githubcopilot.com/mcp/` (nivel 1 de la preferencia de transporte declarada en `lex-mcp` §5 — cero dependencia local).
+
 **Cursor (`.cursor/mcp.json`):**
 ```json
 "github": {
@@ -24,16 +26,40 @@ Este Codex es la referencia para usar el **servidor MCP de GitHub** en proyectos
 }
 ```
 
-**Claude Code (`.claude/settings.json`):**
+**Claude Code (`.mcp.json`):**
 ```json
 "github": {
-  "command": "npx",
-  "args": ["-y", "@modelcontextprotocol/server-github"],
-  "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}" }
+  "type": "http",
+  "url": "https://api.githubcopilot.com/mcp/",
+  "headers": { "Authorization": "Bearer ${GITHUB_PAT}" }
 }
 ```
 
-> La variable `GITHUB_PAT` debe estar definida en el entorno. Nunca escribir tokens en archivos rastreados (ver `lex-mcp`).
+> La variable `GITHUB_PAT` debe estar definida en el entorno (token clásico o fine-grained con scopes de repositorio). Nunca escribir tokens en archivos rastreados (ver `lex-mcp`).
+>
+> Diferencia sintáctica intencional: Cursor usa `${env:VAR}` para interpolar variables de entorno; Claude Code usa `${VAR}`. Ambas formas resuelven al mismo valor en runtime.
+
+#### Override para el camino npx legacy
+
+El paquete npx (`@modelcontextprotocol/server-github`) está deprecated pero sigue funcional. Los equipos que lo necesitan (entornos air-gapped, herramientas no cubiertas aún por el endpoint hospedado) pueden sobrescribir el JSON del servidor en `.ahrena/mcp/github.json` con una desviación justificada por `_comment`, conforme `lex-mcp` §5:
+
+```json
+{
+  "_comment": "Override: usando el paquete npx @modelcontextprotocol/server-github por <razón>. Decisión registrada en ADR-NN.",
+  "cursor": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-github"],
+    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PAT}" }
+  },
+  "claude-code": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-github"],
+    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}" }
+  }
+}
+```
+
+El override exige Node.js en el host; ejecute `make mcp-enable SERVER=github PLATFORM=...` y el preflight ofrecerá instalarlo cuando falte.
 
 ### Herramientas disponibles
 
@@ -96,8 +122,23 @@ files         (array, obligatorio)  — [{path, content}] — contenido como str
 | Servidor MCP no disponible o variable no definida | CLI `gh` como fallback (comunicar indisponibilidad) |
 | Operación no cubierta por las herramientas MCP | CLI `gh` o API REST directamente |
 
+### Ejemplo de uso: crear PR con body estructurado
+
+```
+create_pull_request(
+  owner="acme",
+  repo="mi-proyecto",
+  title="feat(auth): implementar OAuth2",
+  head="feat/oauth2",
+  base="main",
+  body="## Resumen\n\n- Agrega flujo OAuth2 con PKCE\n- Integra con el proveedor configurado en `.env`\n\n## Cómo probar\n\n1. Definir `OAUTH_CLIENT_ID` y `OAUTH_CLIENT_SECRET`\n2. Ejecutar `make dev` y acceder a `/auth/login`",
+  draft=False
+)
+```
+
 ## Referencias
 
 - `lex-mcp` — Leyes de uso de herramientas MCP
 - `codex-mcp-notion` — Referencia del Notion MCP (patrón análogo)
-- [GitHub MCP Server — repositorio oficial](https://github.com/modelcontextprotocol/servers)
+- [GitHub MCP Server — repositorio oficial en Go](https://github.com/github/github-mcp-server) (binario/HTTP mantenido por GitHub)
+- [Claude Code — documentación MCP](https://code.claude.com/docs/en/mcp)

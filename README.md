@@ -10,11 +10,24 @@ O **Ahrena** é um Capability Framework AI-first que estrutura conhecimento, pro
 
 ### Pré-requisitos
 
-- **Python 3.8+** — necessário para o instalador
-- **Make** (opcional) — para bootstrap e atualizações
-  - **Windows:** `choco install make` ou `winget install GnuWin32.Make`
-  - **macOS:** Xcode Command Line Tools (`xcode-select --install`)
-  - **Linux:** na maioria das distros já incluso (`sudo apt install make`)
+O Ahrena verifica o ambiente em três camadas durante `make bootstrap` / `make install` (preflight). Veja `make preflight` para rodar os checks isoladamente.
+
+**Hard (bloqueia o install se faltar):**
+- **Python 3.8+** — interpretador para os scripts
+- **git** — controle de versão
+- **make** — entrypoint do Makefile
+
+**Soft (avisa e oferece instalar):**
+- **gh** (GitHub CLI) — usado pelo fluxo Issue-Driven, stacked PRs e pelo cost-stamp
+- **gpg** — exigido por `lex-signed-commits`
+
+**Lazy (instalado sob demanda quando o MCP correspondente é ativado via `make mcp-enable`):**
+- **Node.js** — apenas para o servidor MCP do Figma (degrau npx). GitHub e Notion usam HTTP remoto, sem dependência local.
+
+**Como instalar manualmente:**
+- **Windows:** `winget install --id Git.Git -e`, `winget install --id GnuWin32.Make -e`, `winget install --id GitHub.cli -e`, `winget install --id GnuPG.Gpg4win -e`, `winget install --id OpenJS.NodeJS.LTS -e`.
+- **macOS:** `xcode-select --install` cobre git e make (via Command Line Tools); `brew install gh gnupg node` para o restante.
+- **Linux (Debian/Ubuntu):** `sudo apt-get install -y git build-essential gh gnupg nodejs npm`. RHEL/Fedora: `sudo dnf install -y git gh gnupg2 nodejs npm` + `sudo dnf groupinstall -y 'Development Tools'`.
 
 ### Plataformas
 

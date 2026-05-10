@@ -10,11 +10,24 @@
 
 ### Prerequisites
 
-- **Python 3.8+** — required for the installer
-- **Make** (optional) — for bootstrap and updates
-  - **Windows:** `choco install make` or `winget install GnuWin32.Make`
-  - **macOS:** Xcode Command Line Tools (`xcode-select --install`)
-  - **Linux:** included in most distros (`sudo apt install make`)
+Ahrena verifies the host in three tiers during `make bootstrap` / `make install` (preflight). Run `make preflight` to execute the checks in isolation.
+
+**Hard (blocks the install if missing):**
+- **Python 3.8+** — interpreter for the scripts
+- **git** — version control
+- **make** — Makefile entrypoint
+
+**Soft (warns and offers to install):**
+- **gh** (GitHub CLI) — used by the Issue-Driven flow, stacked PRs, and the cost-stamp
+- **gpg** — required by `lex-signed-commits`
+
+**Lazy (installed on demand when the corresponding MCP is activated via `make mcp-enable`):**
+- **Node.js** — only for the Figma MCP server (npx tier). GitHub and Notion use remote HTTP, with no local dependency.
+
+**How to install manually:**
+- **Windows:** `winget install --id Git.Git -e`, `winget install --id GnuWin32.Make -e`, `winget install --id GitHub.cli -e`, `winget install --id GnuPG.Gpg4win -e`, `winget install --id OpenJS.NodeJS.LTS -e`.
+- **macOS:** `xcode-select --install` covers git and make (via Command Line Tools); `brew install gh gnupg node` for the rest.
+- **Linux (Debian/Ubuntu):** `sudo apt-get install -y git build-essential gh gnupg nodejs npm`. RHEL/Fedora: `sudo dnf install -y git gh gnupg2 nodejs npm` + `sudo dnf groupinstall -y 'Development Tools'`.
 
 ### Platforms
 

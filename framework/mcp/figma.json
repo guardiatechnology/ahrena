@@ -1,17 +1,19 @@
 {
-  "_comment": "Ahrena MCP: Figma server config. Merged into platform MCP files during install. Do not edit — override via .ahrena/mcp/figma.json instead.",
+  "_comment": "Ahrena MCP: Figma server config. Stays on npx (lex-mcp §5 tier 3) — Figma does not publish an official remote HTTP endpoint nor a standalone binary today. Node.js is therefore a lazy dependency installed on demand by mcp_enable.py via the preflight (bin:node). For local-only Figma Dev Mode (requires Figma desktop running), the alternative endpoint http://127.0.0.1:3845/sse is documented in codex-mcp-figma. Merged into platform MCP files during install.",
   "cursor": {
     "command": "npx",
     "args": ["-y", "figma-developer-mcp", "--stdio"],
     "env": {
       "FIGMA_API_KEY": "${env:FIGMA_API_KEY}"
-    }
+    },
+    "requires": ["bin:node"]
   },
   "claude-code": {
     "command": "npx",
     "args": ["-y", "figma-developer-mcp", "--stdio"],
     "env": {
       "FIGMA_API_KEY": "${FIGMA_API_KEY}"
-    }
+    },
+    "requires": ["bin:node"]
   }
 }
