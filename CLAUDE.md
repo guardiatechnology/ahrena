@@ -22,6 +22,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/_foundation/contributing/codex-stacked-prs.md`
 - `.claude/docs/_foundation/i18n/codex-framework-language.md`
 - `.claude/docs/_foundation/process/codex-agent-planning.md`
+- `.claude/docs/_foundation/process/codex-checkpoint.md`
 - `.claude/docs/_foundation/process/codex-directives.md`
 - `.claude/docs/_foundation/process/codex-naming.md`
 - `.claude/docs/_foundation/process/codex-paths.md`

@@ -78,6 +78,7 @@ When all steps are `[x]`:
 2. Update `updated_at`
 3. Inform the user: "Task completed. Plan at `{path}` marked as `done`."
 4. Remind the user that the plan should be committed alongside the produced artifacts
+5. (Optional) Suggest invoking `cry-checkpoint` to update `Active plans` in `.checkpoint`, removing this plan from the list if it was listed there
 
 ## Outputs
 
