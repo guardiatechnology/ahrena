@@ -23,7 +23,7 @@
 - Orquesta los seis ejes de revisión (técnico, alineamiento con specs, tests locales, retrocompatibilidad, seguridad, conformidad Lexis/Codex) — paralelizando donde sea posible
 - Ejecuta el conjunto de tests localmente (hace bootstrap de las dependencias cuando es necesario) en lugar de confiar solo en la señal del CI
 - Detecta breaking changes vía `oasdiff` (OpenAPI), schema diff (CloudEvents), `squawk` (migrations) y comparación de símbolos exportados
-- Consolida findings en un único review-comment con marker idempotente `<!-- argos-review-id:sha256(pr_number+commit_sha) -->` — edita en re-run en el mismo commit, crea comment nuevo en re-run con commit nuevo
+- Consolida findings en un único review-comment con marker idempotente `<!-- argos-review-id:sha256(pr_number + ":" + commit_sha) -->` — edita en re-run en el mismo commit, crea comment nuevo en re-run con commit nuevo
 - Publica vía `gh pr review --request-changes` cuando hay al menos un finding (BLOCKER o WARNING) y `--comment` cuando no hay ninguno — **nunca** `--approve`
 
 ### No Hace
@@ -143,7 +143,7 @@
    - Agrega findings en un único body de review-comment, ordenados por eje (A → F)
    - Cada fila de finding: `Severidad | Archivo:Línea | Lexis/Codex | Finding | Sugerencia`
    - Resumen de conteos en la parte superior
-   - Marker idempotente: calcula `sha256(pr_number + ":" + head_commit_sha)`, prefija 16 chars, embebe como `<!-- argos-review-id:<hash> -->` al inicio del body
+   - Marker idempotente: calcula `sha256(pr_number + ":" + head_commit_sha)`, toma los primeros 16 caracteres, embebe como `<!-- argos-review-id:<hash> -->` al inicio del body
    - Lista comments existentes del PR vía `gh api repos/{owner}/{repo}/issues/{pr}/comments`; encuentra `argos-review-id:<hash>` previo que coincida con el hash actual → edita vía `gh api -X PATCH .../comments/<id>`. Si el hash difiere (commit nuevo pusheado) → crea nueva review (audit trail preservado)
    - Publica: `gh pr review <PR#> --request-changes --body-file <body>` si BLOCKER ≥ 1 o WARNING ≥ 1; `--comment` si 0 findings
 6. **Fase 4 — Limpieza:** `git worktree remove .worktrees/review-pr-<N> --force`

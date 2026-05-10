@@ -23,7 +23,7 @@
 - Orquestra os seis eixos de revisão (técnico, alinhamento com specs, testes locais, retrocompatibilidade, segurança, conformidade Lexis/Codex) — paralelizando onde possível
 - Executa o conjunto de testes localmente (faz bootstrap das dependências quando necessário) em vez de confiar somente no sinal do CI
 - Detecta breaking changes via `oasdiff` (OpenAPI), schema diff (CloudEvents), `squawk` (migrations) e comparação de símbolos exportados
-- Consolida findings em um único review-comment com marker idempotente `<!-- argos-review-id:sha256(pr_number+commit_sha) -->` — edita em re-run no mesmo commit, cria comment novo em re-run com commit novo
+- Consolida findings em um único review-comment com marker idempotente `<!-- argos-review-id:sha256(pr_number + ":" + commit_sha) -->` — edita em re-run no mesmo commit, cria comment novo em re-run com commit novo
 - Publica via `gh pr review --request-changes` quando há ao menos um finding (BLOCKER ou WARNING) e `--comment` quando não há nenhum — **nunca** `--approve`
 
 ### Não Faz
@@ -143,7 +143,7 @@
    - Agrega findings em um único corpo de review-comment, ordenados por eixo (A → F)
    - Cada linha de finding: `Severidade | Arquivo:Linha | Lexis/Codex | Finding | Sugestão`
    - Resumo de contagens no topo
-   - Marker idempotente: calcula `sha256(pr_number + ":" + head_commit_sha)`, prefixa 16 chars, embute como `<!-- argos-review-id:<hash> -->` no início do body
+   - Marker idempotente: calcula `sha256(pr_number + ":" + head_commit_sha)`, toma os primeiros 16 caracteres, embute como `<!-- argos-review-id:<hash> -->` no início do body
    - Lista comments existentes da PR via `gh api repos/{owner}/{repo}/issues/{pr}/comments`; encontra `argos-review-id:<hash>` prévio que case com o hash atual → edita via `gh api -X PATCH .../comments/<id>`. Se hash diferir (commit novo pushado) → cria nova review (audit trail preservado)
    - Publica: `gh pr review <PR#> --request-changes --body-file <body>` se BLOCKER ≥ 1 ou WARNING ≥ 1; `--comment` se 0 findings
 6. **Fase 4 — Cleanup:** `git worktree remove .worktrees/review-pr-<N> --force`

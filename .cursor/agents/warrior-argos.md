@@ -24,7 +24,7 @@ description: "Argos — Multi-Axis Pull Request Reviewer. Engineering — Qualit
 - Orchestrates the six review axes (technical, spec alignment, local tests, backward compatibility, security, Lexis/Codex compliance) — parallelizing where possible
 - Runs the test suite locally (bootstrap deps if needed) instead of trusting only the CI signal
 - Detects breaking changes via `oasdiff` (OpenAPI), schema diff (CloudEvents), `squawk` (migrations), and exported-symbol comparison
-- Consolidates findings into a single review-comment with an idempotent marker `<!-- argos-review-id:sha256(pr_number+commit_sha) -->` — edits on same-commit re-run, creates a new comment on new-commit re-run
+- Consolidates findings into a single review-comment with an idempotent marker `<!-- argos-review-id:sha256(pr_number + ":" + commit_sha) -->` — edits on same-commit re-run, creates a new comment on new-commit re-run
 - Posts via `gh pr review --request-changes` when there is at least one finding (BLOCKER or WARNING) and `--comment` when there is none — **never** `--approve`
 
 ### Does Not
@@ -83,7 +83,7 @@ description: "Argos — Multi-Axis Pull Request Reviewer. Engineering — Qualit
    - Aggregates findings into one review-comment body, ordered by axis (A → F)
    - Each finding row: `Severity | File:Line | Lexis/Codex | Finding | Suggestion`
    - Summary counts at top
-   - Idempotent marker: computes `sha256(pr_number + ":" + head_commit_sha)`, prefixes 16 chars, embeds as `<!-- argos-review-id:<hash> -->` at the start of the body
+   - Idempotent marker: computes `sha256(pr_number + ":" + head_commit_sha)`, takes the first 16 characters, embeds as `<!-- argos-review-id:<hash> -->` at the start of the body
    - Lists existing PR comments via `gh api repos/{owner}/{repo}/issues/{pr}/comments`; finds prior `argos-review-id:<hash>` matching the current hash → edits via `gh api -X PATCH .../comments/<id>`. If hash differs (new commit pushed) → creates a new review (audit trail preserved)
    - Posts: `gh pr review <PR#> --request-changes --body-file <body>` if BLOCKER ≥ 1 or WARNING ≥ 1; `--comment` if 0 findings
 6. **Phase 4 — Cleanup:** `git worktree remove .worktrees/review-pr-<N> --force`
