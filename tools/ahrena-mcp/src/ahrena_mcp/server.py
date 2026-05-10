@@ -152,9 +152,18 @@ def build_app(root: Path) -> FastMCP:
                 "lang": artifact.lang,
                 "path": str(artifact.path.relative_to(loader.root)),
             }
+        # Fallback order: default_lang first (canonical source per
+        # lex-framework-language), then remaining languages alphabetically.
+        # Avoids surprising users who expect resolution to land on the
+        # canonical artifact when the requested lang is missing.
+        ordered_fallbacks: list[str] = []
+        if default_lang != lang and default_lang in loader.available_languages():
+            ordered_fallbacks.append(default_lang)
         for try_lang in loader.available_languages():
-            if try_lang == lang:
+            if try_lang in (lang, default_lang):
                 continue
+            ordered_fallbacks.append(try_lang)
+        for try_lang in ordered_fallbacks:
             artifact = loader.get(ref, try_lang)
             if artifact:
                 return {
