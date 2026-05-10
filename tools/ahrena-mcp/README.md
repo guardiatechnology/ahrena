@@ -43,18 +43,31 @@ Root discovery order: `--root` flag → `AHRENA_ROOT` env var → walk up from `
 
 Claude Code reads MCP servers from `.mcp.json` at the project root. Two files involved:
 
-**1. `.mcp.json` at project root** — declares the server:
+**1. `.mcp.json` at project root** — declares the server. Once the package is installed via `install.py` (which runs `pipx install -e <ahrena-repo>/tools/ahrena-mcp`), the `ahrena-mcp` console script is on `PATH` and can be invoked directly:
 
 ```json
 {
   "mcpServers": {
     "ahrena": {
-      "command": "/absolute/path/to/tools/ahrena-mcp/.venv/bin/python",
+      "command": "ahrena-mcp",
+      "args": ["--root", "${workspaceFolder}"]
+    }
+  }
+}
+```
+
+For manual setup outside `install.py` (e.g., a one-off venv), substitute placeholders — `<path-to-venv-python>` is the Python interpreter that has `ahrena-mcp` installed, and `<path-to-ahrena-repo>` points at the `framework/` to query:
+
+```json
+{
+  "mcpServers": {
+    "ahrena": {
+      "command": "<path-to-venv-python>",
       "args": [
         "-m",
         "ahrena_mcp.server",
         "--root",
-        "/absolute/path/to/ahrena/repo"
+        "<path-to-ahrena-repo>"
       ]
     }
   }
