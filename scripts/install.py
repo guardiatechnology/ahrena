@@ -267,6 +267,104 @@ def load_mcp_server_config(ahrena_dir: Path, server_name: str) -> dict | None:
     return None
 
 
+def _is_pipx_ahrena_mcp_installed(pipx_path: str) -> bool:
+    """Return True if `ahrena-mcp` shows up in `pipx list --short`."""
+    import subprocess
+    try:
+        proc = subprocess.run(
+            [pipx_path, "list", "--short"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    if proc.returncode != 0:
+        return False
+    for line in (proc.stdout or "").splitlines():
+        if line.strip().startswith("ahrena-mcp"):
+            return True
+    return False
+
+
+def install_mcp_package(ahrena_dir: Path, dry_run: bool = False) -> None:
+    """Install the ahrena-mcp Python package via pipx so `ahrena-mcp` is on PATH.
+
+    Reads `mcp.servers` from .ahrena/.directives. Skips silently when
+    `ahrena` is not listed. Uses `.ahrena/tools/ahrena-mcp/` as the
+    source for `pipx install -e`. When pipx is missing, prints a
+    WARNING with install instructions and skips (non-fatal). When the
+    package is already installed via pipx, this is a no-op on first
+    install and a prompt on subsequent runs (default-no, preserve).
+    """
+    import subprocess
+
+    directives_path = ahrena_dir / ".directives"
+    if not directives_path.exists():
+        return
+    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
+    servers = get_directive(directives, "mcp", "servers", default=[])
+    if not isinstance(servers, list) or "ahrena" not in servers:
+        return  # not requested
+
+    pipx = shutil.which("pipx")
+    if not pipx:
+        print(
+            "  WARNING: `pipx` not found on PATH; ahrena-mcp not installed.\n"
+            "    Install pipx (https://pipx.pypa.io/stable/installation/)\n"
+            "    and re-run install.py to activate the Ahrena MCP server.",
+            file=sys.stderr,
+        )
+        return
+
+    pkg_path = ahrena_dir / "tools" / "ahrena-mcp"
+    if not pkg_path.is_dir():
+        print(
+            f"  WARNING: {pkg_path} not found; cannot install ahrena-mcp.",
+            file=sys.stderr,
+        )
+        return
+
+    already_installed = _is_pipx_ahrena_mcp_installed(pipx)
+
+    if already_installed and sys.stdin.isatty():
+        try:
+            ans = input(
+                "  ahrena-mcp already installed via pipx. Reinstall/upgrade? [y/N]: "
+            ).strip().lower()
+        except EOFError:
+            ans = ""
+        if ans not in ("y", "yes"):
+            print("  Skipping reinstall (existing pipx install preserved).")
+            return
+    elif already_installed:
+        # Non-interactive: preserve existing install, do nothing.
+        return
+
+    if dry_run:
+        action = "reinstall" if already_installed else "install"
+        print(f"  [DRY-RUN] pipx {action} -e {pkg_path}")
+        return
+
+    cmd = [pipx, "install", "--force", "-e", str(pkg_path)]
+    print("  Installing ahrena-mcp via pipx ...")
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=180)
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"  ERROR: pipx invocation failed: {exc}", file=sys.stderr)
+        return
+    if proc.returncode != 0:
+        print(
+            f"  ERROR: pipx install failed (exit {proc.returncode}):\n"
+            f"    stdout: {(proc.stdout or '').strip()}\n"
+            f"    stderr: {(proc.stderr or '').strip()}",
+            file=sys.stderr,
+        )
+        return
+    print("  Installed: ahrena-mcp on PATH (managed by pipx)")
+
+
 def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: bool = False) -> None:
     """Merge MCP server configs into platform-specific files.
 
@@ -1002,6 +1100,28 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
             if not dst_file.exists():
                 shutil.copy2(json_file, dst_file)
         print(f"  Installed MCP templates to .ahrena/mcp/")
+
+    # 2.7. Copy tools/ahrena-mcp/ source so pipx can install -e from .ahrena/
+    pkg_src = source_dir / "tools" / "ahrena-mcp"
+    pkg_dst = ahrena_dir / "tools" / "ahrena-mcp"
+    if pkg_src.is_dir():
+        pkg_dst.parent.mkdir(parents=True, exist_ok=True)
+        if pkg_dst.exists():
+            shutil.rmtree(pkg_dst)
+        shutil.copytree(
+            pkg_src,
+            pkg_dst,
+            ignore=shutil.ignore_patterns(
+                ".venv", "dist", "build", "*.egg-info",
+                "__pycache__", ".pytest_cache", ".mypy_cache", ".coverage",
+            ),
+        )
+        print(f"  Installed ahrena-mcp source to .ahrena/tools/ahrena-mcp/")
+
+    # 2.8. Install ahrena-mcp Python package via pipx so the
+    # `ahrena-mcp` console script lands on PATH. Default-on per
+    # mcp.servers in .directives; idempotent across re-runs.
+    install_mcp_package(ahrena_dir, getattr(args, "dry_run", False))
 
     # 3. Copy scripts for future use (install, update, uninstall)
     scripts_src = source_dir / "scripts"
