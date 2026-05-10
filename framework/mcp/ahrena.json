@@ -1,0 +1,11 @@
+{
+  "_comment": "Ahrena MCP: internal server exposing the framework as queryable tools. Default-on per .directives.sample. install.py copies tools/ahrena-mcp/ to .ahrena/tools/ahrena-mcp/ and runs `pipx install -e <path>` so the `ahrena-mcp` console script is on PATH. Override via .ahrena/mcp/ahrena.json. If pipx is unavailable, install.py emits a warning with manual install instructions; the command below stays the same once the package is on PATH.",
+  "cursor": {
+    "command": "ahrena-mcp",
+    "args": ["--root", "${workspaceFolder}"]
+  },
+  "claude-code": {
+    "command": "ahrena-mcp",
+    "args": ["--root", "${workspaceFolder}"]
+  }
+}

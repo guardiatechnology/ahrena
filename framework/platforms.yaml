@@ -165,6 +165,9 @@ cursor:
     _foundation/tooling/codex/codex-mcp-figma:
       alwaysApply: false
       description: "When using Figma MCP server, use tools (get_file, get_component, get_local_variables, export_node, etc.) and auth from this codex."
+    _foundation/tooling/codex/codex-ahrena-mcp:
+      alwaysApply: false
+      description: "When querying the Ahrena framework via MCP (ahrena_query_lex, ahrena_get_codex, ahrena_search, ahrena_resolve_ref, etc.), consult this codex for tools, parameters, install path, and when to use vs read files directly."
     _foundation/tooling/codex/codex-git-spice:
       alwaysApply: false
       description: "When operating Stacked PRs and stacked_prs.tool=gs, consult this codex for git-spice install, setup, command catalog, vanilla→gs mapping, and force-push semantics."
@@ -685,6 +688,8 @@ claude-code:
       description: "When using Figma MCP server, reference tools (get_file, get_component, get_local_variables, etc.) from this codex."
     _foundation/tooling/codex/codex-mcp-common:
       description: "Shared MCP patterns — consulted alongside any server-specific MCP codex."
+    _foundation/tooling/codex/codex-ahrena-mcp:
+      description: "Reference for the Ahrena MCP server (default-on internal server) — tools, parameters, install path, and usage guidance."
     engineering/skills/codex/codex-skill-anthropic-agent-skills:
       description: "When authoring SKILL.md or validating a skill package, follow the Anthropic Agent Skills spec (frontmatter fields, naming limits, progressive disclosure)."
     engineering/skills/codex/codex-skill-project-architecture:

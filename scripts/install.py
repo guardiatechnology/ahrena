@@ -103,44 +103,61 @@ SAMPLE_DESCRIPTIONS: dict[str, str] = {
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def parse_directives(content: str) -> dict:
-    """Parse the simple YAML-like .directives format (stdlib only, no PyYAML)."""
-    result: dict = {}
-    stack: list[tuple[dict, int]] = [(result, -1)]
-    pending_list_key: str | None = None
+    """Parse the simple YAML-like .directives format (stdlib only, no PyYAML).
 
-    for line in content.splitlines():
-        stripped = line.lstrip()
+    Each stack frame is (container, indent, parent_dict, key_in_parent). The
+    last two fields let us retroactively swap a placeholder empty dict for a
+    list when we discover ``- item`` lines under a key whose value was bare
+    (e.g. ``mcp:\\n  servers:\\n    - ahrena``).
+    """
+    result: dict = {}
+    stack: list[tuple[object, int, dict | None, str | None]] = [
+        (result, -1, None, None),
+    ]
+
+    for raw in content.splitlines():
+        stripped = raw.lstrip()
         if not stripped or stripped.startswith("#"):
             continue
+        indent = len(raw) - len(stripped)
 
-        indent = len(line) - len(stripped)
+        # Pop frames whose indent is at or beyond the current line's.
+        while len(stack) > 1 and stack[-1][1] >= indent:
+            stack.pop()
 
         if stripped.startswith("- "):
             value = stripped[2:].strip().strip('"').strip("'")
-            parent, _ = stack[-1]
-            if pending_list_key is not None and pending_list_key in parent:
-                if not isinstance(parent[pending_list_key], list):
-                    parent[pending_list_key] = []
-                parent[pending_list_key].append(value)
+            container, cur_indent, parent_dict, key_in_parent = stack[-1]
+            if (
+                isinstance(container, dict)
+                and not container
+                and parent_dict is not None
+                and key_in_parent is not None
+            ):
+                # Placeholder empty dict was actually a list.
+                parent_dict[key_in_parent] = []
+                stack[-1] = (parent_dict[key_in_parent], cur_indent, parent_dict, key_in_parent)
+                container = parent_dict[key_in_parent]
+            if isinstance(container, list):
+                container.append(value)
             continue
 
-        if ":" in stripped:
-            key, _, val = stripped.partition(":")
-            key = key.strip()
-            val = val.strip().strip('"').strip("'")
+        if ":" not in stripped:
+            continue
 
-            while len(stack) > 1 and stack[-1][1] >= indent:
-                stack.pop()
+        key, _, val = stripped.partition(":")
+        key = key.strip()
+        val = val.strip().strip('"').strip("'")
 
-            parent, _ = stack[-1]
+        parent_obj, _, _, _ = stack[-1]
+        if not isinstance(parent_obj, dict):
+            continue  # malformed (list scope); skip silently
 
-            if val:
-                parent[key] = val
-                pending_list_key = key
-            else:
-                parent[key] = {}
-                stack.append((parent[key], indent))
-                pending_list_key = key
+        if val:
+            parent_obj[key] = val
+        else:
+            parent_obj[key] = {}
+            stack.append((parent_obj[key], indent, parent_obj, key))
 
     return result
 
@@ -267,15 +284,120 @@ def load_mcp_server_config(ahrena_dir: Path, server_name: str) -> dict | None:
     return None
 
 
+def _is_pipx_ahrena_mcp_installed(pipx_path: str) -> bool:
+    """Return True if `ahrena-mcp` shows up in `pipx list --short`."""
+    import subprocess
+    try:
+        proc = subprocess.run(
+            [pipx_path, "list", "--short"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    if proc.returncode != 0:
+        return False
+    for line in (proc.stdout or "").splitlines():
+        if line.strip().startswith("ahrena-mcp"):
+            return True
+    return False
+
+
+def install_mcp_package(ahrena_dir: Path, dry_run: bool = False) -> None:
+    """Install the ahrena-mcp Python package via pipx so `ahrena-mcp` is on PATH.
+
+    Reads `mcp.servers` from .ahrena/.directives. Skips silently when
+    `ahrena` is not listed. Uses `.ahrena/tools/ahrena-mcp/` as the
+    source for `pipx install -e`. When pipx is missing, prints a
+    WARNING with install instructions and skips (non-fatal). When the
+    package is already installed via pipx, this is a no-op on first
+    install and a prompt on subsequent runs (default-no, preserve).
+    """
+    import subprocess
+
+    directives_path = ahrena_dir / ".directives"
+    if not directives_path.exists():
+        return
+    directives = parse_directives(directives_path.read_text(encoding="utf-8"))
+    servers = get_directive(directives, "mcp", "servers", default=[])
+    if not isinstance(servers, list) or "ahrena" not in servers:
+        return  # not requested
+
+    pipx = shutil.which("pipx")
+    if not pipx:
+        print(
+            "  WARNING: `pipx` not found on PATH; ahrena-mcp not installed.\n"
+            "    Install pipx (https://pipx.pypa.io/stable/installation/)\n"
+            "    and re-run install.py to activate the Ahrena MCP server.",
+            file=sys.stderr,
+        )
+        return
+
+    pkg_path = ahrena_dir / "tools" / "ahrena-mcp"
+    if not pkg_path.is_dir():
+        print(
+            f"  WARNING: {pkg_path} not found; cannot install ahrena-mcp.",
+            file=sys.stderr,
+        )
+        return
+
+    already_installed = _is_pipx_ahrena_mcp_installed(pipx)
+
+    if already_installed and sys.stdin.isatty():
+        try:
+            ans = input(
+                "  ahrena-mcp already installed via pipx. Reinstall/upgrade? [y/N]: "
+            ).strip().lower()
+        except EOFError:
+            ans = ""
+        if ans not in ("y", "yes"):
+            print("  Skipping reinstall (existing pipx install preserved).")
+            return
+    elif already_installed:
+        # Non-interactive: preserve existing install, do nothing.
+        return
+
+    if dry_run:
+        action = "reinstall" if already_installed else "install"
+        print(f"  [DRY-RUN] pipx {action} -e {pkg_path}")
+        return
+
+    cmd = [pipx, "install", "--force", "-e", str(pkg_path)]
+    print("  Installing ahrena-mcp via pipx ...")
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=180)
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"  ERROR: pipx invocation failed: {exc}", file=sys.stderr)
+        return
+    if proc.returncode != 0:
+        print(
+            f"  ERROR: pipx install failed (exit {proc.returncode}):\n"
+            f"    stdout: {(proc.stdout or '').strip()}\n"
+            f"    stderr: {(proc.stderr or '').strip()}",
+            file=sys.stderr,
+        )
+        return
+    print("  Installed: ahrena-mcp on PATH (managed by pipx)")
+
+
 def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: bool = False) -> None:
-    """Merge MCP server configs into .cursor/mcp.json and .claude/settings.json.
+    """Merge MCP server configs into platform-specific files.
 
     Reads mcp.servers list from directives. For each server, loads the
     platform-specific block from framework/mcp/<name>.json (or the user
     override in .ahrena/mcp/<name>.json) and merges it additively.
 
-    Cursor:      .cursor/mcp.json       → {"mcpServers": {...}}
-    Claude Code: .claude/settings.json  → {"mcpServers": {...}}
+    Cursor:      .cursor/mcp.json        → {"mcpServers": {...}}
+    Claude Code: .mcp.json (project root) → {"mcpServers": {...}}
+                 .claude/settings.json    → {"enabledMcpjsonServers": [...]}
+
+    Note for Claude Code: the project-level Claude Code schema rejects
+    a top-level `mcpServers` field in `.claude/settings.json`. Servers
+    must be declared in `.mcp.json` at the project root, then approved
+    via `enabledMcpjsonServers` in settings.json. This function writes
+    both.
 
     Merge is additive — existing entries for other servers are preserved.
     Only the keys listed in mcp.servers are written/overwritten.
@@ -305,7 +427,8 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
         if cursor_mcp:
             print(f"    [DRY-RUN] .cursor/mcp.json ({', '.join(cursor_mcp)})")
         if claude_mcp:
-            print(f"    [DRY-RUN] .claude/settings.json ({', '.join(claude_mcp)})")
+            print(f"    [DRY-RUN] .mcp.json ({', '.join(claude_mcp)})")
+            print(f"    [DRY-RUN] .claude/settings.json enabledMcpjsonServers ({', '.join(claude_mcp)})")
         return
 
     # ── Cursor: .cursor/mcp.json ──────────────────────────────────
@@ -327,8 +450,25 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
         )
         print(f"  Updated .cursor/mcp.json ({', '.join(cursor_mcp)})")
 
-    # ── Claude Code: .claude/settings.json ───────────────────────
+    # ── Claude Code: .mcp.json (project root) + settings approval ─
     if claude_mcp:
+        # 1. Declare servers in the project-level .mcp.json
+        mcpjson_path = target_dir / ".mcp.json"
+        existing_mj: dict = {}
+        if mcpjson_path.exists():
+            try:
+                existing_mj = json.loads(mcpjson_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                existing_mj = {}
+        existing_mj.setdefault("mcpServers", {})
+        existing_mj["mcpServers"].update(claude_mcp)
+        mcpjson_path.write_text(
+            json.dumps(existing_mj, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"  Updated .mcp.json ({', '.join(claude_mcp)})")
+
+        # 2. Pre-approve in .claude/settings.json via enabledMcpjsonServers
         claude_dir = target_dir / ".claude"
         claude_dir.mkdir(parents=True, exist_ok=True)
         settings_path = claude_dir / "settings.json"
@@ -338,13 +478,34 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
                 existing_s = json.loads(settings_path.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):
                 existing_s = {}
-        existing_s.setdefault("mcpServers", {})
-        existing_s["mcpServers"].update(claude_mcp)
+        enabled = existing_s.get("enabledMcpjsonServers", [])
+        if isinstance(enabled, bool) and enabled is True:
+            # Some Claude Code schemas accept a literal `true` meaning "enable
+            # all servers from .mcp.json". Preserving that intent — do not
+            # rewrite to a list, since that would silently scope-down the
+            # user's choice. The new servers are already covered by `true`.
+            print(
+                "  NOTE: enabledMcpjsonServers is `true` (enable-all); "
+                "leaving as-is (already covers new servers).",
+                file=sys.stderr,
+            )
+        else:
+            if not isinstance(enabled, list):
+                print(
+                    f"  WARNING: enabledMcpjsonServers had unexpected type "
+                    f"{type(enabled).__name__!r}; coercing to list.",
+                    file=sys.stderr,
+                )
+                enabled = []
+            for name in claude_mcp:
+                if name not in enabled:
+                    enabled.append(name)
+            existing_s["enabledMcpjsonServers"] = enabled
         settings_path.write_text(
             json.dumps(existing_s, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
         )
-        print(f"  Updated .claude/settings.json ({', '.join(claude_mcp)})")
+        print(f"  Updated .claude/settings.json enabledMcpjsonServers ({', '.join(claude_mcp)})")
 
 
 def install_pr_cost_attribution_hook(
@@ -1070,6 +1231,28 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
             if not dst_file.exists():
                 shutil.copy2(json_file, dst_file)
         print(f"  Installed MCP templates to .ahrena/mcp/")
+
+    # 2.7. Copy tools/ahrena-mcp/ source so pipx can install -e from .ahrena/
+    pkg_src = source_dir / "tools" / "ahrena-mcp"
+    pkg_dst = ahrena_dir / "tools" / "ahrena-mcp"
+    if pkg_src.is_dir():
+        pkg_dst.parent.mkdir(parents=True, exist_ok=True)
+        if pkg_dst.exists():
+            shutil.rmtree(pkg_dst)
+        shutil.copytree(
+            pkg_src,
+            pkg_dst,
+            ignore=shutil.ignore_patterns(
+                ".venv", "dist", "build", "*.egg-info",
+                "__pycache__", ".pytest_cache", ".mypy_cache", ".coverage",
+            ),
+        )
+        print(f"  Installed ahrena-mcp source to .ahrena/tools/ahrena-mcp/")
+
+    # 2.8. Install ahrena-mcp Python package via pipx so the
+    # `ahrena-mcp` console script lands on PATH. Default-on per
+    # mcp.servers in .directives; idempotent across re-runs.
+    install_mcp_package(ahrena_dir, getattr(args, "dry_run", False))
 
     # 3. Copy scripts for future use (install, update, uninstall)
     scripts_src = source_dir / "scripts"

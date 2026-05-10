@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -44,11 +45,52 @@ def count_ahrena_claude_code_files(claude_dir: Path) -> int:
     )
 
 
+def uninstall_mcp_package() -> None:
+    """Best-effort `pipx uninstall ahrena-mcp`.
+
+    Silent no-op when pipx is missing or the package is not installed.
+    Failures here MUST NOT block the rest of the uninstall.
+    """
+    pipx = shutil.which("pipx")
+    if not pipx:
+        return
+    try:
+        listing = subprocess.run(
+            [pipx, "list", "--short"],
+            capture_output=True, text=True, timeout=20, check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return
+    if listing.returncode != 0:
+        return
+    if not any(line.strip().startswith("ahrena-mcp") for line in (listing.stdout or "").splitlines()):
+        return  # not installed via pipx
+    try:
+        proc = subprocess.run(
+            [pipx, "uninstall", "ahrena-mcp"],
+            capture_output=True, text=True, timeout=60, check=False,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"  WARNING: pipx uninstall raised {exc}; skipping.", file=sys.stderr)
+        return
+    if proc.returncode == 0:
+        print("  Removed ahrena-mcp via pipx")
+    else:
+        print(
+            f"  WARNING: pipx uninstall ahrena-mcp failed (exit {proc.returncode}). "
+            f"Run `pipx uninstall ahrena-mcp` manually if needed.",
+            file=sys.stderr,
+        )
+
+
 def remove_ahrena(target: Path) -> None:
     """Remove .ahrena/ and Ahrena files from .cursor/ and .claude/."""
     ahrena_dir = target / ".ahrena"
     cursor_dir = target / ".cursor"
     claude_dir = target / ".claude"
+
+    # Remove the pipx-installed MCP package before deleting source dirs.
+    uninstall_mcp_package()
 
     if ahrena_dir.exists():
         shutil.rmtree(ahrena_dir)

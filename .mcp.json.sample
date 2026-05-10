@@ -1,0 +1,9 @@
+{
+  "_comment": "Sample of the .mcp.json that scripts/install.py generates at the project root after merging framework/mcp/ahrena.json. The real .mcp.json is gitignored — re-run install.py to regenerate. Adopters opt-out by commenting `- ahrena` from mcp.servers in .ahrena/.directives. Add `github`/`notion`/`figma` blocks here only after enabling them in mcp.servers (install.py merges those configs too).",
+  "mcpServers": {
+    "ahrena": {
+      "command": "ahrena-mcp",
+      "args": ["--root", "${workspaceFolder}"]
+    }
+  }
+}
