@@ -1,7 +1,7 @@
 ---
 plan_id: "042"
 title: "setup-preflight-and-mcp-transport-preference"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#81"
 created_at: "2026-05-10T00:00:00Z"
