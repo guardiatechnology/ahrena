@@ -177,3 +177,5 @@ Modo: report
 
 - lex-restful-apis, lex-entities, lex-idempotency, lex-error-handling, lex-auth
 - codex-restful-apis, codex-restful-status-codes, codex-restful-payload, codex-restful-headers, codex-restful-pagination, codex-restful-sorting, codex-entities, codex-idempotency, codex-error-handling, codex-auth, codex-oas-structure
+- `kata-events-review` — par simétrico para contratos de CloudEvents
+- `warrior-argos` — orquestador que invoca este kata durante revisión multi-eje de Pull Request

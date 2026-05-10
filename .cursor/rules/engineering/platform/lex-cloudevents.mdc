@@ -23,6 +23,6 @@ Event without idempotencykey; without cataloged type; data without entity_id/ent
 
 ## Automated Validation
 
-- **Tool:** validation against CloudEvents schema; review of publishers and consumers.
-- **When:** PR review and event integration tests.
+- **Tool:** validation against CloudEvents schema; review of publishers and consumers; `kata-events-review` invoked by `warrior-argos` during multi-axis Pull Request review (catches type-format violations, missing `idempotencykey`, payload mismatches against the entity catalog, breaking changes against the base version).
+- **When:** PR review (via `cry-review-pr` → `warrior-argos` → `kata-events-review`) and event integration tests.
 - **Metric:** 0 events published outside the CloudEvents standard when the spec applies.
