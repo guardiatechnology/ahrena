@@ -364,12 +364,28 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
             except (json.JSONDecodeError, OSError):
                 existing_s = {}
         enabled = existing_s.get("enabledMcpjsonServers", [])
-        if not isinstance(enabled, list):
-            enabled = []
-        for name in claude_mcp:
-            if name not in enabled:
-                enabled.append(name)
-        existing_s["enabledMcpjsonServers"] = enabled
+        if isinstance(enabled, bool) and enabled is True:
+            # Some Claude Code schemas accept a literal `true` meaning "enable
+            # all servers from .mcp.json". Preserving that intent — do not
+            # rewrite to a list, since that would silently scope-down the
+            # user's choice. The new servers are already covered by `true`.
+            print(
+                "  NOTE: enabledMcpjsonServers is `true` (enable-all); "
+                "leaving as-is (already covers new servers).",
+                file=sys.stderr,
+            )
+        else:
+            if not isinstance(enabled, list):
+                print(
+                    f"  WARNING: enabledMcpjsonServers had unexpected type "
+                    f"{type(enabled).__name__!r}; coercing to list.",
+                    file=sys.stderr,
+                )
+                enabled = []
+            for name in claude_mcp:
+                if name not in enabled:
+                    enabled.append(name)
+            existing_s["enabledMcpjsonServers"] = enabled
         settings_path.write_text(
             json.dumps(existing_s, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
