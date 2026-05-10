@@ -1,0 +1,11 @@
+{
+  "_comment": "Ahrena MCP: internal server exposing the framework as queryable tools. Default-on per .directives.sample. Merged into platform configs by scripts/install.py. Override via .ahrena/mcp/ahrena.json. Command relies on `uvx` (or pipx run) resolving the published wheel — until release v0.1.0a1, adopters must `pip install -e <ahrena-repo>/tools/ahrena-mcp` manually and replace `command` with the venv interpreter.",
+  "cursor": {
+    "command": "uvx",
+    "args": ["ahrena-mcp"]
+  },
+  "claude-code": {
+    "command": "uvx",
+    "args": ["ahrena-mcp"]
+  }
+}

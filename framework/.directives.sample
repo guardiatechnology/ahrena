@@ -38,17 +38,24 @@ paths:
 
 
 # ─── MCP Servers ────────────────────────────────────────────────
-# List of MCP servers to activate. The installer merges the
-# corresponding config from framework/mcp/<name>.json (or
+# List of MCP servers to activate. The installer merges each
+# server config from framework/mcp/<name>.json (or
 # .ahrena/mcp/<name>.json if overridden) into .cursor/mcp.json
-# and .claude/settings.json. Uncomment only the servers you need.
-# Override individual server configs in .ahrena/mcp/<name>.json.
+# and the project-level .mcp.json + enabledMcpjsonServers in
+# .claude/settings.json. Override individual server configs in
+# .ahrena/mcp/<name>.json.
+#
+# `ahrena` is the framework's own internal server (see
+# codex-ahrena-mcp). Default-on. Comment the line to disable.
+# Add `github`, `notion`, `figma` for those integrations
+# (each requires the corresponding env var per codex-mcp-*).
 
-# mcp:
-#   servers:
-#     - github
-#     - notion
-#     - figma
+mcp:
+  servers:
+    - ahrena
+    # - github
+    # - notion
+    # - figma
 
 
 # ─── Quality (Issue-Driven Workflow) ────────────────────────────
