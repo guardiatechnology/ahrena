@@ -30,7 +30,7 @@ Este Codex é a referência para computar tokens consumidos, custo estimado em U
 | Granularidade | uma linha JSONL por turno; cada turno traz `usage.input_tokens`, `usage.output_tokens`, `usage.cache_read_input_tokens`, `usage.cache_creation_input_tokens`, `model`, `cwd`, `sessionId`, `timestamp` |
 | Hash do projeto | derivado pelo Claude Code a partir do path absoluto do projeto; o `ccusage` traduz o hash de volta para o nome do projeto via `--project` ou `--instances` |
 | Janela temporal de tokens | `[branch_creation_date, now]` por padrão (filtro `--since` no `ccusage`/script) |
-| Janela temporal de calendário | `[branch_creation_date, mergedAt | now]` — usa `mergedAt` quando a PR já foi mergeada, hora atual UTC quando ainda aberta |
+| Janela temporal de calendário | `[branch_creation_date, mergedAt ou agora]` — usa `mergedAt` quando a PR já foi mergeada, hora atual UTC quando ainda aberta |
 | Gap de inatividade | `pr_cost_tracking.idle_gap_minutes` (default `10`); separa janelas ativas dentro de uma sessão para o cálculo de tempo ativo |
 
 ### Ferramentas suportadas
@@ -57,7 +57,7 @@ O bloco apresenta **duas métricas de tempo**, sempre juntas quando `pr_cost_tra
 | Métrica | Definição | Fonte de dados |
 |---------|-----------|----------------|
 | **Tempo ativo** | Soma, por `sessionId`, de janelas com gap ≤ `idle_gap_minutes` entre turnos consecutivos. Cada sessão com pelo menos um turno tem piso de 60s. Aproxima horas de trabalho engajado com a IA. | `timestamp` por turno nos JSONL; agregado por `scripts/pr-cost-stamp.sh` |
-| **Tempo de calendário** | `(branch_creation_time, mergedAt | now)` em minutos. Aproxima lead time / throughput. | `git log --reverse <base>..<head> --format=%cI`; `gh pr view --json mergedAt` |
+| **Tempo de calendário** | `(branch_creation_time, mergedAt ou agora)` em minutos. Aproxima lead time / throughput. | `git log --reverse <base>..<head> --format=%cI`; `gh pr view --json mergedAt` |
 
 #### Por que dois números?
 
@@ -142,10 +142,11 @@ Re-executar o kata 2x consecutivas produz exatamente o mesmo body se nenhuma ses
 |-----------|-----------|
 | Sessões cross-machine não capturadas (apenas a máquina onde roda o kata conta) | Codex documenta; agregação cross-machine é fora de escopo desta iteração |
 | Janela heurística `[branch_creation_date, now]` inclui sessões off-topic no mesmo projeto | Filtro por `--project` reduz; `cwd` complementa; futura iteração pode usar `sessionId` rastreado por hooks |
-| Stacked PRs com camadas sobrepostas — soma de tempo ativo das camadas > tempo ativo real | Cada camada usa sua janela `[branch_checkout_time, mergedAt|now]`; aceitar imprecisão; codex documenta |
+| Stacked PRs com camadas sobrepostas — soma de tempo ativo das camadas > tempo ativo real | Cada camada usa sua janela `[branch_checkout_time, mergedAt ou agora]`; aceitar imprecisão; codex documenta |
 | Variação de pricing entre versões do `ccusage` | Smoke test de regressão em CI; pinning de versão mínima testada via `ccusage@<min-version>` |
 | `idle_gap_minutes` mal calibrado distorce tempo ativo | Default 10min cobre maioria dos fluxos; configurável por projeto; valor efetivo é exibido na linha de procedência do bloco |
 | Tempo ativo ≠ tempo de leitura/edição manual | Métrica reflete cadência de turnos com a IA, não trabalho 100% humano antes/depois; documentar como "horas de assistência IA", não "horas totais de feature" |
+| `BRANCH_FIRST_COMMIT_ISO` cai para `date -u` quando a branch ainda não tem commits sobre o base | Fallback intencional do kata (Passo 2) para não passar string vazia ao script. Resultado: tempo de calendário aparece como uma janela mínima recém-aberta, sem sinalização de que o limite foi sintético. Aceitar até a branch acumular commits e o stamp ser re-executado |
 
 ### Decisões vigentes
 
@@ -165,9 +166,9 @@ Re-executar o kata 2x consecutivas produz exatamente o mesmo body se nenhuma ses
 | Termo | Definição |
 |-------|-----------|
 | Stamp | bloco markdown delimitado por marcadores HTML, inserido no body da PR pelo `kata-pr-cost-stamp` |
-| Janela de stamp | intervalo `[branch_creation_date, mergedAt | now]` no qual sessões Claude Code são consideradas para o cálculo |
+| Janela de stamp | intervalo `[branch_creation_date, mergedAt ou agora]` no qual sessões Claude Code são consideradas para o cálculo |
 | Tempo ativo | soma de janelas com gap ≤ `idle_gap_minutes` entre turnos consecutivos por `sessionId`; aproxima horas de trabalho engajado com a IA |
-| Tempo de calendário | duração corrida `[branch_creation_date, mergedAt | now]`; aproxima lead time / throughput |
+| Tempo de calendário | duração corrida `[branch_creation_date, mergedAt ou agora]`; aproxima lead time / throughput |
 | `idle_gap_minutes` | gap (em minutos) que separa janelas ativas dentro de uma mesma sessão; default 10, configurável em `.directives` |
 | Cache reads / cache writes | tokens lidos do cache / gravados no cache prompt da Anthropic; pricing distinto dos tokens regulares |
 | ccusage | CLI open-source que parseia os logs JSONL do Claude Code e calcula custo agregado |

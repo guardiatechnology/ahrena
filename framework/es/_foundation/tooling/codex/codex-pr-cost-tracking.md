@@ -30,7 +30,7 @@ Este Codex es la referencia para computar tokens consumidos, costo estimado en U
 | Granularidad | una línea JSONL por turno; cada turno trae `usage.input_tokens`, `usage.output_tokens`, `usage.cache_read_input_tokens`, `usage.cache_creation_input_tokens`, `model`, `cwd`, `sessionId`, `timestamp` |
 | Hash del proyecto | derivado por Claude Code a partir del path absoluto del proyecto; `ccusage` traduce el hash de vuelta al nombre del proyecto vía `--project` o `--instances` |
 | Ventana temporal de tokens | `[branch_creation_date, now]` por defecto (filtro `--since` en `ccusage`/script) |
-| Ventana temporal de calendario | `[branch_creation_date, mergedAt | now]` — usa `mergedAt` cuando el PR ya fue mergeado, hora actual UTC cuando aún está abierto |
+| Ventana temporal de calendario | `[branch_creation_date, mergedAt o ahora]` — usa `mergedAt` cuando el PR ya fue mergeado, hora actual UTC cuando aún está abierto |
 | Gap de inactividad | `pr_cost_tracking.idle_gap_minutes` (default `10`); separa ventanas activas dentro de una sesión para el cálculo de tiempo activo |
 
 ### Herramientas soportadas
@@ -57,7 +57,7 @@ El bloque presenta **dos métricas de tiempo**, siempre juntas cuando `pr_cost_t
 | Métrica | Definición | Fuente de datos |
 |---------|------------|-----------------|
 | **Tiempo activo** | Suma, por `sessionId`, de ventanas con gap ≤ `idle_gap_minutes` entre turnos consecutivos. Cada sesión con al menos un turno tiene piso de 60s. Aproxima horas de trabajo engaged con la IA. | `timestamp` por turno en los JSONL; agregado por `scripts/pr-cost-stamp.sh` |
-| **Tiempo de calendario** | `(branch_creation_time, mergedAt | now)` en minutos. Aproxima lead time / throughput. | `git log --reverse <base>..<head> --format=%cI`; `gh pr view --json mergedAt` |
+| **Tiempo de calendario** | `(branch_creation_time, mergedAt o ahora)` en minutos. Aproxima lead time / throughput. | `git log --reverse <base>..<head> --format=%cI`; `gh pr view --json mergedAt` |
 
 #### ¿Por qué dos números?
 
@@ -142,10 +142,11 @@ Reejecutar el kata 2 veces consecutivas produce exactamente el mismo body si no 
 |------------|------------|
 | Sesiones cross-machine no capturadas (solo la máquina donde corre el kata cuenta) | El Codex lo documenta; agregación cross-machine queda fuera de alcance en esta iteración |
 | Ventana heurística `[branch_creation_date, now]` incluye sesiones off-topic en el mismo proyecto | El filtro `--project` reduce; `cwd` complementa; iteración futura puede usar `sessionId` rastreado por hooks |
-| Stacked PRs con capas superpuestas — suma del tiempo activo de las capas > tiempo activo real | Cada capa usa su ventana `[branch_checkout_time, mergedAt|now]`; aceptar imprecisión; el codex lo documenta |
+| Stacked PRs con capas superpuestas — suma del tiempo activo de las capas > tiempo activo real | Cada capa usa su ventana `[branch_checkout_time, mergedAt o ahora]`; aceptar imprecisión; el codex lo documenta |
 | Variación de pricing entre versiones de `ccusage` | Smoke test de regresión en CI; pinning de versión mínima testada vía `ccusage@<min-version>` |
 | `idle_gap_minutes` mal calibrado distorsiona el tiempo activo | Default 10min cubre la mayoría de los flujos; configurable por proyecto; el valor efectivo se muestra en la línea de procedencia del bloque |
 | Tiempo activo ≠ tiempo de lectura/edición manual | La métrica refleja la cadencia de turnos con la IA, no trabajo 100% humano antes/después; documentar como "horas de asistencia IA", no "horas totales de feature" |
+| `BRANCH_FIRST_COMMIT_ISO` cae a `date -u` cuando la branch aún no tiene commits sobre el base | Fallback intencional del kata (Paso 2) para que el script nunca reciba una cadena vacía. Resultado: el tiempo de calendario aparece como una ventana mínima recién abierta, sin señal de que el límite fue sintético. Aceptar hasta que la branch acumule commits y el stamp se re-ejecute |
 
 ### Decisiones vigentes
 
@@ -165,9 +166,9 @@ Reejecutar el kata 2 veces consecutivas produce exactamente el mismo body si no 
 | Término | Definición |
 |---------|------------|
 | Stamp | bloque markdown delimitado por marcadores HTML, insertado en el body del PR por `kata-pr-cost-stamp` |
-| Ventana de stamp | intervalo `[branch_creation_date, mergedAt | now]` en el cual las sesiones Claude Code se consideran para el cálculo |
+| Ventana de stamp | intervalo `[branch_creation_date, mergedAt o ahora]` en el cual las sesiones Claude Code se consideran para el cálculo |
 | Tiempo activo | suma de ventanas con gap ≤ `idle_gap_minutes` entre turnos consecutivos por `sessionId`; aproxima horas de trabajo engaged con la IA |
-| Tiempo de calendario | duración corrida `[branch_creation_date, mergedAt | now]`; aproxima lead time / throughput |
+| Tiempo de calendario | duración corrida `[branch_creation_date, mergedAt o ahora]`; aproxima lead time / throughput |
 | `idle_gap_minutes` | gap (en minutos) que separa ventanas activas dentro de una sesión; default 10, configurable en `.directives` |
 | Cache reads / cache writes | tokens leídos del cache / grabados en el cache prompt de Anthropic; pricing distinto del de los tokens regulares |
 | ccusage | CLI open-source que parsea los logs JSONL de Claude Code y calcula costo agregado |
