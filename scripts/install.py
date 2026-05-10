@@ -103,44 +103,61 @@ SAMPLE_DESCRIPTIONS: dict[str, str] = {
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def parse_directives(content: str) -> dict:
-    """Parse the simple YAML-like .directives format (stdlib only, no PyYAML)."""
-    result: dict = {}
-    stack: list[tuple[dict, int]] = [(result, -1)]
-    pending_list_key: str | None = None
+    """Parse the simple YAML-like .directives format (stdlib only, no PyYAML).
 
-    for line in content.splitlines():
-        stripped = line.lstrip()
+    Each stack frame is (container, indent, parent_dict, key_in_parent). The
+    last two fields let us retroactively swap a placeholder empty dict for a
+    list when we discover ``- item`` lines under a key whose value was bare
+    (e.g. ``mcp:\\n  servers:\\n    - ahrena``).
+    """
+    result: dict = {}
+    stack: list[tuple[object, int, dict | None, str | None]] = [
+        (result, -1, None, None),
+    ]
+
+    for raw in content.splitlines():
+        stripped = raw.lstrip()
         if not stripped or stripped.startswith("#"):
             continue
+        indent = len(raw) - len(stripped)
 
-        indent = len(line) - len(stripped)
+        # Pop frames whose indent is at or beyond the current line's.
+        while len(stack) > 1 and stack[-1][1] >= indent:
+            stack.pop()
 
         if stripped.startswith("- "):
             value = stripped[2:].strip().strip('"').strip("'")
-            parent, _ = stack[-1]
-            if pending_list_key is not None and pending_list_key in parent:
-                if not isinstance(parent[pending_list_key], list):
-                    parent[pending_list_key] = []
-                parent[pending_list_key].append(value)
+            container, cur_indent, parent_dict, key_in_parent = stack[-1]
+            if (
+                isinstance(container, dict)
+                and not container
+                and parent_dict is not None
+                and key_in_parent is not None
+            ):
+                # Placeholder empty dict was actually a list.
+                parent_dict[key_in_parent] = []
+                stack[-1] = (parent_dict[key_in_parent], cur_indent, parent_dict, key_in_parent)
+                container = parent_dict[key_in_parent]
+            if isinstance(container, list):
+                container.append(value)
             continue
 
-        if ":" in stripped:
-            key, _, val = stripped.partition(":")
-            key = key.strip()
-            val = val.strip().strip('"').strip("'")
+        if ":" not in stripped:
+            continue
 
-            while len(stack) > 1 and stack[-1][1] >= indent:
-                stack.pop()
+        key, _, val = stripped.partition(":")
+        key = key.strip()
+        val = val.strip().strip('"').strip("'")
 
-            parent, _ = stack[-1]
+        parent_obj, _, _, _ = stack[-1]
+        if not isinstance(parent_obj, dict):
+            continue  # malformed (list scope); skip silently
 
-            if val:
-                parent[key] = val
-                pending_list_key = key
-            else:
-                parent[key] = {}
-                stack.append((parent[key], indent))
-                pending_list_key = key
+        if val:
+            parent_obj[key] = val
+        else:
+            parent_obj[key] = {}
+            stack.append((parent_obj[key], indent, parent_obj, key))
 
     return result
 
