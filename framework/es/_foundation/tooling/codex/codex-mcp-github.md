@@ -122,6 +122,20 @@ files         (array, obligatorio)  — [{path, content}] — contenido como str
 | Servidor MCP no disponible o variable no definida | CLI `gh` como fallback (comunicar indisponibilidad) |
 | Operación no cubierta por las herramientas MCP | CLI `gh` o API REST directamente |
 
+### Ejemplo de uso: crear PR con body estructurado
+
+```
+create_pull_request(
+  owner="acme",
+  repo="mi-proyecto",
+  title="feat(auth): implementar OAuth2",
+  head="feat/oauth2",
+  base="main",
+  body="## Resumen\n\n- Agrega flujo OAuth2 con PKCE\n- Integra con el proveedor configurado en `.env`\n\n## Cómo probar\n\n1. Definir `OAUTH_CLIENT_ID` y `OAUTH_CLIENT_SECRET`\n2. Ejecutar `make dev` y acceder a `/auth/login`",
+  draft=False
+)
+```
+
 ## Referencias
 
 - `lex-mcp` — Leyes de uso de herramientas MCP

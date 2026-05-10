@@ -73,6 +73,46 @@ Obtener una integration key en [notion.so/my-integrations](https://www.notion.so
 | `get_database` | Obtiene metadatos y schema de un database |
 | `create_database` | Crea un nuevo database en una página |
 
+### Parámetros de las herramientas más usadas
+
+**`create_page`**
+```
+parent        (object, obligatorio) — {"page_id": "..."} o {"database_id": "..."}
+properties    (object, obligatorio) — propiedades de la página; para una página simple: {"title": [{"text": {"content": "Título"}}]}
+children      (array, opcional)     — lista de bloques de contenido inicial
+icon          (object, opcional)    — ícono de la página (emoji o archivo)
+cover         (object, opcional)    — imagen de portada
+```
+
+**`append_block_children`**
+```
+block_id      (string, obligatorio) — ID de la página o bloque padre
+children      (array, obligatorio)  — lista de bloques a anexar
+```
+
+Tipos de bloque comunes en `children`:
+```json
+{ "type": "paragraph", "paragraph": { "rich_text": [{"text": {"content": "Texto"}}] } }
+{ "type": "heading_2", "heading_2": { "rich_text": [{"text": {"content": "Sección"}}] } }
+{ "type": "bulleted_list_item", "bulleted_list_item": { "rich_text": [{"text": {"content": "Ítem"}}] } }
+{ "type": "code", "code": { "language": "python", "rich_text": [{"text": {"content": "print('hello')"}}] } }
+```
+
+**`query_database`**
+```
+database_id   (string, obligatorio)  — ID del database
+filter        (object, opcional)     — filtro por propiedad
+sorts         (array, opcional)      — ordenación [{property, direction}]
+page_size     (integer, opcional)    — máximo de resultados (default: 100)
+```
+
+**`search`**
+```
+query         (string, opcional) — texto a buscar (vacío retorna todo)
+filter        (object, opcional) — {"property": "object", "value": "page"} o "database"
+sort          (object, opcional) — {"direction": "descending", "timestamp": "last_edited_time"}
+```
+
 ### Casos de uso típicos
 
 | Caso | Herramientas |
@@ -82,6 +122,23 @@ Obtener una integration key en [notion.so/my-integrations](https://www.notion.so
 | Actualizar wiki del proyecto | `search` → `get_page` → `append_block_children` |
 | Consultar database de tareas | `query_database` con filtros de estado |
 | Listar databases disponibles | `list_databases` |
+
+### Ejemplo de uso: crear página de documentación
+
+```
+# 1. Verificar si la página ya existe
+search(query="Lexis: Herramientas MCP", filter={"property": "object", "value": "page"})
+
+# 2. Si no se encuentra, crear en el wiki del proyecto
+create_page(
+  parent={"page_id": "WIKI-PAGE-ID"},
+  properties={"title": [{"text": {"content": "Lexis: Herramientas MCP"}}]},
+  children=[
+    {"type": "heading_2", "heading_2": {"rich_text": [{"text": {"content": "Propósito"}}]}},
+    {"type": "paragraph", "paragraph": {"rich_text": [{"text": {"content": "Esta Lexis define..."}}]}}
+  ]
+)
+```
 
 ## Referencias
 
