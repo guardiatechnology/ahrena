@@ -34,6 +34,7 @@
 - Não roda automaticamente em toda PR aberta — somente sob despacho humano explícito via `cry-review-pr`
 - Não duplica o Gate 2 do `warrior-athena` no tempo — Athena é pré-PR (lado do autor), Argos é pós-PR (lado do reviewer); ambos rodam quando ambos são relevantes
 - Não faz fallback silencioso quando MCP está indisponível — apresenta a escolha conforme `lex-mcp` Regra 4
+- Não executa a Fase 2-C (testes locais) em PRs vindas de forks externos (`head.repo != base.repo`) — fazer bootstrap das dependências de um fork executa código controlado pelo autor na máquina do reviewer; degrada para 🟡 WARNING `tests skipped: untrusted source` e prossegue com os eixos A/B/D/E/F
 
 ## Consulta
 
@@ -130,7 +131,7 @@
      - Para cada step marcado `[x]` no Plan referenciado, verifique o artefato correspondente no diff
      - **Sem Issue linkada**: emita 🔴 BLOCKER citando `lex-issue-first` e pare o eixo B (PRD/Plan ficam inalcançáveis)
      - **Com Issue mas sem PRD/`docs/issues/issue-{N}/`**: reporte `not applicable: missing prerequisite` por fonte ausente como 🟡 WARNING
-   - **C — Testes locais**: faça bootstrap das dependências nesta ordem até que uma tenha sucesso: `make bootstrap`, `poetry install`, `pip install -e .`, `npm ci`/`yarn install`/`pnpm install`, `cargo build`, `bundle install`. Em seguida execute o comando de teste descoberto (`pytest`, `vitest`, `cargo test`, etc.) e o type checker (`mypy --strict`, `tsc --noEmit`). Em falha de bootstrap, reporte `tests skipped: bootstrap failed: <stderr>` como 🟡 WARNING e prossiga
+   - **C — Testes locais**: precondição — `head.repo == base.repo` (PR do mesmo repositório, não de um fork). Quando a PR vem de um fork externo (`head.repo != base.repo`), pule a Fase 2-C automaticamente e reporte `tests skipped: untrusted source` como 🟡 WARNING — fazer bootstrap das dependências de um fork executa código controlado pelo autor na máquina do reviewer. Caso contrário, faça bootstrap das dependências nesta ordem até que uma tenha sucesso: `make bootstrap`, `poetry install`, `pip install -e .`, `npm ci`/`yarn install`/`pnpm install`, `cargo build`, `bundle install`. Em seguida execute o comando de teste descoberto (`pytest`, `vitest`, `cargo test`, etc.) e o type checker (`mypy --strict`, `tsc --noEmit`). Em falha de bootstrap, reporte `tests skipped: bootstrap failed: <stderr>` como 🟡 WARNING e prossiga
    - **D — Retrocompatibilidade**:
      - `oasdiff base.yaml head.yaml` para arquivos OpenAPI no diff (degradado: 🟡 se `oasdiff` não instalado)
      - Schema diff para `events.md` conforme `kata-events-review` Passo 7

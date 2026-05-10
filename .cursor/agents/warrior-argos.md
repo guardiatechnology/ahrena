@@ -35,6 +35,7 @@ description: "Argos — Multi-Axis Pull Request Reviewer. Engineering — Qualit
 - Does not run automatically on every PR opened — only on explicit human dispatch via `cry-review-pr`
 - Does not duplicate `warrior-athena` Gate 2 in time — Athena is pre-PR (author side), Argos is post-PR (reviewer side); both run when both are relevant
 - Does not silently fall back when MCP is unavailable — surfaces the choice per `lex-mcp` Rule 4
+- Does not run Phase 2-C (local tests) on PRs from external forks (`head.repo != base.repo`) — bootstrapping a fork's dependencies executes author-controlled code on the reviewer's machine; degrades to 🟡 WARNING `tests skipped: untrusted source` and proceeds with axes A/B/D/E/F
 
 ## Behavior
 
@@ -70,7 +71,7 @@ description: "Argos — Multi-Axis Pull Request Reviewer. Engineering — Qualit
      - For each step marked `[x]` in the referenced Plan, verify the corresponding artifact in the diff
      - **Without a linked Issue**: emit 🔴 BLOCKER citing `lex-issue-first` and stop axis B (PRD/Plan are unreachable)
      - **With Issue but no PRD/`docs/issues/issue-{N}/`**: report `not applicable: missing prerequisite` per missing source as 🟡 WARNING
-   - **C — Local tests**: bootstrap deps in this order until one succeeds: `make bootstrap`, `poetry install`, `pip install -e .`, `npm ci`/`yarn install`/`pnpm install`, `cargo build`, `bundle install`. Then run the discovered test command (`pytest`, `vitest`, `cargo test`, etc.) and the type checker (`mypy --strict`, `tsc --noEmit`). On bootstrap failure, report `tests skipped: bootstrap failed: <stderr>` as 🟡 WARNING and continue
+   - **C — Local tests**: precondition — `head.repo == base.repo` (PR from the same repository, not a fork). When the PR comes from an external fork (`head.repo != base.repo`), skip Phase 2-C automatically and report `tests skipped: untrusted source` as 🟡 WARNING — bootstrapping a fork's dependencies runs author-controlled code on the reviewer's machine. Otherwise, bootstrap deps in this order until one succeeds: `make bootstrap`, `poetry install`, `pip install -e .`, `npm ci`/`yarn install`/`pnpm install`, `cargo build`, `bundle install`. Then run the discovered test command (`pytest`, `vitest`, `cargo test`, etc.) and the type checker (`mypy --strict`, `tsc --noEmit`). On bootstrap failure, report `tests skipped: bootstrap failed: <stderr>` as 🟡 WARNING and continue
    - **D — Backward compatibility**:
      - `oasdiff base.yaml head.yaml` for OpenAPI files in the diff (degraded: 🟡 if `oasdiff` not installed)
      - Schema diff for `events.md` per `kata-events-review` Step 7
