@@ -418,10 +418,14 @@ def install_mcp(ahrena_dir: Path, target_dir: Path, directives: dict, dry_run: b
             continue
         cursor_block = raw.get("cursor")
         claude_block = raw.get("claude-code")
+        # `requires` is Ahrena-internal metadata used by mcp_enable.py to install
+        # local dependencies before activating the server; it is NOT part of the
+        # MCP server spec and MUST NOT leak into the platform config files.
+        ahrena_meta_keys = {"requires"}
         if cursor_block and isinstance(cursor_block, dict):
-            cursor_mcp[server_name] = cursor_block
+            cursor_mcp[server_name] = {k: v for k, v in cursor_block.items() if k not in ahrena_meta_keys}
         if claude_block and isinstance(claude_block, dict):
-            claude_mcp[server_name] = claude_block
+            claude_mcp[server_name] = {k: v for k, v in claude_block.items() if k not in ahrena_meta_keys}
 
     if dry_run:
         if cursor_mcp:
