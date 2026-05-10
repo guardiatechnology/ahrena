@@ -64,7 +64,8 @@ El agente **DEBE** aplicar cada sección de la directiva al comportamiento corre
 | `paths.skills_root` | Directorio raíz de los proyectos de skill externos (default `skills`). Ver `lex-skill-project-structure`. |
 | `paths.skills_build` | Directorio de intermediarios del build de skills (default `.build`, gitignored). Escrito por el stack de build del proyecto consumidor. |
 | `paths.skills_dist` | Directorio de entrega final de skills empaquetados (default `.dist`, committed). Validado por `lex-skill-package-structure`. |
-| `pr_cost_tracking.enabled` | Cuando es `true`, activar el stamp de costo de tokens (Claude Code) en el body de los PRs vía `kata-pr-cost-stamp`. Default `false`. Única clave consumida en esta iteración. Las subclaves `currency`, `include_cache_breakdown`, `window_override_days`, `mask_absolute_cost` están declaradas en `.directives.sample` como reservadas para iteraciones futuras. Ver `codex-pr-cost-tracking`. |
+| `pr_cost_tracking.enabled` | Cuando es `true`, activar el stamp de tokens, costo USD y tiempo de implementación (activo + calendario) en el body de los PRs vía `kata-pr-cost-stamp`. Default `false`. Ver `codex-pr-cost-tracking`. |
+| `pr_cost_tracking.idle_gap_minutes` | Gap (en minutos) que separa ventanas activas dentro de una sesión Claude Code para el cálculo de tiempo activo. Default `10`. Un valor menor hace el conteo más estricto; mayor agrega pausas largas. Las subclaves `currency`, `include_cache_breakdown`, `window_override_days`, `mask_absolute_cost` permanecen declaradas en `.directives.sample` como reservadas para iteraciones futuras. |
 
 Manuales complementarios para interpretación de las secciones: `codex-directives` (visión general del archivo), `codex-paths` (rutas canónicas), `codex-naming` (convenciones de nomenclatura).
 

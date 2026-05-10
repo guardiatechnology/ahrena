@@ -114,19 +114,24 @@ language:
 
 
 # ─── PR Cost Tracking ───────────────────────────────────────────
-# Computes Claude Code token consumption and estimated USD cost
-# for the development that produced each PR, and stamps the
-# result in the PR body via kata-pr-cost-stamp. Disabled by
-# default to keep cost data inside teams that explicitly opt in.
-# See codex-pr-cost-tracking and kata-pr-cost-stamp.
+# Computes Claude Code token consumption, estimated USD cost, and
+# implementation time (active + calendar) for the development that
+# produced each PR, and stamps the result in the PR body via
+# kata-pr-cost-stamp. Disabled by default to keep data inside teams
+# that explicitly opt in. See codex-pr-cost-tracking and
+# kata-pr-cost-stamp.
 
 # pr_cost_tracking:
-#   enabled: false                 # true | false (only key consumed in this iteration)
+#   enabled: false                 # true | false (master switch for the stamp)
+#   idle_gap_minutes: 10           # gap (in minutes) that splits active windows
+#                                  #   inside a Claude Code session for the
+#                                  #   active-time computation. Default 10
+#                                  #   covers most flows; tune lower to be
+#                                  #   stricter, higher to merge longer pauses.
 #
 # Reserved for future iterations (declared so the schema is stable;
 # the kata does not yet consume them):
 # pr_cost_tracking:
-#   enabled: false
 #   currency: USD                  # future: currency for display (currently fixed at USD)
 #   include_cache_breakdown: true  # future: hide cache reads/writes when false
 #   window_override_days: 14       # future: override [branch_creation_date, now]
