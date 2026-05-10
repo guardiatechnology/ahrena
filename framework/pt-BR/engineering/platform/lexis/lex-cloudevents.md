@@ -34,8 +34,8 @@ Evento sem idempotencykey; sem type catalogado; data sem entity_id/entity_type q
 
 ## Validação Automatizada
 
-- **Ferramenta:** validação contra schema CloudEvents; revisão de publicadores e consumidores.
-- **Momento:** revisão de PR e testes de integração de eventos.
+- **Ferramenta:** validação contra schema CloudEvents; revisão de publicadores e consumidores; `kata-events-review` invocado pelo `warrior-argos` durante revisão multi-eixo de Pull Request (captura violações de formato de type, ausência de `idempotencykey`, divergências de payload contra o catálogo da entidade, breaking changes contra a versão base).
+- **Momento:** revisão de PR (via `cry-review-pr` → `warrior-argos` → `kata-events-review`) e testes de integração de eventos.
 - **Métrica:** 0 eventos publicados fora do padrão CloudEvents quando a spec se aplicar.
 
 ## Referências

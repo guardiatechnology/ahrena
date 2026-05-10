@@ -126,6 +126,7 @@ Cada um com descrição, source, subject, data e exemplo JSON conforme codex-clo
 - `lex-feature-design-docs` — estrutura `docs/{context}/events/`
 - `codex-feature-design-docs` — template do `events.md`
 - `kata-feature-design-docs` — persistência canônica
+- `kata-events-review` — contrapartida de revisão para CloudEvents em momento de PR
 - `lex-directives`, `lex-cloudevents`, `lex-entities`, `lex-entity-naming`, `lex-idempotency`
 - `codex-cloudevents`, `codex-entities`, `codex-idempotency`
 - [CloudEvents Specification](https://cloudevents.io/)
