@@ -20,7 +20,7 @@
 | Granularity | one JSONL line per turn; each turn carries `usage.input_tokens`, `usage.output_tokens`, `usage.cache_read_input_tokens`, `usage.cache_creation_input_tokens`, `model`, `cwd`, `sessionId`, `timestamp` |
 | Project hash | derived by Claude Code from the project's absolute path; `ccusage` translates the hash back to the project name via `--project` or `--instances` |
 | Token time window | `[branch_creation_date, now]` by default (`--since` filter on `ccusage`/script) |
-| Calendar time window | `[branch_creation_date, mergedAt | now]` — uses `mergedAt` when the PR is merged, current UTC time when still open |
+| Calendar time window | `[branch_creation_date, mergedAt or now]` — uses `mergedAt` when the PR is merged, current UTC time when still open |
 | Idle gap | `pr_cost_tracking.idle_gap_minutes` (default `10`); splits active windows inside a session for the active-time computation |
 
 ### Supported tools
@@ -47,7 +47,7 @@ The block carries **two time metrics**, always together when `pr_cost_tracking.e
 | Metric | Definition | Data source |
 |--------|------------|-------------|
 | **Active time** | Sum, per `sessionId`, of windows with gap ≤ `idle_gap_minutes` between consecutive turns. Each session with at least one turn has a 60-second floor. Approximates hours of work engaged with the AI. | per-turn `timestamp` in JSONL; aggregated by `scripts/pr-cost-stamp.sh` |
-| **Calendar time** | `(branch_creation_time, mergedAt | now)` in minutes. Approximates lead time / throughput. | `git log --reverse <base>..<head> --format=%cI`; `gh pr view --json mergedAt` |
+| **Calendar time** | `(branch_creation_time, mergedAt or now)` in minutes. Approximates lead time / throughput. | `git log --reverse <base>..<head> --format=%cI`; `gh pr view --json mergedAt` |
 
 #### Why two numbers?
 
@@ -132,10 +132,11 @@ Running the kata twice in a row produces exactly the same body if no new session
 |------------|------------|
 | Cross-machine sessions not captured (only the machine running the kata counts) | Codex documents this; cross-machine aggregation is out of scope for this iteration |
 | Heuristic window `[branch_creation_date, now]` includes off-topic sessions in the same project | `--project` filter narrows the scope; `cwd` complements; future iteration may use `sessionId` tracked by hooks |
-| Stacked PRs with overlapping layers — sum of active time across layers > real active time | Each layer uses its window `[branch_checkout_time, mergedAt|now]`; accept imprecision; codex documents |
+| Stacked PRs with overlapping layers — sum of active time across layers > real active time | Each layer uses its window `[branch_checkout_time, mergedAt or now]`; accept imprecision; codex documents |
 | Pricing variation across `ccusage` versions | Regression smoke test in CI; pin minimum tested version via `ccusage@<min-version>` |
 | Mis-calibrated `idle_gap_minutes` distorts active time | Default 10min covers most flows; configurable per project; effective value is shown on the provenance line |
 | Active time ≠ manual reading/editing time | Metric reflects turn cadence with the AI, not 100% human work before/after; document as "AI assistance hours", not "total feature hours" |
+| `BRANCH_FIRST_COMMIT_ISO` falls back to `date -u` when the branch has no commits over the base yet | Intentional fallback in the kata (Step 2) so the script never receives an empty string. Result: calendar time appears as a tiny just-opened window, with no signal that the bound was synthetic. Accept until the branch accumulates commits and the stamp is re-run |
 
 ### Active decisions
 
