@@ -1,11 +1,12 @@
 ---
 plan_id: "005"
 title: "stacked-prs-git-spice"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#56"
+pr: "guardiatechnology/ahrena#57"
 created_at: "2026-05-06T00:00:00Z"
-updated_at: "2026-05-07T17:40:00Z"
+updated_at: "2026-05-10T22:00:00Z"
 ---
 
 # Plano: Suporte a Stacked PRs via git-spice (gs)

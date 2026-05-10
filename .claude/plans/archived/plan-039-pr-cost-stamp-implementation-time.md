@@ -1,11 +1,12 @@
 ---
 plan_id: "039"
 title: "pr-cost-stamp-implementation-time"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#71"
+pr: "guardiatechnology/ahrena#72"
 created_at: "2026-05-09T22:00:00Z"
-updated_at: "2026-05-09T22:30:00Z"
+updated_at: "2026-05-10T22:00:00Z"
 ---
 
 # Plan: Adicionar tempo de implementação ao stamp de custo da PR
