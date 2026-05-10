@@ -52,13 +52,14 @@ Eliminar a expectativa implícita de que o ambiente já tenha as ferramentas que
 - [x] **Step 9 — Target `make mcp-enable SERVER=...` e `make mcp-list`.** Wrapper de `python3 .ahrena/mcp_enable.py`. Atualizar `make help`.
 - [x] **Step 10 — Distribuir os novos scripts.** `scripts/preflight.py` e `scripts/mcp_enable.py` precisam ir para `.ahrena/` no install (assim como `install.py`/`update.py`/`uninstall.py` já vão). Olhar a função que copia scripts em `install.py` e adicionar os dois novos arquivos à lista.
 - [x] **Step 11 — Docs.** README (3 idiomas) ganha seção curta "Prerequisites" listando hard/soft/lazy. `codex-mcp-github` e `codex-mcp-notion` (3 línguas cada) documentam que Claude Code agora usa HTTP, e incluem snippet de override (`.ahrena/mcp/{server}.json` com bloco npx + `_comment`) para quem precisar do caminho antigo. `codex-mcp-figma` documenta a alternativa Dev Mode local. Sem novo Lexis — `lex-mcp` já cobre via Step 2.
-- [ ] **Step 12 — Validação manual.**
-  - `make bootstrap` em VM macOS clean → falha esperada se git ausente; oferece brew install em gh ausente; conclui **sem Node**.
-  - `make mcp-enable SERVER=github` → grava `.mcp.json` com bloco HTTP. Zero deps instaladas.
-  - `make mcp-enable SERVER=notion` → grava bloco HTTP. Zero deps. Primeira chamada do MCP dispara OAuth.
-  - `make mcp-enable SERVER=figma` → detecta Node ausente, oferece instalar; grava config npx.
-  - `make mcp-list` → mostra servidores conhecidos, transporte (`http`/`stdio-npx`) e estado (`enabled`/`available`/`missing-deps`).
-- [ ] **Step 13 — PR.** `gh pr create` com `Closes #{N}`, espelhar labels da issue, size label, assignee `@me`, reviewer via CODEOWNERS. Per `lex-pr-quality`. Marcar como BREAKING change no body (mudanças nos blocos `claude-code` de `github.json` e `notion.json`, e auth Notion virou OAuth).
+- [x] **Step 12 — Validação manual.** **Done 2026-05-10**: smokes em `/tmp/ahrena-*` cobriram (a) `preflight.py` standalone (hard+soft tools, todos ✓); (b) `install.py` com preflight integrado (hard+soft); (c) `mcp_enable enable github` para Claude Code → `.mcp.json` com bloco HTTP, zero `requires` vazado; (d) `mcp_enable enable notion` para Cursor → `.cursor/mcp.json` HTTP; (e) `mcp_enable enable figma` para Cursor → preflight mcp tier detecta Node existente, registra npx; (f) `mcp_enable disable github` → remove de `.directives`, `.mcp.json` e `.cursor/mcp.json`; (g) `mcp-list` → estado/transporte/requires correto. Bootstrap VM-clean (item original) fica como follow-up ambiental.
+  - `make bootstrap` em VM macOS clean → falha esperada se git ausente; oferece brew install em gh ausente; conclui **sem Node**. (não exercido — segue como follow-up)
+  - `make mcp-enable SERVER=github` → grava `.mcp.json` com bloco HTTP. Zero deps instaladas. ✓
+  - `make mcp-enable SERVER=notion` → grava bloco HTTP. Zero deps. Primeira chamada do MCP dispara OAuth. ✓ (estrutura; OAuth flow não disparado em smoke)
+  - `make mcp-enable SERVER=figma` → detecta Node ausente, oferece instalar; grava config npx. ✓ (Node já presente localmente; preflight aceita)
+  - `make mcp-list` → mostra servidores conhecidos, transporte (`http`/`stdio-npx`) e estado (`enabled`/`available`/`missing-deps`). ✓
+- [x] **Step 13 — PR.** **Done 2026-05-10**: PR #82 aberto, base `main` ← head `feat/81-setup-preflight-mcp-transport`. Labels `feature request ➕`, `breaking change 💥`, `size/XXL`; assignee fernandoseguim; reviewer time `Guardians`. Body com Summary, Why, BREAKING CHANGES, evidências de validação, Closes #81.
+- [x] **Step 14 — Review round 1 (Gemini).** **Done 2026-05-10**: três sugestões priority-medium do `gemini-code-assist[bot]` endereçadas: (1) `PYTHON.name` em `scripts/preflight.py` agora resolve `python` no Windows e `python3` no resto, espelhando o Makefile; (2) regex em `_remove_server_from_directives` (`scripts/mcp_enable.py`) aceita `(?:\n|$)` para sobreviver a arquivos sem newline final; (3) `requires` desconhecido em `cmd_enable` agora bloqueia ativação com exit 3 + mensagem instrutiva (era warning silencioso).
 
 ## Dependencies
 

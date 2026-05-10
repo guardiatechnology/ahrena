@@ -260,7 +260,9 @@ def _print_install_hints(missing: Tuple[ToolReport, ...]) -> None:
 
 
 PYTHON = ToolSpec(
-    name="python3",
+    # Windows ships Python as `python.exe`; POSIX systems expose `python3`.
+    # Mirrors the same conditional already in the framework's Makefile.
+    name="python" if _platform.system() == "Windows" else "python3",
     purpose="Python interpreter (3.8+) — runs Ahrena scripts",
     version_flag="--version",
     min_version=(3, 8),

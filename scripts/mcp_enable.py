@@ -126,7 +126,9 @@ def _ensure_server_in_directives(text: str, server: str) -> str:
 
 
 def _remove_server_from_directives(text: str, server: str) -> str:
-    pattern = re.compile(rf"^(\s*)-\s+{re.escape(server)}\s*\n", re.MULTILINE)
+    # Match the entry whether it ends with a newline or sits at end-of-file
+    # without one (the latter happens when the file was edited manually).
+    pattern = re.compile(rf"^(\s*)-\s+{re.escape(server)}\s*(?:\n|$)", re.MULTILINE)
     return pattern.sub("", text)
 
 
@@ -185,8 +187,15 @@ def cmd_enable(
             specs.append(spec)
         else:
             unresolved.append(entry)
+    # Unrecognised `requires` entries mean the framework cannot guarantee a
+    # working environment for the server — fail loudly instead of silently
+    # ignoring them (silent ignore would surface as confusing runtime errors).
     if unresolved:
-        print(f"  WARNING: unresolved requires entries (ignored): {unresolved}")
+        print(f"  ERROR: unrecognised requires entries for '{server}': {unresolved}")
+        print(f"  Either remove them from the server JSON, override the config at")
+        print(f"  .ahrena/mcp/{server}.json, or extend _REQUIRES_RESOLVER in mcp_enable.py")
+        print(f"  to handle the new dependency type.")
+        return 3
 
     if specs:
         interactive = False if non_interactive else None
