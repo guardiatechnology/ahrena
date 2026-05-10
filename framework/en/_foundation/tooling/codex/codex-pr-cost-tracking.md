@@ -1,10 +1,10 @@
-# Codex: Token cost tracking in Pull Requests (Claude Code)
+# Codex: Token cost and implementation time tracking in Pull Requests (Claude Code)
 
-> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Computing and stamping AI assistance cost (Claude Code) on Pull Requests
+> **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Computing and stamping AI assistance cost (Claude Code) on Pull Requests — tokens, USD, and implementation time
 
 ## Overview
 
-This Codex is the reference for computing tokens consumed and estimated USD cost during the development that produced a Pull Request, and stamping these numbers in the PR body. Computation starts from JSONL logs persisted by Claude Code in `~/.claude/projects/<project-hash>/`, aggregated by the open-source [`ccusage`](https://github.com/ryoppippi/ccusage) tool. The resulting block is inserted in the PR body delimited by HTML markers that guarantee idempotency. It is consulted by `kata-pr-cost-stamp` (which computes and updates the PR) and by `kata-contributing-pr` (which invokes the stamp as an optional step).
+This Codex is the reference for computing tokens consumed, estimated USD cost, and implementation time (active + calendar) during the development that produced a Pull Request, and stamping these numbers in the PR body. Tokens and cost come from JSONL logs persisted by Claude Code in `~/.claude/projects/<project-hash>/`, aggregated by the open-source [`ccusage`](https://github.com/ryoppippi/ccusage) tool. Time comes from the same JSONL files (parsed by `scripts/pr-cost-stamp.sh`) — `ccusage` does not expose per-turn `timestamp` in any subcommand, so the script is the single source of truth for time aggregates. The resulting block is inserted in the PR body delimited by HTML markers that guarantee idempotency. It is consulted by `kata-pr-cost-stamp` (which computes and updates the PR) and by `kata-contributing-pr` (which invokes the stamp as an optional step).
 
 ## Context
 
@@ -29,7 +29,9 @@ This Codex is the reference for computing tokens consumed and estimated USD cost
 | Log location | `~/.claude/projects/<project-hash>/*.jsonl` |
 | Granularity | one JSONL line per turn; each turn carries `usage.input_tokens`, `usage.output_tokens`, `usage.cache_read_input_tokens`, `usage.cache_creation_input_tokens`, `model`, `cwd`, `sessionId`, `timestamp` |
 | Project hash | derived by Claude Code from the project's absolute path; `ccusage` translates the hash back to the project name via `--project` or `--instances` |
-| Time window | `[branch_creation_date, now]` by default. The `pr_cost_tracking.window_override_days` subkey is reserved for a future iteration; the kata does not consume it in this version. |
+| Token time window | `[branch_creation_date, now]` by default (`--since` filter on `ccusage`/script) |
+| Calendar time window | `[branch_creation_date, mergedAt or now]` — uses `mergedAt` when the PR is merged, current UTC time when still open |
+| Idle gap | `pr_cost_tracking.idle_gap_minutes` (default `10`); splits active windows inside a session for the active-time computation |
 
 ### Supported tools
 
@@ -48,6 +50,43 @@ The `session` subcommand does not accept `--project` and is therefore not used b
 
 The kata uses `--project=<id>` as the primary filter; the `cwd` filter on the JSONL line remains as a documented complement, useful when the user works on multiple clones of the same repository with identical names.
 
+### Implementation time
+
+The block carries **two time metrics**, always together when `pr_cost_tracking.enabled: true`:
+
+| Metric | Definition | Data source |
+|--------|------------|-------------|
+| **Active time** | Sum, per `sessionId`, of windows with gap ≤ `idle_gap_minutes` between consecutive turns. Each session with at least one turn has a 60-second floor. Approximates hours of work engaged with the AI. | per-turn `timestamp` in JSONL; aggregated by `scripts/pr-cost-stamp.sh` |
+| **Calendar time** | `(branch_creation_time, mergedAt or now)` in minutes. Approximates lead time / throughput. | `git log --reverse <base>..<head> --format=%cI`; `gh pr view --json mergedAt` |
+
+#### Why two numbers?
+
+- **Active time** answers "how much did this cost in hours of engaged work". It is the cost-in-hours metric, complementary to USD.
+- **Calendar time** answers "how long did the feature stay in flight on the wall clock". It is a flow metric (lead time), not a cost metric.
+
+Together they distinguish *concentration* (high active, low calendar — focused sprint) from *dilution* (low active, high calendar — feature waited on review, dependency, decision).
+
+#### Active-time calculation
+
+Canonical model: per `sessionId`, sort turns by `timestamp`; accumulate `delta` only when `delta ≤ idle_gap_minutes × 60`; windows with a larger gap contribute zero (real idle). Sessions with a single turn get a 60-second floor to avoid registering "zero work".
+
+Example: session with turns at `t=0s, t=30s, t=65s, t=9000s, t=9020s` and `idle_gap_minutes=10` (= 600s):
+- 30s ≤ 600 → add 30s
+- 35s ≤ 600 → add 35s
+- 8935s > 600 → add 0 (idle interval)
+- 20s ≤ 600 → add 20s
+- Total: 85s = 1min (after the script applies the floor).
+
+Single-turn case: a session with a single turn yields an empty delta sum (range from 1 to 1 has no elements), and the floor lifts the result to the documented 60-second minimum.
+
+#### Calendar-time calculation
+
+`floor((calendar_end − calendar_start) / 60)` in minutes. `calendar_start` = first commit of the branch (`git log --reverse <base>..<head> --format=%cI | head -1`); `calendar_end` = PR `mergedAt` or current UTC time when still open.
+
+#### Single backend for time
+
+`ccusage` aggregates at the day level (`daily`), in 5-hour billing windows (`blocks`), or per session (`session` with `lastActivity`), but **does not expose per-turn `timestamp`** in any subcommand (validated against `docs/guide/json-output.md`). For that reason, time is always computed by `scripts/pr-cost-stamp.sh`, even when `ccusage` is the token/USD backend.
+
 ### Block format
 
 ```markdown
@@ -62,10 +101,12 @@ The kata uses `--project=<id>` as the primary filter; the `cwd` filter on the JS
 | Cache reads | 1,245,888 |
 | Cache writes | 89,234 |
 | Estimated cost | $4.32 USD |
+| Active time | 2h 47min |
+| Calendar time | 1d 4h (2026-05-04 → 2026-05-05) |
 | Models | claude-opus-4-7 (78%), claude-sonnet-4-6 (22%) |
 
-_Computed by `kata-pr-cost-stamp` on 2026-05-09T01:30:00Z. Window: 2026-05-07 → now. Source: ccusage 1.x._
-_Estimate based on Anthropic public pricing; the actual invoice comes from the console._
+_Computed by `kata-pr-cost-stamp` on 2026-05-09T01:30:00Z. Window: 2026-05-07 → 2026-05-09. Source: ccusage 1.x. Idle gap: 10min._
+_Estimates based on Anthropic public pricing; the actual invoice comes from the console._
 <!-- ahrena:cost-stamp:end -->
 ```
 
@@ -74,8 +115,10 @@ Block rules:
 - HTML markers on dedicated lines, no indentation; the upsert regex depends on this.
 - Fixed heading `## AI Assistance Cost (Claude Code)` for discoverability.
 - Table with identical columns across languages; labels translated.
-- Provenance line (UTC timestamp, window, tool version) always present.
+- "Active time" and "Calendar time" rows always present when `enabled: true`.
+- Provenance line (UTC timestamp, window, tool version, idle gap) always present.
 - Estimate disclaimer always present.
+- Time formatted from integer minutes: `< 60min` → `<n>min`; `< 24h` → `<h>h <m>min` (omit `<m>min` when zero); `≥ 24h` → `<d>d <h>h` (omit `<h>h` when zero); `0` → `0min`.
 
 ### Idempotency
 
@@ -101,17 +144,21 @@ Running the kata twice in a row produces exactly the same body if no new session
 |------------|------------|
 | Cross-machine sessions not captured (only the machine running the kata counts) | Codex documents this; cross-machine aggregation is out of scope for this iteration |
 | Heuristic window `[branch_creation_date, now]` includes off-topic sessions in the same project | `--project` filter narrows the scope; `cwd` complements; future iteration may use `sessionId` tracked by hooks |
-| Stacked PRs with overlapping layers | Each layer uses its window `[branch_checkout_time, now]`; accept imprecision; codex documents |
+| Stacked PRs with overlapping layers — sum of active time across layers > real active time | Each layer uses its window `[branch_checkout_time, mergedAt or now]`; accept imprecision; codex documents |
 | Pricing variation across `ccusage` versions | Regression smoke test in CI; pin minimum tested version via `ccusage@<min-version>` |
+| Mis-calibrated `idle_gap_minutes` distorts active time | Default 10min covers most flows; configurable per project; effective value is shown on the provenance line |
+| Active time ≠ manual reading/editing time | Metric reflects turn cadence with the AI, not 100% human work before/after; document as "AI assistance hours", not "total feature hours" |
+| `BRANCH_FIRST_COMMIT_ISO` falls back to `date -u` when the branch has no commits over the base yet | Intentional fallback in the kata (Step 2) so the script never receives an empty string. Result: calendar time appears as a tiny just-opened window, with no signal that the bound was synthetic. Accept until the branch accumulates commits and the stamp is re-run |
 
 ### Active decisions
 
 | Aspect | Decision |
 |--------|----------|
-| Primary backend | `ccusage` via `npx ccusage@latest` |
-| Project filter | native `--project <repo-name>` flag |
-| Fallback | `scripts/pr-cost-stamp.sh` with `jq` |
+| Token/USD backend | `ccusage` via `npx ccusage@latest` (with fallback to `scripts/pr-cost-stamp.sh`) |
+| Time backend (active + calendar) | `scripts/pr-cost-stamp.sh` always — `ccusage` does not expose per-turn `timestamp` |
+| Project filter | native `--project=<id>` flag on `ccusage`; `cwd` basename in the fallback |
 | Adoption | opt-in via `pr_cost_tracking.enabled` in `.directives` |
+| `idle_gap_minutes` | sub-flag in `.directives`; default `10` |
 | Trigger | optional step in `kata-contributing-pr` |
 | Idempotency | HTML markers `ahrena:cost-stamp:start/end` |
 | Privacy | no masking in the first iteration; flag planned for later |
@@ -121,7 +168,10 @@ Running the kata twice in a row produces exactly the same body if no new session
 | Term | Definition |
 |------|------------|
 | Stamp | markdown block delimited by HTML markers, inserted in the PR body by `kata-pr-cost-stamp` |
-| Stamp window | range `[branch_creation_date, now]` over which Claude Code sessions are considered for the calculation |
+| Stamp window | range `[branch_creation_date, mergedAt or now]` over which Claude Code sessions are considered for the calculation |
+| Active time | sum of windows with gap ≤ `idle_gap_minutes` between consecutive turns per `sessionId`; approximates hours of work engaged with the AI |
+| Calendar time | wall-clock duration `[branch_creation_date, mergedAt or now]`; approximates lead time / throughput |
+| `idle_gap_minutes` | gap (in minutes) that splits active windows inside a session; default 10, configurable in `.directives` |
 | Cache reads / cache writes | tokens read from / written to Anthropic prompt cache; pricing distinct from regular tokens |
 | ccusage | open-source CLI that parses Claude Code JSONL logs and computes aggregated cost |
 | Upsert | operation that inserts the block when absent or replaces the existing one between the markers |
