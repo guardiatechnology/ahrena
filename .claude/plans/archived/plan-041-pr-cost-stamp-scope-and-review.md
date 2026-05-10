@@ -1,11 +1,12 @@
 ---
 plan_id: "041"
 title: "pr-cost-stamp-scope-and-review"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#77"
+pr: "guardiatechnology/ahrena#78"
 created_at: "2026-05-10T13:00:00Z"
-updated_at: "2026-05-10T18:25:00Z"
+updated_at: "2026-05-10T22:00:00Z"
 ---
 
 # Plan: Atribuição fina do stamp + custo de revisão na PR

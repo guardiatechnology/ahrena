@@ -1,11 +1,12 @@
 ---
 plan_id: "006"
 title: "stacked-prs-athena-integration"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#65"
+pr: "guardiatechnology/ahrena#66"
 created_at: "2026-05-06T00:00:00Z"
-updated_at: "2026-05-08T00:00:00Z"
+updated_at: "2026-05-10T22:00:00Z"
 ---
 
 # Plano: Integração de Stacked PRs ao fluxo Athena (lex-issue-driven)

@@ -1,11 +1,12 @@
 ---
 plan_id: "010"
 title: "external-skills-projects"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#58"
+pr: "guardiatechnology/ahrena#59"
 created_at: "2026-05-07T12:00:00Z"
-updated_at: "2026-05-07T18:45:00Z"
+updated_at: "2026-05-10T22:00:00Z"
 ---
 
 # Plano: Skills Externos como Projetos (Desenvolvimento + Build + Empacotamento)

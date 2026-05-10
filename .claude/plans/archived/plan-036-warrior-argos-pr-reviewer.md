@@ -1,11 +1,12 @@
 ---
 plan_id: "036"
 title: "warrior-argos-pr-reviewer"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#69"
+pr: "guardiatechnology/ahrena#70"
 created_at: "2026-05-09T00:00:00Z"
-updated_at: "2026-05-09T01:00:00Z"
+updated_at: "2026-05-10T22:00:00Z"
 ---
 
 # Plano: warrior-argos — Revisor Multi-Eixo de Pull Requests

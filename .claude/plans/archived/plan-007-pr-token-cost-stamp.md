@@ -1,11 +1,12 @@
 ---
 plan_id: "007"
 title: "pr-token-cost-stamp"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#67"
+pr: "guardiatechnology/ahrena#68"
 created_at: "2026-05-06T00:00:00Z"
-updated_at: "2026-05-09T01:30:00Z"
+updated_at: "2026-05-10T22:00:00Z"
 ---
 
 # Plano: Stamp de custo de tokens (Claude Code) em PRs
