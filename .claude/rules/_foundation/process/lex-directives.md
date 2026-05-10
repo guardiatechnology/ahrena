@@ -57,7 +57,10 @@ The agent **MUST** apply each section of the directives to the corresponding beh
 | `paths.skills_build` | Directory for skill build intermediates (default `.build`, gitignored). Written by the consuming project's build stack. |
 | `paths.skills_dist` | Directory for the final delivery of packaged skills (default `.dist`, committed). Validated by `lex-skill-package-structure`. |
 | `pr_cost_tracking.enabled` | When `true`, enable the stamp of tokens, USD cost, and implementation time (active + calendar) on PR bodies via `kata-pr-cost-stamp`. Default `false`. See `codex-pr-cost-tracking`. |
-| `pr_cost_tracking.idle_gap_minutes` | Gap (in minutes) that splits active windows inside a Claude Code session for the active-time computation. Default `10`. Lower values make the count stricter; higher values merge long pauses. Subkeys `currency`, `include_cache_breakdown`, `window_override_days`, `mask_absolute_cost` remain declared in `.directives.sample` as reserved for future iterations. |
+| `pr_cost_tracking.idle_gap_minutes` | Gap (in minutes) that splits active windows inside a Claude Code session for the active-time computation. Default `10`. Lower values make the count stricter; higher values merge long pauses. |
+| `pr_cost_tracking.attribution_mode` | `hook` (default) | `project` (legacy). In `hook` mode, `pr-cost-attribution.sh` records `~/.claude/projects/<hash>/branches.jsonl` per turn and `pr-cost-stamp.sh` filters by `--branch`/`--purpose`, splitting Development and Review. In `project` mode, legacy behavior (project + since filter only). |
+| `pr_cost_tracking.branches_sidecar_max_mb` | Threshold (in MB) above which the stamp emits a warning about the size of `branches.jsonl`. Default `50`. A future iteration adds automatic rotation. |
+| `pr_cost_tracking.known_ai_reviewers` | Additional GitHub logins recognized as AI reviewers in the Review subsection. Built-ins (gemini-code-assist[bot], claude[bot], coderabbitai[bot], qodo-merge-pro[bot]) are always recognized; logins listed here extend the set. Subkeys `currency`, `include_cache_breakdown`, `window_override_days`, `mask_absolute_cost` remain declared in `.directives.sample` as reserved for future iterations. |
 
 Complementary manuals for interpreting sections: `codex-directives` (file overview), `codex-paths` (canonical paths), `codex-naming` (naming conventions).
 

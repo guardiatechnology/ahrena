@@ -128,6 +128,25 @@ language:
 #                                  #   active-time computation. Default 10
 #                                  #   covers most flows; tune lower to be
 #                                  #   stricter, higher to merge longer pauses.
+#   attribution_mode: hook         # hook | project
+#                                  #   hook (default): pr-cost-attribution.sh
+#                                  #     records branch + purpose per turn in
+#                                  #     ~/.claude/projects/<hash>/branches.jsonl;
+#                                  #     pr-cost-stamp.sh --branch / --purpose
+#                                  #     filters off-branch noise and splits
+#                                  #     dev/review buckets.
+#                                  #   project (legacy): no sidecar; project +
+#                                  #     since filter only. Kept for backward
+#                                  #     compatibility with PRs predating the
+#                                  #     hook.
+#   branches_sidecar_max_mb: 50    # warning threshold for the size of
+#                                  #   branches.jsonl. Manual purge until a
+#                                  #   future iteration ships rotation.
+#   known_ai_reviewers:            # extra GitHub logins recognized as AI
+#     - "gemini-code-assist[bot]"  #   reviewers in the Review subsection
+#     - "claude[bot]"              #   (built-ins are always recognized;
+#     - "coderabbitai[bot]"        #   logins listed here extend the set).
+#     - "qodo-merge-pro[bot]"
 #
 # Reserved for future iterations (declared so the schema is stable;
 # the kata does not yet consume them):

@@ -27,11 +27,12 @@ Calcular tokens, costo estimado en USD y tiempo de implementación (activo + cal
 Progreso:
 - [ ] 1. Verificar precondiciones y directivas
 - [ ] 2. Resolver contexto del PR
-- [ ] 3. Computar tokens y costo vía ccusage (o fallback)
-- [ ] 4. Computar tiempo de implementación (activo + calendario)
-- [ ] 5. Renderizar bloque markdown
-- [ ] 6. Upsert en el body del PR
-- [ ] 7. Verificación final
+- [ ] 3. Computar tokens y costo vía ccusage (o fallback) — bucket Development
+- [ ] 4. Computar tiempo de implementación (activo + calendario) — buckets Development y Review
+- [ ] 5. Computar revisores externos vía pr-cost-stamp-reviews.sh
+- [ ] 6. Renderizar bloque markdown con subsecciones Development / Review / Total
+- [ ] 7. Upsert en el body del PR
+- [ ] 8. Verificación final
 ```
 
 ### Paso 1: Verificar precondiciones y directivas
@@ -39,8 +40,12 @@ Progreso:
 1. Consultar `.ahrena/.directives` conforme `lex-directives`.
 2. Leer `pr_cost_tracking.enabled`. Si es `false` o ausente → finalizar silenciosamente con mensaje `pr-cost-stamp: disabled in directives, skipping`.
 3. Leer `pr_cost_tracking.idle_gap_minutes` (default `10`). Ese valor es el gap (en minutos) que separa ventanas activas dentro de una sesión Claude Code para el cálculo de tiempo activo.
-4. Verificar disponibilidad de `gh` (autenticado), `git` y `scripts/pr-cost-stamp.sh` (presente y ejecutable; necesario para computar tiempo). Cualquier ausencia → finalizar con warning, sin propagar el error.
-5. Intentar `npx ccusage@latest --version` (timeout 30s). Éxito → `ccusage` es el backend de tokens/USD. Falla → `scripts/pr-cost-stamp.sh` también cubre tokens (sin costo). En ambos caminos, el script es la fuente única de verdad de los tiempos (activo + calendario) — `ccusage` no expone `timestamp` por turno en ningún subcomando.
+4. Leer `pr_cost_tracking.attribution_mode` (default `hook`). Modos:
+   - `hook` — `scripts/pr-cost-stamp.sh` se invoca con `--branch <HEAD_REF>` y `--purpose <dev|review>`, consumiendo el sidecar `~/.claude/projects/*/branches.jsonl` producido por el hook `pr-cost-attribution.sh`. Permite separar Development y Review.
+   - `project` (legado) — comportamiento anterior: filtro solo por project + since, sin distinción de branch ni de purpose. Mantenido para proyectos que aún no migraron. El bloque renderizado en este modo omite la subsección Review (Claude Code local) y agrega un aviso `meta.warnings`.
+5. Leer `pr_cost_tracking.known_ai_reviewers` (lista, opcional). El default trae `gemini-code-assist[bot]`, `claude[bot]`, `coderabbitai[bot]`, `qodo-merge-pro[bot]`. Los proyectos pueden extenderlo para reconocer otros bots de revisión.
+6. Verificar disponibilidad de `gh` (autenticado), `git`, `scripts/pr-cost-stamp.sh` y `scripts/pr-cost-stamp-reviews.sh`. Cualquier ausencia → finalizar con warning, sin propagar el error.
+7. Intentar `npx ccusage@latest --version` (timeout 30s). Éxito → `ccusage` es el backend de tokens/USD para el bucket Development. Falla → `scripts/pr-cost-stamp.sh` también cubre tokens (sin costo). En ambos caminos, el script es la fuente única de verdad de los tiempos (activo + calendario) — `ccusage` no expone `timestamp` por turno en ningún subcomando.
 
 ### Paso 2: Resolver contexto del PR
 
@@ -72,12 +77,14 @@ Progreso:
 8. `PROJECT_BASENAME=$(basename "$MAIN_DIR")` — usado por el fallback y por el cálculo de tiempo (matching por basename del `cwd` en el JSONL).
 9. `PROJECT_ID=$(echo "$MAIN_DIR" | tr / -)` — id en formato Claude Code (path con `/` → `-`, prefijo `-`); usado por el filtro `--project=<id>` de `ccusage`.
 
-### Paso 3: Computar tokens y costo vía ccusage (o fallback)
+### Paso 3: Computar tokens y costo vía ccusage (o fallback) — bucket Development
+
+`ccusage` agrega por proyecto, sin distinción de branch ni de purpose. Para la subsección **Development** el resultado bruto entra directo; los turnos rotulados como `purpose=review` siguen contando aquí en el modo `project`. En el modo `hook`, el filtro lo aplica `scripts/pr-cost-stamp.sh` en paralelo (Paso 4) y los números de Development en la subsección del bloque se refieren **solo** a los turnos dev (los turnos review entran en la subsección Review).
 
 **Preferido — `ccusage`:**
 
 ```bash
-RAW=$(npx --yes ccusage@latest daily \
+RAW_DEV=$(npx --yes ccusage@latest daily \
   --project="$PROJECT_ID" \
   --since "$SINCE_DATE" \
   --json --offline 2>/dev/null)
@@ -91,7 +98,7 @@ Notas:
 **Conteo de sesiones únicas** (llamada complementaria; `daily` no lo expone):
 
 ```bash
-SESSIONS=$(npx --yes ccusage@latest session \
+SESSIONS_DEV=$(npx --yes ccusage@latest session \
   --since "$SINCE_DATE" \
   --json --offline 2>/dev/null \
   | jq --arg pid "$PROJECT_ID" '[.sessions[] | select(.sessionId | startswith($pid))] | length')
@@ -99,65 +106,131 @@ SESSIONS=$(npx --yes ccusage@latest session \
 
 El `sessionId` en `ccusage session --json` comienza con el id del proyecto (mismo formato `--project=<id>`), lo que permite filtrar vía `startswith`. Sesión aquí es la sesión del Claude Code (una conversación continua), no commit individual: 6 commits dentro de la misma conversación cuentan como 1 sesión.
 
-**Fallback — `scripts/pr-cost-stamp.sh`:**
+**Fallback — `scripts/pr-cost-stamp.sh`:** cuando `ccusage` no está disponible, el propio script cubre los tokens (sin USD). En el modo `hook`, pase `--branch` y `--purpose` para aislar Development:
 
 ```bash
-RAW=$(scripts/pr-cost-stamp.sh \
+RAW_DEV=$(scripts/pr-cost-stamp.sh \
   --project "$PROJECT_BASENAME" \
-  --since "$SINCE_DATE")
+  --since "$SINCE_DATE" \
+  ${ATTR_MODE_HOOK:+--branch "$HEAD_REF" --purpose dev})
 ```
 
 Salida JSON con schema equivalente al de `ccusage` (claves `totals`, `breakdown`, `meta`).
 
-### Paso 4: Computar tiempo de implementación (activo + calendario)
+### Paso 4: Computar tiempo de implementación (activo + calendario) — buckets Development y Review
 
 El tiempo siempre proviene de `scripts/pr-cost-stamp.sh`, independientemente del backend de tokens, porque `ccusage` no expone `timestamp` por turno en ningún subcomando (validado en `docs/guide/json-output.md`).
 
+**Modo `hook`** — script invocado **dos veces**, separando dev y review por `--purpose`:
+
 ```bash
-TIME_RAW=$(scripts/pr-cost-stamp.sh \
+TIME_DEV=$(scripts/pr-cost-stamp.sh \
+  --project "$PROJECT_BASENAME" \
+  --since "$SINCE_DATE" \
+  --branch "$HEAD_REF" \
+  --purpose dev \
+  --idle-gap-minutes "$IDLE_GAP_MINUTES" \
+  --calendar-start "$BRANCH_FIRST_COMMIT_ISO" \
+  --calendar-end   "$PR_END_ISO")
+
+TIME_REVIEW=$(scripts/pr-cost-stamp.sh \
+  --project "$PROJECT_BASENAME" \
+  --since "$SINCE_DATE" \
+  --branch "$HEAD_REF" \
+  --purpose review \
+  --idle-gap-minutes "$IDLE_GAP_MINUTES" \
+  --calendar-start "$BRANCH_FIRST_COMMIT_ISO" \
+  --calendar-end   "$PR_END_ISO")
+
+ACTIVE_MIN_DEV=$(echo    "$TIME_DEV"    | jq -r '.totals.active_minutes')
+ACTIVE_MIN_REVIEW=$(echo "$TIME_REVIEW" | jq -r '.totals.active_minutes')
+CALENDAR_MIN=$(echo      "$TIME_DEV"    | jq -r '.totals.calendar_minutes')
+WARNINGS=$(echo "$TIME_DEV" "$TIME_REVIEW" | jq -s '[.[].meta.warnings // []] | add | unique')
+```
+
+`--branch` filtra los turnos por el branch del PR vía sidecar; `--purpose` filtra por bucket. El calendario sale del bucket dev (ambas invocaciones usan la misma ventana; tomar una evita duplicar). Cuando el sidecar está ausente, el script popula `meta.warnings` automáticamente — propague al renderizador.
+
+**Modo `project` (legado)** — invocación única, sin distinción de purpose:
+
+```bash
+TIME_DEV=$(scripts/pr-cost-stamp.sh \
   --project "$PROJECT_BASENAME" \
   --since "$SINCE_DATE" \
   --idle-gap-minutes "$IDLE_GAP_MINUTES" \
   --calendar-start "$BRANCH_FIRST_COMMIT_ISO" \
   --calendar-end   "$PR_END_ISO")
-
-ACTIVE_MIN=$(echo "$TIME_RAW" | jq -r '.totals.active_minutes')
-CALENDAR_MIN=$(echo "$TIME_RAW" | jq -r '.totals.calendar_minutes')
+TIME_REVIEW=""  # la subsección Claude Code (local) se omite del bloque
 ```
-
-Cuando el backend de tokens ya es el propio script (camino fallback), una única invocación cubre todo — basta pasar `--idle-gap-minutes`, `--calendar-start` y `--calendar-end` en la llamada del Paso 3 y reutilizar `totals.active_minutes` y `totals.calendar_minutes`.
 
 Modelo de cálculo (codificado en el script, no reimplementar en el kata):
 
 - **Tiempo activo:** suma, por `sessionId`, de ventanas con gap ≤ `idle_gap_minutes` entre turnos consecutivos. Cada sesión con al menos un turno tiene piso de 60 segundos para evitar que sesiones cortas registren cero. Ventanas con gap mayor contribuyen cero (refleja tiempo ocioso real).
 - **Tiempo de calendario:** `(calendar_end − calendar_start) / 60`, en minutos, con `floor`.
 
-Ambos campos vienen como **minutos enteros**; el renderizador (Paso 5) los convierte a `Xh Ymin`.
+Ambos campos vienen como **minutos enteros**; el renderizador (Paso 6) los convierte a `Xh Ymin`.
 
-### Paso 5: Renderizar bloque markdown
+### Paso 5: Computar revisores externos vía pr-cost-stamp-reviews.sh
 
-A partir del JSON en `RAW` y de los minutos derivados en `TIME_RAW`, armar:
+Detecta revisores AI externos (Gemini, Claude bot, CodeRabbit, etc.) a partir de los reviews y comentarios del PR. Solo reviews formales por defecto (los drive-by comments inflan el conteo; ver riesgo en plan-041).
+
+```bash
+KNOWN_AI=$(echo "$KNOWN_AI_REVIEWERS_LIST" | paste -sd, -)  # CSV proveniente de .directives
+REVIEWS_RAW=$(scripts/pr-cost-stamp-reviews.sh \
+  --repo "$OWNER_REPO" \
+  --pr   "$PR_NUMBER" \
+  ${KNOWN_AI:+--known-ai-reviewers "$KNOWN_AI"})
+
+AI_REVIEWERS=$(echo "$REVIEWS_RAW" | jq -c '.ai_reviewers')
+HUMAN_REVIEWERS=$(echo "$REVIEWS_RAW" | jq -c '.human_reviewers')
+```
+
+Salida: `{ai_reviewers, human_reviewers, meta}`. Cada revisor tiene `{login, count, first_at, last_at}`. **USD no está disponible** para revisores externos (Gemini/Ultrareview/Cursor no exponen usage por-PR); el renderizador muestra `n/a` en la columna USD.
+
+### Paso 6: Renderizar bloque markdown con subsecciones Development / Review / Total
+
+A partir de los JSONs (`RAW_DEV`, `TIME_DEV`, `TIME_REVIEW`, `REVIEWS_RAW`), armar el bloque siguiente. El comentario de apertura trae `v=2` (versión del schema del bloque); los parsers downstream lo detectan por el atributo.
 
 ```markdown
-<!-- ahrena:cost-stamp:start -->
+<!-- ahrena:cost-stamp:start v=2 -->
 ## AI Assistance Cost (Claude Code)
+
+### Development
 
 | Métrica | Valor |
 |---|---|
-| Sesiones | <sessions> |
-| Tokens de input | <input_tokens> |
-| Tokens de output | <output_tokens> |
-| Cache reads | <cache_read_tokens> |
-| Cache writes | <cache_create_tokens> |
-| Costo estimado | $<cost_usd> USD |
-| Tiempo activo | <active_time_human> |
+| Sesiones | <sessions_dev> |
+| Tokens de input / output | <input_tokens_dev> / <output_tokens_dev> |
+| Cache reads / writes | <cache_read_dev> / <cache_create_dev> |
+| Costo estimado | $<cost_usd_dev> USD |
+| Tiempo activo | <active_time_dev_human> |
 | Tiempo de calendario | <calendar_time_human> (<since_date> → <pr_end_date>) |
-| Modelos | <model_breakdown> |
+| Modelos | <model_breakdown_dev> |
 
-_Computado por `kata-pr-cost-stamp` el <utc_now>. Ventana: <since_date> → <pr_end_date>. Fuente: <tool_name> <tool_version>. Gap de inactividad: <idle_gap_minutes>min._
-_Estimaciones basadas en pricing público de Anthropic; la factura real proviene del console._
+### Review
+
+| Fuente | Sesiones / Ocurrencias | USD | Tiempo activo |
+|--------|:---------------------:|:---:|:-------------:|
+| Claude Code (local, `purpose=review`) | <sessions_review> sessions | $<cost_usd_review> | <active_time_review_human> |
+<filas adicionales — una por revisor AI externo del `ai_reviewers` de `pr-cost-stamp-reviews.sh`, USD = `n/a`>
+
+### Total
+
+**Costo AI rastreado: $<cost_total> USD · <active_total_human> activo · <calendar_time_human> calendario**
+Actividad externa de AI (sin USD público): <count_external_ai> (<comma-separated logins>)
+
+_Computado por `kata-pr-cost-stamp` el <utc_now>. Ventana: <since_date> → <pr_end_date>. Fuente: ccusage <ccusage_version> + pr-cost-stamp.sh <stamp_version>. Gap de inactividad: <idle_gap_minutes>min._
+_Estimaciones basadas en pricing público de Anthropic; la factura real proviene del console. Las fuentes externas de AI sin usage público se listan solo a fines de visibilidad._
 <!-- ahrena:cost-stamp:end -->
 ```
+
+**Omisiones condicionales:**
+
+- Cuando `attribution_mode: project` o `TIME_REVIEW` está vacío/zero, **omitir la fila** "Claude Code (local, `purpose=review`)" — mantener el resto de la subsección Review si hay revisores externos.
+- Cuando `ai_reviewers` está vacío Y no hay sesiones `purpose=review`, **omitir la subsección Review entera** (el "Total" referencia solo Development).
+- Cuando `meta.warnings` no está vacío, agregar una línea tras el footer:
+  `_Avisos: <warning1>; <warning2>._`
+
+**Idempotencia al migrar de `v=1` → `v=2`:** si el body actual contiene `<!-- ahrena:cost-stamp:start -->` (sin atributo `v=`), trátelo como `v=1` y reemplace por el bloque `v=2`. Idempotencia preservada: ejecutar 2x sin nuevos turnos/reviews produce el mismo body.
 
 Reglas de formato:
 
@@ -171,13 +244,13 @@ Reglas de formato:
   - `≥ 24h` → `"<d>d <h>h"` (p. ej., `1d 4h`); omitir `<h>h` cuando es cero (`2d`)
 - Si `active_minutes` o `calendar_minutes` es `0`, renderizar `0min`.
 
-### Paso 6: Upsert en el body del PR
+### Paso 7: Upsert en el body del PR
 
 1. Obtener body actual:
    ```bash
    CURRENT_BODY=$(gh pr view $PR_NUMBER --json body --jq .body)
    ```
-2. Aplicar upsert por marcadores vía Python — sustitución literal segura, sin interpolación de backreferences (`$1`, `\1`, `\n`, etc.) dentro del bloque renderizado:
+2. Aplicar upsert por marcadores vía Python — sustitución literal segura, sin interpolación de backreferences (`$1`, `\1`, `\n`, etc.) dentro del bloque renderizado. El regex acepta tanto `v=1` como `v=2` para soportar migración in-place:
    ```bash
    echo "$CURRENT_BODY" > /tmp/pr-body.in
    echo "$RENDERED_BLOCK" > /tmp/pr-body.block
@@ -187,7 +260,7 @@ Reglas de formato:
    body = pathlib.Path("/tmp/pr-body.in").read_text()
    block = pathlib.Path("/tmp/pr-body.block").read_text().rstrip("\n")
    pattern = re.compile(
-       r"<!-- ahrena:cost-stamp:start -->.*?<!-- ahrena:cost-stamp:end -->",
+       r"<!-- ahrena:cost-stamp:start( v=\d+)? -->.*?<!-- ahrena:cost-stamp:end -->",
        re.DOTALL,
    )
    if pattern.search(body):
@@ -208,15 +281,17 @@ Reglas de formato:
    gh pr edit $PR_NUMBER --body "$NEW_BODY"
    ```
 
-### Paso 7: Verificación final
+### Paso 8: Verificación final
 
 - [ ] `pr_cost_tracking.enabled: true` confirmado en `.directives`
+- [ ] `pr_cost_tracking.attribution_mode` leído (default `hook`)
 - [ ] Backend de tokens identificado (`ccusage` o fallback) y versión registrada en el bloque
-- [ ] `scripts/pr-cost-stamp.sh` invocado para tiempo, con `--idle-gap-minutes`, `--calendar-start` y `--calendar-end` poblados
-- [ ] JSON de tokens y JSON de tiempo obtenidos sin error
-- [ ] Líneas "Tiempo activo" y "Tiempo de calendario" presentes en el bloque renderizado
-- [ ] Bloque contiene marcadores `start`/`end` en líneas propias
+- [ ] En modo `hook`: `scripts/pr-cost-stamp.sh` invocado **dos veces** (`--purpose dev` y `--purpose review`), con `--branch <HEAD_REF>`, `--idle-gap-minutes`, `--calendar-start` y `--calendar-end` poblados
+- [ ] `scripts/pr-cost-stamp-reviews.sh` invocado, clasificando `ai_reviewers` y `human_reviewers`
+- [ ] Subsecciones Development, Review (cuando aplica) y Total presentes en el bloque renderizado
+- [ ] Marcadores `<!-- ahrena:cost-stamp:start v=2 -->` / `:end` en líneas propias
 - [ ] Body actualizado contiene exactamente una ocurrencia de los marcadores
+- [ ] `meta.warnings` (si los hay) anexado al footer del bloque
 - [ ] `gh pr view $PR_NUMBER --json body` muestra el bloque visible y formateado
 
 ## Salidas

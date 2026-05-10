@@ -50,6 +50,60 @@ El subcomando `session` no acepta `--project` y, por eso, no es usado por este C
 
 El kata usa `--project=<id>` como filtro primario; el filtro por `cwd` en la línea JSONL permanece como complemento documentado, útil cuando el usuario trabaja con múltiples clones del mismo repositorio con nombres idénticos.
 
+### Atribución (modo `hook` vs `project`)
+
+La directiva `pr_cost_tracking.attribution_mode` controla cómo los turnos se asocian con un PR específico.
+
+| Modo | Mecanismo | Cuándo usar |
+|------|-----------|-------------|
+| **`hook`** (default) | El hook `pr-cost-attribution.sh` escribe `~/.claude/projects/<hash>/branches.jsonl` por turno; `pr-cost-stamp.sh --branch <head> --purpose <dev\|review>` filtra | Proyectos nuevos o que quieren precisión fina (los turnos off-branch se excluyen; la revisión queda en su propio bucket) |
+| **`project`** (legado) | Filtro solo por project + since (sin sidecar) | Compatibilidad retroactiva; PRs anteriores al hook |
+
+En el modo `hook`, la cascada para decidir el `purpose` de un turno (la primera regla que coincide gana, decidida turno a turno):
+
+1. **Variable de entorno `GUARDIA_PURPOSE`** — valor literal (p. ej., `dev`, `review`, `refactor`). Camino oficial vía `cry-pr-review`.
+2. **Heurística sobre la primera línea del prompt** — lista canónica congelada (cambios vía ADR):
+   ```
+   ^/review\b
+   ^review[[:space:]]+pr\b
+   ^review[[:space:]]+#[0-9]+
+   ^revise[[:space:]]+pr\b
+   ^revise[[:space:]]+#[0-9]+
+   ^revisar[[:space:]]+pr\b
+   ^revisar[[:space:]]+#[0-9]+
+   ^revis(ã|a)o[[:space:]]+(de[[:space:]]+)?pr\b
+   ^revisi(ó|o)n[[:space:]]+(de[[:space:]]+)?pr\b
+   pull[[:space:]]+request[[:space:]]+review
+   ```
+   Coincide → `purpose=review`. UTF-8 multi-byte usa alternación explícita (BSD grep en macOS no maneja UTF-8 dentro de `[]`).
+3. **Default**: `purpose=dev`.
+
+Tres caminos de uso recomendados:
+
+- **A — `cry-pr-review` (recomendado):** el Cry llama a `kata-pr-review`, que orienta al usuario a definir `GUARDIA_PURPOSE=review` antes de iniciar `claude`. Determinístico.
+- **B — Heurística:** red de seguridad cuando la variable no está definida. Inicie la sesión de revisión con un prompt de la lista canónica.
+- **C — Convención textual:** simplemente comience con `/review PR #<N>` en el prompt. Documentado como hábito; efecto idéntico al camino B.
+
+El sidecar `branches.jsonl` es append-only por turno; `pr-cost-stamp.sh` lo colapsa a un mapa `session_id → {branch, purpose}` tomando la entrada más reciente por sesión. Las sesiones sin entrada en el sidecar se excluyen cuando se solicita `--branch`/`--purpose` — ese es el contrato.
+
+### Costo de revisión
+
+La subsección **Review** del bloque agrega esfuerzo de revisión por fuente. El costo es honesto: el USD se suma solo de las fuentes con pricing público; los revisores externos aparecen como ocurrencias para visibilidad.
+
+| Fuente | ¿USD disponible? | Detección |
+|--------|:----------------:|-----------|
+| Claude Code local (`purpose=review`) | **Sí** (mismo backend `ccusage` o fallback) | `pr-cost-stamp.sh --purpose review` consumiendo el sidecar |
+| Gemini Code Assist | No pública | `pr-cost-stamp-reviews.sh` vía `gh pr view --json reviews` |
+| Claude bot (`claude[bot]`) | No pública | ídem |
+| Otros bots AI (CodeRabbit, qodo-merge, etc.) | No pública | ídem; logins extras vienen de `pr_cost_tracking.known_ai_reviewers` |
+| Revisor humano | Fuera de alcance | Listados en `human_reviewers` en el JSON del script, pero omitidos del bloque |
+
+`pr-cost-stamp-reviews.sh` clasifica como AI mediante dos señales (cualquiera basta):
+1. GitHub `User.type == "Bot"` (autoritativo).
+2. El login coincide con la allow-list (built-ins `gemini-code-assist[bot]`, `claude[bot]`, `coderabbitai[bot]`, `qodo-merge-pro[bot]` + el `pr_cost_tracking.known_ai_reviewers` del proyecto).
+
+Por defecto, el script cuenta solo reviews formales (sin drive-by comments) — `--include-comments` opta por incluir también comentarios inline e issue-level. La línea "Total" agrega solo los USD disponibles y lista el conteo de revisores AI externos sin USD.
+
 ### Tiempo de implementación
 
 El bloque presenta **dos métricas de tiempo**, siempre juntas cuando `pr_cost_tracking.enabled: true`:
@@ -87,37 +141,50 @@ Caso single-turn: una sesión con un único turno produce suma vacía de deltas 
 
 `ccusage` agrega a nivel diario (`daily`), en ventanas de billing de 5h (`blocks`) o por sesión (`session` con `lastActivity`), pero **no expone `timestamp` por turno** en ningún subcomando (validado en `docs/guide/json-output.md`). Por eso, el tiempo siempre se calcula con `scripts/pr-cost-stamp.sh`, incluso cuando `ccusage` es el backend de tokens/USD.
 
-### Formato del bloque
+### Formato del bloque (schema `v=2`)
 
 ```markdown
-<!-- ahrena:cost-stamp:start -->
+<!-- ahrena:cost-stamp:start v=2 -->
 ## AI Assistance Cost (Claude Code)
+
+### Development
 
 | Métrica | Valor |
 |---|---|
 | Sesiones | 3 |
-| Tokens de input | 245.892 |
-| Tokens de output | 18.432 |
-| Cache reads | 1.245.888 |
-| Cache writes | 89.234 |
+| Tokens de input / output | 245.892 / 18.432 |
+| Cache reads / writes | 1.245.888 / 89.234 |
 | Costo estimado | $4.32 USD |
 | Tiempo activo | 2h 47min |
 | Tiempo de calendario | 1d 4h (2026-05-04 → 2026-05-05) |
 | Modelos | claude-opus-4-7 (78%), claude-sonnet-4-6 (22%) |
 
-_Computado por `kata-pr-cost-stamp` el 2026-05-09T01:30:00Z. Ventana: 2026-05-07 → 2026-05-09. Fuente: ccusage 1.x. Gap de inactividad: 10min._
-_Estimaciones basadas en pricing público de Anthropic; la factura real proviene del console._
+### Review
+
+| Fuente | Sesiones / Ocurrencias | USD | Tiempo activo |
+|--------|:---------------------:|:---:|:-------------:|
+| Claude Code (local, `purpose=review`) | 1 session | $1.10 | 18min |
+| Gemini Code Assist | 1 review | n/a | n/a |
+
+### Total
+
+**Costo AI rastreado: $5.42 USD · 3h 5min activo · 1d 4h calendario**
+Actividad externa de AI (sin USD público): 1 (gemini-code-assist[bot])
+
+_Computado por `kata-pr-cost-stamp` el 2026-05-09T01:30:00Z. Ventana: 2026-05-07 → 2026-05-09. Fuente: ccusage 1.x + pr-cost-stamp.sh 1.2.0. Gap de inactividad: 10min._
+_Estimaciones basadas en pricing público de Anthropic; la factura real proviene del console. Las fuentes externas de AI sin usage público se listan solo a fines de visibilidad._
 <!-- ahrena:cost-stamp:end -->
 ```
 
 Reglas del bloque:
 
-- Marcadores HTML en líneas propias, sin indentación; el regex de upsert depende de eso.
+- Marcadores HTML en líneas propias, sin indentación; el regex de upsert depende de eso. El atributo `v=2` permite que parsers downstream detecten la versión; el upsert acepta tanto `v=1` (legado) como `v=2`.
 - Encabezado fijo `## AI Assistance Cost (Claude Code)` para discoverability.
-- Tabla con columnas idénticas en todas las lenguas; etiquetas traducidas.
-- Líneas "Tiempo activo" y "Tiempo de calendario" siempre presentes cuando `enabled: true`.
-- Línea de procedencia (timestamp UTC, ventana, versión de la herramienta, gap de inactividad) siempre presente.
-- Disclaimer de estimación siempre presente.
+- Subsecciones: **Development** (siempre presente), **Review** (subsección entera omitida cuando no hay sesiones `purpose=review` Y no hay revisores AI externos), **Total** (siempre presente).
+- Líneas "Tiempo activo" y "Tiempo de calendario" siempre presentes en Development; "Tiempo activo" en Review solo cuando hay sesiones locales `purpose=review`.
+- Modo `attribution_mode: project` (legado): la subsección Review omite la fila "Claude Code (local, `purpose=review`)" y el footer trae `_Avisos: no branch attribution data; counts may include off-branch sessions._`
+- Línea de procedencia (timestamp UTC, ventana, versiones de las herramientas, gap de inactividad) siempre presente.
+- Disclaimer de estimación siempre presente; disclaimer de revisores externos sin USD presente cuando hay al menos una fuente externa.
 - Tiempo formateado a partir de minutos enteros: `< 60min` → `<n>min`; `< 24h` → `<h>h <m>min` (omite `<m>min` cuando es cero); `≥ 24h` → `<d>d <h>h` (omite `<h>h` cuando es cero); `0` → `0min`.
 
 ### Idempotencia
@@ -125,8 +192,8 @@ Reglas del bloque:
 El kata aplica upsert mediante los marcadores HTML:
 
 1. Lee el body actual del PR vía `gh pr view --json body`.
-2. Busca el rango `<!-- ahrena:cost-stamp:start --> ... <!-- ahrena:cost-stamp:end -->`.
-3. Si existe → sustituye el rango por el bloque recién generado.
+2. Busca el rango `<!-- ahrena:cost-stamp:start( v=\d+)? --> ... <!-- ahrena:cost-stamp:end -->` (el regex acepta tanto `v=1` como `v=2`).
+3. Si existe → sustituye el rango por el bloque recién generado (la migración `v=1` → `v=2` es in-place).
 4. Si no existe → agrega el bloque al final del body, separado por línea en blanco.
 5. Actualiza el PR vía `gh pr edit --body`.
 
@@ -143,7 +210,12 @@ Reejecutar el kata 2 veces consecutivas produce exactamente el mismo body si no 
 | Limitación | Mitigación |
 |------------|------------|
 | Sesiones cross-machine no capturadas (solo la máquina donde corre el kata cuenta) | El Codex lo documenta; agregación cross-machine queda fuera de alcance en esta iteración |
-| Ventana heurística `[branch_creation_date, now]` incluye sesiones off-topic en el mismo proyecto | El filtro `--project` reduce; `cwd` complementa; iteración futura puede usar `sessionId` rastreado por hooks |
+| Modo `project` (legado) incluye sesiones off-branch | Migrar al modo `hook` (nuevo default); el sidecar excluye turnos de otras branches |
+| Modo `hook` requiere el hook instalado en `.claude/settings.json` | `scripts/install.py` lo instala automáticamente cuando `pr_cost_tracking.enabled: true` y `attribution_mode: hook` |
+| Una sesión cambia de branch o de purpose en medio | La clasificación por sesión usa la entrada **más reciente** del sidecar; las sesiones que viran a `purpose=review` en medio se contabilizan como review enteras. Aceptar como aproximación; raro en worktrees dedicados |
+| `branches.jsonl` crece sin límite | La directiva `pr_cost_tracking.branches_sidecar_max_mb` (default 50MB) emite warning cuando se supera; rotación automática en iteración futura |
+| La heurística del prompt puede dar falso positivo (palabra "review" en otro contexto) | La lista de gatillos es específica (regex/prefijos congelados, anclada en la primera línea). El camino A (`cry-pr-review` con la variable) elimina el riesgo |
+| USD no disponible para revisores externos (Gemini, Ultrareview, Cursor) | Aceptar; el bloque muestra count + `n/a`. Documentado como "visibility only" |
 | Stacked PRs con capas superpuestas — suma del tiempo activo de las capas > tiempo activo real | Cada capa usa su ventana `[branch_checkout_time, mergedAt o ahora]`; aceptar imprecisión; el codex lo documenta |
 | Variación de pricing entre versiones de `ccusage` | Smoke test de regresión en CI; pinning de versión mínima testada vía `ccusage@<min-version>` |
 | `idle_gap_minutes` mal calibrado distorsiona el tiempo activo | Default 10min cubre la mayoría de los flujos; configurable por proyecto; el valor efectivo se muestra en la línea de procedencia del bloque |
@@ -157,10 +229,15 @@ Reejecutar el kata 2 veces consecutivas produce exactamente el mismo body si no 
 | Backend de tokens/USD | `ccusage` vía `npx ccusage@latest` (con fallback a `scripts/pr-cost-stamp.sh`) |
 | Backend de tiempo (activo + calendario) | `scripts/pr-cost-stamp.sh` siempre — `ccusage` no expone `timestamp` por turno |
 | Filtro de proyecto | flag nativa `--project=<id>` en `ccusage`; basename del `cwd` en el fallback |
+| Atribución fina (modo) | `pr_cost_tracking.attribution_mode`; default `hook` en proyectos nuevos, `project` mantenido como legado retrocompatible |
+| Cascada de `purpose` | variable de entorno `GUARDIA_PURPOSE` → heurística en la primera línea (lista canónica congelada) → default `dev` |
+| Revisores AI conocidos | `pr_cost_tracking.known_ai_reviewers` en `.directives`; built-ins: gemini-code-assist, claude, coderabbitai, qodo-merge-pro |
+| Conteo de revisión | solo reviews formales por defecto (drive-by comments fuera); `--include-comments` opta por incluir |
+| Schema del bloque | `v=2` con subsecciones Development / Review / Total; el upsert acepta `v=1` para migración in-place |
 | Adopción | opt-in vía `pr_cost_tracking.enabled` en `.directives` |
 | `idle_gap_minutes` | sub-flag en `.directives`; default `10` |
 | Trigger | paso opcional en `kata-contributing-pr` |
-| Idempotencia | marcadores HTML `ahrena:cost-stamp:start/end` |
+| Idempotencia | marcadores HTML `ahrena:cost-stamp:start[ v=N]/end` |
 | Privacidad | sin enmascarado en la primera iteración; flag prevista para después |
 
 ## Glosario
