@@ -16,8 +16,8 @@ Eliminar a expectativa implícita de que o ambiente já tenha as ferramentas que
 
 ## Steps
 
-- [ ] **Step 1 — Issue + branch.** Abrir issue `feature-request` (template + label `feature request ➕` + assignee `@me` + type `Feature`) descrevendo Why/What/How (per `lex-issue-quality`). Criar worktree `.worktrees/{N}-setup-preflight-mcp-transport/` (per `lex-git-worktrees`) com branch `feat/{N}-setup-preflight-mcp-transport` (per `lex-git-branches`).
-- [ ] **Step 2 — Codificar a ordem de preferência de transporte no framework.** Atualizar **dois artefatos existentes**, replicados nas três línguas (`pt-BR`, `es`, `en`) por causa de `lex-framework-language`:
+- [x] **Step 1 — Issue + branch.** Abrir issue `feature-request` (template + label `feature request ➕` + assignee `@me` + type `Feature`) descrevendo Why/What/How (per `lex-issue-quality`). Criar worktree `.worktrees/{N}-setup-preflight-mcp-transport/` (per `lex-git-worktrees`) com branch `feat/{N}-setup-preflight-mcp-transport` (per `lex-git-branches`). **Done 2026-05-10**: issue #81 criada com label, type `Feature`, assignee, Why/What/How; worktree em `.worktrees/81-setup-preflight-mcp-transport/`, branch `feat/81-setup-preflight-mcp-transport`.
+- [x] **Step 2 — Codificar a ordem de preferência de transporte no framework.** Atualizar **dois artefatos existentes**, replicados nas três línguas (`pt-BR`, `es`, `en`) por causa de `lex-framework-language`:
   - `framework/{lang}/_foundation/tooling/lexis/lex-mcp.md` — adicionar **Regra nova** "Preferência de transporte": ao declarar ou ativar um servidor MCP, o agente DEVE escolher o transporte na ordem:
     1. **HTTP remoto** (hosted pelo fornecedor) — quando o servidor oficial existir.
     2. **Binário nativo** stdio — quando o fornecedor publica binário oficial (ex.: `github-mcp-server`).
@@ -25,12 +25,12 @@ Eliminar a expectativa implícita de que o ambiente já tenha as ferramentas que
     Desvios DEVEM ser justificados em comentário (`_comment`) no JSON do servidor. Adicionar bloco `<HARD-GATE>` per `lex-hard-gate-pattern`? **Não** — é regra de preferência com desvio justificável, não bloqueio absoluto. Fica como Regra textual MUST.
   - `framework/{lang}/_foundation/tooling/codex/codex-mcp-common.md` — adicionar seção "Transport preference rationale" com tabela trade-offs (dep local, latência, atualização, controle de versão) pelos três degraus. Notar que Docker não está hoje na hierarquia oficial; quando um MCP em Docker aparecer, o degrau será reavaliado por ADR. Referenciar a Regra nova em `lex-mcp`.
   - Sincronizar `.claude/`/`.cursor/` rodando `python3 scripts/install.py --self --target . --platform claude-code` e `--platform cursor` (per memory reference).
-- [ ] **Step 3 — `scripts/preflight.py`.** Novo módulo. Funções:
+- [x] **Step 3 — `scripts/preflight.py`.** Novo módulo. Funções:
   - `check_tool(name, version_flag=None, min_version=None)` → `(found: bool, version: str | None, path: str | None)`.
   - `detect_os()` → `"macos" | "linux-debian" | "linux-rhel" | "windows"`.
   - `install_tool(name, os_kind)` → roda `brew install`/`apt-get install`/`winget install`. Já existe precedente em `install.py:1781-1786` (rtk via brew); generalizar.
   - `run(level: Literal["hard","soft","mcp"], spec: list[ToolSpec]) → PreflightReport`. Imprime tabela `[ok|missing] tool ─ version ─ hint`. Hard `missing` → `sys.exit(1)`. Soft `missing` → pergunta interativa `install? [Y/n]` (skip em `--non-interactive`).
-- [ ] **Step 4 — Integrar preflight no `install.py`.** Em `main()` após parse_args, antes de Phase 1: chamar `preflight.run("hard", HARD_TOOLS)` e depois `preflight.run("soft", SOFT_TOOLS)`. Constantes `HARD_TOOLS=[git, make]` (python já checado), `SOFT_TOOLS=[gh, gpg]`. Adicionar flag `--skip-preflight` (paridade com `--skip-rtk`) e `--non-interactive`.
+- [x] **Step 4 — Integrar preflight no `install.py`.** Em `main()` após parse_args, antes de Phase 1: chamar `preflight.run("hard", HARD_TOOLS)` e depois `preflight.run("soft", SOFT_TOOLS)`. Constantes `HARD_TOOLS=[git, make]` (python já checado), `SOFT_TOOLS=[gh, gpg]`. Adicionar flag `--skip-preflight` (paridade com `--skip-rtk`) e `--non-interactive`. **Done 2026-05-10**: helper `_run_preflight(args)` chamado após `parse_args`; flags adicionadas ao parser. Distribuição: `preflight.py` adicionado à lista de scripts copiados para `.ahrena/` (`scripts/install.py:1259`); cobertura parcial do Step 10 (mcp_enable.py será adicionado depois).
 - [ ] **Step 5 — Aplicar preferência ao `framework/mcp/github.json`** (degrau 1 — HTTP). Tanto Cursor quanto Claude Code usam o servidor remoto oficial em `https://api.githubcopilot.com/mcp/`. Bloco Cursor não muda (já é HTTP). Bloco Claude Code passa de `npx` para HTTP com `"type": "http"`. Interpolação de env var difere por plataforma: Cursor `${env:GITHUB_PAT}`, Claude Code `${GITHUB_PAT}` (doc oficial `code.claude.com/docs/en/mcp`). Adicionar `requires: []` em ambos.
   ```json
   {
