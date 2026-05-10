@@ -96,7 +96,7 @@ endif
 # Used by install-to so --self resolves correctly regardless of CWD.
 MAKEFILE_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
-.PHONY: bootstrap install dev-install install-to update sync-cursor sync-claude-code uninstall clean validate help
+.PHONY: bootstrap install dev-install install-to update sync-cursor sync-claude-code uninstall clean validate help mcp-list mcp-enable mcp-disable preflight
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
@@ -113,6 +113,12 @@ help:
 	@echo "  sync-claude-code  Regenerate .claude/ + CLAUDE.md from .ahrena/ (no download)"
 	@echo "  uninstall     Remove Ahrena with confirmation"
 	@echo "  clean         Remove installed Ahrena files (no confirmation)"
+	@echo "  preflight     Run host-tooling preflight (hard + soft) without installing"
+	@echo "  mcp-list      List known MCP servers and their state"
+	@echo "  mcp-enable    Activate an MCP server (installs deps via preflight)"
+	@echo "                  make mcp-enable SERVER=github PLATFORM=claude-code"
+	@echo "  mcp-disable   Deactivate an MCP server"
+	@echo "                  make mcp-disable SERVER=github PLATFORM=claude-code"
 	@echo ""
 	@echo "Variables:"
 	@echo "  PLATFORM     Target platform (e.g. cursor, claude-code)"
@@ -152,6 +158,25 @@ sync-claude-code:
 
 uninstall:
 	$(PYTHON) .ahrena/uninstall.py --target $(TARGET)
+
+preflight:
+	$(PYTHON) .ahrena/preflight.py hard
+	$(PYTHON) .ahrena/preflight.py soft
+
+mcp-list:
+	$(PYTHON) .ahrena/mcp_enable.py --target $(TARGET) list
+
+# Usage: make mcp-enable SERVER=github PLATFORM=claude-code
+mcp-enable:
+	@if [ -z "$(SERVER)" ]; then echo "ERROR: SERVER is required (e.g. SERVER=github)"; exit 2; fi
+	@if [ -z "$(PLATFORM)" ]; then echo "ERROR: PLATFORM is required (cursor or claude-code)"; exit 2; fi
+	$(PYTHON) .ahrena/mcp_enable.py --target $(TARGET) --platform $(PLATFORM) enable $(SERVER)
+
+# Usage: make mcp-disable SERVER=github PLATFORM=claude-code
+mcp-disable:
+	@if [ -z "$(SERVER)" ]; then echo "ERROR: SERVER is required (e.g. SERVER=github)"; exit 2; fi
+	@if [ -z "$(PLATFORM)" ]; then echo "ERROR: PLATFORM is required (cursor or claude-code)"; exit 2; fi
+	$(PYTHON) .ahrena/mcp_enable.py --target $(TARGET) --platform $(PLATFORM) disable $(SERVER)
 
 clean:
 	$(PYTHON) .ahrena/install.py --target $(TARGET) --clean
