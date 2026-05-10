@@ -1258,9 +1258,9 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     # mcp.servers in .directives; idempotent across re-runs.
     install_mcp_package(ahrena_dir, getattr(args, "dry_run", False))
 
-    # 3. Copy scripts for future use (install, update, uninstall, preflight)
+    # 3. Copy scripts for future use (install, update, uninstall, preflight, mcp_enable)
     scripts_src = source_dir / "scripts"
-    for script_name in ("install.py", "update.py", "uninstall.py", "preflight.py"):
+    for script_name in ("install.py", "update.py", "uninstall.py", "preflight.py", "mcp_enable.py"):
         src = scripts_src / script_name
         if src.exists():
             shutil.copy2(src, ahrena_dir / script_name)
