@@ -1,5 +1,18 @@
 name: Release
 
+# A single tag (`v*`) ships both products in the same GitHub Release:
+#   - the framework bundle (`ahrena.zip` + bare scripts + Makefile)
+#   - the `ahrena-mcp` Python package (wheel + sdist), built from
+#     tools/ahrena-mcp/ at whatever version is in its own pyproject.toml
+#
+# The MCP wheel filename carries its own version (e.g.
+# `ahrena_mcp-0.1.0a1-py3-none-any.whl`), so the two products keep
+# independent identities while shipping together.
+#
+# Out of scope (deferred per plan-021 §Release & Distribution):
+#   - PyPI publishing for ahrena-mcp. Distribution v1 is GitHub Release
+#     only; PyPI moves to a future plan once the tool surface stabilizes.
+
 on:
   push:
     tags:
@@ -14,22 +27,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Package ahrena.zip
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build backend
+        run: python -m pip install --upgrade pip build
+
+      - name: Stage release assets
+        run: mkdir -p release-assets
+
+      - name: Package framework (ahrena.zip + scripts + Makefile)
         run: |
-          zip -r ahrena.zip \
+          zip -r release-assets/ahrena.zip \
             framework/ \
             scripts/install.py \
             scripts/update.py \
             scripts/uninstall.py \
             Makefile
+          cp Makefile release-assets/
+          cp scripts/install.py scripts/update.py scripts/uninstall.py release-assets/
+
+      - name: Build ahrena-mcp (sdist + wheel)
+        run: python -m build --outdir "${GITHUB_WORKSPACE}/release-assets" tools/ahrena-mcp
+
+      - name: Smoke-install ahrena-mcp wheel
+        run: |
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/pip install --upgrade pip
+          /tmp/smoke/bin/pip install release-assets/ahrena_mcp-*.whl
+          /tmp/smoke/bin/ahrena-mcp --help
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: |
-            Makefile
-            scripts/install.py
-            scripts/update.py
-            scripts/uninstall.py
-            ahrena.zip
+          files: release-assets/*
