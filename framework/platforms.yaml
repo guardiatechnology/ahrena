@@ -180,6 +180,9 @@ cursor:
     _foundation/tooling/codex/codex-notifications:
       alwaysApply: false
       description: "When firing a framework notification (Athena PR timeout, Janus release, Eunomia plans digest), read notifications.provider and notifications.channels.* from .ahrena/.directives and invoke the corresponding MCP tool per this codex. Provider-agnostic; do not name the concrete provider in Lexis/Warriors/Katas."
+    _foundation/process/codex/codex-session-tracking:
+      alwaysApply: false
+      description: "When operating on a plan as a Claude Code session, update the heartbeat file at .ahrena/workflow/sessions/<session-id>.json per this codex; kata-pr-prepare aggregates these into the Session Trace block of the PR body."
     _foundation/tooling/codex/codex-ahrena-mcp:
       alwaysApply: false
       description: "When querying the Ahrena framework via MCP (ahrena_query_lex, ahrena_get_codex, ahrena_search, ahrena_resolve_ref, etc.), consult this codex for tools, parameters, install path, and when to use vs read files directly."
