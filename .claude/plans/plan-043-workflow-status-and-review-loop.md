@@ -1,13 +1,13 @@
 ---
 plan_id: "043"
 title: "workflow-status-and-review-loop"
-status: in-progress
+status: development
 agent: claude
 issue: "guardiatechnology/ahrena#90"
 branch: "feat/90-workflow-status-review-loop"
 worktree: ".worktrees/90-workflow-status-review-loop"
 created_at: "2026-05-10T00:00:00Z"
-updated_at: "2026-05-11T15:30:00Z"
+updated_at: "2026-05-11T22:28:15Z"
 ---
 
 # Plan: Workflow status alignment + review loop + notification provider
@@ -332,7 +332,9 @@ Alinhar o ciclo de vida do plano (`lex-agent-planning`) e da Issue do GitHub a u
   - **Coordena dependência:** plan-045 (pointer) garante que plan-027 absorva E1 (queue discovery por label `status: to release`), E2 (transições de label durante publish), E3 (notificação via MCP em `notifications.channels.release_notify`). Plan-043 não duplica o conteúdo.
   - **Não há trabalho de Step 10 a fazer dentro de plan-043** — esta entrada é só um pin documental confirmando a delegação. O contrato Janus↔ciclo de status é detalhado em plan-045.
 
-- [ ] **Step 12 — Migrar planos existentes.** Para cada arquivo em `.claude/plans/`, `.claude/plans/pending/` e `.claude/plans/archived/`:
+- [x] **Step 12 — Migrar planos existentes.** Para cada arquivo em `.claude/plans/`, `.claude/plans/pending/` e `.claude/plans/archived/`:
+
+  **Concluído em 2026-05-11.** `scripts/migrate_plan_status.py` criado como script idempotente (Python) com mapping `pending → todo`, `in-progress → development`, `archived → done` (semântica nova: `archived/` vira só convenção de filesystem). Executado contra `.claude/plans/` do worktree: 9 planos migrados (plan-001/002/003/004/009 `archived → done`; plan-021/040/043 `in-progress → development`; plan-026 `pending → todo`); 11 já canônicos (incluindo 9 em `archived/` com `status: done` correto e plan-044/045 já em `status: todo`). Cada migrado teve `updated_at` reescrito para o agora UTC. **Folder rename `pending/ → todo/` é no-op neste worktree** — a pasta `pending/` só existe nos staged changes do checkout `main` (não commitados); o rename canônico acontece num PR de cleanup quando essas movimentações forem commitadas (ou via `git mv` direto no checkout main por quem resolver aquele staged set). Per `codex-agent-planning` §1, a pasta `todo/` é a convenção canônica daqui pra frente.
   - `status: pending` → `status: todo`
   - `status: in-progress` → `status: development` (sem distinção retroativa entre `development` e os intermediários `to review`/`to release` — planos antigos não têm essa granularidade)
   - `status: done` (archived) → mantém `done`

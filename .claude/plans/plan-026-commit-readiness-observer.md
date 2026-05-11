@@ -1,11 +1,11 @@
 ---
 plan_id: "026"
 title: "commit-readiness-observer"
-status: pending
+status: todo
 agent: claude
 issue: "TBD (a abrir antes da branch — lex-issue-first)"
 created_at: "2026-05-08T00:00:00Z"
-updated_at: "2026-05-08T00:00:00Z"
+updated_at: "2026-05-11T22:28:15Z"
 ---
 
 # Plano: Observer de prontidão para commit (sinais que identificam o momento adequado)

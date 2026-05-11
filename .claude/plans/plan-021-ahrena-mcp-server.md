@@ -1,11 +1,11 @@
 ---
 plan_id: "021"
 title: "ahrena-mcp-server"
-status: in-progress
+status: development
 agent: claude
 issue: "guardiatechnology/ahrena#74"
 created_at: "2026-05-07T22:30:00Z"
-updated_at: "2026-05-10T18:00:00Z"
+updated_at: "2026-05-11T22:28:15Z"
 ---
 
 # Plano: Ahrena MCP Server — framework como recurso queryable por agentes externos

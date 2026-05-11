@@ -1,11 +1,11 @@
 ---
 plan_id: "001"
 title: "complete-feature-design-docs"
-status: archived
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#34"
 created_at: "2026-05-02T14:30:00Z"
-updated_at: "2026-05-07T07:00:00Z"
+updated_at: "2026-05-11T22:28:15Z"
 ---
 
 # Plano: Concluir migração feature-design-docs — atualizar cries e katas
