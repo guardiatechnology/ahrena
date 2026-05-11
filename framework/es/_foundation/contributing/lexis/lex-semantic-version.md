@@ -26,9 +26,9 @@ El identificador de versión DEBE tener el formato `X.Y.Z`, donde:
 
 Los tags usados para marcar releases DEBEN usar el formato SemVer. El prefijo `v` se recomienda para compatibilidad con herramientas (ej.: `v1.2.3`). Las variantes `v1.2.3` y `1.2.3` son aceptadas; el proyecto DEBE adoptar una convención y mantenerla consistente.
 
-### 3. Tags de release firmadas
+### 3. Tags de release firmados y anotados
 
-Los tags de release también DEBEN estar firmados con GPG, conforme a `lex-signed-commits`.
+Los tags de release también DEBEN estar firmados con GPG, conforme a `lex-signed-commits`, y anotados (`git tag -a -s`), conforme a `lex-annotated-tags`. Los tags lightweight son técnicamente incapaces de cargar firma — solo los tags anotados soportan GPG.
 
 ### 4. Pré-release y metadatos
 
@@ -77,4 +77,5 @@ latest           # identificador no numérico para release
 
 - [Semantic Versioning 2.0.0](https://semver.org/)
 - `lex-signed-commits` — Firma GPG obligatoria para tags de release
+- `lex-annotated-tags` — Los tags empujados al remoto DEBEN ser anotados + firmados
 - `codex-semantic-version` — Manual de referencia para aplicación de SemVer en el proyecto

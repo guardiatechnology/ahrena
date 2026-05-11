@@ -1,10 +1,10 @@
 # Kata: Aplicar Versionamento Semântico com Git Tag
 
-> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Criação de tags de release conformes com lex-semantic-version e lex-signed-commits
+> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Criação de tags de release conformes com `lex-semantic-version`, `lex-signed-commits` e `lex-annotated-tags`
 
 ## Objetivo
 
-Este Kata define o procedimento padronizado para aplicar versionamento semântico no projeto usando git tags: determinar a próxima versão (ou usar a informada), validar contra as Lexis e criar tag anotada e assinada.
+Este Kata define o procedimento padronizado para aplicar versionamento semântico no projeto usando git tags: determinar a próxima versão (ou usar a informada), validar contra as Lexis e criar **tag anotada e assinada** (`git tag -a -s`). Tags lightweight (`git tag NOME` sem `-a`/`-s`) são PROIBIDAS por `lex-annotated-tags` — somente tags anotadas suportam assinatura GPG.
 
 ## Quando Usar
 
@@ -95,12 +95,38 @@ Se alguma validação falhar, corrigir ou orientar o usuário antes de prossegui
 
 - Nunca criar tag de release sem conformidade com `lex-semantic-version` (formato SemVer 2.0)
 - Nunca criar tag de release sem assinatura GPG; seguir `lex-signed-commits`
+- **Nunca usar `git tag NOME` (lightweight)** — `lex-annotated-tags` proíbe push de tag lightweight; somente `git tag -a -s` produz tag válida
 - Se o usuário pedir apenas listar tags (ex.: via `cry-tag --list`), não executar este Kata de criação; apenas listar com `git tag -l` (e opcionalmente `-n` ou ordenação)
 - Referenciar sempre `codex-semantic-version` e `lex-semantic-version` ao sugerir ou validar versão
+
+## Exemplos
+
+### Correto
+
+```bash
+# Tag anotada e assinada
+git tag -s v1.2.3 -m "Release 1.2.3"
+git tag -v v1.2.3   # verifica assinatura
+git push origin v1.2.3
+```
+
+### Incorreto
+
+```bash
+# ❌ Tag lightweight — viola lex-annotated-tags
+git tag v1.2.3
+# (sem -a/-s; sem mensagem; sem assinatura)
+
+# ❌ Tag anotada sem assinatura — viola lex-signed-commits + lex-annotated-tags
+git tag -a v1.2.3 -m "Release"
+# (anotada mas não assinada)
+```
 
 ## Referências
 
 - `lex-semantic-version` — Formato SemVer obrigatório para releases
 - `lex-signed-commits` — Assinatura GPG obrigatória para tags de release
+- `lex-annotated-tags` — Tags empurradas para remoto DEVEM ser anotadas + assinadas
 - `codex-semantic-version` — Manual de referência para SemVer e git tags
 - `cry-tag` — Atalho que invoca este Kata para criar tag (e listar tags)
+- `kata-release-publish` — Kata que invoca este via `warrior-janus`
