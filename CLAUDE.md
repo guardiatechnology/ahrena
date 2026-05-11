@@ -50,6 +50,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/documentation/i18n/codex-language-es.md`
 - `.claude/docs/documentation/i18n/codex-language-ptbr.md`
 - `.claude/docs/documentation/i18n/codex-language.md`
+- `.claude/docs/engineering/agents/codex-agent-construction-directives.md`
 - `.claude/docs/engineering/backend/codex-python-architecture.md`
 - `.claude/docs/engineering/backend/codex-python-fastapi.md`
 - `.claude/docs/engineering/backend/codex-python-logging.md`
