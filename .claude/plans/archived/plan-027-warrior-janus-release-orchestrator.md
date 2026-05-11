@@ -1,11 +1,12 @@
 ---
 plan_id: "027"
 title: "warrior-janus-release-orchestrator"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#88"
+pr: "guardiatechnology/ahrena#89"
 created_at: "2026-05-08T00:00:00Z"
-updated_at: "2026-05-10T00:00:00Z"
+updated_at: "2026-05-11T14:46:00Z"
 ---
 
 # Plano: warrior-janus — Orquestrador de Release com Annotated Tags
@@ -138,9 +139,9 @@ Pre-push hook local **fora de escopo deste plano** (depende de hook framework qu
 - [x] **15. Tradução `cry-release`** — versões es e en criadas
 - [x] **16. Workflow `validate-tag.yml`** — criado em `.github/workflows/`. Job verifica `git cat-file -t` (lightweight check), pattern SemVer regex, signature best-effort, deleta tag remota em caso de falha
 - [x] **17. Sync platforms** — `install.py --self --platform claude-code` e `--platform cursor` executados; 147 docs / 71 skills / 18 agents / 39 commands gerados; YAML validados
-- [ ] **18. Validação local** — `cry-release --dry-run` em ambiente real requer agente em sessão futura (artefatos são documentação-como-orquestração; teste verdadeiro só com agent runtime); validação estrutural feita via sync + YAML lint
-- [ ] **19. Validação Action** — teste server-side de lightweight tag será executado **após merge na main** (Action só dispara em push de tag para `origin`; testar antes implica gerar tag de teste no remoto)
-- [ ] **20. Commit + PR** — pendente
+- [ ] **18. Validação local — diferida** — `cry-release --dry-run` em ambiente real exige agente em sessão futura (artefatos são documentação-como-orquestração; teste runtime só com agent live). Validação estrutural feita via sync + YAML lint passou no PR.
+- [ ] **19. Validação Action — diferida** — teste server-side com push de tag lightweight intencional fica para sessão pós-tag-real, não bloqueia encerramento (Action está validada por code review + YAML lint; primeira tag real exercitará o caminho feliz e o teste destrutivo pode ser feito após).
+- [x] **20. Commit + PR** — 7 commits atômicos; PR #89 mergiada em 2026-05-11 por @fernandoseguim (merge commit `86831fd`). 2 rounds de review feedback aplicados (argos: BLOCKER A.1 + 5 WARNINGs; gemini: 3 medium findings). Refatoração arquitetural posterior extraiu conteúdo operacional para `codex-annotated-tags`.
 
 ## Dependências
 
