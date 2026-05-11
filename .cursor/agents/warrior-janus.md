@@ -51,6 +51,7 @@ description: "Janus — Release Orchestrator. Closing the delivery cycle — Con
 
 | Codex | Description |
 |-------|-------------|
+| `codex-annotated-tags` | Operational manual for annotated tags (GPG config, commands, verification, failure modes) |
 | `codex-semantic-version` | SemVer increment rules and format |
 | `codex-commit-standards` | Extended Conventional Commits |
 | `codex-mcp-github` | GitHub operations via MCP (when available) |

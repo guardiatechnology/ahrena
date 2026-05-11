@@ -4,7 +4,7 @@
 
 ## Lei
 
-> **Toda tag empurrada para um remoto Guardia DEVE ser uma tag anotada (`git tag -a`) assinada com chave GPG (`git tag -s`). Empurrar tag lightweight (criada sem `-a`/`-s`/`-m`) para `origin` é PROIBIDO. A tag DEVE seguir Semantic Versioning conforme `lex-semantic-version` e a assinatura DEVE ser verificável conforme `lex-signed-commits`.**
+> **Toda tag empurrada para um remoto Guardia DEVE ser uma tag anotada (não lightweight) assinada com chave GPG. Empurrar tag lightweight para `origin` é PROIBIDO. A tag DEVE seguir Semantic Versioning conforme `lex-semantic-version` e a assinatura DEVE ser verificável localmente antes do push conforme `lex-signed-commits`.**
 
 ## Cobertura
 
@@ -14,48 +14,30 @@
 
 ## Regras
 
-### 1. Tag anotada com mensagem
+### 1. Tipo do objeto: anotada
 
-Toda tag DEVE ser criada com `git tag -a` (ou `-s`, que implica `-a`) e mensagem explícita via `-m` ou editor. Tags lightweight (`git tag NOME`) carecem de autor, data, mensagem e assinatura — não satisfazem esta Lex.
-
-```bash
-# Correto
-git tag -a v1.2.3 -m "Release v1.2.3"
-
-# Correto (assinado, implica anotada)
-git tag -s v1.2.3 -m "Release v1.2.3"
-
-# INCORRETO — lightweight
-git tag v1.2.3
-```
+Toda tag empurrada DEVE ser do tipo `tag` no Git (objeto próprio, com autor, data, mensagem e assinatura). Tags lightweight (apenas ponteiro para commit, sem objeto próprio) não satisfazem esta Lex.
 
 ### 2. Assinatura GPG obrigatória
 
-Toda tag empurrada DEVE ser assinada com GPG (`git tag -s`). Tag lightweight é tecnicamente incapaz de carregar assinatura — somente tags anotadas suportam GPG. A assinatura DEVE ser verificável via `git tag -v <tag>`.
-
-Configuração recomendada para assinatura automática:
-
-```bash
-git config --global tag.gpgSign true
-git config --global user.signingkey <GPG-KEY-ID>
-```
+Toda tag empurrada DEVE ser assinada com GPG. Lightweight tags são tecnicamente incapazes de carregar assinatura — somente tags anotadas suportam GPG. A assinatura DEVE ser verificada localmente antes do push.
 
 ### 3. Versionamento Semântico
 
-O nome da tag DEVE seguir o formato definido em `lex-semantic-version` (`vMAJOR.MINOR.PATCH`, com pré-release e metadados de build opcionais). Tags fora do formato SemVer são rejeitadas pela validação combinada das duas Lexis.
+O nome da tag DEVE seguir o formato definido em `lex-semantic-version` (MAJOR.MINOR.PATCH, com pré-release e metadados de build opcionais). Tags fora do formato SemVer são rejeitadas pela validação combinada das duas Lexis.
 
-### 4. Validação server-side
+### 4. Validação server-side obrigatória
 
-O workflow `.github/workflows/validate-tag.yml` DEVE estar configurado em todo repositório Guardia que adota Ahrena. Esse workflow:
+Todo repositório Guardia que adota Ahrena DEVE ter o workflow `.github/workflows/validate-tag.yml` ativo. Esse workflow:
 
-- Dispara em `on: push: tags: ['*']`.
-- Executa `git cat-file -t $TAG`; falha quando o tipo retornado não é `tag` (lightweight retorna `commit`).
-- Executa `git tag -v $TAG`; falha quando a assinatura não verifica.
-- Apaga a tag remota (`gh api -X DELETE repos/:owner/:repo/git/refs/tags/$TAG`) antes de encerrar com falha, evitando que outros workflows reativos consumam tag inválida.
+- Bloqueia tags lightweight (verifica o tipo do objeto no remoto).
+- Bloqueia tags fora do formato SemVer.
+- Verifica a assinatura GPG em best-effort (sem falhar quando a chave pública não está disponível ao runner — a assinatura é regra local autoritativa).
+- Apaga a tag remota inválida antes de encerrar com falha, evitando que workflows reativos consumam tag inválida.
 
 ### 5. Sem criação direta no remoto
 
-A criação de tag via UI/API do GitHub (que produz lightweight tag automaticamente) é PROIBIDA. Tags DEVEM nascer localmente, com `git tag -a -s`, e ser empurradas via `git push origin <tag>`.
+A criação de tag via UI/API do GitHub (que produz lightweight tag automaticamente) é PROIBIDA. Tags DEVEM nascer localmente, ser assinadas localmente, e ser empurradas via `git push`.
 
 ## HARD-GATE
 
@@ -67,15 +49,11 @@ warrior-janus, warrior-athena e qualquer outro agente (humano ou IA)
 NÃO DEVE empurrar tag para remoto Guardia sem que ela satisfaça
 TODOS os critérios:
 
-  (a) Foi criada com `git tag -a` (anotada)
-  (b) Foi assinada com `git tag -s` (GPG) — `git tag -v` local confirma a assinatura antes do push
+  (a) Tag é do tipo `tag` no Git (anotada — não lightweight)
+  (b) Tag está assinada com GPG e a assinatura foi verificada
+      localmente antes do push
   (c) Nome segue Semantic Versioning (lex-semantic-version)
   (d) Repositório-alvo tem `.github/workflows/validate-tag.yml` ativo
-
-Nota: a verificação server-side via `git tag -v` no runner é best-effort
-(depende de a chave pública estar disponível ao runner). O bloqueio
-duro server-side fica em (a) "anotada" + (c) "SemVer-válida"; a
-assinatura é exigida localmente antes do push.
 
 Esta regra se aplica a TODA tag, independentemente de:
   - propósito declarado ("é só uma tag de debug")
@@ -86,6 +64,11 @@ Esta regra se aplica a TODA tag, independentemente de:
 Exceção única declarada: Nenhuma. Tags lightweight pré-existentes
 no histórico permanecem (regra forward-looking); não há migração
 retroativa, mas nenhuma nova tag lightweight pode ser empurrada.
+
+Nota: a verificação server-side de assinatura GPG é best-effort
+(depende da chave pública estar disponível ao runner). O bloqueio
+duro server-side fica em (a) "anotada" + (c) "SemVer-válida"; a
+assinatura é exigida localmente antes do push.
 </HARD-GATE>
 ```
 
@@ -93,52 +76,16 @@ retroativa, mas nenhuma nova tag lightweight pode ser empurrada.
 
 1. **Bloqueio automático:** o workflow `validate-tag.yml` apaga a tag remota e falha a execução.
 2. **Alerta:** o autor do push recebe notificação da Action falha; o release que dependeria da tag não acontece.
-3. **Remediação:** recriar a tag localmente com `git tag -a -s -m`, validar com `git tag -v`, e empurrar novamente.
-
-## Exemplos
-
-### Correto
-
-```bash
-# Maintainer cria tag anotada e assinada
-git tag -a v1.2.3 -s -m "Release v1.2.3: warrior-janus orchestrator"
-git tag -v v1.2.3   # confirma assinatura
-git push origin v1.2.3
-
-# validate-tag.yml dispara, valida, conclui com sucesso
-# release.yml dispara em seguida, cria GitHub Release
-```
-
-### Incorreto
-
-```bash
-# Lightweight tag — VIOLA A LEI
-git tag v1.2.3
-git push origin v1.2.3
-# → validate-tag.yml: `git cat-file -t v1.2.3` retorna `commit` (não `tag`)
-# → tag apagada do remoto, workflow falha
-
-# Tag anotada mas não assinada — VIOLA A LEI
-git tag -a v1.2.3 -m "Release"
-git push origin v1.2.3
-# → validate-tag.yml: `git tag -v v1.2.3` falha (sem assinatura)
-# → tag apagada do remoto, workflow falha
-
-# Tag criada via UI do GitHub — VIOLA A LEI
-# (a UI sempre gera lightweight tag, sem assinatura local)
-```
+3. **Remediação:** recriar a tag localmente como anotada + assinada, validar localmente, e empurrar novamente.
 
 ## Validação Automatizada
 
-- **Ferramenta:** workflow `.github/workflows/validate-tag.yml` (server-side, autoritativo) + `kata-release-publish` (client-side, preventivo).
-- **Momento:** ao empurrar tag para `origin` (server-side); ao orquestrar release (client-side).
-- **Métrica:** 0 tags lightweight em `origin` após esta Lex entrar em vigor; 100% das tags com assinatura GPG verificável.
+- **Ferramenta:** workflow `.github/workflows/validate-tag.yml` (server-side, autoritativo) + verificação local antes do push pelo agente/contribuidor.
+- **Momento:** no push da tag para `origin` (server-side); antes do push (client-side).
+- **Métrica:** 0 tags lightweight em `origin` após esta Lex entrar em vigor; 100% das tags com assinatura GPG verificável localmente.
 
 ## Referências
 
 - `lex-semantic-version` — formato MAJOR.MINOR.PATCH para nome da tag
-- `lex-signed-commits` — assinatura GPG (mesma raiz; tags reforçam o mesmo princípio)
-- `kata-tag` — procedimento de criação de tag (usa `git tag -a -s`)
-- `kata-release-publish` — Kata orquestrador de Janus que invoca `kata-tag`
-- `warrior-janus` — Warrior orquestrador do ciclo de release
+- `lex-signed-commits` — assinatura GPG (mesma raiz aplicada a commits)
 - [Git Tag — git-scm.com](https://git-scm.com/docs/git-tag)

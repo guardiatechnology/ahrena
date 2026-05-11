@@ -4,7 +4,7 @@
 
 ## Law
 
-> **Every tag pushed to a Guardia remote MUST be an annotated tag (`git tag -a`) signed with a GPG key (`git tag -s`). Pushing a lightweight tag (created without `-a`/`-s`/`-m`) to `origin` is FORBIDDEN. The tag MUST follow Semantic Versioning per `lex-semantic-version` and the signature MUST be verifiable per `lex-signed-commits`.**
+> **Every tag pushed to a Guardia remote MUST be an annotated tag (not lightweight) signed with a GPG key. Pushing a lightweight tag to `origin` is FORBIDDEN. The tag MUST follow Semantic Versioning per `lex-semantic-version` and the signature MUST be verifiable locally before push per `lex-signed-commits`.**
 
 ## Coverage
 
@@ -14,48 +14,30 @@
 
 ## Rules
 
-### 1. Annotated tag with message
+### 1. Object type: annotated
 
-Every tag MUST be created with `git tag -a` (or `-s`, which implies `-a`) and an explicit message via `-m` or the editor. Lightweight tags (`git tag NAME`) lack author, date, message, and signature — they do not satisfy this Lex.
-
-```bash
-# Correct
-git tag -a v1.2.3 -m "Release v1.2.3"
-
-# Correct (signed, implies annotated)
-git tag -s v1.2.3 -m "Release v1.2.3"
-
-# INCORRECT — lightweight
-git tag v1.2.3
-```
+Every pushed tag MUST be of type `tag` in Git (an object of its own, carrying author, date, message, and signature). Lightweight tags (a mere pointer to a commit, with no object of their own) do not satisfy this Lex.
 
 ### 2. Mandatory GPG signature
 
-Every pushed tag MUST be GPG-signed (`git tag -s`). A lightweight tag is technically unable to carry a signature — only annotated tags support GPG. The signature MUST be verifiable via `git tag -v <tag>`.
-
-Recommended configuration for automatic signing:
-
-```bash
-git config --global tag.gpgSign true
-git config --global user.signingkey <GPG-KEY-ID>
-```
+Every pushed tag MUST be signed with GPG. Lightweight tags are technically incapable of carrying a signature — only annotated tags support GPG. The signature MUST be verified locally before the push.
 
 ### 3. Semantic Versioning
 
-The tag name MUST follow the format defined in `lex-semantic-version` (`vMAJOR.MINOR.PATCH`, with optional pre-release and build metadata). Tags outside SemVer format are rejected by the combined validation of both Lexis.
+The tag name MUST follow the format defined in `lex-semantic-version` (MAJOR.MINOR.PATCH, with optional pre-release and build metadata). Tags outside the SemVer format are rejected by the combined validation of the two Lexis.
 
-### 4. Server-side validation
+### 4. Mandatory server-side validation
 
-The workflow `.github/workflows/validate-tag.yml` MUST be configured in every Guardia repository that adopts Ahrena. This workflow:
+Every Guardia repository that adopts Ahrena MUST have the workflow `.github/workflows/validate-tag.yml` active. This workflow:
 
-- Triggers on `on: push: tags: ['*']`.
-- Runs `git cat-file -t $TAG`; fails when the returned type is not `tag` (lightweight returns `commit`).
-- Runs `git tag -v $TAG`; fails when the signature does not verify.
-- Deletes the remote tag (`gh api -X DELETE repos/:owner/:repo/git/refs/tags/$TAG`) before exiting with failure, preventing other reactive workflows from consuming an invalid tag.
+- Blocks lightweight tags (verifies the object type on the remote).
+- Blocks tags outside the SemVer format.
+- Verifies the GPG signature on a best-effort basis (does not fail when the public key is unavailable to the runner — the signature is an authoritative local rule).
+- Deletes the invalid remote tag before exiting with failure, preventing reactive workflows from consuming an invalid tag.
 
 ### 5. No direct creation on the remote
 
-Tag creation via GitHub UI/API (which produces a lightweight tag automatically) is FORBIDDEN. Tags MUST originate locally, with `git tag -a -s`, and be pushed via `git push origin <tag>`.
+Tag creation via GitHub UI/API (which produces a lightweight tag automatically) is FORBIDDEN. Tags MUST originate locally, be signed locally, and be pushed via `git push`.
 
 ## HARD-GATE
 
@@ -67,15 +49,11 @@ warrior-janus, warrior-athena and any other agent (human or AI)
 MUST NOT push a tag to a Guardia remote without it satisfying
 ALL criteria:
 
-  (a) Created with `git tag -a` (annotated)
-  (b) Signed with `git tag -s` (GPG) — local `git tag -v` confirms the signature before push
-  (c) Name follows Semantic Versioning (lex-semantic-version)
-  (d) Target repository has `.github/workflows/validate-tag.yml` active
-
-Note: server-side verification via `git tag -v` on the runner is
-best-effort (depends on the public key being available to the runner).
-The hard server-side block stays on (a) "annotated" + (c) "SemVer-
-valid"; the signature is enforced locally before the push.
+  (a) The tag is of type `tag` in Git (annotated — not lightweight)
+  (b) The tag is GPG-signed and the signature has been verified
+      locally before push
+  (c) The name follows Semantic Versioning (lex-semantic-version)
+  (d) The target repository has `.github/workflows/validate-tag.yml` active
 
 This rule applies to EVERY tag, regardless of:
   - declared purpose ("it's just a debug tag")
@@ -86,6 +64,11 @@ This rule applies to EVERY tag, regardless of:
 Single declared exception: None. Pre-existing lightweight tags in
 history remain (forward-looking rule); no retroactive migration,
 but no new lightweight tag may be pushed.
+
+Note: server-side GPG signature verification is best-effort (it
+depends on the public key being available to the runner). The
+hard server-side block stays on (a) "annotated" + (c) "SemVer-
+valid"; the signature is enforced locally before the push.
 </HARD-GATE>
 ```
 
@@ -93,52 +76,16 @@ but no new lightweight tag may be pushed.
 
 1. **Automatic block:** the `validate-tag.yml` workflow deletes the remote tag and fails the run.
 2. **Alert:** the push author receives the failed Action notification; the release that depended on the tag does not happen.
-3. **Remediation:** recreate the tag locally with `git tag -a -s -m`, validate with `git tag -v`, and push again.
-
-## Examples
-
-### Correct
-
-```bash
-# Maintainer creates an annotated, signed tag
-git tag -a v1.2.3 -s -m "Release v1.2.3: warrior-janus orchestrator"
-git tag -v v1.2.3   # confirms signature
-git push origin v1.2.3
-
-# validate-tag.yml triggers, validates, exits successfully
-# release.yml triggers next, creates the GitHub Release
-```
-
-### Incorrect
-
-```bash
-# Lightweight tag — VIOLATES THE LAW
-git tag v1.2.3
-git push origin v1.2.3
-# → validate-tag.yml: `git cat-file -t v1.2.3` returns `commit` (not `tag`)
-# → tag deleted from the remote, workflow fails
-
-# Annotated but unsigned tag — VIOLATES THE LAW
-git tag -a v1.2.3 -m "Release"
-git push origin v1.2.3
-# → validate-tag.yml: `git tag -v v1.2.3` fails (no signature)
-# → tag deleted from the remote, workflow fails
-
-# Tag created via GitHub UI — VIOLATES THE LAW
-# (the UI always generates a lightweight tag, with no local signature)
-```
+3. **Remediation:** recreate the tag locally as annotated + signed, validate locally, and push again.
 
 ## Automated Validation
 
-- **Tool:** workflow `.github/workflows/validate-tag.yml` (server-side, authoritative) + `kata-release-publish` (client-side, preventive).
-- **Timing:** when pushing a tag to `origin` (server-side); during release orchestration (client-side).
-- **Metric:** 0 lightweight tags on `origin` after this Lex takes effect; 100% of tags with a verifiable GPG signature.
+- **Tool:** workflow `.github/workflows/validate-tag.yml` (server-side, authoritative) + local verification before push by the agent/contributor.
+- **Timing:** when the tag is pushed to `origin` (server-side); before the push (client-side).
+- **Metric:** 0 lightweight tags on `origin` after this Lex takes effect; 100% of tags with a locally verifiable GPG signature.
 
 ## References
 
 - `lex-semantic-version` — MAJOR.MINOR.PATCH format for the tag name
-- `lex-signed-commits` — GPG signing (same root; tags reinforce the same principle)
-- `kata-tag` — tag creation procedure (uses `git tag -a -s`)
-- `kata-release-publish` — Janus orchestrator Kata that invokes `kata-tag`
-- `warrior-janus` — release cycle orchestrator Warrior
+- `lex-signed-commits` — GPG signing (same root applied to commits)
 - [Git Tag — git-scm.com](https://git-scm.com/docs/git-tag)

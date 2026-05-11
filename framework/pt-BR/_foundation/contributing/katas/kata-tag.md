@@ -128,5 +128,6 @@ git tag -a v1.2.3 -m "Release"
 - `lex-signed-commits` — Assinatura GPG obrigatória para tags de release
 - `lex-annotated-tags` — Tags empurradas para remoto DEVEM ser anotadas + assinadas
 - `codex-semantic-version` — Manual de referência para SemVer e git tags
+- `codex-annotated-tags` — Manual operacional para tags anotadas (config GPG, comandos, verificação, modos de falha)
 - `cry-tag` — Atalho que invoca este Kata para criar tag (e listar tags)
 - `kata-release-publish` — Kata que invoca este via `warrior-janus`

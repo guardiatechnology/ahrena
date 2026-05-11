@@ -99,6 +99,9 @@ cursor:
     _foundation/contributing/codex/codex-semantic-version:
       alwaysApply: false
       description: "When versioning or defining pre-release/build metadata, use SemVer 2.0 rules from this codex."
+    _foundation/contributing/codex/codex-annotated-tags:
+      alwaysApply: false
+      description: "When creating, signing, or verifying Git tags, follow the operational commands and GPG configuration in this codex (companion to lex-annotated-tags)."
     _foundation/contributing/lexis/lex-git-branches:
       alwaysApply: false
       description: "When creating a branch, use format {type}/{issue-number}-{kebab-slug}; type must be a Conventional Commits type; issue number is mandatory."

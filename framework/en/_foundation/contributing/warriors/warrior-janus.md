@@ -52,6 +52,7 @@ Close the delivery cycle with predictability and auditability: analyze what chan
 
 | Codex | Description |
 |-------|-------------|
+| `codex-annotated-tags` | Operational manual for annotated tags (GPG config, commands, verification, failure modes) |
 | `codex-semantic-version` | SemVer increment rules and format |
 | `codex-commit-standards` | Extended Conventional Commits |
 | `codex-mcp-github` | GitHub operations via MCP (when available) |

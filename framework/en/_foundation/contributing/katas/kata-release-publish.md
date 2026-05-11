@@ -232,6 +232,7 @@ gh release edit v1.2.3 --notes-file ./changelog.md
 - `lex-annotated-tags` — every tag MUST be annotated + signed
 - `lex-semantic-version` — version format
 - `lex-signed-commits` — GPG configuration
+- `codex-annotated-tags` — operational manual consulted by this Kata (GPG config, commands, verification)
 - `kata-tag` — creates the tag locally
 - `kata-release-prepare` — preceding Kata; provides the approved version + changelog
 - `warrior-janus` — Warrior orchestrating prepare + human gate + publish

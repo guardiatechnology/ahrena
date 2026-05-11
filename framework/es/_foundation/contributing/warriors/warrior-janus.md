@@ -52,6 +52,7 @@ Cerrar el ciclo de entrega con previsibilidad y auditabilidad: analizar lo que c
 
 | Codex | Descripción |
 |-------|-------------|
+| `codex-annotated-tags` | Manual operacional para tags anotados (config GPG, comandos, verificación, modos de falla) |
 | `codex-semantic-version` | Reglas de incremento y formato SemVer |
 | `codex-commit-standards` | Conventional Commits extendido |
 | `codex-mcp-github` | Operaciones en GitHub vía MCP (cuando esté disponible) |
