@@ -86,6 +86,7 @@ Next steps:
 - Edit SKILL.md (body)
 - Add components in widgets/src/
 - Add handlers in tools/handlers/
+- Suggested next cry: `/cry-skill --mode implement --slug <slug>` to orchestrate authoring + validation + packaging via warrior-claudionor
 ```
 
 ## Restrictions
