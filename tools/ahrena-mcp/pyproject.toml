@@ -1,7 +1,7 @@
 [project]
 name = "ahrena-mcp"
-version = "0.1.0a0"
-description = "Ahrena framework as a queryable MCP server (spike)"
+version = "0.1.0a1"
+description = "Ahrena framework as a queryable MCP server"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

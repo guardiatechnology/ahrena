@@ -1,5 +1,31 @@
 name: Release
 
+# A single tag (`v*`) ships both products in the same GitHub Release:
+#   - the framework bundle (`ahrena.zip` + bare scripts + Makefile)
+#   - the `ahrena-mcp` Python package (wheel + sdist), built from
+#     tools/ahrena-mcp/ at whatever version is in its own pyproject.toml
+#
+# The MCP wheel filename carries its own version (e.g.
+# `ahrena_mcp-0.1.0a1-py3-none-any.whl`), so the two products keep
+# independent identities while shipping together.
+#
+# Dependency chain (linear): mcp-tests → mcp-build → mcp-smoke → release.
+# Each job has a single responsibility:
+#   - mcp-tests builds nothing; runs `pytest` against the source. A
+#     test regression short-circuits the chain.
+#   - mcp-build is the SOLE producer of the wheel + sdist. It uploads
+#     them as a workflow artifact.
+#   - mcp-smoke downloads that artifact and validates installability +
+#     `ahrena-mcp --help` resolution across the supported Python window
+#     (3.10–3.13). It does NOT rebuild — the smoke-tested wheel and
+#     the shipped wheel are bit-identical by construction.
+#   - release downloads the same artifact, stages it next to the
+#     framework bundle, and attaches everything to the GitHub Release.
+#
+# Out of scope (deferred per plan-021 §Release & Distribution):
+#   - PyPI publishing for ahrena-mcp. Distribution v1 is GitHub Release
+#     only; PyPI moves to a future plan once the tool surface stabilizes.
+
 on:
   push:
     tags:
@@ -9,27 +35,106 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  mcp-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Package ahrena.zip
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ahrena-mcp with dev extras
+        run: python -m pip install --upgrade pip "tools/ahrena-mcp[dev]"
+
+      - name: Run ahrena-mcp test suite
+        run: pytest tools/ahrena-mcp/tests -q
+
+  mcp-build:
+    runs-on: ubuntu-latest
+    needs: mcp-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build backend
+        run: python -m pip install --upgrade pip build
+
+      - name: Build sdist + wheel
+        run: python -m build --outdir dist tools/ahrena-mcp
+
+      - name: Upload ahrena-mcp dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ahrena-mcp-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  mcp-smoke:
+    runs-on: ubuntu-latest
+    needs: mcp-build
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Download ahrena-mcp dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ahrena-mcp-dist
+          path: dist
+
+      - name: Install wheel into a clean venv and run --help
         run: |
-          zip -r ahrena.zip \
+          python -m venv /tmp/smoke
+          /tmp/smoke/bin/pip install --upgrade pip
+          /tmp/smoke/bin/pip install dist/*.whl
+          /tmp/smoke/bin/ahrena-mcp --help
+
+  release:
+    runs-on: ubuntu-latest
+    needs: mcp-smoke
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stage release assets
+        run: mkdir -p release-assets
+
+      - name: Package framework (ahrena.zip + scripts + Makefile)
+        run: |
+          zip -r release-assets/ahrena.zip \
             framework/ \
             scripts/install.py \
             scripts/update.py \
             scripts/uninstall.py \
             Makefile
+          # Bare copies enable curl-based bootstrap (Makefile target /
+          # scripts/install.py) without unzipping ahrena.zip; consumers
+          # wanting the full framework download ahrena.zip. Both forms
+          # were already attached by the previous workflow — preserved
+          # for backward compatibility.
+          cp Makefile release-assets/
+          cp scripts/install.py scripts/update.py scripts/uninstall.py release-assets/
+
+      - name: Download ahrena-mcp dist artifact (same wheel that mcp-smoke validated)
+        uses: actions/download-artifact@v4
+        with:
+          name: ahrena-mcp-dist
+          path: release-assets
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: |
-            Makefile
-            scripts/install.py
-            scripts/update.py
-            scripts/uninstall.py
-            ahrena.zip
+          files: release-assets/*
