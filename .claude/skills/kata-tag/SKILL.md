@@ -1,11 +1,11 @@
 ---
 name: kata-tag
-description: "Apply Semantic Versioning with Git Tag. Creating release tags compliant with lex-semantic-version and lex-signed-commits"
+description: "Apply Semantic Versioning with Git Tag. Creating release tags compliant with lex-semantic-version, lex-signed-commits, and lex-annotated-tags"
 ---
 
 # Kata: Apply Semantic Versioning with Git Tag
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Creating release tags compliant with lex-semantic-version and lex-signed-commits
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Creating release tags compliant with `lex-semantic-version`, `lex-signed-commits`, and `lex-annotated-tags`
 
 ## Workflow
 
@@ -82,5 +82,29 @@ If any check fails, fix or guide the user before proceeding.
 
 - Never create a release tag without compliance to `lex-semantic-version` (SemVer 2.0 format)
 - Never create a release tag without a GPG signature; follow `lex-signed-commits`
+- **Never use `git tag NAME` (lightweight)** — `lex-annotated-tags` forbids pushing lightweight tags; only `git tag -a -s` produces a valid tag
 - If the user only asks to list tags (e.g. via `cry-tag --list`), do not run this creation Kata; only list with `git tag -l` (and optionally `-n` or sorting)
 - Always reference `codex-semantic-version` and `lex-semantic-version` when suggesting or validating version
+
+## Examples
+
+### Correct
+
+```bash
+# Annotated and signed tag
+git tag -s v1.2.3 -m "Release 1.2.3"
+git tag -v v1.2.3   # verifies signature
+git push origin v1.2.3
+```
+
+### Incorrect
+
+```bash
+# ❌ Lightweight tag — violates lex-annotated-tags
+git tag v1.2.3
+# (no -a/-s; no message; no signature)
+
+# ❌ Annotated but unsigned tag — violates lex-signed-commits + lex-annotated-tags
+git tag -a v1.2.3 -m "Release"
+# (annotated but not signed)
+```

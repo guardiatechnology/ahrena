@@ -87,6 +87,9 @@ cursor:
     _foundation/contributing/lexis/lex-semantic-version:
       alwaysApply: false
       description: "When creating a release or tag, use MAJOR.MINOR.PATCH (SemVer); no other format allowed."
+    _foundation/contributing/lexis/lex-annotated-tags:
+      alwaysApply: false
+      description: "When pushing a tag to a Guardia remote, ensure it is annotated (git tag -a) and GPG-signed (git tag -s); lightweight tags are forbidden."
     _foundation/contributing/codex/codex-commit-standards:
       alwaysApply: false
       description: "When writing or reviewing commit messages, apply footer and body standards from this codex."
@@ -96,6 +99,9 @@ cursor:
     _foundation/contributing/codex/codex-semantic-version:
       alwaysApply: false
       description: "When versioning or defining pre-release/build metadata, use SemVer 2.0 rules from this codex."
+    _foundation/contributing/codex/codex-annotated-tags:
+      alwaysApply: false
+      description: "When creating, signing, or verifying Git tags, follow the operational commands and GPG configuration in this codex (companion to lex-annotated-tags)."
     _foundation/contributing/lexis/lex-git-branches:
       alwaysApply: false
       description: "When creating a branch, use format {type}/{issue-number}-{kebab-slug}; type must be a Conventional Commits type; issue number is mandatory."
@@ -675,6 +681,9 @@ claude-code:
     _foundation/contributing/lexis/lex-semantic-version:
       paths: ["package.json", "**/__version__.py", "**/version.txt", "CHANGELOG*", ".bumpversion*", "pyproject.toml"]
       description: "When creating a release or tag, use MAJOR.MINOR.PATCH (SemVer); no other format allowed."
+    _foundation/contributing/lexis/lex-annotated-tags:
+      paths: [".github/workflows/validate-tag.yml", ".github/workflows/release.yml", "CHANGELOG*"]
+      description: "When pushing a tag to a Guardia remote, ensure it is annotated (git tag -a) and GPG-signed (git tag -s); lightweight tags are forbidden."
     product/discovery/lexis/lex-discovery-flow:
       paths: ["docs/discovery/**"]
       description: "When producing or modifying insights/ideas, enforce: warrior-phanes promotes only from approved insights with all 5 mandatory Idea fields; warrior-pitia never changes status without explicit human direction."
