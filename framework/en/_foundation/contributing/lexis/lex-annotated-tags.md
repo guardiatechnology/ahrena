@@ -51,7 +51,7 @@ The workflow `.github/workflows/validate-tag.yml` MUST be configured in every Gu
 - Triggers on `on: push: tags: ['*']`.
 - Runs `git cat-file -t $TAG`; fails when the returned type is not `tag` (lightweight returns `commit`).
 - Runs `git tag -v $TAG`; fails when the signature does not verify.
-- Deletes the remote tag (`gh api -X DELETE refs/tags/$TAG`) before exiting with failure, preventing other reactive workflows from consuming an invalid tag.
+- Deletes the remote tag (`gh api -X DELETE repos/:owner/:repo/git/refs/tags/$TAG`) before exiting with failure, preventing other reactive workflows from consuming an invalid tag.
 
 ### 5. No direct creation on the remote
 
@@ -68,10 +68,14 @@ MUST NOT push a tag to a Guardia remote without it satisfying
 ALL criteria:
 
   (a) Created with `git tag -a` (annotated)
-  (b) Signed with `git tag -s` (GPG)
-  (c) `git tag -v <tag>` confirms a valid signature
-  (d) Name follows Semantic Versioning (lex-semantic-version)
-  (e) Target repository has `.github/workflows/validate-tag.yml` active
+  (b) Signed with `git tag -s` (GPG) — local `git tag -v` confirms the signature before push
+  (c) Name follows Semantic Versioning (lex-semantic-version)
+  (d) Target repository has `.github/workflows/validate-tag.yml` active
+
+Note: server-side verification via `git tag -v` on the runner is
+best-effort (depends on the public key being available to the runner).
+The hard server-side block stays on (a) "annotated" + (c) "SemVer-
+valid"; the signature is enforced locally before the push.
 
 This rule applies to EVERY tag, regardless of:
   - declared purpose ("it's just a debug tag")

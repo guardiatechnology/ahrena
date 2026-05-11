@@ -51,7 +51,7 @@ O workflow `.github/workflows/validate-tag.yml` DEVE estar configurado em todo r
 - Dispara em `on: push: tags: ['*']`.
 - Executa `git cat-file -t $TAG`; falha quando o tipo retornado não é `tag` (lightweight retorna `commit`).
 - Executa `git tag -v $TAG`; falha quando a assinatura não verifica.
-- Apaga a tag remota (`gh api -X DELETE refs/tags/$TAG`) antes de encerrar com falha, evitando que outros workflows reativos consumam tag inválida.
+- Apaga a tag remota (`gh api -X DELETE repos/:owner/:repo/git/refs/tags/$TAG`) antes de encerrar com falha, evitando que outros workflows reativos consumam tag inválida.
 
 ### 5. Sem criação direta no remoto
 
@@ -68,10 +68,14 @@ NÃO DEVE empurrar tag para remoto Guardia sem que ela satisfaça
 TODOS os critérios:
 
   (a) Foi criada com `git tag -a` (anotada)
-  (b) Foi assinada com `git tag -s` (GPG)
-  (c) `git tag -v <tag>` confirma assinatura válida
-  (d) Nome segue Semantic Versioning (lex-semantic-version)
-  (e) Repositório-alvo tem `.github/workflows/validate-tag.yml` ativo
+  (b) Foi assinada com `git tag -s` (GPG) — `git tag -v` local confirma a assinatura antes do push
+  (c) Nome segue Semantic Versioning (lex-semantic-version)
+  (d) Repositório-alvo tem `.github/workflows/validate-tag.yml` ativo
+
+Nota: a verificação server-side via `git tag -v` no runner é best-effort
+(depende de a chave pública estar disponível ao runner). O bloqueio
+duro server-side fica em (a) "anotada" + (c) "SemVer-válida"; a
+assinatura é exigida localmente antes do push.
 
 Esta regra se aplica a TODA tag, independentemente de:
   - propósito declarado ("é só uma tag de debug")

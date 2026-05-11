@@ -20,7 +20,7 @@ Este Kata define el procedimiento estandarizado para analizar Conventional Commi
 | Modo dry-run | No | Cuando está activo, se genera la propuesta pero no se persiste nada (vía `cry-release --dry-run`) |
 | Base ref | No | Tag o ref de partida (default: último tag SemVer en el remoto) |
 
-## Flujo de trabajo
+## Workflow
 
 ```
 Progreso:
@@ -116,10 +116,10 @@ Persistir el draft en `.ahrena/workflow/release/changelog-vX.Y.Z.draft.md` (crea
 
 ### Paso 5: Verificar el Estado del Trunk
 
-1. Identificar la branch trunk (default: `main`).
-2. Verificar el estado de CI en el commit-objetivo:
+1. Identificar la branch trunk (default: `main`) y resolver el **SHA del commit-objetivo** (`TARGET_SHA=$(git rev-parse HEAD)`).
+2. Verificar el estado de CI en el commit-objetivo (filtrar por SHA, no por branch — la branch puede haber avanzado entre la decisión y la verificación):
    ```bash
-   gh run list --branch main --limit 5 --json status,conclusion,workflowName
+   gh run list --commit "$TARGET_SHA" --limit 5 --json status,conclusion,workflowName
    ```
    - Falla (`conclusion: failure` en flujo de trabajo obligatorio) → **bloquear propuesta**; reportar al humano.
    - En ejecución (`status: in_progress`) → **aguardar hasta 5 minutos**; si sigue en ejecución, señalar y dejar que el humano decida.

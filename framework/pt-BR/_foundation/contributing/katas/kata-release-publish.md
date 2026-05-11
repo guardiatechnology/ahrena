@@ -50,12 +50,29 @@ Reexecutar as checagens listadas em "Pré-condições" (não confiar no estado d
 
 Este passo é **crítico** — a ausência dele causou bug em v0.11.0 (race condition entre `gh release create` e workflow automático).
 
+A detecção tem dois critérios; **ambos** precisam casar para classificar um arquivo como release-creating:
+
+1. **Trigger em push de tag** — qualquer das grafias YAML válidas: `tags: ['v*']`, `tags: 'v*'`, ou bloco `tags:\n  - "v*"` (lista YAML).
+2. **Step que cria GitHub Release** — `softprops/action-gh-release`, `actions/create-release`, ou chamada explícita a `gh release create` / API `POST /releases`.
+
+Sem (2), um workflow apenas-CI disparado por tag seria erroneamente classificado como release-creating; sem (1), um workflow `workflow_dispatch` que cria release manualmente seria erroneamente esperado.
+
 ```bash
 RELEASE_WORKFLOW=""
-for wf in .github/workflows/*release*.yml .github/workflows/*release*.yaml; do
+for wf in .github/workflows/*.yml .github/workflows/*.yaml; do
   [ -f "$wf" ] || continue
-  # Detecta workflows que disparam em push de tag (release-creating)
-  if grep -qE '^\s*tags:\s*\[' "$wf" || grep -qE '^\s*-\s*"?v\*"?\s*$' "$wf"; then
+
+  # (1) trigger em push de tag — cobre grafias com colchetes, string e lista YAML
+  has_tag_trigger=0
+  if grep -qE '^\s*tags:\s*\[' "$wf" \
+     || grep -qE "^\s*tags:\s*['\"]?v" "$wf" \
+     || awk '/^\s*tags:\s*$/,/^\s*[^[:space:]-]/' "$wf" | grep -qE '^\s*-\s*["'\'']?v'; then
+    has_tag_trigger=1
+  fi
+  [ $has_tag_trigger -eq 1 ] || continue
+
+  # (2) step que cria GitHub Release
+  if grep -qE 'softprops/action-gh-release|actions/create-release|gh release create|POST /repos/.+/releases' "$wf"; then
     RELEASE_WORKFLOW="$wf"
     break
   fi
@@ -65,6 +82,10 @@ done
 Registrar no log:
 - `RELEASE_WORKFLOW="<path>"` → caminho "workflow-driven"
 - `RELEASE_WORKFLOW=""` → caminho "fallback" (`gh release create`)
+
+**Limites conhecidos da heurística:**
+- Workflows que delegam a criação da Release para outro workflow via `workflow_call` exigem inspeção transitiva — fora do escopo desta heurística. Documentar no Janus como caso a tratar manualmente.
+- Action customizada (não as três listadas) que cria Release passa despercebida; nesse caso, o humano que mantém o repo SHOULD nomear o workflow com `release` no nome do arquivo e adicionar comentário `# creates-github-release: true` (convenção sugerida para futura iteração da heurística).
 
 ### Passo 3: Criar Tag Anotada e Assinada
 
@@ -87,15 +108,28 @@ A partir deste ponto, a tag está visível no GitHub e workflows reativos podem 
 
 ### Passo 5: Aguardar validate-tag.yml
 
-A Action `validate-tag.yml` (introduzida por `lex-annotated-tags`) verifica que a tag é anotada + assinada + SemVer-válida. **Aguardar sua conclusão**:
+A Action `validate-tag.yml` (introduzida por `lex-annotated-tags`) verifica que a tag é anotada + assinada + SemVer-válida. **Aguardar sua conclusão**.
+
+> **Atenção (race):** após `git push`, o GitHub leva alguns segundos para registrar o workflow run. Consultar `gh run list` imediatamente pode retornar `[]`. O Kata DEVE polar até encontrar o `databaseId`, com timeout.
 
 ```bash
-RUN_ID=$(gh run list \
-  --workflow validate-tag.yml \
-  --commit "$(git rev-parse "$NEXT_TAG")" \
-  --limit 1 \
-  --json databaseId \
-  --jq '.[0].databaseId')
+TAG_SHA=$(git rev-parse "$NEXT_TAG")
+RUN_ID=""
+DEADLINE=$(($(date +%s) + 60))
+while [ -z "$RUN_ID" ]; do
+  RUN_ID=$(gh run list \
+    --workflow validate-tag.yml \
+    --commit "$TAG_SHA" \
+    --limit 1 \
+    --json databaseId \
+    --jq '.[0].databaseId // empty')
+  if [ -n "$RUN_ID" ]; then break; fi
+  if [ $(date +%s) -ge $DEADLINE ]; then
+    echo "Timeout aguardando validate-tag.yml registrar run para $NEXT_TAG"
+    exit 1
+  fi
+  sleep 3
+done
 
 gh run watch "$RUN_ID" --exit-status
 ```
@@ -106,14 +140,24 @@ Se `validate-tag.yml` falhar: a tag remota é apagada pela própria Action; rela
 
 **Caminho A — workflow-driven (`RELEASE_WORKFLOW != ""`):**
 
-1. Aguardar conclusão do workflow de release:
+1. Aguardar conclusão do workflow de release (mesmo polling do Passo 5 para evitar race condition):
    ```bash
-   REL_RUN_ID=$(gh run list \
-     --workflow "$(basename "$RELEASE_WORKFLOW")" \
-     --commit "$(git rev-parse "$NEXT_TAG")" \
-     --limit 1 \
-     --json databaseId \
-     --jq '.[0].databaseId')
+   REL_RUN_ID=""
+   DEADLINE=$(($(date +%s) + 60))
+   while [ -z "$REL_RUN_ID" ]; do
+     REL_RUN_ID=$(gh run list \
+       --workflow "$(basename "$RELEASE_WORKFLOW")" \
+       --commit "$TAG_SHA" \
+       --limit 1 \
+       --json databaseId \
+       --jq '.[0].databaseId // empty')
+     if [ -n "$REL_RUN_ID" ]; then break; fi
+     if [ $(date +%s) -ge $DEADLINE ]; then
+       echo "Timeout aguardando $(basename "$RELEASE_WORKFLOW") registrar run para $NEXT_TAG"
+       exit 1
+     fi
+     sleep 3
+   done
 
    gh run watch "$REL_RUN_ID" --exit-status
    ```

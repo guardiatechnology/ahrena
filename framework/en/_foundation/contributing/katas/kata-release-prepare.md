@@ -116,10 +116,10 @@ Persist the draft to `.ahrena/workflow/release/changelog-vX.Y.Z.draft.md` (creat
 
 ### Step 5: Check Trunk State
 
-1. Identify the trunk branch (default: `main`).
-2. Check CI status on the target commit:
+1. Identify the trunk branch (default: `main`) and resolve the **target commit SHA** (`TARGET_SHA=$(git rev-parse HEAD)`).
+2. Check CI status on the target commit (filter by SHA, not by branch — the branch may have advanced between the decision and the check):
    ```bash
-   gh run list --branch main --limit 5 --json status,conclusion,workflowName
+   gh run list --commit "$TARGET_SHA" --limit 5 --json status,conclusion,workflowName
    ```
    - Failure (`conclusion: failure` on a required workflow) → **block the proposal**; report to the human.
    - In progress (`status: in_progress`) → **wait up to 5 minutes**; if still running, signal and let the human decide.
