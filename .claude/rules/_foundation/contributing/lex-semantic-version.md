@@ -30,9 +30,9 @@ The version identifier MUST be in the form `X.Y.Z`, where:
 
 Tags used to mark releases MUST use the SemVer format. The `v` prefix is recommended for tool compatibility (e.g. `v1.2.3`). The variants `v1.2.3` and `1.2.3` are accepted; the project MUST adopt one convention and keep it consistent.
 
-### 3. Signed release tags
+### 3. Signed and annotated release tags
 
-Release tags MUST also be signed with GPG, as per `lex-signed-commits`.
+Release tags MUST also be signed with GPG, as per `lex-signed-commits`, and annotated (`git tag -a -s`), as per `lex-annotated-tags`. Lightweight tags cannot carry a signature — only annotated tags support GPG.
 
 ### 4. Pre-release and metadata
 
