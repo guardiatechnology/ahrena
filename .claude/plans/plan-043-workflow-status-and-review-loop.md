@@ -1,13 +1,13 @@
 ---
 plan_id: "043"
 title: "workflow-status-and-review-loop"
-status: development
+status: to review
 agent: claude
 issue: "guardiatechnology/ahrena#90"
 branch: "feat/90-workflow-status-review-loop"
 worktree: ".worktrees/90-workflow-status-review-loop"
 created_at: "2026-05-10T00:00:00Z"
-updated_at: "2026-05-11T22:28:15Z"
+updated_at: "2026-05-11T23:30:00Z"
 ---
 
 # Plan: Workflow status alignment + review loop + notification provider
@@ -396,7 +396,20 @@ Alinhar o ciclo de vida do plano (`lex-agent-planning`) e da Issue do GitHub a u
   - Atualizar `cry-implement-issue` (orquestração Athena) documentando o loop.
   - Avaliar atualizar `lex-git-branches` ou `codex-git-workflow` para mencionar `gh issue develop` como caminho canônico de criação de branch (alternativa ao `git checkout -b` puro), garantindo o linkage Issue ↔ branch.
 
-- [ ] **Step 15 — Commit, push, PR.** Commits atômicos (per `lex-small-commits`) agrupados por área: (a) Lexis/Codex framework provider-agnósticos, (b) Warriors Athena/Argos, (c) `.directives` schema + `codex-notifications` + `framework/mcp/slack.json` + `codex-mcp-slack` (provider inicial), (d) migração de planos existentes, (e) sync `.claude/`/`.cursor/`. PR descrevendo o novo ciclo, com `Closes #{N}` e label `status: review` na criação.
+- [x] **Step 15 — Commit, push, PR.** Commits atômicos (per `lex-small-commits`) agrupados por área: (a) Lexis/Codex framework provider-agnósticos, (b) Warriors Athena/Argos, (c) `.directives` schema + `codex-notifications` + `framework/mcp/slack.json` + `codex-mcp-slack` (provider inicial), (d) migração de planos existentes, (e) sync `.claude/`/`.cursor/`. PR descrevendo o novo ciclo, com `Closes #{N}` e label `status: review` na criação.
+
+  **Concluído em 2026-05-11.** 7 commits assinados na branch `feat/90-workflow-status-review-loop` (commits atômicos por área, per `lex-small-commits`):
+  1. `chore(plans): seed plan-043/044/045 with issue #90 wiring` — Step 1
+  2. `docs(adr): record ADR-001 for unified workflow status enum` — Step 2
+  3. `feat(framework): unify plan status enum and codify owner-per-transition` — Steps 3+4 (lex/codex-agent-planning 3 langs + sync)
+  4. `feat(framework): add lex-issue-status with canonical 7 status:* labels` — Step 5 (Lex + script + 7 labels criadas no repo + label aplicada à Issue #90)
+  5. `feat(framework): add provider-agnostic notifications + Slack MCP` — Step 6 (notifications schema + codex-notifications + slack.json + codex-mcp-slack)
+  6. `feat(framework): session tracking + Session Trace on PR body` — Step 7 (codex-session-tracking + kata-session-heartbeat + lex-pr-quality extension + kata-pr-prepare update)
+  7. `feat(framework): wire warrior-athena and warrior-argos to unified status flow` — Steps 9+10
+  8. `chore(plans): migrate legacy status enum to unified enum` — Step 12 (migrate_plan_status.py + 9 planos migrados)
+  9. `docs: surface unified workflow status in READMEs and kata-plan-task` — Steps 13+14
+
+  Push da branch e abertura da PR contra `main` referenciando `Closes #90`. Aplicar label `status: to review` no PR (per `lex-issue-status` Regra 2 — mutex) e mover Issue #90 de `status: todo` para `status: to review`. Atualizar plan-043 front-matter para `status: to review`.
 
 ## Dependencies
 
