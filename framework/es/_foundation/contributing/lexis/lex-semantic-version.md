@@ -28,7 +28,7 @@ Los tags usados para marcar releases DEBEN usar el formato SemVer. El prefijo `v
 
 ### 3. Tags de release firmados y anotados
 
-Los tags de release también DEBEN estar firmados con GPG, conforme a `lex-signed-commits`, y anotados (`git tag -a -s`), conforme a `lex-annotated-tags`. Los tags lightweight son técnicamente incapaces de cargar firma — solo los tags anotados soportan GPG.
+Los tags de release también DEBEN estar firmados con GPG, conforme a `lex-signed-commits`, y anotados, conforme a `lex-annotated-tags`. Los tags lightweight son técnicamente incapaces de cargar firma — solo los tags anotados soportan GPG.
 
 ### 4. Pré-release y metadatos
 

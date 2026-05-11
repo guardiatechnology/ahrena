@@ -27,7 +27,7 @@ Tags used to mark releases MUST use the SemVer format. The `v` prefix is recomme
 
 ### 3. Signed and annotated release tags
 
-Release tags MUST also be signed with GPG, as per `lex-signed-commits`, and annotated (`git tag -a -s`), as per `lex-annotated-tags`. Lightweight tags cannot carry a signature — only annotated tags support GPG.
+Release tags MUST also be signed with GPG, as per `lex-signed-commits`, and annotated, as per `lex-annotated-tags`. Lightweight tags cannot carry a signature — only annotated tags support GPG.
 
 ### 4. Pre-release and metadata
 

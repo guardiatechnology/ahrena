@@ -37,7 +37,7 @@ Todo repositorio Guardia que adopte Ahrena DEBE tener el flujo de trabajo `.gith
 
 ### 5. Sin creación directa en el remoto
 
-La creación de tag vía UI/API de GitHub (que produce lightweight tag automáticamente) está PROHIBIDA. Los tags DEBEN nacer localmente, ser firmados localmente, y ser empujados vía `git push`.
+La creación de tag vía UI/API de GitHub (que produce lightweight tag automáticamente) está PROHIBIDA. Los tags DEBEN nacer localmente, ser firmados localmente, y solo entonces ser empujados al remoto.
 
 ## HARD-GATE
 

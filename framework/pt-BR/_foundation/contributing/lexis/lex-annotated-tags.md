@@ -37,7 +37,7 @@ Todo repositório Guardia que adota Ahrena DEVE ter o workflow `.github/workflow
 
 ### 5. Sem criação direta no remoto
 
-A criação de tag via UI/API do GitHub (que produz lightweight tag automaticamente) é PROIBIDA. Tags DEVEM nascer localmente, ser assinadas localmente, e ser empurradas via `git push`.
+A criação de tag via UI/API do GitHub (que produz lightweight tag automaticamente) é PROIBIDA. Tags DEVEM nascer localmente, ser assinadas localmente, e só então ser empurradas ao remoto.
 
 ## HARD-GATE
 
