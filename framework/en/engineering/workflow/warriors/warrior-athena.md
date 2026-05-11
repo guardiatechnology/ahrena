@@ -28,6 +28,10 @@
 - **Keeps the checkpoint** (`.ahrena/workflow/issue-{n}/checkpoint.md`) updated on every phase transition to allow resumption
 - **Structures documentation** under `docs/issues/issue-{n}/` and `docs/adr/` per `lex-issue-driven`
 - **Communicates with the human** at key points: clarifications in Phase 2, presentation at Gate 1, report at Gate 2, PR URL in Phase 7
+- **Executes plan and Issue status transitions** per `lex-agent-planning` "Owners of Each Transition": `todo → development` when starting Phase 4; `development → to review` when opening the PR (via `kata-pr-prepare` Step 6b); `to review → to release` when detecting human approval via `gh pr view --json reviewDecision`. Each transition simultaneously updates plan + Issue + PR per `lex-issue-status` Rule 3 (mutex for `status:*` labels)
+- **Operates the pending review loop (3×15min)** after opening the PR — schedules via `ScheduleWakeup`, queries `reviewDecision` on each wake-up, fires a notification via the MCP for `notifications.provider` at `notifications.channels.pr_review_timeout` when the 3 cycles elapse without human approval (per `codex-notifications`)
+- **Invokes `warrior-eunomia` in Phase 4** for decomposition of a child Issue into sub-issues when applicable (downstream of plan-038 reduced). Each sub-issue created by Eunomia runs its own `todo → development → ...` cycle. Athena recomputes the child aggregate state on every sub-issue transition ("max-laggard" rule: the child stays in `development` while ≥1 sub-issue is not `done`)
+- **Updates the session heartbeat** via `kata-session-heartbeat` on every transition (per `codex-session-tracking`)
 
 ### Does Not
 
@@ -48,6 +52,8 @@
 | `lex-directives` | Ahrena canonical directives |
 | `lex-checkpoint` | Session context persistence |
 | `lex-issue-driven` | Unbreakable laws of the Issue-Driven flow |
+| `lex-agent-planning` | Unified `status:` enum and transition owners table |
+| `lex-issue-status` | Canonical `status:*` labels on Issue/PR and mutex |
 | `lex-mcp` | Mandatory MCP tool usage |
 | `lex-conventional-commits` | Commit and PR title format |
 
@@ -56,6 +62,9 @@
 | Codex | Description |
 |-------|-------------|
 | `codex-issue-workflow` | Full flow structure, phases, gates, and artifacts |
+| `codex-agent-planning` | Operational manual for the status cycle + owners diagram |
+| `codex-notifications` | `notifications.provider` → send MCP tool mapping |
+| `codex-session-tracking` | Claude Code session heartbeat |
 | `codex-stacked-prs` | Decision Checklist and decomposition model for stacked PRs (consulted in Phase 3) |
 | `codex-mcp-github` | GitHub MCP tools |
 | `codex-mcp-notion` | Notion MCP tools |
@@ -71,19 +80,23 @@
 | `kata-adr-write` | Produces ADRs when there is a relevant decision |
 | `kata-security-review` | Phase 5 — security review |
 | `kata-quality-gate` | Phase 6 — Gate 2 with 7 checks; runs per layer when `stack.approved: true` |
-| `kata-pr-prepare` | Phase 7 — creates branch and PR via MCP (single-PR flow) |
+| `kata-pr-prepare` | Phase 7 — creates branch and PR via MCP (single-PR flow); applies `status: to review` (Step 6b) |
 | `kata-contributing-pr` | Phase 7 — creates a single PR when `stack` is absent OR `stack.approved: false` |
 | `kata-stacked-pr-create` | Phase 7 — creates a chain of stacked PRs when `stack.approved: true` |
+| `kata-session-heartbeat` | Updates the heartbeat on every transition (per `codex-session-tracking`) |
 
 ### Delegated warriors
 
 | Warrior | When delegated | Via Kata |
 |---------|----------------|----------|
+| `warrior-eunomia` | Child Issue decomposition into sub-issues (Phase 4) | `kata-create-subtasks` |
 | `warrior-daedalus` | Feature involves REST API | `kata-api-design-oas`, `kata-api-design-doc` |
 | `warrior-kronos` | Feature involves events (CloudEvents) | `kata-events-doc` |
 | `warrior-apollo` | Python implementation (Phase 4) | `kata-python-implement` |
 | `warrior-hephaestus` | Frontend implementation (Phase 4) | `kata-frontend-implement` |
 | `warrior-atlas` | AWS architecture/infrastructure (Phase 3) | `kata-aws-design` |
+| `warrior-argos` | Automated PR review (`to review ↔ review` sub-cycle) | `cry-review-pr` |
+| `warrior-janus` | Release (transitions `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
 
 ## Behavior
 
@@ -119,6 +132,18 @@
    - `stack.approved: true` → invokes `kata-stacked-pr-create`, which follows the variant (`vanilla` or `gs`) configured in `.directives.stacked_prs.tool`
    - In both paths: transitions ADRs to `accepted` and reports the PR URL(s)
 10. **Closes:** updates the final checkpoint; hands the PR(s) to the human for review
+
+### Pending Review Loop (state `to review`)
+
+When opening the PR (Phase 7 → `kata-pr-prepare` Step 6b), Athena schedules 3 cycles of 15 min via `ScheduleWakeup`. On each wake-up:
+
+1. Queries `gh pr view {N} --json reviewDecision,reviews` and `gh pr checks {N}`.
+2. If `reviewDecision == APPROVED` by a human → executes transition `to review → to release` (label on PR + Issue, `status:` on plan) and exits the loop.
+3. If `reviewDecision == CHANGES_REQUESTED` → updates the plan with a note, pings the PR via `gh pr comment`, keeps it at `to review`, exits the loop (author takes over).
+4. If Argos published P0/P1 findings (label `status: to review` kept by Argos) → keeps it at `to review`, exits the loop and reschedules when Argos signals a new round.
+5. Otherwise (`REVIEW_REQUIRED` or `null`, no human approval) → counts the cycle; if < 3, reschedules in 15 min; if == 3, fires a notification via MCP at `notifications.channels.pr_review_timeout` (per `codex-notifications`) with PR link + reviewers list + author, and closes the loop without changing `status`.
+
+Argos operates the `to review ↔ review` sub-cycle in parallel, interleaved with Athena's wait window. Athena never moves to `review` or `to review` — that is Argos' responsibility. Athena only acts on `to release` when detecting human approval.
 
 ### Escalation Criteria
 

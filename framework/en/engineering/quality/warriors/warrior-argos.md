@@ -25,10 +25,17 @@
 - Detects breaking changes via `oasdiff` (OpenAPI), schema diff (CloudEvents), `squawk` (migrations), and exported-symbol comparison
 - Consolidates findings into a single review-comment with an idempotent marker `<!-- argos-review-id:sha256(pr_number + ":" + commit_sha) -->` — edits on same-commit re-run, creates a new comment on new-commit re-run
 - Posts via `gh pr review --request-changes` when there is at least one finding (BLOCKER or WARNING) and `--comment` when there is none — **never** `--approve`
+- **Operates the `to review ↔ review` sub-cycle** per `lex-agent-planning` "Owners of Each Transition":
+  - **Entry:** on receiving a review trigger (via `cry-review-pr` or post-Athena invocation), confirms the PR is in `status: to review` and moves it to `status: review` (label on PR + Issue, `status:` on the plan)
+  - **Exit on changes-requested:** when posting a comment with P0/P1 findings, returns the PR to `status: to review` (author takes over to fix); the plan `status:` follows back to `to review`
+  - **Exit on "Argos approves, awaiting human":** with no P0/P1 findings, also returns to `status: to review` — Athena resumes the wait loop for human approval and moves `to release` upon detecting `APPROVED`
+- **Updates the session heartbeat** via `kata-session-heartbeat` on entry and exit of the review cycle (per `codex-session-tracking`)
 
 ### Does Not
 
 - Does not approve PRs — `gh pr review --approve` is reserved for humans, without exception
+- **Does not move the PR to `status: to release`** — that transition is exclusive to Athena upon detecting human approval via `gh pr view --json reviewDecision`. Argos operates only inside the `to review ↔ review` sub-cycle
+- **Does not fire an MCP notification at the end of the review loop** — the agent that nudges the human reviewer is Athena when the 3 cycles elapse (per `codex-notifications`). Argos only publishes the review comment on the PR
 - Does not modify the PR's source code (no fix-up commits) — only reports findings
 - Does not bypass `lex-issue-first`: a PR without a linked Issue gets a 🔴 BLOCKER citing the Lexis on axis B
 - Does not run automatically on every PR opened — only on explicit human dispatch via `cry-review-pr`
@@ -45,7 +52,9 @@
 | `lex-directives` | Ahrena canonical directives — read at session start |
 | `lex-issue-first` | Every PR MUST reference an Issue (`Closes #N` / `Refs #N`) |
 | `lex-issue-quality` | Linked Issue MUST satisfy template, labels, type, assignee, Why/What/How |
-| `lex-pr-quality` | PR MUST mirror Issue labels, have size label, assignee, reviewers |
+| `lex-pr-quality` | PR MUST mirror Issue labels, have size label, assignee, reviewers, `status:*` label, and Session Trace section |
+| `lex-agent-planning` | Unified `status:` enum and transition owners table |
+| `lex-issue-status` | Mutex of `status:*` labels on Issue/PR; sync with the plan |
 | `lex-protected-trunk` | PRs target trunk; trunk never receives direct writes |
 | `lex-git-branches` | Branch follows `{type}/{issue-number}-{slug}` |
 | `lex-git-worktrees` | Review runs inside a dedicated worktree |

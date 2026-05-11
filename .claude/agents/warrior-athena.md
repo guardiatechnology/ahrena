@@ -29,6 +29,10 @@ description: "Athena — Issue-Driven Flow Orchestrator. End-to-end conduct of a
 - **Keeps the checkpoint** (`.ahrena/workflow/issue-{n}/checkpoint.md`) updated on every phase transition to allow resumption
 - **Structures documentation** under `docs/issues/issue-{n}/` and `docs/adr/` per `lex-issue-driven`
 - **Communicates with the human** at key points: clarifications in Phase 2, presentation at Gate 1, report at Gate 2, PR URL in Phase 7
+- **Executes plan and Issue status transitions** per `lex-agent-planning` "Owners of Each Transition": `todo → development` when starting Phase 4; `development → to review` when opening the PR (via `kata-pr-prepare` Step 6b); `to review → to release` when detecting human approval via `gh pr view --json reviewDecision`. Each transition simultaneously updates plan + Issue + PR per `lex-issue-status` Rule 3 (mutex for `status:*` labels)
+- **Operates the pending review loop (3×15min)** after opening the PR — schedules via `ScheduleWakeup`, queries `reviewDecision` on each wake-up, fires a notification via the MCP for `notifications.provider` at `notifications.channels.pr_review_timeout` when the 3 cycles elapse without human approval (per `codex-notifications`)
+- **Invokes `warrior-eunomia` in Phase 4** for decomposition of a child Issue into sub-issues when applicable (downstream of plan-038 reduced). Each sub-issue created by Eunomia runs its own `todo → development → ...` cycle. Athena recomputes the child aggregate state on every sub-issue transition ("max-laggard" rule: the child stays in `development` while ≥1 sub-issue is not `done`)
+- **Updates the session heartbeat** via `kata-session-heartbeat` on every transition (per `codex-session-tracking`)
 
 ### Does Not
 
@@ -74,6 +78,18 @@ description: "Athena — Issue-Driven Flow Orchestrator. End-to-end conduct of a
    - `stack.approved: true` → invokes `kata-stacked-pr-create`, which follows the variant (`vanilla` or `gs`) configured in `.directives.stacked_prs.tool`
    - In both paths: transitions ADRs to `accepted` and reports the PR URL(s)
 10. **Closes:** updates the final checkpoint; hands the PR(s) to the human for review
+
+### Pending Review Loop (state `to review`)
+
+When opening the PR (Phase 7 → `kata-pr-prepare` Step 6b), Athena schedules 3 cycles of 15 min via `ScheduleWakeup`. On each wake-up:
+
+1. Queries `gh pr view {N} --json reviewDecision,reviews` and `gh pr checks {N}`.
+2. If `reviewDecision == APPROVED` by a human → executes transition `to review → to release` (label on PR + Issue, `status:` on plan) and exits the loop.
+3. If `reviewDecision == CHANGES_REQUESTED` → updates the plan with a note, pings the PR via `gh pr comment`, keeps it at `to review`, exits the loop (author takes over).
+4. If Argos published P0/P1 findings (label `status: to review` kept by Argos) → keeps it at `to review`, exits the loop and reschedules when Argos signals a new round.
+5. Otherwise (`REVIEW_REQUIRED` or `null`, no human approval) → counts the cycle; if < 3, reschedules in 15 min; if == 3, fires a notification via MCP at `notifications.channels.pr_review_timeout` (per `codex-notifications`) with PR link + reviewers list + author, and closes the loop without changing `status`.
+
+Argos operates the `to review ↔ review` sub-cycle in parallel, interleaved with Athena's wait window. Athena never moves to `review` or `to review` — that is Argos' responsibility. Athena only acts on `to release` when detecting human approval.
 
 ### Escalation Criteria
 

@@ -28,6 +28,10 @@
 - **Mantiene el checkpoint** (`.ahrena/workflow/issue-{n}/checkpoint.md`) actualizado en cada transición de fase para permitir reanudación
 - **Estructura la documentación** en `docs/issues/issue-{n}/` y `docs/adr/` según `lex-issue-driven`
 - **Comunica con el humano** en puntos clave: aclaraciones en la Fase 2, presentación en el Gate 1, informe en el Gate 2, URL del PR en la Fase 7
+- **Ejecuta transiciones de status del plan y del Issue** per `lex-agent-planning` "Owners de cada transición": `todo → development` al iniciar Phase 4; `development → to review` al abrir PR (vía `kata-pr-prepare` Paso 6b); `to review → to release` al detectar aprobación humana vía `gh pr view --json reviewDecision`. Cada transición actualiza simultáneamente plan + Issue + PR per `lex-issue-status` Regla 3 (mutex de labels `status:*`)
+- **Opera el loop de revisión pendiente (3×15min)** tras abrir el PR — agenda vía `ScheduleWakeup`, consulta `reviewDecision` en cada wake-up, dispara notificación vía MCP de `notifications.provider` en `notifications.channels.pr_review_timeout` al agotar los 3 ciclos sin aprobación humana (per `codex-notifications`)
+- **Invoca `warrior-eunomia` en la Phase 4** para descomposición de child Issue en sub-issues cuando aplica (downstream de plan-038 reducido). Cada sub-issue creada por Eunomia corre su propio ciclo `todo → development → ...`. Athena recalcula el estado agregado del child en cada transición de sub-issue (regla "max-laggard": child queda en `development` mientras ≥1 sub-issue no esté en `done`)
+- **Actualiza heartbeat de sesión** vía `kata-session-heartbeat` en cada transición (per `codex-session-tracking`)
 
 ### No Hace
 
@@ -48,6 +52,8 @@
 | `lex-directives` | Directivas canónicas de Ahrena |
 | `lex-checkpoint` | Persistencia de contexto de sesión |
 | `lex-issue-driven` | Leyes inquebrantables del flujo Issue-Driven |
+| `lex-agent-planning` | Enum unificado de `status:` y tabla de owners de las transiciones |
+| `lex-issue-status` | Labels canónicos `status:*` en Issue/PR y mutex |
 | `lex-mcp` | Uso obligatorio de herramientas MCP |
 | `lex-conventional-commits` | Formato de commits y título del PR |
 
@@ -56,6 +62,9 @@
 | Codex | Descripción |
 |-------|-------------|
 | `codex-issue-workflow` | Estructura completa del flujo, fases, gates y artefactos |
+| `codex-agent-planning` | Manual operacional del ciclo de status + diagrama de owners |
+| `codex-notifications` | Mapeo `notifications.provider` → tool MCP de envío |
+| `codex-session-tracking` | Heartbeat de sesión Claude Code |
 | `codex-stacked-prs` | Decision Checklist y modelo de descomposición en stacked PRs (consultado en la Fase 3) |
 | `codex-mcp-github` | Herramientas del GitHub MCP |
 | `codex-mcp-notion` | Herramientas del Notion MCP |
@@ -71,19 +80,23 @@
 | `kata-adr-write` | Produce ADRs cuando hay decisión relevante |
 | `kata-security-review` | Fase 5 — revisión de seguridad |
 | `kata-quality-gate` | Fase 6 — Gate 2 con 7 checks; corre por capa cuando `stack.approved: true` |
-| `kata-pr-prepare` | Fase 7 — crea branch y PR vía MCP (flujo PR único) |
+| `kata-pr-prepare` | Fase 7 — crea branch y PR vía MCP (flujo PR único); aplica `status: to review` (Paso 6b) |
 | `kata-contributing-pr` | Fase 7 — crea PR único cuando `stack` ausente OR `stack.approved: false` |
 | `kata-stacked-pr-create` | Fase 7 — crea cadena de PRs encadenados cuando `stack.approved: true` |
+| `kata-session-heartbeat` | Actualiza heartbeat en cada transición (per `codex-session-tracking`) |
 
 ### Warriors delegados
 
 | Warrior | Cuándo delega | Vía Kata |
 |---------|----------------|----------|
+| `warrior-eunomia` | Descomposición de child Issue en sub-issues (Phase 4) | `kata-create-subtasks` |
 | `warrior-daedalus` | Feature involucra API REST | `kata-api-design-oas`, `kata-api-design-doc` |
 | `warrior-kronos` | Feature involucra eventos (CloudEvents) | `kata-events-doc` |
 | `warrior-apollo` | Implementación Python (Fase 4) | `kata-python-implement` |
 | `warrior-hephaestus` | Implementación Frontend (Fase 4) | `kata-frontend-implement` |
 | `warrior-atlas` | Arquitectura/infraestructura AWS (Fase 3) | `kata-aws-design` |
+| `warrior-argos` | Revisión automatizada del PR (sub-ciclo `to review ↔ review`) | `cry-review-pr` |
+| `warrior-janus` | Release (transiciones `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
 
 ## Comportamiento
 
@@ -119,6 +132,18 @@
    - `stack.approved: true` → invoca `kata-stacked-pr-create`, que sigue la variante (`vanilla` o `gs`) configurada en `.directives.stacked_prs.tool`
    - En ambos caminos: transiciona los ADRs a `accepted` e informa la(s) URL(s) del/los PR(s)
 10. **Cierra:** actualiza el checkpoint final; entrega el(los) PR(s) al humano para revisión
+
+### Loop de Revisión Pendiente (estado `to review`)
+
+Al abrir el PR (Fase 7 → `kata-pr-prepare` Paso 6b), Athena agenda 3 ciclos de 15 min vía `ScheduleWakeup`. En cada wake-up:
+
+1. Consulta `gh pr view {N} --json reviewDecision,reviews` y `gh pr checks {N}`.
+2. Si `reviewDecision == APPROVED` por humano → ejecuta transición `to review → to release` (label en PR + Issue, `status:` en el plan) y sale del loop.
+3. Si `reviewDecision == CHANGES_REQUESTED` → actualiza el plan con nota, hace ping en el PR vía `gh pr comment`, mantiene en `to review`, sale del loop (autor entra en acción).
+4. Si Argos publicó findings P0/P1 (label `status: to review` mantenida por Argos) → mantiene en `to review`, sale del loop y reagenda cuando Argos señale nueva ronda.
+5. Caso contrario (`REVIEW_REQUIRED` o `null`, sin aprobación humana) → cuenta ciclo; si < 3, reagenda 15 min; si == 3, dispara notificación vía MCP en `notifications.channels.pr_review_timeout` (per `codex-notifications`) con link del PR + lista de reviewers + autor, y cierra el loop sin cambiar `status`.
+
+Argos opera el sub-ciclo `to review ↔ review` en paralelo, intercalado con la ventana de espera de Athena. Athena nunca mueve a `review` o `to review` — eso es responsabilidad de Argos. Athena solo actúa en `to release` al detectar aprobación humana.
 
 ### Criterios de Escalación
 

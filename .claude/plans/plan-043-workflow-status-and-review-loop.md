@@ -134,7 +134,9 @@ Alinhar o ciclo de vida do plano (`lex-agent-planning`) e da Issue do GitHub a u
 
   **Concluído em 2026-05-11 (conteúdo dos 3 manuais reescritos; sync `.claude/` + `.cursor/` será feito após o commit dos Steps 3 + 4 + ADR).** Os 3 arquivos `framework/{pt-BR,es,en}/_foundation/process/codex/codex-agent-planning.md` foram reescritos com: (i) template de plano exemplificado com front-matter completo (issue + branch + worktree + sessão) — plan-043 como exemplo; (ii) seção §4 ciclo de vida unificado com tabela de status × owner; (iii) seção §5 owners por transição em formato de fluxo; (iv) seção §6 detalhando os 5 passos canônicos de `— → todo` com Lex de referência; (v) seção §8 grafo de relação Issue ↔ PR ↔ Plan ↔ ADR ↔ Heartbeat; (vi) seção §9 documentando o loop 3×15min de revisão pendente (sub-ciclo Argos `to review ↔ review`); (vii) §10 boas práticas atualizadas com "sincronizar `status:` em três lugares"; (viii) subpastas filesystem `{plans}/todo/` (antes `pending/`) e `{plans}/archived/` documentadas como convenção de organização, não estado.
 
-- [ ] **Step 5 — Labels canônicos no GitHub.** Decidir entre dois caminhos:
+- [x] **Step 5 — Labels canônicos no GitHub.** Decidir entre dois caminhos:
+
+  **Concluído em 2026-05-11.** Opção (b) adotada — novo `lex-issue-status` independente (3 línguas). Entry adicionada em `framework/platforms.yaml`. Script idempotente `scripts/bootstrap_status_labels.sh` criado e executado contra `guardiatechnology/ahrena`: as 7 labels (`status: todo`/`development`/`to review`/`review`/`to release`/`release`/`done`) estão presentes no repositório com cores e descrições canônicas. Label `status: todo` aplicada a Issue #90 (validação do contrato). Ortogonalidade explícita com `pending-spec`/`spec-ready` (plan-038) documentada na Regra 4. Epic isento de `status:*` por Regra 5. HARD-GATE per `lex-hard-gate-pattern` com 5 preconditions + mutex enforcement.
   - **(a)** Estender `lex-issue-quality` com seção "Status labels canônicos" + tabela das 7 labels obrigatórias por fase.
   - **(b)** Criar novo `lex-issue-status` independente, mais coeso, e referenciá-lo em `lex-issue-quality` e `lex-pr-quality`.
   - **Recomendado:** (b) — separa o domínio "qualidade do conteúdo da issue" do domínio "ciclo de vida". Manter (a) como referência cruzada.
@@ -142,7 +144,9 @@ Alinhar o ciclo de vida do plano (`lex-agent-planning`) e da Issue do GitHub a u
   - Documentar criação inicial das labels via `gh label create` (script idempotente em `scripts/` ou kata dedicado — avaliar criar `kata-bootstrap-status-labels`).
   - **Coexistência com labels de plan-038** (`pending-spec`, `spec-ready`): documentar explicitamente que `status:*` é ortogonal a essas labels — `pending-spec`/`spec-ready` controlam entrada no fluxo Athena (US-child); `status:*` controla o ciclo dentro/após Athena. US-child nasce com `pending-spec` **sem** `status:*`; ao receber `spec-ready` (pelo PM), recebe `status: todo`. Bug/Tech-task pulam `pending-spec` e nascem com `status: todo` direto.
 
-- [ ] **Step 6 — Notification provider via MCP + schema em `.directives` (provider-agnóstico).**
+- [x] **Step 6 — Notification provider via MCP + schema em `.directives` (provider-agnóstico).**
+
+  **Concluído em 2026-05-11.** (6a) `notifications:`, `pm:` e `session_tracking:` adicionados ao `framework/.directives.sample` (commentados como defaults documentados); chaves listadas em `lex-directives` (3 línguas) na tabela "Aplicação por seção". (6b) `framework/mcp/slack.json` criado com transporte tier-1 HTTP (`https://mcp.slack.com/mcp`) + OAuth 2.0 confidencial; validado contra `https://docs.slack.dev/ai/slack-mcp-server/` (per memory `feedback_validate_via_official_docs`). (6c+6d) `codex-notifications` criado em 3 línguas como manual cross-provider (provider-agnóstico); mapeia `notifications.provider` → tool MCP correspondente; documenta fluxo canônico de publicação, templates de mensagem (PR timeout, release, plans digest), e procedimento de troca de provider em 3 passos. (6e) `codex-mcp-slack` criado em 3 línguas como manual do provider inicial (paralelo a `codex-mcp-{github,notion,figma}`); cita `slack_send_message` como tool primária e mapeamento canal lógico → canal real. Entries adicionadas em `framework/platforms.yaml`.
 
   **Princípio orientador:** Lexis, Codex, Warriors e Katas **não devem mencionar Slack (ou Discord, Teams, etc.) por nome**. Devem referenciar apenas o **"MCP de notificação"** configurado em `.directives`. O provider concreto (Slack hoje; Discord/Teams/outros amanhã) é detalhe de implementação — vem de configuração + MCP server correspondente.
 
@@ -205,7 +209,9 @@ Alinhar o ciclo de vida do plano (`lex-agent-planning`) e da Issue do GitHub a u
   - Lexis/Codex envelhecem bem (não ficam "amarrados" a Slack).
   - Suporta multi-workspace / multi-org sem fork.
 
-- [ ] **Step 7 — Session tracking infrastructure (heartbeat + PR trace).** Estabelecer rastreamento de qual sessão Claude Code está executando cada plano, com persistência no body do PR.
+- [x] **Step 7 — Session tracking infrastructure (heartbeat + PR trace).** Estabelecer rastreamento de qual sessão Claude Code está executando cada plano, com persistência no body do PR.
+
+  **Concluído em 2026-05-11.** (7.1) `codex-session-tracking` criado nas 3 línguas com schema do heartbeat JSON, cadência, multi-sessão/handoff, limpeza pós-merge. (7.2) `kata-session-heartbeat` criado nas 3 línguas em `_foundation/process/katas/` com workflow idempotente (escrita atômica via `mv`, no-op fora do Claude Code). (7.3) `lex-agent-planning` já carrega `claude_session` + `session_entrypoint` no front-matter exemplo (Step 3). (7.4) `lex-pr-quality` estendida nas 3 línguas com regras (i) label `status: <name>` e (j) seção "Session Trace" obrigatória; HARD-GATE atualizado. (7.5) `kata-pr-prepare` atualizada nas 3 línguas com Passo 5b (construir Session Trace) e Passo 6b (aplicar `status: to review` na transição `development → to review` com sync trifecta plano+Issue+PR). (7.6) `.gitignore` ganha `.ahrena/workflow/sessions/`. (7.7) `session_tracking:` adicionado em `framework/.directives.sample` (Step 6). (7.8) `codex-session-tracking` registrado em `framework/platforms.yaml`. `.claude/` + `.cursor/` regenerados via `scripts/install.py --self`.
 
   **Princípio:** Claude Code expõe `CLAUDE_CODE_SESSION_ID` (UUID estável por sessão) + `CLAUDE_CODE_ENTRYPOINT` (claude-vscode | claude-cli | claude-desktop | claude-web) + `AI_AGENT` (versão). Eunomia, Athena, Argos, Janus e qualquer agente que opere um plano DEVE escrever/atualizar um heartbeat local + registrar a trilha de sessões no body do PR ao abrir.
 
@@ -289,7 +295,9 @@ Alinhar o ciclo de vida do plano (`lex-agent-planning`) e da Issue do GitHub a u
   - Plan-044 absorve o consumo das heartbeat files no `kata-plans-status-digest` (digest enriquecido com sessões ativas).
   - **Não há trabalho de Step 8 a fazer dentro de plan-043** — esta entrada é só um pin documental confirmando a delegação.
 
-- [ ] **Step 9 — Atualizar `warrior-athena`.** Adicionar à seção "Responsibilities" e/ou "Workflow":
+- [x] **Step 9 — Atualizar `warrior-athena`.** Adicionar à seção "Responsibilities" e/ou "Workflow":
+
+  **Concluído em 2026-05-11.** Athena (3 línguas) ganhou: (i) 4 novos bullets em "Faz" — transições de status (per `lex-agent-planning`), loop 3×15min, invocação de Eunomia em Phase 4 com max-laggard, heartbeat de sessão; (ii) `lex-agent-planning` + `lex-issue-status` adicionados na tabela Lexis; (iii) `codex-agent-planning` + `codex-notifications` + `codex-session-tracking` adicionados na tabela Codex; (iv) `kata-pr-prepare` anotado com "aplica `status: to review` (Passo 6b)" + `kata-session-heartbeat` adicionado; (v) tabela Warriors delegados ganhou Eunomia, Argos, Janus; (vi) nova subseção "Loop de Revisão Pendente" descrevendo o algoritmo 3×15min canônico (5 ramos de saída).
   - Quando inicia Phase 4 (delegação de implementação): muda `status:` do plano para `development` e aplica label `status: development` na issue via `gh issue edit --remove-label "status: todo" --add-label "status: development"`.
   - **Phase 4 + Eunomia (coordenação com plan-038):** ao entrar em `development`, Athena invoca `warrior-eunomia` para decompor a child Issue em sub-issues. Cada sub-issue criada por Eunomia nasce com seu próprio `status: todo` e roda o ciclo completo independente. O child Issue permanece em `development` enquanto ≥1 sub-issue não atingiu `done`. Cálculo de estado agregado (preferência registrada na Open Question #6):
     - child `status: development` ← ≥1 sub-issue não-`done`.
@@ -308,7 +316,9 @@ Alinhar o ciclo de vida do plano (`lex-agent-planning`) e da Issue do GitHub a u
   - Documentar contrato com Argos (Step 10) — Athena escuta o sinal humano final; Argos opera o sub-ciclo `to review ↔ review` automatizado, intercalado com a janela de espera do Athena.
   - Phase 1: Athena rejeita Issue Type Epic (regra introduzida por plan-038) e rejeita US-child sem `spec-ready` (também plan-038). Plan-043 estende: Phase 1 aplica `status: todo` se a Issue passa em todos os gates de 038 (Issue Type aceitável, `spec-ready` quando aplicável); rejeita aplicação da label se Issue não passa.
 
-- [ ] **Step 10 — Atualizar `warrior-argos`.** Adicionar à seção "Responsibilities":
+- [x] **Step 10 — Atualizar `warrior-argos`.** Adicionar à seção "Responsibilities":
+
+  **Concluído em 2026-05-11.** Argos (3 línguas) ganhou: (i) novo bullet em "Faz" descrevendo o sub-ciclo `to review ↔ review` (entrada, saída em changes-requested, saída em "approves awaiting human"); (ii) novo bullet "Atualiza heartbeat de sessão" via `kata-session-heartbeat`; (iii) novos bullets em "Não Faz" — não move para `to release` (exclusivo de Athena) e não dispara notificação ao final (exclusivo de Athena ao esgotar 3 ciclos); (iv) `lex-agent-planning` e `lex-issue-status` adicionados na tabela Lexis; (v) descrição de `lex-pr-quality` atualizada para incluir "label `status:*` e seção Session Trace".
   - Quando recebe trigger de revisão (Cry `cry-review-pr` ou invocação pós-Athena): confirma que PR está em `to review`. **Move plano + issue + PR de `to review` → `review`** (label `status: review`) sinalizando que a revisão automatizada está em andamento.
   - **Sub-ciclo `to review ↔ review`:** Argos roda os kata-reviews em sequência (Python review, frontend review, security review, etc.). Ao final de cada ciclo de revisão automatizada:
     1. Publica comentário no PR resumindo achados.
