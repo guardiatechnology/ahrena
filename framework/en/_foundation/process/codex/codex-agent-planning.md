@@ -4,13 +4,13 @@
 
 ## Overview
 
-This Codex is the canonical manual for agent task planning. It complements `lex-agent-planning` (the Law) with templates, fill examples, numbering rules, best practices, and guidance for edge cases. Every agent that creates plans MUST consult this Codex.
+This Codex is the canonical manual for agent task planning. It complements `lex-agent-planning` (the Law) with templates, fill examples, numbering rules, best practices, transition owners, and guidance for edge cases. Every agent that creates or maintains plans MUST consult this Codex.
 
 ## Context
 
 - **Domain:** AI agent task execution discipline
 - **Audience:** all agents (Claude, Cursor, warriors, katas) and human reviewers
-- **Update:** when the template or conventions change (ADR recommended for front-matter changes)
+- **Update:** when the template, the status enum, or the owners table change (ADR recommended for structural changes)
 
 ---
 
@@ -35,6 +35,13 @@ paths:
   plans: ".plans/"    # override: all agents use .plans/
 ```
 
+Filesystem subfolders by organization (not by enum state):
+
+- `{plans}/todo/` — plans with `status: todo` awaiting start (formerly `pending/`)
+- `{plans}/archived/` — plans with `status: done` or `abandoned` after the corresponding PR is merged
+
+The filesystem folder is an organization convention. The canonical state lives in the front-matter (`status:`).
+
 ---
 
 ## 2. File Naming Convention
@@ -51,7 +58,7 @@ plan-{NNN}-{slug}.md
 Examples:
 - `plan-001-complete-feature-design-docs.md`
 - `plan-002-create-warrior-hecate.md`
-- `plan-003-update-discovery-warriors.md`
+- `plan-090-workflow-status-and-review-loop.md`
 
 ---
 
@@ -59,76 +66,130 @@ Examples:
 
 ```markdown
 ---
-plan_id: "001"
-title: "complete-feature-design-docs"
-status: pending
+plan_id: "043"
+title: "workflow-status-and-review-loop"
+status: todo
 agent: claude
-issue: "guardiafinance/ahrena#42"
-created_at: "2026-05-02T14:30:00Z"
-updated_at: "2026-05-02T14:30:00Z"
+issue: "guardiatechnology/ahrena#90"
+branch: "feat/90-workflow-status-review-loop"
+worktree: ".worktrees/90-workflow-status-review-loop"
+claude_session: "85846253"            # optional; populated by kata-session-heartbeat
+session_entrypoint: "claude-vscode"
+created_at: "2026-05-10T00:00:00Z"
+updated_at: "2026-05-11T15:30:00Z"
 ---
 
-# Plan: Complete Feature Design Docs — update cries and katas
+# Plan: Workflow status unified across plan and Issue
 
 ## Objective
 
-Complete the migration of feature design artifacts to the canonical structure
-`docs/{context}/{category}/` defined by `lex-feature-design-docs`. Warriors and katas
-are already updated; what remains are the Cries (user entry points) and 2 katas with residual references.
+Align the lifecycle of plan and GitHub Issue to a single status enum
+(todo → development → to review → review → to release → release → done),
+with an explicit owner for each transition and provider-agnostic notifications
+via the MCP configured in .ahrena/.directives.
 
 ## Scope
 
 Files to modify:
-- `framework/pt-BR/engineering/platform/cries/cry-api-design.md`
-- `framework/pt-BR/engineering/platform/cries/cry-event-storm.md`
-- `framework/pt-BR/engineering/platform/cries/cry-feature-design.md`
-- `framework/pt-BR/engineering/platform/cries/cry-full-design.md`
-- `framework/pt-BR/engineering/platform/katas/kata-api-design-review.md`
-- `framework/pt-BR/engineering/platform/katas/kata-api-design-doc.md`
-- Equivalents in `framework/en/` and `framework/es/`
-- `.cursor/skills/` and `.cursor/commands/` corresponding
-
-Total: ~18 files.
+- framework/{pt-BR,es,en}/_foundation/process/lexis/lex-agent-planning.md
+- framework/{pt-BR,es,en}/_foundation/process/codex/codex-agent-planning.md
+- framework/{pt-BR,es,en}/_foundation/contributing/lexis/lex-issue-status.md (new)
+- framework/{pt-BR,es,en}/engineering/workflow/warriors/warrior-athena.md
+- framework/{pt-BR,es,en}/engineering/quality/warriors/warrior-argos.md
+- (...)
 
 ## Steps
 
-- [ ] 1. Open GitHub issue to track this work
-- [ ] 2. Create branch `feat/{N}-complete-feature-design-docs`
-- [ ] 3. Update `cry-api-design.md` (pt-BR, en, es)
-- [ ] 4. Update `cry-event-storm.md` (pt-BR, en, es)
-- [ ] 5. Update `cry-feature-design.md` (pt-BR, en, es)
-- [ ] 6. Update `cry-full-design.md` (pt-BR, en, es)
-- [ ] 7. Update `kata-api-design-review.md` (pt-BR, en, es)
-- [ ] 8. Fix `kata-api-design-doc.md` (pt-BR, en, es)
-- [ ] 9. Update `.cursor/commands/` and `.cursor/skills/` affected
-- [ ] 10. Commit all previous artifacts (new feature-design-docs + cries + katas)
-- [ ] 11. Open PR referencing the issue
+- [x] 1. Issue + branch + worktree (Eunomia or fallback)
+- [x] 2. ADR-001 (MADR simplified)
+- [x] 3. lex-agent-planning (3 langs)
+- [ ] 4. codex-agent-planning (3 langs)
+- [ ] 5. new lex-issue-status (3 langs)
+- (...)
 
 ## Dependencies
 
-- Previous (uncommitted) work: `lex-feature-design-docs`, `codex-feature-design-docs`, `kata-feature-design-docs` + warriors + katas already updated
+- plan-027 (Janus) — merged
+- plan-042 (make mcp-enable) — merged
+- plan-044 (Eunomia) — depends on this
+- plan-045 (Janus pointer/wiring) — depends on this
 
 ## Risks
 
-- en/es cries require consistent translation — use pt-BR versions as source of truth
-- cry-feature-design has more references (paths.domain + paths.oas + paths.events) — verify all
+- Renaming pending/ → todo/ requires cross-grep for references
+- 3×15min loop may be short outside business hours — mitigate via .directives
+- MCP notifications become noise if many PRs stall — mitigate with 1 trigger on the 3rd cycle
 ```
 
 ---
 
-## 4. Lifecycle States
+## 4. Lifecycle States (unified enum)
 
-| Status | When to use | Who updates |
+```
+todo → development → to review → review → to release → release → done
+                          ↘            ↘            ↘
+                          abandoned (alternative terminal, any stage)
+```
+
+| Status | When to use | Owner that transitions |
 |---|---|---|
-| `pending` | Plan created, awaiting user confirmation or start | Agent on creation |
-| `in-progress` | Execution started | Agent on first step |
-| `done` | All steps marked with `[x]` | Agent on completion |
-| `abandoned` | Task cancelled before completion | Agent with reason note |
-| `archived` | PR merged, plan no longer needs active attention | Agent after merge |
+| `todo` | Plan created, Issue opened, remote branch linked, worktree ready, not started yet | Creator: `warrior-eunomia` (fallback: session agent) |
+| `development` | Implementation in progress (Athena Phase 4) | `warrior-athena` |
+| `to review` | PR opened, waiting for reviewer to pick up | `warrior-athena` (entry); `warrior-argos` (return from `review`) |
+| `review` | Argos or human actively reviewing | `warrior-argos` (entry and exit) |
+| `to release` | Review approved, waiting for release to start | `warrior-athena` (detects `APPROVED`) |
+| `release` | Release in execution (tag/build/deploy) | `warrior-janus` |
+| `done` | Release completed, PR merged, cycle closed | `warrior-janus` |
+| `abandoned` | Plan discarded (any stage) | Creator or current owner |
+
+**Filesystem ≠ state:** moving the file to `archived/` is an organization convention after merge. The canonical state remains in the front-matter.
 
 ---
 
-## 5. When a Plan is Required (and When It Is Not)
+## 5. Owners of Each Transition (flow view)
+
+```
+Eunomia: — ──→ todo
+                 │
+                 ▼
+Athena:  todo ──→ development ──→ to review
+                                       │
+                                       ▼
+Argos:                         to review ⇄ review
+                                       │
+Athena:           to review ──→ to release  (human approves)
+                                       │
+                                       ▼
+Janus:           to release ──→ release ──→ done
+                                       │
+                  any ──→ abandoned (alternative terminal)
+```
+
+Each owner simultaneously updates:
+
+1. `status:` in the plan front-matter.
+2. `status: <name>` label on the GitHub Issue (per `lex-issue-status`).
+3. `status: <name>` label on the PR (starting at `to review`).
+
+---
+
+## 6. Owner of `— → todo`: 5 canonical steps
+
+Eunomia (or fallback) executes in sequence before marking `status: todo`:
+
+| Step | Action | Reference Lex |
+|---|---|---|
+| 1 | Open Issue (template, label, type, assignee, Why/What/How) | `lex-issue-first`, `lex-issue-quality` |
+| 2 | Verify Issue Type after creation | `lex-issue-type-verified` |
+| 3 | Create remote branch and link to Issue: `gh issue develop {N} --base main --name {type}/{N}-{slug}` | `lex-git-branches`, `lex-issue-first` |
+| 4 | Create worktree at `.worktrees/{N}-{slug}/` | `lex-git-worktrees` |
+| 5 | Update plan front-matter: `issue:`, `branch:`, `worktree:` | `lex-agent-planning` |
+
+Failure at any step keeps the plan as draft (it cannot be presented as `todo`). Per HARD-GATE in `lex-agent-planning`, even on hotfix the 5 steps are mandatory.
+
+---
+
+## 7. When a Plan is Required (and When It Is Not)
 
 ### Required
 
@@ -151,19 +212,24 @@ Total: ~18 files.
 
 ---
 
-## 6. Relationship Between Plans and Other Artifacts
+## 8. Relationship Between Plans and Other Artifacts
 
 ```
-GitHub Issue
-    └── Plan (task plan — committed)
+GitHub Issue (label: status: <name>)
+    │
+    ├── PR (label: status: <name>, starting at "to review")
+    │
+    └── Plan (status: <name> in front-matter, committed)
             ├── ADR (if relevant architectural decision)
+            ├── Session heartbeat (.ahrena/workflow/sessions/<uuid>.json, gitignored)
             └── ─ ─ ─ do not confuse with ─ ─ ─
                 Checkpoint (.checkpoint — gitignored, session)
 ```
 
-- A plan **references** an issue but does not replace it
-- A plan may **generate** an ADR when an impactful decision is identified during execution
-- The **checkpoint** is NOT subordinate to the plan; it is a parallel artifact of **session**, not of **task**
+- Issue, plan, and PR carry the **same** `status:` at any instant.
+- ADR is opened when the plan identifies a relevant architectural decision.
+- Session heartbeat (`codex-session-tracking`) records which Claude Code session is operating on the plan right now.
+- Checkpoint is NOT subordinate to the plan; it is a parallel artifact of **session**, not of **task**.
 
 ### Plan vs `.checkpoint` — canonical delineation
 
@@ -181,23 +247,45 @@ The checkpoint covers the **session**: Session focus, Active plans (pointers), O
 | Parallel threads that did not become a plan | ❌ | ✅ |
 | Free scratchpad, links, reminders | ❌ | ✅ |
 
-If content repeats in both, there is overlap — the plan wins (committed). Overlap is FORBIDDEN per `lex-checkpoint` rule 5 and per `lex-agent-planning` "Relationship to Other Artifacts".
+If content repeats in both, there is overlap — the plan wins (committed). Overlap is FORBIDDEN per `lex-checkpoint` rule 5 and per `lex-agent-planning`.
 
 ---
 
-## 7. Best Practices
+## 9. Pending Review Loop (state `to review`)
+
+When Athena opens the PR, it schedules 3 cycles of 15 min via `ScheduleWakeup`. On each wake-up:
+
+1. Queries `gh pr view {N} --json reviewDecision,reviews` and `gh pr checks {N}`.
+2. If `reviewDecision == APPROVED` by a human → moves to `to release` and exits the loop.
+3. If `reviewDecision == CHANGES_REQUESTED` → updates the plan with a note, pings the PR via `gh pr comment`, keeps it at `to review`, exits the loop.
+4. If Argos published P0/P1 findings → keeps it at `to review` (waits for author to fix); exits the loop and reschedules when Argos signals a new round.
+5. Otherwise (`REVIEW_REQUIRED` / `null`, no human approval) → counts the cycle; if < 3, reschedules in 15 min; if == 3, fires a notification via MCP at `notifications.channels.pr_review_timeout` (per `codex-notifications`) and ends the loop.
+
+Argos operates the `to review ↔ review` sub-cycle in parallel, interleaved with Athena's wait window. Argos never moves to `to release`; that is exclusive to Athena upon detecting human approval.
+
+---
+
+## 10. Best Practices
 
 1. **Write the plan before knowing everything.** The goal is to make intention visible, not to produce perfect documentation. An imprecise plan that evolves is better than no plan.
 2. **Keep steps atomic.** Each step must be verifiable: done or not done. Avoid vague steps like "take care of the events part".
 3. **Update in real time.** Mark `[x]` as each step completes, not at the end of everything.
-4. **No ghost plans.** If the task is cancelled before starting, mark `abandoned` with reason — do not delete the file.
-5. **Commit the plan.** The plan is part of the work; it must go in the same PR as the artifacts it describes.
+4. **Sync `status:` in three places.** Every owner transition touches plan + Issue + PR. Skipping any one creates drift visible in audit.
+5. **No ghost plans.** If the task is cancelled before starting, mark `abandoned` with reason — do not delete the file.
+6. **Commit the plan.** The plan is part of the work; it must go in the same PR as the artifacts it describes.
 
 ---
 
 ## References
 
 - `lex-agent-planning` — corresponding Law
-- `kata-plan-task` — operational procedure to create and maintain plans
-- `lex-checkpoint` — session state tracking
-- `lex-issue-driven` — Issue-Driven flow
+- `lex-issue-status` — canonical status labels on Issue/PR
+- `lex-issue-type-verified` — programmatic Issue Type verification
+- `kata-plan-task` — operational procedure (Eunomia top-level mode)
+- `kata-create-subtasks` — child Issue decomposition into subtasks (Eunomia subtask mode)
+- `kata-session-heartbeat` — Claude Code session heartbeat
+- `codex-session-tracking` — session tracking manual
+- `codex-notifications` — provider-agnostic MCP send manual
+- `lex-checkpoint` — session state tracking (complementary)
+- `lex-issue-driven` — Athena's Issue-Driven flow
+- `warrior-eunomia`, `warrior-athena`, `warrior-argos`, `warrior-janus` — transition owners
