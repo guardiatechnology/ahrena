@@ -117,6 +117,9 @@ cursor:
     _foundation/contributing/lexis/lex-issue-quality:
       alwaysApply: false
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
+    _foundation/contributing/lexis/lex-issue-status:
+      alwaysApply: false
+      description: "When applying or transitioning a status:* label on an Issue or PR, use the canonical set of 7 labels (status: todo/development/to review/review/to release/release/done), respect the mutex, and mirror the plan status: in the same step."
     _foundation/contributing/lexis/lex-pr-quality:
       alwaysApply: false
       description: "When creating a PR, mirror issue labels, apply size label, set assignee to author, and request reviewers per CODEOWNERS."
