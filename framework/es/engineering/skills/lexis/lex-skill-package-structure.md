@@ -9,7 +9,7 @@
 ## Alcance
 
 - **Se aplica a:** todo `.skill` (directorio o archivo sellado per spec Anthropic) entregado en `{paths.skills_dist}/`, en cualquier idioma declarado en `metadata.language`
-- **Agentes vinculados:** reviewer humano, `kata-quality-gate` cuando integre la verificación, autores que añaden/modifican paquetes en `.dist/`
+- **Agentes vinculados:** `warrior-claudionor` (orquestador), `kata-skill-package` (empaquetador determinístico que produce el paquete contra esta Lex), reviewer humano, `kata-quality-gate` cuando integre la verificación, autores que añaden/modifican paquetes en `.dist/`
 - **Excepciones:** Ninguna. Las Lexis no admiten excepciones. Los `.skill` producidos por automatización o manualmente siguen la misma ley
 
 ## Schema canónico del `.skill-manifest.json`
@@ -175,7 +175,7 @@ Un PR que contenga este paquete debe ser bloqueado en review por 5 criterios vio
 
 ## Validación Automatizada
 
-- **Herramienta:** validador Python (futuro) usando `jsonschema` para validar `.skill-manifest.json` y `hashlib.sha256` para verificar cada archivo declarado; check de archivos huérfanos vía la diferencia entre `os.walk(paquete)` y `manifest.files[]`. Mientras el validador automático no exista, el reviewer humano ejecuta el checklist en el PR.
+- **Herramienta:** `scripts/skills/package.py` implementa el validador determinístico de esta Lex usando stdlib (`hashlib.sha256` para verificar cada archivo declarado, `os.walk(paquete)` ∖ `manifest.files[]` para archivos huérfanos, parser inline para el manifest). `kata-skill-package` orquesta build → dist → validación y es invocado por `warrior-claudionor` (o directamente vía `cry-skill --mode package`). El reviewer humano verifica el resultado en el PR mientras `kata-quality-gate` no integra.
 - **Momento:** PR review (humano hoy; futuro Gate 2 vía `kata-quality-gate` cuando el validador se integre); CI cuando esté habilitado.
 - **Métrica:** 0 PRs merged con paquete `.skill` que viole cualquiera de los 5 criterios; 0 entradas con `framework.ahrena_commit` o `source_commit` vacíos; 0 archivos huérfanos.
 
@@ -187,3 +187,5 @@ Un PR que contenga este paquete debe ser bloqueado en review por 5 criterios vio
 - `lex-skill-project-structure` — separación fuente/build/dist
 - `lex-semantic-version` — versionado de `skill.version`
 - `lex-hard-gate-pattern` — patrón textual aplicado en esta ley
+- `warrior-claudionor`, `kata-skill-package` — orquestador y empaquetador que dan voz operativa a esta Lex
+- `scripts/skills/package.py` — implementación determinística usada por `kata-skill-package`

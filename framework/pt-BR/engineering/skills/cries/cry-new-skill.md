@@ -86,6 +86,7 @@ Próximos passos:
 - Editar SKILL.md (corpo)
 - Adicionar componentes em widgets/src/
 - Adicionar handlers em tools/handlers/
+- Próximo cry sugerido: `/cry-skill --mode implement --slug <slug>` para orquestrar autoria + validação + empacotamento via warrior-claudionor
 ```
 
 ## Restrições
@@ -109,3 +110,5 @@ Próximos passos:
 - `codex-skill-project-architecture` — layout e papel dos subdiretórios
 - `lex-skill-project-structure` — lei do layout
 - `framework/templates/skill-project-sample/` — origem do scaffold
+- `cry-skill` — atalho seguinte para conduzir `implement → validate → package`
+- `warrior-claudionor` — Warrior que assume o ciclo após o scaffold

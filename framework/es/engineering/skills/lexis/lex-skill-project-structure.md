@@ -9,7 +9,7 @@
 ## Alcance
 
 - **Se aplica a:** todos los proyectos de skill mantenidos en el repositorio Ahrena, en cualquier idioma de `metadata.language`
-- **Agentes vinculados:** `kata-init-skill` (scaffold), `cry-new-skill` (atajo), `warrior-hephaestus` (widgets), `warrior-apollo` (scripts/tools Python), y cualquier agente que edite el proyecto durante el ciclo dev → build → dist
+- **Agentes vinculados:** `kata-init-skill` (scaffold), `cry-new-skill` (atajo), `warrior-claudionor` (orquestación end-to-end del ciclo `implement → validate → package`), `kata-skill-validate` (validación determinística de esta Lex), `warrior-hephaestus` (widgets), `warrior-apollo` (scripts/tools Python), y cualquier agente que edite el proyecto durante el ciclo dev → build → dist
 - **Excepciones:** Ninguna. Las Lexis no admiten excepciones. Los skills experimentales o de prueba siguen el mismo layout — los directorios de exploración ad-hoc fuera de `paths.skills_root` no se consideran proyectos de skill y no son gobernados por esta Lex
 
 ## Reglas
@@ -133,10 +133,11 @@ skills/payments-skill/
 
 - **Herramienta:**
   - `kata-init-skill` valida slug, frontmatter, presencia de archivos obligatorios en la creación
+  - `kata-skill-validate` (vía `scripts/skills/validate.py`) ejecuta la verificación determinística de esta Lex — invocado por `warrior-claudionor` y por `cry-skill --mode validate`
   - PR review (humano) verifica el layout mientras `kata-quality-gate` no integra
   - Lint genérico (existente) detecta violación de `lex-frontend-*` / `lex-python-*` dentro del proyecto, sin necesidad de regla nueva
   - El `.gitignore` raíz contiene `.build/` (verificable por inspección)
-- **Momento:** scaffold (`kata-init-skill`); PR review; futura integración en el Gate 2
+- **Momento:** scaffold (`kata-init-skill`); en cada edición (`kata-skill-validate`); PR review; futura integración en el Gate 2
 - **Métrica:** 0 proyectos de skill con `name` divergente del slug; 0 commits que editan `.build/` o `.dist/` directamente; 100 % de los proyectos con `SKILL.md` + `skill.config.json` en la raíz
 
 ## Referencias
@@ -146,3 +147,5 @@ skills/payments-skill/
 - `lex-directives` — lectura de `paths.skills_root/build/dist`
 - `lex-template-usage` — uso de templates Ahrena al crear `SKILL.md` y `skill.config.json`
 - `lex-frontend-*`, `lex-python-*`, `lex-mcp`, `lex-logging-decorator`, `lex-tone` — Lexis de calidad heredadas por el contenido del proyecto
+- `warrior-claudionor`, `kata-skill-validate` — orquestador y validador que dan voz operativa a esta Lex
+- `scripts/skills/validate.py` — implementación determinística usada por `kata-skill-validate`
