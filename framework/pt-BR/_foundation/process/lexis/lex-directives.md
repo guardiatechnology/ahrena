@@ -69,8 +69,20 @@ O agente **DEVE** aplicar cada seção da diretiva ao comportamento corresponden
 | `pr_cost_tracking.attribution_mode` | `hook` (default) | `project` (legado). Em `hook`, o `pr-cost-attribution.sh` grava `~/.claude/projects/<hash>/branches.jsonl` por turno e o `pr-cost-stamp.sh` filtra por `--branch`/`--purpose`, separando Development e Review. Em `project`, comportamento legado (filtro só por project + since). |
 | `pr_cost_tracking.branches_sidecar_max_mb` | Limite (em MB) acima do qual o stamp emite warning sobre o tamanho do `branches.jsonl`. Default `50`. Iteração futura adiciona rotação automática. |
 | `pr_cost_tracking.known_ai_reviewers` | Lista de logins GitHub adicionais reconhecidos como revisores AI na subseção Review. Built-ins (gemini-code-assist[bot], claude[bot], coderabbitai[bot], qodo-merge-pro[bot]) são sempre reconhecidos; logins aqui estendem o conjunto. Subchaves `currency`, `include_cache_breakdown`, `window_override_days`, `mask_absolute_cost` permanecem declaradas em `.directives.sample` como reservadas para iterações futuras. |
+| `notifications.provider` | Nome do servidor MCP responsável pelo envio de notificações. Valores aceitos: `slack`, `discord`, `teams`, `none`. O servidor MCP correspondente DEVE estar listado em `mcp.servers` e ativo. Consumido por Athena (PR review timeout), Janus (release publicada) e Eunomia (digest de planos). Ver `codex-notifications`. |
+| `notifications.channels.pr_review_timeout` | Canal lógico para alerta do loop de revisão da Athena (per `lex-agent-planning`). Disparado uma vez ao esgotar os 3 ciclos de espera sem aprovação humana. |
+| `notifications.channels.release_notify` | Canal lógico para anúncio de release concluída (Janus, per plan-045 → plan-027). |
+| `notifications.channels.plans_status` | Canal lógico para o digest periódico de planos ativos (Eunomia, per plan-044). |
+| `notifications.working_hours.*` | Janela útil (`start`, `end`, `timezone`) para publicação de digests não-críticos por Eunomia. Stalled crítico (`pm.critical_stalled_hours`) bypassa a janela. |
+| `pm.loop_interval_minutes` | Cadência do loop PM de Eunomia (default 15). Consumido por `kata-plans-status-digest`. |
+| `pm.stalled_threshold_hours` | Threshold em horas após o qual Eunomia marca um plano como `stalled` no digest. |
+| `pm.critical_stalled_hours` | Threshold em horas para `stalled` crítico — bypassa `notifications.working_hours` e alerta imediatamente. |
+| `session_tracking.enabled` | Master switch para tracking de sessão Claude Code per `codex-session-tracking`. Default `true` quando a seção existe. |
+| `session_tracking.heartbeat_dir` | Diretório onde os arquivos de heartbeat `.json` por sessão são escritos. Default `.ahrena/workflow/sessions` (gitignored). |
+| `session_tracking.stale_threshold_minutes` | Intervalo (minutos) sem heartbeat após o qual Eunomia considera a sessão offline. Default `30`. |
+| `session_tracking.pr_trace_required` | Quando `true`, Gate 2 (`kata-quality-gate`) rejeita PRs sem a seção "Session Trace" no body. Default `true`. |
 
-Manuais complementares para interpretação das seções: `codex-directives` (visão geral do arquivo), `codex-paths` (caminhos canônicos), `codex-naming` (convenções de nomenclatura).
+Manuais complementares para interpretação das seções: `codex-directives` (visão geral do arquivo), `codex-paths` (caminhos canônicos), `codex-naming` (convenções de nomenclatura), `codex-notifications` (mapeamento provider → MCP tool), `codex-session-tracking` (schema do heartbeat e Session Trace).
 
 ### 5. Extensibilidade
 

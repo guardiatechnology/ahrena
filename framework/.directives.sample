@@ -164,6 +164,47 @@ language:
 #   mask_absolute_cost: false      # future: replace USD value with qualitative band
 
 
+# ─── Notifications ──────────────────────────────────────────────
+# Provider-agnostic notification configuration consumed by Athena
+# (PR review timeout), Janus (release published), and Eunomia
+# (plans status digest). The provider names a concrete MCP server
+# listed in mcp.servers; channels are logical names whose mapping
+# to provider-specific identifiers lives in codex-notifications.
+# See lex-mcp rule 5 (transport preference) and codex-mcp-slack
+# (initial provider implementation).
+
+# notifications:
+#   provider: slack                # slack | discord | teams | none
+#                                  # the named MCP server must be listed
+#                                  # under mcp.servers and reachable.
+#   channels:
+#     pr_review_timeout: "notifications-gh-pull-request"  # Athena after 3 cycles
+#     release_notify:    "notifications-gh-releases"      # Janus on publish
+#     plans_status:      "notifications-plans-status"     # Eunomia digest
+#   working_hours:                 # window for non-critical digests
+#     start: "07:00"
+#     end:   "22:00"
+#     timezone: "America/Sao_Paulo"
+
+# pm:                              # consumed by Eunomia (plan-044)
+#   loop_interval_minutes: 15      # cadence of the PM digest loop
+#   stalled_threshold_hours: 4     # mark plan as stalled in the digest
+#   critical_stalled_hours: 24     # bypass working hours and alert immediately
+
+
+# ─── Session Tracking ───────────────────────────────────────────
+# Per codex-session-tracking. Records heartbeat files in
+# .ahrena/workflow/sessions/<session-id>.json so Eunomia's digest
+# and the Session Trace block on PR bodies can attribute work to
+# the Claude Code session that produced it.
+
+# session_tracking:
+#   enabled: true                          # global on/off
+#   heartbeat_dir: ".ahrena/workflow/sessions"
+#   stale_threshold_minutes: 30            # PM considers offline after this
+#   pr_trace_required: true                # Gate 2 rejects PR without "Session Trace"
+
+
 # ─── Naming ─────────────────────────────────────────────────────
 # Canonical naming conventions for files, directories, and
 # framework artifacts.
