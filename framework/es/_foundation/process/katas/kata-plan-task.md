@@ -4,7 +4,9 @@
 
 ## Objetivo
 
-Crear o actualizar el documento de plan de una tarea antes de su ejecución, garantizando que el objetivo, el alcance, los pasos y las dependencias estén documentados y confirmados por el usuario antes de que comience cualquier acción irreversible.
+Crear o actualizar el documento de plan de una tarea antes de su ejecución, garantizando que el objetivo, el alcance, los pasos y las dependencias estén documentados y confirmados por el usuario antes de que comience cualquier acción irreversible. Este es el procedimiento que **`warrior-eunomia` ejecuta en modo top-level** (per plan-044) y que el agente de la sesión sigue como fallback mientras Eunomia no esté disponible.
+
+Per `lex-agent-planning` HARD-GATE, el plan solo puede presentarse en `status: todo` cuando los 5 pasos canónicos estén completos: (1) Issue abierta per `lex-issue-quality`; (2) Issue Type verificado per `lex-issue-type-verified`; (3) branch remota creada vía `gh issue develop` y linkada al Issue; (4) worktree creado per `lex-git-worktrees`; (5) front-matter del plan actualizado con `issue:`, `branch:`, `worktree:`.
 
 ## Cuándo Usar
 

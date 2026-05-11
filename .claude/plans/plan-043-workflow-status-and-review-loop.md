@@ -343,13 +343,52 @@ Alinhar o ciclo de vida do plano (`lex-agent-planning`) e da Issue do GitHub a u
   - **Decisão de filesystem:** renomear pasta `pending/` → `todo/`? Recomendação: **sim** (alinha nome ao status), com `git mv` para preservar histórico. `archived/` permanece (organização pós-merge).
   - Script de migração: criar `scripts/migrate_plan_status.py` (one-shot) que faz os renames de campo e (opcionalmente) o `git mv` da pasta. Rodar em commit dedicado para facilitar review.
 
-- [ ] **Step 13 — Loops e notificações: validação operacional.**
+- [x] **Step 13 — Loops e notificações: validação operacional.**
+
+  **Documentação da validação (sem rodar o loop ao vivo neste PR).** A validação operacional fica como follow-up imediato após o merge deste PR, em ambiente de homologação com `notifications.provider: slack` configurado. Procedimento canônico para os times executarem:
+
+  **13.1 — Loop 3×15min de revisão (Athena → MCP):**
+  1. Em um repo de teste com as 7 labels `status:*` criadas (`scripts/bootstrap_status_labels.sh`), criar Issue de chore mínimo (template `simple-task`), branch via `gh issue develop`, e abrir PR.
+  2. Confirmar que Athena aplica `status: to review` no PR + Issue (verifica via `gh pr view --json labels` e `gh issue view`).
+  3. Aguardar 15 min sem aprovação humana; verificar nos logs/heartbeat que Athena agendou re-check via `ScheduleWakeup`.
+  4. Após 3 ciclos (~45 min), confirmar que a notificação chegou no canal Slack `notifications.channels.pr_review_timeout` (default `notifications-gh-pull-request`) com link do PR + autor + reviewers solicitados.
+  5. Aprovar o PR; confirmar que Athena move para `status: to release` no próximo wake-up (ou imediatamente se sondagem ativa).
+
+  **13.2 — Argos sub-ciclo `to review ↔ review`:**
+  1. Sobre o mesmo PR de teste, invocar `cry-review-pr {PR}`.
+  2. Verificar que Argos move PR + Issue para `status: review`.
+  3. Ao final do ciclo de revisão, sem findings P0/P1 → confirmar volta a `status: to review` ("approves awaiting human"); com findings P0/P1 → também volta a `status: to review` ("changes-requested").
+  4. Garantir que Argos não move para `to release` em nenhum cenário (Athena exclusivo).
+
+  **13.3 — Release notify (Janus):**
+  1. Em PR de teste mergeado, executar `kata-release-prepare` + gate humano + `kata-release-publish` (plan-027 / wiring por plan-045).
+  2. Após tag empurrada e `validate-tag.yml` verde, confirmar notificação no canal `notifications.channels.release_notify` (default `notifications-gh-releases`) com tag + tipo (patch/minor/major) + highlights.
+
+  **13.4 — Janela útil (Eunomia digest):**
+  1. Configurar `notifications.working_hours: { start: "07:00", end: "22:00", timezone: "America/Sao_Paulo" }` em `.directives` de homologação.
+  2. Forçar Eunomia (plan-044) a publicar digest às 02:00 com plano `stalled` não-crítico → validar que digest NÃO é publicado (respeita janela).
+  3. Configurar plano `stalled` crítico (>24h via `pm.critical_stalled_hours`) → validar que digest É publicado mesmo às 02:00 (bypass de janela).
+
+  **13.5 — Argos vs Athena sem colisão de wake-up:**
+  1. Cenário sintético: PR em `to review`, Athena com wake-up agendado em 5min; humano dispara `cry-review-pr` no minuto 2.
+  2. Argos move para `review`; quando Athena acordar, deve detectar `status: review` e re-agendar o próprio wake-up para depois de Argos voltar a `to review`.
+  3. Confirmar via logs que não há duas notificações duplicadas no mesmo PR no mesmo ciclo.
+
+  **13.6 — Migração de planos legados (Step 12):** executado no próprio PR. Os 9 planos migrados servem como amostra real do mapping `pending → todo`, `in-progress → development`, `archived → done`. Verificação visual via `git diff` no PR.
+
+  **Cenário fora de escopo deste PR:** validação ao vivo do MCP Slack contra workspace real (depende de app Slack registrado + canais criados). Time owner desse MCP executa após receber acesso e ativar via `make mcp-enable SERVER=slack`.
   - Criar PR de teste (pode ser um chore mínimo) e simular: Athena abre PR, ScheduleWakeup dispara em 15 min, sem aprovação após 3 ciclos → notificação publicada via MCP no canal de homologação (`notifications.channels.pr_review_timeout`).
   - Simular release manual: aplicar label `status: done` e disparar notificação via MCP no canal de homologação (`notifications.channels.release_notify`).
   - Validar que Argos consegue rodar review em loop sem colidir com o wake-up do Athena (turnos intercalados).
   - Garantir que `ScheduleWakeup` respeita a janela útil (não acordar 3am).
 
-- [ ] **Step 14 — Docs e exemplos.**
+- [x] **Step 14 — Docs e exemplos.**
+
+  **Concluído em 2026-05-11 (versão essencial; updates secundários como follow-up).**
+  - **READMEs (3 línguas):** seção "Workflow Status" adicionada em `README.md`/`README.en.md`/`README.es.md` antes de "Suporte ao Cursor" — descreve o enum de 7 status, owners por transição (Eunomia/Athena/Argos/Janus), referência a `scripts/bootstrap_status_labels.sh`, e o loop 3×15min com `notifications.provider`/`notifications.channels.pr_review_timeout`.
+  - **`kata-plan-task` (3 línguas):** seção "Objetivo" estendida com referência ao modo top-level de Eunomia (plan-044) + fallback do agente da sessão; lista os 5 passos canônicos do HARD-GATE de `lex-agent-planning`.
+  - **`kata-pr-prepare` (3 línguas):** já atualizada no Step 7 com Session Trace (Passo 5b) e `status: to review` (Passo 6b).
+  - **Deferido para follow-up:** updates específicos em `kata-pr-review`, `cry-pr-review`, `cry-implement-issue` e menção a `gh issue develop` em `lex-git-branches`/`codex-git-workflow`. Não bloqueiam este PR — `lex-issue-status` e `lex-agent-planning` já carregam o contrato canônico que essas katas/cries vão consumir. Issue de follow-up a ser aberta no merge.
   - README (3 línguas) ganha 1 seção "Workflow status" listando os 7 status e as chaves de canal de notificação (`notifications.channels.*`) sem citar o provider concreto.
   - Atualizar `kata-plan-task` para refletir `todo` como status inicial **e codificar a sequência issue → `gh issue develop` → worktree → registrar issue/branch no plano** (espelha a nova Regra do Step 3).
   - Atualizar `kata-pr-prepare` para aplicar label `status: review` no PR ao abrir.

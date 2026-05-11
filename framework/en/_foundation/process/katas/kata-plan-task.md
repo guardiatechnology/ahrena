@@ -4,7 +4,9 @@
 
 ## Objective
 
-Create or update a task plan document before execution, ensuring that objective, scope, steps, and dependencies are documented and confirmed by the user before any irreversible action begins.
+Create or update a task plan document before execution, ensuring that objective, scope, steps, and dependencies are documented and confirmed by the user before any irreversible action begins. This is the procedure that **`warrior-eunomia` executes in top-level mode** (per plan-044) and that the session agent follows as fallback while Eunomia is not yet available.
+
+Per `lex-agent-planning` HARD-GATE, the plan may only be presented at `status: todo` once the 5 canonical steps are complete: (1) Issue opened per `lex-issue-quality`; (2) Issue Type verified per `lex-issue-type-verified`; (3) remote branch created via `gh issue develop` and linked to the Issue; (4) worktree created per `lex-git-worktrees`; (5) plan front-matter updated with `issue:`, `branch:`, `worktree:`.
 
 ## When to Use
 
