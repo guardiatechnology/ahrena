@@ -87,6 +87,9 @@ cursor:
     _foundation/contributing/lexis/lex-semantic-version:
       alwaysApply: false
       description: "When creating a release or tag, use MAJOR.MINOR.PATCH (SemVer); no other format allowed."
+    _foundation/contributing/lexis/lex-annotated-tags:
+      alwaysApply: false
+      description: "When pushing a tag to a Guardia remote, ensure it is annotated (git tag -a) and GPG-signed (git tag -s); lightweight tags are forbidden."
     _foundation/contributing/codex/codex-commit-standards:
       alwaysApply: false
       description: "When writing or reviewing commit messages, apply footer and body standards from this codex."
@@ -675,6 +678,9 @@ claude-code:
     _foundation/contributing/lexis/lex-semantic-version:
       paths: ["package.json", "**/__version__.py", "**/version.txt", "CHANGELOG*", ".bumpversion*", "pyproject.toml"]
       description: "When creating a release or tag, use MAJOR.MINOR.PATCH (SemVer); no other format allowed."
+    _foundation/contributing/lexis/lex-annotated-tags:
+      paths: [".github/workflows/validate-tag.yml", ".github/workflows/release.yml", "CHANGELOG*"]
+      description: "When pushing a tag to a Guardia remote, ensure it is annotated (git tag -a) and GPG-signed (git tag -s); lightweight tags are forbidden."
     product/discovery/lexis/lex-discovery-flow:
       paths: ["docs/discovery/**"]
       description: "When producing or modifying insights/ideas, enforce: warrior-phanes promotes only from approved insights with all 5 mandatory Idea fields; warrior-pitia never changes status without explicit human direction."
