@@ -214,7 +214,7 @@ Em outras palavras: pré-pivô, release era condição para default-on. Pós-piv
 |---|---|---|
 | Canal v1 | GitHub Releases (wheel `.whl` + sdist do MCP anexados ao mesmo Release do framework) | Sem dependência de PyPI público inicial. Bom enquanto o pacote ainda é alpha/beta. **Decidido em 2026-05-10:** mantido sem prazo para v2 — PyPI fica explicitamente fora deste plano até nova decisão |
 | Canal v2 | PyPI público (deferido) | Após maturidade. Habilita `uvx ahrena-mcp` zero-install — padrão de fato para MCP servers em 2026. **Não shipa nesta iteração**; quando reabrir, novo plan |
-| Versionamento | SemVer (governado por `lex-semantic-version`) — versão própria do MCP, independente do framework | `0.1.0a1` (alpha) → `0.1.0b1` (beta) → `0.1.0` (stable) → `1.0.0` quando o contrato (7 tools desta iteração + `ahrena_get_topology` quando plan-011 mergear) congela. Filename do wheel (`ahrena_mcp-0.1.0a1-py3-none-any.whl`) preserva essa identidade mesmo dentro de um Release marcado pela versão do framework |
+| Versionamento | SemVer (governado por `lex-semantic-version`) — versão própria do MCP, independente do framework | `0.1.0a1` (alpha) → `0.1.0b1` (beta) → `0.1.0` (stable) → `1.0.0` quando o contrato (7 tools desta iteração + `ahrena_get_topology` quando plan-011 mergear) congela. Filename do wheel (`ahrena_mcp-<version>-py3-none-any.whl`) preserva essa identidade mesmo dentro de um Release marcado pela versão do framework |
 | Trigger | Tag push `v*` em `main` (mesmo tag da release do framework) | **Premissa firme:** framework e MCP são liberados na mesma Release. `release.yml` é o único workflow — packs `ahrena.zip` + scripts + Makefile **e** builda wheel + sdist do MCP, anexando tudo no mesmo Release. Tag assinada (`lex-signed-commits`). |
 | Compat Python | 3.10–3.13 | Janela alinhada à `mcp` SDK e ao stack do framework |
 | Comando em `framework/mcp/ahrena.json` | `command: "ahrena-mcp", args: ["--root", "${workspaceFolder}"]` em todas as fases | `install.py` instala o pacote via pipx → console script `ahrena-mcp` resolve via `PATH`. Mesma config funciona para fases v1 (GitHub Release) e v2 (PyPI/`uvx`); só muda como adopters externos obtêm o pacote. Sem mudança em `ahrena.json` por release |
@@ -243,7 +243,7 @@ Concluídos no PR de release v1 (branch `feat/74-ahrena-mcp-gh-release`):
 
 Após merge do PR de release v1:
 
-- [ ] 35. Próximo tag de release do framework (e.g. `v0.12.0`) carrega automaticamente o wheel `ahrena_mcp-0.1.0a1-py3-none-any.whl` e o sdist no GitHub Release
+- [ ] 35. Próximo tag de release do framework (e.g. `v0.12.0`) carrega automaticamente o wheel `ahrena_mcp-<version>-py3-none-any.whl` e o sdist no GitHub Release
 - [ ] 36. Smoke test de consumo externo: em projeto sandbox **sem** clone do Ahrena, validar `pipx install <whl-url-do-release>` + `ahrena-mcp --root <some-ahrena-repo>` invocado a partir de `.mcp.json`; abrir Claude Code; validar `tools/list` e uma `tools/call`
 
 Deferidos (não reabrem nesta iteração — exigem plano novo dedicado a PyPI):
@@ -257,7 +257,7 @@ Deferidos (não reabrem nesta iteração — exigem plano novo dedicado a PyPI):
 ### Verificação adicional (release)
 
 12. `.whl` + `.tar.gz` do MCP publicados no mesmo GitHub Release que carrega `ahrena.zip` + scripts (tag `v*` único compartilhado)
-13. Em projeto sandbox sem Ahrena clonado, `pipx install <whl-url-do-release>` sobe o pacote em PATH; `ahrena-mcp --help` responde; `tools/list` responde quando wirado em `.mcp.json`
+13. Em projeto sandbox sem Ahrena clonado, `pipx install <whl-url-do-release>` sobe o pacote em PATH; `ahrena-mcp --help` responde; `tools/list` responde quando configurado em `.mcp.json`
 14. (DEFERIDO — só após PyPI ativar) `uvx ahrena-mcp --root <repo>` funciona end-to-end em sandbox limpa (Python apenas, sem clone)
 15. `CHANGELOG.md` do MCP atualizado a cada bump de versão (não a cada tag do framework — versões são independentes)
 16. `framework/mcp/ahrena.json` permanece com `command: "ahrena-mcp"` em todas as fases (sem alteração entre v1 e v2)
