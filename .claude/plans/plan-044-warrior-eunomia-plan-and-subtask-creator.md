@@ -1,11 +1,12 @@
 ---
 plan_id: "044"
 title: "warrior-eunomia-plan-and-subtask-creator"
-status: todo
+status: abandoned
 agent: claude
 issue: "TBD (a abrir antes da branch — lex-issue-first)"
 created_at: "2026-05-10T00:00:00Z"
-updated_at: "2026-05-10T00:00:00Z"
+updated_at: "2026-05-12T00:30:00Z"
+abandoned_note: "Absorvido por plan-046 — Eunomia entregue no modelo Issue-as-plan (warrior-eunomia.md criada em feat/96 sem retrofit)."
 ---
 
 # Plan: warrior-eunomia — owner único da inicialização de trabalho rastreável + PM/Scrum master

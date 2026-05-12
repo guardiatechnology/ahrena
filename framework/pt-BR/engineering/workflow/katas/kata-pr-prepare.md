@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Após o Gate 2 resultar em `go`, criar a branch, fazer push dos arquivos modificados e abrir um Pull Request no GitHub via MCP. O body do PR é estruturado referenciando a issue original, os ACs numerados, os ADRs criados e os artefatos do fluxo em `docs/issues/issue-{n}/`. O resultado é um PR pronto para revisão humana, com rastreabilidade completa.
+Após o Gate 2 resultar em `go`, criar a branch, fazer push dos arquivos modificados e abrir um Pull Request no GitHub via MCP. O body do PR é estruturado referenciando a issue original, os ACs numerados, os ADRs criados e os artefatos do fluxo em `.issues/{n}/`. O resultado é um PR pronto para revisão humana, com rastreabilidade completa.
 
 ## Quando Usar
 
@@ -18,7 +18,7 @@ Após o Gate 2 resultar em `go`, criar a branch, fazer push dos arquivos modific
 | Número da issue | Sim | Número da issue original (ex.: `42`) |
 | Repositório | Sim | `owner/repo` |
 | Base branch | Não | Branch alvo do PR; padrão: `main` |
-| Artefatos do fluxo | Sim | `docs/issues/issue-{n}/*` e `docs/adr/ADR-*` criados nas fases anteriores |
+| Artefatos do fluxo | Sim | `.issues/{n}/*` e `docs/adr/ADR-*` criados nas fases anteriores |
 | Estratégia do PR | Não | `draft` (padrão: `false`) |
 
 ## Workflow
@@ -39,7 +39,7 @@ Progresso:
 
 1. Confirmar que `github` está em `mcp.servers` (conforme `lex-mcp`). Se não, informar e encerrar.
 2. Confirmar `GITHUB_PAT` definida.
-3. Ler `docs/issues/issue-{n}/06-quality-report.md` e confirmar resultado `go`. Se `no-go`, recusar criar PR e retornar ao orquestrador.
+3. Ler `.issues/{n}/06-quality-report.md` e confirmar resultado `go`. Se `no-go`, recusar criar PR e retornar ao orquestrador.
 4. Consultar `codex-mcp-github` para identificar ferramentas corretas (`create_branch`, `push_files`, `create_pull_request`).
 
 ### Passo 2: Determinar nome da branch e título do PR
@@ -104,7 +104,7 @@ Resolves #{n}
 
 ## Critérios de Aceitação
 
-<!-- Copiados de docs/issues/issue-{n}/02-requirements.md -->
+<!-- Copiados de .issues/{n}/02-requirements.md -->
 
 - [x] **AC-1:** {descrição}
 - [x] **AC-2:** {descrição}
@@ -112,7 +112,7 @@ Resolves #{n}
 
 ## Arquitetura
 
-Ver [documento de arquitetura](docs/issues/issue-{n}/03-architecture.md).
+Ver [documento de arquitetura](.issues/{n}/03-architecture.md).
 
 ### ADRs criados
 
@@ -122,8 +122,8 @@ Ver [documento de arquitetura](docs/issues/issue-{n}/03-architecture.md).
 
 ## Qualidade
 
-- ✅ Gate 2 aprovado ([relatório](docs/issues/issue-{n}/06-quality-report.md))
-- ✅ Revisão de segurança aprovada ([relatório](docs/issues/issue-{n}/05-security-review.md))
+- ✅ Gate 2 aprovado ([relatório](.issues/{n}/06-quality-report.md))
+- ✅ Revisão de segurança aprovada ([relatório](.issues/{n}/05-security-review.md))
 - Cobertura: {atual}% (threshold: {threshold}%)
 
 ## Como testar
@@ -172,6 +172,16 @@ Per `lex-pr-quality` (regras 9, j) e `codex-session-tracking` §7, antes de invo
 
 Esta seção é métrica complementar ao `cry-pr-cost-stamp` (que mede tokens/USD). Aqui mede tempo de sessão real.
 
+### Passo 5c: Flush do plano (per ADR-002)
+
+Antes de invocar `create_pull_request`, garantir que o body da Issue reflete o estado atual do trabalho:
+
+1. Invocar `kata-flush-plan-to-issue` passando o número da Issue.
+2. O kata lê `.plans/{N}.md`, filtra blocos `<!-- not-flushed -->`, executa preflight de drift remoto, e grava o conteúdo filtrado no body da Issue via MCP `update_issue` (preferido) ou `gh issue edit --body-file` (fallback).
+3. Em caso de drift remoto detectado (default `force=false`), o kata pausa e oferece merge manual — não prosseguir até resolução.
+
+Esse passo substitui a mecânica antiga de "atualizar `status:` no front-matter do plano" (modelo legado pré-ADR-002): no Issue-as-plan model, o body da Issue é o canonical; o cache local `.plans/{N}.md` é regenerável.
+
 ### Passo 6: Criar PR linkado à issue
 
 1. Invocar `create_pull_request` com:
@@ -186,21 +196,169 @@ Esta seção é métrica complementar ao `cry-pr-cost-stamp` (que mede tokens/US
 
 ### Passo 6b: Aplicar `status: to review` (transição `development → to review`)
 
-Per `lex-issue-status` e `lex-agent-planning`, ao abrir o PR Athena executa a transição `development → to review`:
+Per `lex-issue-status` Eixo A e `lex-agent-planning` Tabela A, ao abrir o PR Athena executa a transição `development → to review`:
 
 ```bash
 # 1. PR — entra em "to review" imediatamente
 gh pr edit {pr_number} --add-label "status: to review"
 
-# 2. Issue — sincronizar (mutex de status:*)
+# 2. Issue — sincronizar (mutex intra-artefato)
 gh issue edit {issue_number} \
   --remove-label "status: development" \
   --add-label "status: to review"
-
-# 3. Plano — atualizar front-matter status: → to review e updated_at
 ```
 
-Per `lex-issue-status` Regra 2 (mutex), garantir que a Issue não fica com dois labels `status:*` simultâneos. Per Regra 3, atualizar o `status:` do plano no mesmo passo.
+Per `lex-issue-status` Regra 3 (mutex intra-artefato), garantir que cada artefato fica com exatamente um `status:*`. Per Regra 5 (sync Issue↔PR), atualizar simultaneamente.
+
+A label é a única fonte de truth do estado per ADR-002 — o body da Issue (canonical do plano) já foi atualizado no Passo 5c.
+
+### Passo 6c: Argos pre-flight cycles (até 3, interativos via AskUserQuestion)
+
+Antes de cobrar reviewer humano, Athena oferece até **3 ciclos de review automatizada por Argos**. Cada ciclo é gateado por AskUserQuestion — Athena nunca invoca Argos sem confirmação do usuário. O propósito é elevar a qualidade do PR (resolver findings P0/P1) antes de tomar tempo do reviewer humano.
+
+**Estado inicial:** PR aberto, label `status: to review` aplicada (per Passo 6b).
+
+**Loop Argos (até 3 ciclos `A1, A2, A3`):**
+
+Para cada ciclo `A{n}`:
+
+1. Athena pergunta via `AskUserQuestion`:
+
+   ```
+   Athena: "Cycle A{n}/3 — quer review do Argos no HEAD atual? (PR #{N}, HEAD {sha_curto})"
+
+     (a) sim, invocar Argos agora
+     (b) não, pular Argos e ir direto para review humano
+     (c) stop — encerrar o fluxo
+   ```
+
+2. Comportamento por escolha:
+   - **(a)** Athena transiciona `status: to review → review`, invoca subagente `warrior-argos` (via Agent tool com `subagent_type=warrior-argos` ou via `/cry-pr-review` — ver feedback `argos_via_subagent`), aguarda Argos publicar review com marker `argos-review-id:...`, transiciona `status: review → to review`, e segue para passo 3.
+   - **(b)** Athena registra a recusa em working notes (`<!-- not-flushed -->` em `.plans/{N}.md`), salta direto para o **Passo 6d**.
+   - **(c)** Athena registra "Loop encerrado pelo usuário no Argos cycle A{n}" no body da Issue via `kata-flush-plan-to-issue`, NÃO segue para Passo 6d nem Passo 7. Fluxo termina aqui.
+
+3. Athena lê os findings da review:
+   - **P0 BLOCKER** → Athena DEVE address (modificar código) antes de continuar; sem opt-out.
+   - **P1 WARNING** → Athena apresenta cada finding ao usuário via `AskUserQuestion` ("Address ou defer pra follow-up Issue?"). Address → modifica código; defer → registra TODO no body da Issue.
+   - **P2 SUGGESTION** → Athena registra como nota informativa no body da Issue (sem prompt).
+
+4. Se Athena modificou código no passo 3, ela **DEVE** commitar e fazer push antes do próximo ciclo. Cada commit dispara `kata-flush-plan-to-issue` (per Passo 5c — Step concluído conta como gatilho de flush). A próxima checagem de Argos terá um HEAD novo (não idempotente — Argos roda de fato).
+
+5. Se `n < 3`, voltar para passo 1 (próximo ciclo). Se `n == 3`, sair do loop Argos e ir para **Passo 6d**.
+
+**Critérios de saída antecipada do loop Argos:**
+- Argos retorna "Argos approves, awaiting human" sem findings P0/P1 actionable → Athena pode oferecer "Quer mais um ciclo Argos ou ir direto pro review humano?" e sair se o usuário escolher pular.
+- Usuário escolhe (c) stop em qualquer ciclo → fluxo termina sem Passo 6d/7.
+
+**Idempotência:** se HEAD não mudou desde a última review de Argos (mesmo commit_id), Athena DEVE alertar o usuário ("HEAD inalterado desde última review — nova review será idempotente; Argos abortará pelo próprio marker"). Sugerir address de pelo menos um finding antes de re-invocar Argos.
+
+#### Sub-passo: AI reviewers paralelos a Argos
+
+Após o usuário escolher (a) no passo 1 do ciclo A{n}, Athena DEVE avaliar se faz sentido invocar **AI reviewers paralelos** (GitHub Apps integrados ao repo), com base no conteúdo do diff:
+
+| Reviewer | Quando faz sentido | Como invocar | Detecção idempotente |
+|---|---|---|---|
+| **Gemini** (`gemini-code-assist[bot]`) | PR toca código novo de qualquer linguagem; bom em sugestões idiomáticas e segurança | `gh pr comment {N} --body "/gemini review"` | `gh pr view {N} --json reviews --jq '[.reviews[] | select(.author.login == "gemini-code-assist[bot]") | .commit_id] | last'` |
+| **Coderabbit** (`coderabbitai[bot]`) | PR multi-arquivo; bom em consistency check e best practices | `gh pr comment {N} --body "@coderabbitai review"` | similar (`.author.login == "coderabbitai[bot]"`) |
+| **Qodo-Merge** (`qodo-merge-pro[bot]`) | PR backend (Python, Node) — força em test coverage e edge cases | `gh pr comment {N} --body "/review"` | similar |
+
+**Critério de proposta:** Athena olha `gh pr view {N} --json files --jq '[.files[].path]'` e decide quais reviewers fazem sentido:
+
+- PR só-docs (`docs/**`, `README*`, `*.md`) → nenhum AI reviewer adicional (Argos basta).
+- PR com código de produção (`src/**`, `framework/**` no caso do próprio Ahrena) → propor 1-2 reviewers conforme stack.
+- PR misto → propor o subset que cobre o stack predominante.
+
+**Apresentação:** Athena reúne os reviewers candidatos numa única `AskUserQuestion`:
+
+```
+Athena: "AI reviewers paralelos a Argos para A{n}/3? (multi-select)
+
+  [ ] Gemini (/gemini review)
+  [ ] Coderabbit (@coderabbitai review)
+  [ ] Qodo-Merge (/review)
+  [ ] nenhum — só Argos
+```
+
+**Comportamento:**
+
+1. Para cada reviewer marcado, Athena posta o comentário de invocação em sequência (não em paralelo — para reduzir ruído no PR timeline).
+2. Athena **NÃO bloqueia** esperando esses reviewers — eles são assíncronos (GitHub App webhook); resultados aparecem como reviews/comments no PR no tempo do app (~30s a alguns min).
+3. Athena prossegue para o passo 2 do ciclo A{n} (transição `to review → review` e invocação do Argos subagente). Argos roda sua review em paralelo aos AI reviewers externos.
+4. No passo 3 (Athena lê findings), Athena coleta findings de **todos os reviewers** com novos `submittedAt > HEAD push time` (Argos + Gemini + Coderabbit + Qodo). Trata cada finding via o mesmo schema P0/P1/P2:
+   - Argos publica explicitamente P0/P1/P2 com marker.
+   - Gemini/Coderabbit/Qodo publicam suggestions livre-formato — Athena classifica heuristicamente (palavras: "must", "blocker", "critical" → P0; "should", "consider" → P1; "nit", "optional" → P2).
+5. Idempotência: se um AI reviewer já revisou o HEAD atual (via commit_id capturado), Athena NÃO re-invoca esse reviewer no próximo ciclo até que haja novos commits.
+
+**Critério de NÃO propor:** se A{n} é cycle de re-validação após fix de findings de A{n-1} (HEAD novo após address) e Argos foi confirmado, AI reviewers extras podem ser pulados — a re-validação é primariamente sobre fechar findings, não levantar novos. Athena propõe `nenhum` como default nesses casos.
+
+### Passo 6d: Human nudge loop (3 ciclos via ScheduleWakeup, com notificação Slack a cada ciclo)
+
+Após os Argos cycles (Passo 6c), Athena agenda o loop de cobrança ao reviewer humano. Diferente do Argos cycle (interativo), o human nudge loop usa `ScheduleWakeup` para wake-ups periódicos.
+
+**Mecanismo de agendamento:** Athena pergunta via `AskUserQuestion`:
+
+```
+Athena: "Pronto para human nudge loop (3×15min). Como agendar?
+
+  (a) /loop 15m — eu reagendo via ScheduleWakeup dentro desta sessão
+  (b) cron remoto — skill `schedule` cria rotina */15 que checa e reporta
+  (c) manual — sem agendamento; humano avisa quando review acontecer
+
+Qual opção?"
+```
+
+**Comportamento por escolha:**
+
+- **(a)** Athena chama `ScheduleWakeup` com `delaySeconds=900` e prompt re-checando `gh pr view {N} --json reviewDecision,mergedAt`. A cada cycle: dispara notificação Slack (per "Notificação Slack por ciclo" abaixo) + checa state.
+- **(b)** Athena invoca a skill `schedule` criando rotina cron `*/15 * * * *` com agente que executa o check, dispara notificação Slack, e reporta.
+- **(c)** Athena registra "Loop manual" no body da Issue. Sem agendamento; humano avisa.
+
+**Notificação Slack por ciclo:**
+
+A cada ciclo `H1, H2, H3`, Athena dispara uma mensagem via MCP de notificação configurado em `.ahrena/.directives` (`notifications.provider`) no canal `notifications.channels.pr_review_timeout`. O conteúdo escala em urgência:
+
+| Ciclo | Mensagem padrão |
+|---|---|
+| H1 (start) | `PR #{N} pronto para review — {title}. {url}` |
+| H2 (+15min) | `Reminder #1: PR #{N} aguardando review há ~15min. {url}` |
+| H3 (+30min) | `Reminder #2: PR #{N} aguardando review há ~30min — segunda cobrança. {url}` |
+
+Após H3, sem aprovação → loop encerra silenciosamente (3 cobranças foi suficiente).
+
+**Estados detectáveis durante o loop:**
+
+| `gh pr view` retorna | Ação de Athena |
+|---|---|
+| `mergedAt != null` | Transição `status: to review → done` no PR + Issue; captura `mergeCommit.oid`; encerra loop. |
+| `reviewDecision == "APPROVED"` e `mergedAt == null` | Comenta "PR aprovado, aguardando merge"; encerra loop. |
+| `reviewDecision == "CHANGES_REQUESTED"` | → **Passo 6e** (CHANGES_REQUESTED handler). |
+| Caso contrário (`REVIEW_REQUIRED` ou null) | Se `H < 3` → reagenda; se `H == 3` → encerra. |
+
+### Passo 6e: CHANGES_REQUESTED handler (reset do loop)
+
+Se durante o Passo 6d o reviewer humano pede mudanças (`reviewDecision == "CHANGES_REQUESTED"`):
+
+1. Athena lê os comentários de review do humano via `gh pr view {N} --json reviews --jq '.reviews[-1]'`.
+2. Athena apresenta o resumo dos requests ao usuário via `AskUserQuestion`:
+   ```
+   Athena: "Reviewer pediu mudanças. Address agora?
+
+     (a) sim, vou implementar as mudanças
+     (b) defer — registro como follow-up Issue e mantém o PR aberto
+     (c) stop — encerro o loop e o PR
+   ```
+3. Comportamento por escolha:
+   - **(a)** Athena implementa as mudanças (modifica código, commita, push). Cada commit dispara `kata-flush-plan-to-issue`. O push gera novo HEAD SHA.
+   - **(b)** Athena registra TODO no body da Issue + abre follow-up Issue referenciando o request. Mantém `status: to review`.
+   - **(c)** Athena fecha o PR (`gh pr close 97`), transiciona Issue para `status: abandoned` com nota explicativa. Fluxo termina.
+
+4. Após (a) ou (b), Athena **reagenda o loop a partir do Passo 6c** (Argos pre-flight cycles 3 novos no HEAD novo) — porque novos commits invalidam a review anterior do Argos. Não pula direto para Passo 6d.
+
+5. Se o usuário escolheu (b) defer (sem novos commits), Athena pode pular Passo 6c e ir direto para Passo 6d (since HEAD não mudou).
+
+**Esse handler garante que CHANGES_REQUESTED reseta o ciclo completo de qualidade, não só o human nudge loop.**
+
+Sem a escolha do humano sobre o agendamento (opções a/b/c do Passo 6d), Athena **NÃO DEVE** prosseguir para Passo 7 — o loop é responsabilidade declarada na Tabela A; assumir uma opção default sem confirmação seria contrário ao princípio AI-First (que exige aprovação explícita em ações com efeito colateral, ver `lex-ai-first-experience`).
 
 ### Passo 7: Atualizar status dos ADRs (proposed → accepted)
 
@@ -239,7 +397,7 @@ Para cada ADR criado na Fase 3 (listados no checkpoint):
 - **Usar apenas MCP:** não usar `git push` direto nem `gh pr create` quando o MCP GitHub está ativo (conforme `lex-mcp`).
 - **Sem credenciais hardcoded:** autenticação exclusivamente via `GITHUB_PAT`.
 - **Gate 2 `go` é pré-requisito inviolável:** não abrir PR se `06-quality-report.md` resultou `no-go`.
-- **Body do PR deve referenciar docs/issues/issue-{n}/:** rastreabilidade desde a issue até o PR exige esses links.
+- **Body do PR deve referenciar .issues/{n}/:** rastreabilidade desde a issue até o PR exige esses links.
 - **Conventional Commits obrigatório:** título do PR e mensagens de commit devem seguir o formato (conforme `lex-conventional-commits`).
 
 ## Referências

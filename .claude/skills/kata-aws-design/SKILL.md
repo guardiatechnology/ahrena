@@ -129,7 +129,7 @@ The scaffolding **does not need to be production-ready** — it is a starting po
 
 ### Step 8: Produce architecture document
 
-Structure (when in the Issue-Driven flow, this document **is part of** `docs/issues/issue-{n}/03-architecture.md` or referenced from it):
+Structure (when in the Issue-Driven flow, this document **is part of** `.issues/{n}/03-architecture.md` or referenced from it):
 
 ```markdown
 # AWS Architecture — {system name}
@@ -212,7 +212,7 @@ Structure (when in the Issue-Driven flow, this document **is part of** `docs/iss
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Architecture document | Markdown | `docs/issues/issue-{n}/03-architecture.md` (or dedicated file) |
+| Architecture document | Markdown | `.issues/{n}/03-architecture.md` (or dedicated file) |
 | Diagram | Embedded Mermaid or SVG/PNG | In the architecture document |
 | ADRs | MADR Markdown | `docs/adr/ADR-*` (via `kata-adr-write`) |
 | IaC scaffolding | `.tf` or `.ts` (CDK) files | `infra/modules/{system}/` or equivalent folder |

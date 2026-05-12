@@ -11,21 +11,21 @@ description: "Prepare Pull Request. Phase 7 of the Issue-Driven flow — creatin
 
 ```
 Progress:
-- [ ] 1. Verify MCP preconditions and Gate 2
+- [ ] 1. Verify MCP and Gate 2 preconditions
 - [ ] 2. Determine branch name and PR title
 - [ ] 3. Create branch via GitHub MCP
 - [ ] 4. Push modified files
 - [ ] 5. Compose PR body with references
 - [ ] 6. Create PR linked to the issue
-- [ ] 7. Update ADR statuses (proposed → accepted)
+- [ ] 7. Update ADR status (proposed → accepted)
 - [ ] 8. Update final checkpoint
 ```
 
-### Step 1: Verify MCP preconditions and Gate 2
+### Step 1: Verify MCP and Gate 2 preconditions
 
-1. Confirm that `github` is in `mcp.servers` (per `lex-mcp`). If not, inform and stop.
+1. Confirm that `github` is in `mcp.servers` (per `lex-mcp`). If not, report and end.
 2. Confirm `GITHUB_PAT` is defined.
-3. Read `docs/issues/issue-{n}/06-quality-report.md` and confirm the result is `go`. If `no-go`, refuse to create the PR and return to the orchestrator.
+3. Read `.issues/{n}/06-quality-report.md` and confirm the result is `go`. If `no-go`, refuse to create the PR and return to the orchestrator.
 4. Consult `codex-mcp-github` to identify the correct tools (`create_branch`, `push_files`, `create_pull_request`).
 
 ### Step 2: Determine branch name and PR title
@@ -37,7 +37,7 @@ Progress:
 ```
 
 Where:
-- `{type}` — extract from the Phase 1 brief ("Work Type" section): `feat`, `fix`, `refactor`, `chore`
+- `{type}` — extract from the Phase 1 brief ("Work type" section): `feat`, `fix`, `refactor`, `chore`
 - `{short-slug}` — from the issue title, converted to kebab-case, limited to ~40 chars
 
 **Example:** `feat/issue-42-add-refund-endpoint`
@@ -49,7 +49,7 @@ Where:
 ```
 
 Where:
-- `{scope}` — primary affected module (detected via Phase 3 components)
+- `{scope}` — main affected module (detected via the Phase 3 components)
 - `{description}` — short summary of the change
 
 **Example:** `feat(refunds): add refund creation endpoint (#42)`
@@ -60,12 +60,12 @@ Where:
    - `owner`, `repo`
    - `branch` — name generated in Step 2
    - `from_branch` — base branch (`main` or the configured one)
-2. If the branch already exists (from a prior iteration), skip this step.
+2. If the branch already exists (from a previous iteration), skip this step.
 
 ### Step 4: Push modified files
 
 1. Run `git diff --name-only {base}...HEAD` to list touched files.
-2. For each file, read its content from the working tree.
+2. For each file, read content from the working tree.
 3. Invoke `push_files` with:
    - `owner`, `repo`, `branch` (created in Step 3)
    - `message` — commit message in Conventional Commits format:
@@ -84,13 +84,13 @@ Structure:
 ```markdown
 ## Summary
 
-{1-2 paragraphs describing the change, extracted from brief and requirements}
+{1-2 paragraphs describing the change, extracted from the brief and requirements}
 
 Resolves #{n}
 
 ## Acceptance Criteria
 
-<!-- Copied from docs/issues/issue-{n}/02-requirements.md -->
+<!-- Copied from .issues/{n}/02-requirements.md -->
 
 - [x] **AC-1:** {description}
 - [x] **AC-2:** {description}
@@ -98,7 +98,7 @@ Resolves #{n}
 
 ## Architecture
 
-See the [architecture document](docs/issues/issue-{n}/03-architecture.md).
+See [architecture document](.issues/{n}/03-architecture.md).
 
 ### Created ADRs
 
@@ -108,27 +108,28 @@ See the [architecture document](docs/issues/issue-{n}/03-architecture.md).
 
 ## Quality
 
-- ✅ Gate 2 approved ([report](docs/issues/issue-{n}/06-quality-report.md))
-- ✅ Security review approved ([report](docs/issues/issue-{n}/05-security-review.md))
+- ✅ Gate 2 approved ([report](.issues/{n}/06-quality-report.md))
+- ✅ Security review approved ([report](.issues/{n}/05-security-review.md))
 - Coverage: {current}% (threshold: {threshold}%)
 
 ## How to test
 
-{Instructions extracted from architecture-brief — how to run, required env vars, key scenarios}
+{Instructions extracted from the architecture-brief — how to run, required variables, key scenarios}
 
 ## Review checklist
 
-- [ ] ACs met (verify the traceability matrix in the Gate 2 report)
+- [ ] ACs met (check traceability matrix in the Gate 2 report)
 - [ ] ADRs reviewed (if applicable)
 - [ ] Tests run locally
 - [ ] Usage documentation updated (if applicable)
 
 ## Session Trace
 
-<!-- Built by Step 5b from .ahrena/workflow/sessions/*.json filtered
-     by branch == {branch}. Required when session_tracking.enabled == true
-     and the branch has heartbeat files. Human-driven PRs may use
-     "_(human-driven; no session trace)_". Per lex-pr-quality and codex-session-tracking. -->
+<!-- Built by Step 5b from .ahrena/workflow/sessions/*.json
+     filtered by branch == {branch}. Mandatory when session_tracking.enabled
+     == true and the branch has heartbeat files. Human-driven PRs may use
+     the phrase "_(human-driven; no session trace)_". Per lex-pr-quality
+     and codex-session-tracking. -->
 
 | Session | Entrypoint | Role | Started | Last Heartbeat |
 |---|---|---|---|---|
@@ -145,18 +146,28 @@ See the [architecture document](docs/issues/issue-{n}/03-architecture.md).
 
 ### Step 5b: Build the "Session Trace" section
 
-Per `lex-pr-quality` (rules 9, j) and `codex-session-tracking` §7, before invoking `create_pull_request` aggregate all heartbeat files for the current branch:
+Per `lex-pr-quality` (rules 9, j) and `codex-session-tracking` §7, before invoking `create_pull_request` aggregate all heartbeat files of the current branch:
 
-1. Check `session_tracking.enabled` in `.ahrena/.directives` (default `true`). If `false`, skip this step.
+1. Verify `session_tracking.enabled` in `.ahrena/.directives` (default `true`). If `false`, skip this step.
 2. Resolve `session_tracking.heartbeat_dir` (default `.ahrena/workflow/sessions/`).
-3. List `*.json` in the directory; filter those whose `branch` matches the current branch (`git rev-parse --abbrev-ref HEAD`).
-4. Sort ascending by `started_at`.
+3. List `*.json` in the directory; filter by those whose `branch` matches the current branch (`git rev-parse --abbrev-ref HEAD`).
+4. Sort by `started_at` ascending.
 5. Compute `cumulative_active_time` = sum of `(last_heartbeat - started_at)` per session. Format as `~Xh Ymin`.
-6. Build a table with columns `Session` (short UUID — first 8 chars), `Entrypoint`, `Role`, `Started`, `Last Heartbeat`.
-7. Insert the section in the PR body before the "🤖 Generated…" block.
+6. Build the table with columns `Session` (short UUID — first 8 chars), `Entrypoint`, `Role`, `Started`, `Last Heartbeat`.
+7. Insert the section into the PR body before the "🤖 Generated..." block.
 8. **PR with no associated heartbeats** (pure human, no Claude Code agent running): replace the table with the canonical phrase `_(human-driven; no session trace)_`.
 
-This section is a complementary metric to `cry-pr-cost-stamp` (which measures tokens/USD). Here it measures actual session time.
+This section is a complementary metric to `cry-pr-cost-stamp` (which measures tokens/USD). Here it measures real session time.
+
+### Step 5c: Plan flush (per ADR-002)
+
+Before invoking `create_pull_request`, ensure that the Issue body reflects the current state of the work:
+
+1. Invoke `kata-flush-plan-to-issue` passing the Issue number.
+2. The kata reads `.plans/{N}.md`, filters `<!-- not-flushed -->` blocks, runs the remote drift preflight, and writes the filtered content to the Issue body via MCP `update_issue` (preferred) or `gh issue edit --body-file` (fallback).
+3. On remote drift detected (default `force=false`), the kata pauses and offers manual merge — do not proceed until resolved.
+
+This step replaces the old mechanic of "update `status:` in the plan front-matter" (legacy pre-ADR-002 model): in the Issue-as-plan model, the Issue body is canonical; the local cache `.plans/{N}.md` is regenerable.
 
 ### Step 6: Create PR linked to the issue
 
@@ -172,35 +183,183 @@ This section is a complementary metric to `cry-pr-cost-stamp` (which measures to
 
 ### Step 6b: Apply `status: to review` (transition `development → to review`)
 
-Per `lex-issue-status` and `lex-agent-planning`, when opening the PR Athena executes the `development → to review` transition:
+Per `lex-issue-status` Axis A and `lex-agent-planning` Table A, when opening the PR Athena executes the transition `development → to review`:
 
 ```bash
 # 1. PR — enters "to review" immediately
 gh pr edit {pr_number} --add-label "status: to review"
 
-# 2. Issue — sync (status:* mutex)
+# 2. Issue — sync (intra-artifact mutex)
 gh issue edit {issue_number} \
   --remove-label "status: development" \
   --add-label "status: to review"
-
-# 3. Plan — update front-matter status: → to review and updated_at
 ```
 
-Per `lex-issue-status` Rule 2 (mutex), ensure the Issue is not left with two `status:*` labels simultaneously. Per Rule 3, update the plan's `status:` in the same step.
+Per `lex-issue-status` Rule 3 (intra-artifact mutex), ensure each artifact carries exactly one `status:*`. Per Rule 5 (Issue↔PR sync), update simultaneously.
 
-### Step 7: Update ADR statuses (proposed → accepted)
+The label is the single source of truth for the state per ADR-002 — the Issue body (canonical plan) was already updated in Step 5c.
+
+### Step 6c: Argos pre-flight cycles (up to 3, interactive via AskUserQuestion)
+
+Before nudging a human reviewer, Athena offers up to **3 cycles of automated review by Argos**. Each cycle is gated by AskUserQuestion — Athena never invokes Argos without user confirmation. The goal is to raise the quality of the PR (resolve P0/P1 findings) before taking the reviewer's time.
+
+**Initial state:** PR open, label `status: to review` applied (per Step 6b).
+
+**Argos loop (up to 3 cycles `A1, A2, A3`):**
+
+For each cycle `A{n}`:
+
+1. Athena asks via `AskUserQuestion`:
+
+   ```
+   Athena: "Cycle A{n}/3 — run an Argos review on the current HEAD? (PR #{N}, HEAD {short_sha})"
+
+     (a) yes, invoke Argos now
+     (b) no, skip Argos and go straight to human review
+     (c) stop — end the entire flow
+   ```
+
+2. Behavior per choice:
+   - **(a)** Athena transitions `status: to review → review`, invokes the `warrior-argos` subagent (via the Agent tool with `subagent_type=warrior-argos` or via `/cry-pr-review` — see feedback `argos_via_subagent`), waits for Argos to post the review with marker `argos-review-id:...`, transitions `status: review → to review`, and proceeds to step 3.
+   - **(b)** Athena records the refusal in working notes (`<!-- not-flushed -->` block in `.plans/{N}.md`), jumps directly to **Step 6d**.
+   - **(c)** Athena records "Loop ended by the user at Argos cycle A{n}" in the Issue body via `kata-flush-plan-to-issue`, does NOT proceed to Step 6d or Step 7. Flow ends here.
+
+3. Athena reads the review findings:
+   - **P0 BLOCKER** → Athena MUST address (modify code) before continuing; no opt-out.
+   - **P1 WARNING** → Athena presents each finding to the user via `AskUserQuestion` ("Address now or defer to a follow-up Issue?"). Address → modify code; defer → record TODO in the Issue body.
+   - **P2 SUGGESTION** → Athena records as an informational note in the Issue body (no prompt).
+
+4. If Athena modified code in step 3, she **MUST** commit and push before the next cycle. Each commit triggers `kata-flush-plan-to-issue` (per Step 5c — completed Step counts as a flush trigger). The next Argos check will have a new HEAD (non-idempotent — Argos actually runs).
+
+5. If `n < 3`, return to step 1 (next cycle). If `n == 3`, exit the Argos loop and proceed to **Step 6d**.
+
+**Early-exit criteria for the Argos loop:**
+- Argos returns "Argos approves, awaiting human" with no actionable P0/P1 findings → Athena MAY offer "Want another Argos cycle, or go straight to the human review?" and exit if the user chooses to skip.
+- User picks (c) stop at any cycle → flow ends without Step 6d/7.
+
+**Idempotency:** if HEAD has not changed since Argos's last review (same commit_id), Athena MUST warn the user ("HEAD unchanged since last review — a new review will be idempotent; Argos will abort by its own marker"). Suggest addressing at least one finding before re-invoking Argos.
+
+#### Sub-step: AI reviewers parallel to Argos
+
+After the user picks (a) at step 1 of cycle A{n}, Athena MUST evaluate whether it makes sense to invoke **parallel AI reviewers** (GitHub Apps integrated with the repo), based on the diff content:
+
+| Reviewer | When it makes sense | How to invoke | Idempotent detection |
+|---|---|---|---|
+| **Gemini** (`gemini-code-assist[bot]`) | PR touches new code in any language; good at idiomatic suggestions and security | `gh pr comment {N} --body "/gemini review"` | `gh pr view {N} --json reviews --jq '[.reviews[] | select(.author.login == "gemini-code-assist[bot]") | .commit_id] | last'` |
+| **Coderabbit** (`coderabbitai[bot]`) | Multi-file PR; good at consistency checks and best practices | `gh pr comment {N} --body "@coderabbitai review"` | similar (`.author.login == "coderabbitai[bot]"`) |
+| **Qodo-Merge** (`qodo-merge-pro[bot]`) | Backend PR (Python, Node) — strong at test coverage and edge cases | `gh pr comment {N} --body "/review"` | similar |
+
+**Proposal criterion:** Athena inspects `gh pr view {N} --json files --jq '[.files[].path]'` and decides which reviewers are useful:
+
+- Docs-only PR (`docs/**`, `README*`, `*.md`) → no additional AI reviewer (Argos suffices).
+- PR with production code (`src/**`, `framework/**` in Ahrena's own case) → propose 1-2 reviewers per stack.
+- Mixed PR → propose the subset covering the predominant stack.
+
+**Presentation:** Athena gathers the candidate reviewers into a single `AskUserQuestion`:
+
+```
+Athena: "Parallel AI reviewers to Argos for A{n}/3? (multi-select)
+
+  [ ] Gemini (/gemini review)
+  [ ] Coderabbit (@coderabbitai review)
+  [ ] Qodo-Merge (/review)
+  [ ] none — only Argos
+```
+
+**Behavior:**
+
+1. For each marked reviewer, Athena posts the invocation comment sequentially (not in parallel — reduces timeline noise).
+2. Athena **does NOT block** waiting for these reviewers — they are asynchronous (GitHub App webhook); results appear as reviews/comments on the PR on the app's schedule (~30s to a few min).
+3. Athena proceeds to step 2 of cycle A{n} (transition `to review → review` and invoking the Argos subagent). Argos runs its review in parallel with the external AI reviewers.
+4. At step 3 (Athena reads findings), Athena collects findings from **all reviewers** with new `submittedAt > HEAD push time` (Argos + Gemini + Coderabbit + Qodo). Treats each finding via the same P0/P1/P2 schema:
+   - Argos publishes P0/P1/P2 explicitly with a marker.
+   - Gemini/Coderabbit/Qodo publish free-form suggestions — Athena classifies heuristically (words: "must", "blocker", "critical" → P0; "should", "consider" → P1; "nit", "optional" → P2).
+5. Idempotency: if an AI reviewer has already reviewed the current HEAD (via captured commit_id), Athena does NOT re-invoke that reviewer in the next cycle until there are new commits.
+
+**Criterion to NOT propose:** if A{n} is a re-validation cycle after fixing findings from A{n-1} (new HEAD after addressing), and Argos was confirmed, extra AI reviewers may be skipped — the re-validation is primarily about closing findings, not raising new ones. Athena proposes `none` as the default in these cases.
+
+### Step 6d: Human nudge loop (3 cycles via ScheduleWakeup, with a Slack notification per cycle)
+
+After the Argos cycles (Step 6c), Athena schedules the human-reviewer nudge loop. Unlike the Argos cycle (interactive), the human nudge loop uses `ScheduleWakeup` for periodic wake-ups.
+
+**Scheduling mechanism:** Athena asks via `AskUserQuestion`:
+
+```
+Athena: "Ready for the human nudge loop (3×15min). How should it be scheduled?
+
+  (a) /loop 15m — I reschedule via ScheduleWakeup within this session
+  (b) remote cron — the `schedule` skill creates a */15 routine that checks and reports
+  (c) manual — no scheduling; the human notifies when the review happens
+
+Which option?"
+```
+
+**Behavior per choice:**
+
+- **(a)** Athena calls `ScheduleWakeup` with `delaySeconds=900` and a prompt re-checking `gh pr view {N} --json reviewDecision,mergedAt`. At every cycle: fires the Slack notification (see "Per-cycle Slack notification" below) + checks state.
+- **(b)** Athena invokes the `schedule` skill creating a cron routine `*/15 * * * *` with an agent that runs the check, fires the Slack notification, and reports back.
+- **(c)** Athena records "Manual loop" in the Issue body. No scheduling; the human notifies.
+
+**Per-cycle Slack notification:**
+
+At every cycle `H1, H2, H3`, Athena fires a message via the notification MCP configured in `.ahrena/.directives` (`notifications.provider`) on the channel `notifications.channels.pr_review_timeout`. The urgency escalates:
+
+| Cycle | Default message |
+|---|---|
+| H1 (start) | `PR #{N} ready for review — {title}. {url}` |
+| H2 (+15min) | `Reminder #1: PR #{N} awaiting review for ~15min. {url}` |
+| H3 (+30min) | `Reminder #2: PR #{N} awaiting review for ~30min — second nudge. {url}` |
+
+After H3 with no approval → the loop ends silently (3 nudges were enough).
+
+**Detectable states during the loop:**
+
+| `gh pr view` returns | Athena's action |
+|---|---|
+| `mergedAt != null` | Transition `status: to review → done` on PR + Issue; capture `mergeCommit.oid`; end loop. |
+| `reviewDecision == "APPROVED"` and `mergedAt == null` | Comment "PR approved, waiting for merge"; end loop. |
+| `reviewDecision == "CHANGES_REQUESTED"` | → **Step 6e** (CHANGES_REQUESTED handler). |
+| Otherwise (`REVIEW_REQUIRED` or null) | If `H < 3` → reschedule; if `H == 3` → end. |
+
+### Step 6e: CHANGES_REQUESTED handler (loop reset)
+
+If during Step 6d the human reviewer requests changes (`reviewDecision == "CHANGES_REQUESTED"`):
+
+1. Athena reads the human's review comments via `gh pr view {N} --json reviews --jq '.reviews[-1]'`.
+2. Athena presents a summary of the requests to the user via `AskUserQuestion`:
+   ```
+   Athena: "Reviewer requested changes. Address now?
+
+     (a) yes, I'll implement the changes
+     (b) defer — record as a follow-up Issue and keep the PR open
+     (c) stop — close the loop and the PR
+   ```
+3. Behavior per choice:
+   - **(a)** Athena implements the changes (modify code, commit, push). Each commit triggers `kata-flush-plan-to-issue`. The push produces a new HEAD SHA.
+   - **(b)** Athena records a TODO in the Issue body + opens a follow-up Issue referencing the request. Keeps `status: to review`.
+   - **(c)** Athena closes the PR (`gh pr close 97`), transitions the Issue to `status: abandoned` with an explanatory note. Flow ends.
+
+4. After (a) or (b), Athena **restarts the loop from Step 6c** (3 fresh Argos pre-flight cycles on the new HEAD) — because new commits invalidate the previous Argos review. Does not jump directly to Step 6d.
+
+5. If the user chose (b) defer (no new commits), Athena MAY skip Step 6c and go straight to Step 6d (since HEAD has not changed).
+
+**This handler ensures CHANGES_REQUESTED resets the full quality cycle, not just the human nudge loop.**
+
+Without the human's choice about scheduling (options a/b/c of Step 6d), Athena **MUST NOT** proceed to Step 7 — the loop is the responsibility declared in Table A; assuming a default option without confirmation would contradict the AI-First principle (which requires explicit approval on actions with side effects, see `lex-ai-first-experience`).
+
+### Step 7: Update ADR status (proposed → accepted)
 
 For each ADR created in Phase 3 (listed in the checkpoint):
 
 1. Read `docs/adr/ADR-{n}-{slug}.md`.
 2. Change `**Status:** proposed` to `**Status:** accepted`.
 3. The ADR was approved at Gate 1 and survived Gate 2 — it is now official.
-4. Include these modified files in the push (or make an additional commit if already pushed).
+4. Include these modified files in the push (or make an additional commit if a push was already done).
 
 ### Step 8: Update final checkpoint
 
 1. Update `.ahrena/workflow/issue-{n}/checkpoint.md`:
-   - completed phase: 7
+   - phase completed: 7
    - final status: `completed`
    - created PR URL
    - created branch
@@ -222,8 +381,8 @@ For each ADR created in Phase 3 (listed in the checkpoint):
 
 ## Restrictions
 
-- **Use MCP only:** do not use `git push` directly or `gh pr create` when the GitHub MCP is active (per `lex-mcp`).
+- **Use MCP only:** do not use `git push` directly nor `gh pr create` when the GitHub MCP is active (per `lex-mcp`).
 - **No hardcoded credentials:** authentication exclusively via `GITHUB_PAT`.
 - **Gate 2 `go` is an inviolable prerequisite:** do not open a PR if `06-quality-report.md` resulted in `no-go`.
-- **PR body must reference docs/issues/issue-{n}/:** traceability from the issue to the PR requires those links.
+- **PR body MUST reference .issues/{n}/:** traceability from issue to PR requires these links.
 - **Conventional Commits mandatory:** PR title and commit messages must follow the format (per `lex-conventional-commits`).

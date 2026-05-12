@@ -4,58 +4,78 @@
 
 ## Propósito
 
-Plano, Issue do GitHub e PR carregam o mesmo trabalho em momentos distintos do ciclo. Sem um conjunto canônico de labels de status, o agente perde a referência cruzada entre os três artefatos, dashboards desalinham, e o cálculo agregado de child↔subtasks fica impreciso. Esta Lei codifica os 7 labels `status: <name>` que espelham o enum unificado de `lex-agent-planning`, garante consistência entre plano/Issue/PR, e separa esses labels do gating de Discovery (`pending-spec`/`spec-ready`).
+Body da Issue (canonical per ADR-002), Issue e PR carregam o mesmo trabalho em momentos distintos do ciclo. Sem um conjunto canônico de labels de status, o agente perde a referência cruzada, dashboards desalinham, e o cálculo agregado de child↔subtasks fica impreciso. Esta Lei codifica os labels `status: <name>` que espelham o enum de `lex-agent-planning`, **separa-o em dois eixos disjuntos** (dev cycle e release cycle), garante consistência intra-artefato, e mantém ortogonalidade com os labels de Discovery (`pending-spec`/`spec-ready`).
 
 ## Lei
 
-> **Toda Issue e todo PR que participam do fluxo Issue-Driven DEVEM carregar exatamente um label `status: <name>` do conjunto canônico (`status: todo`, `status: development`, `status: to review`, `status: review`, `status: to release`, `status: release`, `status: done`), espelhando o `status:` do plano correspondente. Nenhum agente DEVE aplicar dois labels `status: *` simultaneamente à mesma Issue ou PR. O label `status:*` é ortogonal aos labels de Discovery (`pending-spec`/`spec-ready`) e aos labels de tipo (`feature request ➕`, `user story 🎯`, etc.) — múltiplos eixos coexistem na mesma Issue.**
+> **Toda Issue e todo PR que participam do fluxo Issue-Driven DEVEM carregar exatamente um label `status: <name>` do conjunto canônico. O conjunto se divide em dois eixos disjuntos: **Eixo A (dev cycle)** aplicável a Issues/PRs de feature/fix/chore/refactor (`status: todo`, `status: development`, `status: to review`, `status: review`, `status: done`); **Eixo B (release cycle)** aplicável exclusivamente à release Issue dedicada criada por Janus (`status: to release`, `status: release`, `status: done`). O terminal `status: abandoned` é compartilhado pelos dois eixos. Mutex é **intra-artefato**: nenhuma Issue ou PR carrega dois labels `status:*` simultaneamente. Aplicar label do Eixo B em Issue/PR do Eixo A (ou vice-versa) é PROIBIDO. O label `status:*` é ortogonal aos labels de Discovery (`pending-spec`/`spec-ready`) e aos labels de tipo (`feature request ➕`, etc.) — múltiplos eixos coexistem.**
 
 ## Abrangência
 
-- **Aplica-se a:** todas as Issues abertas via templates aprovados (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `simple-task`, `subtask`) e todos os PRs em repositórios Guardia.
-- **Agentes vinculados:** `warrior-eunomia` (aplica `status: todo` na criação), `warrior-athena` (move `todo → development`, `development → to review`, `to review → to release`), `warrior-argos` (move `to review ↔ review`), `warrior-janus` (move `to release → release → done`), e qualquer agente que crie ou modifique Issues/PRs.
+- **Aplica-se a:** todas as Issues abertas via templates aprovados (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `simple-task`, `subtask`, **release** — novo template introduzido por ADR-002 / plan-046 Step 3.5), e todos os PRs em repositórios Guardia.
+- **Agentes vinculados:**
+  - Eixo A — `warrior-eunomia` (`— → todo`), `warrior-athena` (`todo → development`, `development → to review`, `to review → done`), `warrior-argos` (`to review ↔ review`).
+  - Eixo B — `warrior-janus` (`— → to release`, `to release → release`, `release → done`).
 - **Exceções:**
-  - **Epic** não recebe `status:*` — é decomposto em child Issues, cada uma com seu próprio ciclo. O Epic fecha quando todas as crianças (`Tracked by`) atingem `done`.
+  - **Epic** não recebe `status:*` — é decomposto em child Issues, cada uma com seu próprio ciclo (Eixo A). O Epic fecha quando todas as crianças (`Tracked by`) atingem `done`.
   - **Issues geradas por Dependabot** ou scanners de segurança seguem fluxo próprio e ficam isentas.
 
 ## Rules
 
-### 1. Conjunto canônico de 7 labels
+### 1. Eixo A — Dev cycle (Issues/PRs de feature/fix/chore/refactor)
 
 | Label | Cor sugerida | Quando aplicar | Owner |
 |---|---|---|---|
-| `status: todo` | `#cccccc` (cinza claro) | Plano criado, Issue aberta, branch vinculada, worktree pronto | `warrior-eunomia` (fallback: agente da sessão) |
+| `status: todo` | `#cccccc` (cinza claro) | Plano canônico no body da Issue, branch vinculada, worktree pronto | `warrior-eunomia` (fallback: agente da sessão) |
 | `status: development` | `#83d2ff` (azul claro) | Implementação em andamento (Athena Phase 4) | `warrior-athena` |
 | `status: to review` | `#fff3a3` (amarelo claro) | PR aberto, esperando reviewer pegar | `warrior-athena` (entrada); `warrior-argos` (retorno do `review`) |
 | `status: review` | `#fbca04` (amarelo) | Argos ou humano revisando ativamente | `warrior-argos` |
-| `status: to release` | `#ffb178` (laranja claro) | Review aprovado, esperando release iniciar | `warrior-athena` |
-| `status: release` | `#e07400` (laranja) | Release em execução (tag/build/deploy) | `warrior-janus` |
-| `status: done` | `#0e8a16` (verde) | Release concluído, PR mergeado, ciclo encerrado | `warrior-janus` |
+| `status: done` | `#0e8a16` (verde) | PR mergeado; Issue fechada via `Closes #N` | `warrior-athena` (no merge) |
+| `status: abandoned` | `#6e6e6e` (cinza escuro) | Plano descartado (terminal alternativo) | criador ou owner atual |
 
-A descrição da label no GitHub DEVE conter a semântica resumida do estado para auditoria visual rápida.
+### 2. Eixo B — Release cycle (exclusivamente release Issue dedicada)
 
-### 2. Mutex entre labels `status:*`
+| Label | Cor sugerida | Quando aplicar | Owner |
+|---|---|---|---|
+| `status: to release` | `#ffb178` (laranja claro) | Janus abriu release Issue; populou `Tracks: #N1, #N2, ...` | `warrior-janus` |
+| `status: release` | `#e07400` (laranja) | `kata-release-prepare` rodando; humano aprovou bump/changelog | `warrior-janus` |
+| `status: done` | `#0e8a16` (verde) | Tag empurrada, `validate-tag.yml` passou, Release publicada | `warrior-janus` |
+| `status: abandoned` | `#6e6e6e` (cinza escuro) | Release abortada antes de tag | `warrior-janus` |
 
-Em qualquer instante, a Issue ou PR DEVE ter **exatamente um** label `status:*`. Cada transição é executada por:
+A release Issue é criada por Janus como ponto de entrada do release cycle. Não existe "release branch": o ciclo opera sobre a release Issue + tag + GitHub Release. Detalhes em `warrior-janus` e `kata-release-prepare`.
+
+### 3. Mutex intra-artefato
+
+Em qualquer instante, **uma mesma Issue (ou PR)** carrega exatamente um label `status:*`. Aplicar dois labels `status:*` simultaneamente à mesma Issue/PR (ex.: `status: to review` + `status: review`) é PROIBIDO.
+
+Mutex **não** é cross-artifact: a release Issue (Eixo B) coexiste com N feature Issues em `done` (Eixo A) sem conflito — são artefatos distintos.
+
+Cada transição é executada por:
 
 ```bash
 gh issue edit {N} --remove-label "status: <previous>" --add-label "status: <next>"
 gh pr edit {N}    --remove-label "status: <previous>" --add-label "status: <next>"
 ```
 
-Aplicar dois labels `status:*` simultaneamente (ex.: `status: to review` + `status: review`) é PROIBIDO.
+Preferir MCP `update_issue` / `update_pull_request` quando o servidor GitHub MCP estiver listado em `mcp.servers` e ativo (per `lex-mcp` regra 1).
 
-### 3. Sincronização com o plano
+### 4. Cross-cycle labeling proibido
 
-O label `status:*` na Issue DEVE espelhar o `status:` do front-matter do plano correspondente em todo instante. O agente que executa a transição (per `lex-agent-planning` "Owners de cada transição") DEVE atualizar simultaneamente:
+Labels do Eixo B (`status: to release`, `status: release`) **não podem** ser aplicadas em Issues/PRs de feature/fix/chore/refactor. Labels do Eixo A (`status: todo`, `status: development`, `status: to review`, `status: review`) **não podem** ser aplicadas em release Issue.
 
-1. `status:` no front-matter do plano.
-2. Label `status: <name>` na Issue.
-3. Label `status: <name>` no PR (a partir de `to review`).
+Detecção: o tipo da Issue (`gh issue view {N} --json type`) determina o eixo permitido. Release Issue carrega Issue Type `Task` (ou `Feature` quando criada como release feature por convenção do template) + label `release ↗️`. Cross-cycle labeling é violação do HARD-GATE.
+
+### 5. Sincronização Issue ↔ PR
+
+Quando um PR é aberto para uma Issue em `status: development`, o agente que executa a transição (per `lex-agent-planning` Tabela A) DEVE atualizar simultaneamente:
+
+1. Label `status: <name>` na Issue.
+2. Label `status: <name>` no PR.
+3. Disparar `kata-flush-plan-to-issue` para garantir que o body da Issue reflete o estado pós-transição.
 
 Falha em qualquer um dos três produz drift detectável no Gate 2 (per `kata-quality-gate`).
 
-### 4. Ortogonalidade com labels de Discovery
+### 6. Ortogonalidade com labels de Discovery
 
 Os labels de Discovery (`pending-spec`, `spec-ready`, definidos por plan-038) operam em um eixo separado:
 
@@ -63,13 +83,13 @@ Os labels de Discovery (`pending-spec`, `spec-ready`, definidos por plan-038) op
 - US-child criada por Calliope nasce com `pending-spec` e **sem** `status:*`. Recebe `status: todo` somente quando ganha `spec-ready` (transição feita pelo PM correspondente após produzir a spec).
 - Bug e Tech-task pulam o gate de spec e recebem `status: todo` direto na criação por Eunomia.
 
-### 5. Epic não recebe `status:*`
+### 7. Epic não recebe `status:*`
 
 Epic é decomposto por Calliope (plan-038) e nunca passa por Athena diretamente. O Epic não tem ciclo `todo → development → ...` próprio; seu estado é derivado de `Tracked by` (children com `status:*`). Aplicar `status:*` a um Epic é PROIBIDO.
 
-### 6. Criação inicial das labels no repositório
+### 8. Criação inicial das labels no repositório
 
-Cada repositório que adota o fluxo DEVE criar as 7 labels via `gh label create` (script idempotente em `scripts/bootstrap_status_labels.sh` ou kata dedicado). A criação manual via UI do GitHub também é aceitável, desde que respeite nomes, cores e descrições canônicas.
+Cada repositório que adota o fluxo DEVE criar as labels via `gh label create` (script idempotente em `scripts/bootstrap_status_labels.sh`). Todas as labels já existem desde plan-043 (PR #93); plan-046 não introduz labels novas — apenas reorganiza a semântica em dois eixos.
 
 ## HARD-GATE
 
@@ -81,15 +101,22 @@ warrior-eunomia, warrior-athena, warrior-argos, warrior-janus e qualquer
 outro agente MUST NOT aplicar label `status:*` em Issue ou PR sem
 satisfazer TODOS os critérios:
 
-  (a) Label pertence ao conjunto canônico de 7
-      (status: todo | development | to review | review | to release
-       | release | done)
+  (a) Label pertence ao conjunto canônico do eixo correto:
+      - Eixo A (feature/fix/chore Issues/PRs): todo | development |
+        to review | review | done | abandoned
+      - Eixo B (release Issue exclusivamente): to release | release |
+        done | abandoned
   (b) Issue/PR não está em estado terminal (done|abandoned) ao receber
       o novo label
   (c) Nenhum outro label `status:*` permanece na Issue/PR após a
-      transição (mutex aplicado)
-  (d) Plano correspondente teve `status:` atualizado no mesmo passo
-  (e) Issue não é Epic (Epic não recebe status:*)
+      transição (mutex intra-artefato aplicado)
+  (d) Label do eixo correto para o tipo da Issue/PR:
+      - Issues/PRs de feature/fix/chore/refactor → Eixo A apenas
+      - Release Issue (label `release ↗️`) → Eixo B apenas
+  (e) Body da Issue atualizado pelo último kata-flush-plan-to-issue
+      (Eixo A) ou Tracks populado com PRs mergeados desde o último
+      tag (Eixo B, transição `— → to release`)
+  (f) Issue não é Epic (Epic não recebe status:*)
 
 Esta regra aplica-se a TODA Issue e TODO PR no fluxo Issue-Driven,
 independente de:
@@ -100,68 +127,99 @@ independente de:
 
 Exceção declarada: Epic e Issues geradas por Dependabot/scanners
 seguem fluxo próprio. Todo outro tipo de Issue/PR no fluxo
-Issue-Driven respeita o mutex.
+Issue-Driven respeita o mutex e a separação de eixos.
 </HARD-GATE>
 ```
 
 ## Exemplos
 
-### Correto
+### Correto — Eixo A (feature Issue + PR)
 
 ```bash
-# Eunomia cria Issue #90 e plano-043 em "todo"
-gh issue edit 90 --add-label "status: todo"
-# (plano-043 front-matter: status: todo)
+# Eunomia cria Issue #96 com body canônico
+gh issue edit 96 --add-label "status: todo"
 
 # Athena entra em Phase 4
-gh issue edit 90 --remove-label "status: todo" --add-label "status: development"
-# (plano-043 front-matter: status: development)
+gh issue edit 96 --remove-label "status: todo" --add-label "status: development"
 
-# Athena abre PR #91 — aplica label simultaneamente
-gh pr create ... && gh pr edit 91 --add-label "status: to review"
-gh issue edit 90 --remove-label "status: development" --add-label "status: to review"
-# (plano-043 front-matter: status: to review)
+# Athena abre PR #97; aplica label simultaneamente
+gh pr create ... && gh pr edit 97 --add-label "status: to review"
+gh issue edit 96 --remove-label "status: development" --add-label "status: to review"
 
 # Argos inicia revisão
-gh pr edit 91 --remove-label "status: to review" --add-label "status: review"
-gh issue edit 90 --remove-label "status: to review" --add-label "status: review"
-# (plano-043 front-matter: status: review)
+gh pr edit 97 --remove-label "status: to review" --add-label "status: review"
+gh issue edit 96 --remove-label "status: to review" --add-label "status: review"
+
+# Argos termina sem aprovar; humano cobrado em 3×15min
+gh pr edit 97 --remove-label "status: review" --add-label "status: to review"
+gh issue edit 96 --remove-label "status: review" --add-label "status: to review"
+
+# Humano aprova; merge fecha Issue
+gh pr edit 97 --remove-label "status: to review" --add-label "status: done"
+gh issue edit 96 --remove-label "status: to review" --add-label "status: done"
+```
+
+### Correto — Eixo B (release Issue)
+
+```bash
+# Janus abre release Issue #100; popula Tracks com PRs mergeados
+# desde a última tag
+gh issue create --title "release: 0.4.0" \
+  --body "Tracks: #93, #96, #98, #99" \
+  --label "release ↗️,status: to release"
+
+# Janus inicia kata-release-prepare
+gh issue edit 100 --remove-label "status: to release" --add-label "status: release"
+
+# Janus conclui: tag empurrada, validate-tag.yml passa, Release criada
+gh issue edit 100 --remove-label "status: release" --add-label "status: done"
 ```
 
 ### Incorreto
 
 ```bash
-# ❌ Dois labels status:* simultâneos
-gh issue edit 90 --add-label "status: to review" --add-label "status: review"
+# ❌ Dois labels status:* simultâneos (viola mutex intra-artefato)
+gh issue edit 96 --add-label "status: to review" --add-label "status: review"
 
-# ❌ Label aplicado sem atualizar plano (drift)
-gh issue edit 90 --add-label "status: development"
-# (plano-043 ficou em status: todo)
+# ❌ Cross-cycle labeling: status: to release em Issue de feature
+gh issue edit 96 --add-label "status: to release"
+# Issue #96 é feature (Eixo A); status: to release pertence ao Eixo B
+
+# ❌ Cross-cycle labeling reverso: status: development em release Issue
+gh issue edit 100 --add-label "status: development"
+# Issue #100 é release Issue (Eixo B); status: development pertence ao Eixo A
 
 # ❌ Aplicar status:* em Epic
-gh issue edit 100 --add-label "status: development"
-# Issue #100 tem Issue Type Epic
+gh issue edit 88 --add-label "status: development"
+# Issue #88 tem Issue Type Epic — proibido per Rule 7
 ```
 
 ## Validação Automatizada
 
 - **Ferramenta:**
-  - Script `scripts/bootstrap_status_labels.sh` cria as 7 labels idempotentemente em qualquer repositório.
-  - PR review (humano ou Argos) verifica alinhamento entre `status:` do plano, label da Issue, e label do PR.
+  - Script `scripts/bootstrap_status_labels.sh` cria as labels idempotentemente em qualquer repositório.
+  - PR review (humano ou Argos) verifica:
+    - Alinhamento entre label da Issue e label do PR (mesmo eixo, mesmo estado).
+    - Body da Issue reflete o último flush (`kata-flush-plan-to-issue` foi executado na transição).
+    - Eixo correto aplicado ao tipo da Issue (feature ⇒ Eixo A; release Issue ⇒ Eixo B).
   - GitHub Action de verificação periódica (futuro) detecta:
     - Issues/PRs com 0 ou ≥2 labels `status:*`
+    - Cross-cycle labeling (Eixo A label em release Issue, ou Eixo B label em feature Issue)
     - Issues com Issue Type Epic carregando `status:*`
-    - Drift entre `status:` do plano e label da Issue
 - **Momento:** ao abrir/atualizar Issue, ao abrir/atualizar PR, em cada transição de owner, no Gate 2 (`kata-quality-gate`).
-- **Métrica:** 0 Issues/PRs com label `status:*` divergente do plano correspondente; 0 Epics com `status:*`; 100% das transições registradas pelo owner declarado.
+- **Métrica:** 0 Issues/PRs com label `status:*` cross-cycle; 0 Epics com `status:*`; 100% das transições registradas pelo owner declarado; 100% das release Issues com `Tracks:` populado.
 
 ## Referências
 
-- `lex-agent-planning` — enum unificado de `status:` e tabela de owners
+- ADR-002 — split em dois eixos (absorção de plan-045)
+- `lex-agent-planning` — enum unificado de `status:` e tabelas de owners (Tabela A / Tabela B)
 - `lex-issue-quality` — requisitos base de Issues (template, label de tipo, Issue Type, assignee, Why/What/How)
 - `lex-issue-first` — toda mudança parte de uma Issue
 - `lex-pr-quality` — requisitos do PR (label de tamanho, CODEOWNERS, etc.) — complementar
+- `lex-mcp` — preferência MCP + fallback CLI para `update_issue` / `update_pull_request`
 - `lex-hard-gate-pattern` — sintaxe do bloco `<HARD-GATE>`
 - `codex-agent-planning` — manual operacional com fluxo visual e loop 3×15min
 - `codex-labels` — convenção geral de labels no GitHub
+- `kata-flush-plan-to-issue` — disparado em cada transição
+- `kata-release-prepare`, `kata-release-publish` — operações de Janus no Eixo B
 - `warrior-eunomia`, `warrior-athena`, `warrior-argos`, `warrior-janus` — owners das transições

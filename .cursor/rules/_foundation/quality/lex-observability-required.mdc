@@ -62,7 +62,7 @@ Absence = ❌ `Check 3 — lex-observability-required`.
 
 ## Applicability
 
-- **Applies to:** every `docs/issues/issue-{n}/03-architecture.md` component listed as new endpoint/consumer/job.
+- **Applies to:** every `.issues/{n}/03-architecture.md` component listed as new endpoint/consumer/job.
 - **Bound agents:** all warriors that implement runtime code (Apollo, Hephaestus, Hera when executing tests, etc.); verified by `warrior-athena` at Gate 2.
 - **Exceptions:** None. Lexis admit no exceptions.
 

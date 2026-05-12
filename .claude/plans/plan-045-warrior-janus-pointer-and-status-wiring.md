@@ -1,11 +1,12 @@
 ---
 plan_id: "045"
 title: "warrior-janus-pointer-and-status-wiring"
-status: todo
+status: abandoned
 agent: claude
 issue: "TBD (a abrir antes da branch — lex-issue-first)"
 created_at: "2026-05-10T00:00:00Z"
-updated_at: "2026-05-10T00:00:00Z"
+updated_at: "2026-05-12T00:30:00Z"
+abandoned_note: "Absorvido por plan-046 Step 3.5 — Janus reescrito pro release-Issue model como parte do split dev/release em lex-issue-status (feat/96)."
 ---
 
 # Plan: warrior-janus — wiring com ciclo de status e notificação (ponteiro para plan-027)

@@ -101,7 +101,7 @@ Before provisioning a new architecture or significantly expanding an existing on
 1. Estimate monthly cost via **AWS Pricing Calculator**.
 2. Compare with the environment's budget.
 3. If it exceeds the current budget by >20%: justify or redesign.
-4. Include the estimate in `docs/issues/issue-{n}/03-architecture.md` when in the Issue-Driven flow.
+4. Include the estimate in `.issues/{n}/03-architecture.md` when in the Issue-Driven flow.
 
 ## Applicability
 

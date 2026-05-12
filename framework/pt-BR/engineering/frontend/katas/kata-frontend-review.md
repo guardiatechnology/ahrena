@@ -17,7 +17,7 @@ Executar revisão de código frontend (tipicamente em um PR ou diff), verificand
 | Input | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
 | Diff a revisar | Sim | `git diff {base}..HEAD` ou PR específico |
-| Contexto | Não | Issue, ACs, arquitetura esperada (vindo de `docs/issues/issue-{n}/` se aplicável) |
+| Contexto | Não | Issue, ACs, arquitetura esperada (vindo de `.issues/{n}/` se aplicável) |
 | Escopo | Não | Componentes específicos ou revisão completa do diff |
 
 ## Workflow
@@ -38,7 +38,7 @@ Progresso:
 
 1. Obter o diff: `git diff {base}..HEAD`.
 2. Listar arquivos tocados por tipo (`.tsx`, `.ts`, `.css`, testes, config).
-3. Se há ACs (fluxo Issue-Driven), ler `docs/issues/issue-{n}/02-requirements.md`.
+3. Se há ACs (fluxo Issue-Driven), ler `.issues/{n}/02-requirements.md`.
 
 ### Passo 2: Revisar tipagem
 

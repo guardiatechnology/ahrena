@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Ler uma issue do GitHub (título, descrição, comentários, labels, metadata) e buscar no Notion documentos de contexto relacionados (specs de produto, ADRs anteriores, regras de negócio), produzindo um brief estruturado em `docs/issues/issue-{n}/01-brief.md`. Este brief é a base para as fases subsequentes do fluxo Issue-Driven.
+Ler uma issue do GitHub (título, descrição, comentários, labels, metadata) e buscar no Notion documentos de contexto relacionados (specs de produto, ADRs anteriores, regras de negócio), produzindo um brief estruturado em `.issues/{n}/01-brief.md`. Este brief é a base para as fases subsequentes do fluxo Issue-Driven.
 
 ## Quando Usar
 
@@ -27,7 +27,7 @@ Progresso:
 - [ ] 2. Ler issue do GitHub
 - [ ] 3. Buscar contexto relacionado no Notion
 - [ ] 4. Consolidar e estruturar o brief
-- [ ] 5. Persistir em docs/issues/issue-{n}/01-brief.md
+- [ ] 5. Persistir em .issues/{n}/01-brief.md
 - [ ] 6. Atualizar checkpoint de handoff
 ```
 
@@ -100,10 +100,10 @@ Produzir o brief seguindo a estrutura:
 Fase 2: elicitação de requisitos (`kata-requirements-brief`).
 ```
 
-### Passo 5: Persistir em `docs/issues/issue-{n}/01-brief.md`
+### Passo 5: Persistir em `.issues/{n}/01-brief.md`
 
-1. Criar o diretório `docs/issues/issue-{n}/` se não existir.
-2. Salvar o brief em `docs/issues/issue-{n}/01-brief.md`.
+1. Criar o diretório `.issues/{n}/` se não existir.
+2. Salvar o brief em `.issues/{n}/01-brief.md`.
 3. Se o arquivo já existir, comparar com o novo conteúdo: se divergente, apresentar diff ao usuário antes de sobrescrever.
 
 ### Passo 6: Atualizar checkpoint de handoff
@@ -111,7 +111,7 @@ Fase 2: elicitação de requisitos (`kata-requirements-brief`).
 1. Criar/atualizar `.ahrena/workflow/issue-{n}/checkpoint.md` com:
    - fase concluída: 1
    - próxima fase: 2
-   - referência: `docs/issues/issue-{n}/01-brief.md`
+   - referência: `.issues/{n}/01-brief.md`
    - timestamp
 2. Informar ao `warrior-athena` (ou usuário) que a Fase 1 foi concluída.
 
@@ -119,7 +119,7 @@ Fase 2: elicitação de requisitos (`kata-requirements-brief`).
 
 | Saída | Formato | Destino |
 |-------|---------|---------|
-| Brief estruturado | Markdown | `docs/issues/issue-{n}/01-brief.md` |
+| Brief estruturado | Markdown | `.issues/{n}/01-brief.md` |
 | Checkpoint | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 | Resumo ao usuário | Texto estruturado | Resposta ao orquestrador |
 
@@ -128,7 +128,7 @@ Fase 2: elicitação de requisitos (`kata-requirements-brief`).
 - **Somente leitura no GitHub:** este kata não cria nem modifica issues, comentários ou labels (conforme `kata-mcp-github-read`).
 - **Somente leitura no Notion:** este kata não cria nem modifica páginas (conforme `kata-mcp-notion-read`).
 - **Sem inferência de escopo:** o kata consolida o que está na issue e no Notion; não adiciona informação não documentada. Desconhecidos vão para a seção "Riscos e desconhecidos".
-- **Destino fixo:** o brief vai em `docs/issues/issue-{n}/01-brief.md`; nunca em outro caminho (conforme `lex-issue-driven`).
+- **Destino fixo:** o brief vai em `.issues/{n}/01-brief.md`; nunca em outro caminho (conforme `lex-issue-driven`).
 
 ## Referências
 

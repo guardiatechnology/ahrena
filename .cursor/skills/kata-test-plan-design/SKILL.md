@@ -16,7 +16,7 @@ Progress:
 - [ ] 3. Identify boundaries and risks
 - [ ] 4. Define target coverage per component
 - [ ] 5. List required tools and fixtures
-- [ ] 6. Persist in docs/issues/issue-{n}/02b-test-plan.md
+- [ ] 6. Persist in .issues/{n}/02b-test-plan.md
 - [ ] 7. Update checkpoint
 ```
 
@@ -82,7 +82,7 @@ Adjust `quality.coverage_threshold` in `.ahrena/.directives` if different from t
 
 ### Step 6: Persist the plan
 
-Structure in `docs/issues/issue-{n}/02b-test-plan.md`:
+Structure in `.issues/{n}/02b-test-plan.md`:
 
 ```markdown
 # Test Plan — Issue #{n}: {title}
@@ -127,7 +127,7 @@ Add entry in `.ahrena/workflow/issue-{n}/checkpoint.md`:
 
 ```yaml
 test_plan:
-  artifact: docs/issues/issue-{n}/02b-test-plan.md
+  artifact: .issues/{n}/02b-test-plan.md
   total_acs_mapped: 5
   coverage_target: 80
   tier: 2
@@ -137,7 +137,7 @@ test_plan:
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Structured test plan | Markdown | `docs/issues/issue-{n}/02b-test-plan.md` |
+| Structured test plan | Markdown | `.issues/{n}/02b-test-plan.md` |
 | AC → levels mapping | Table in the plan | — |
 | Fixture/container list | Section in the plan | — |
 
@@ -146,4 +146,4 @@ test_plan:
 - **Does not write tests**: this kata plans; the actual writing is by Apollo/Hephaestus.
 - **Plan binding for Gate 2**: if the plan defines Integration for AC-1, Gate 2 checks that an integration test exists for AC-1.
 - **Tier declared explicitly**: if omitted, Gate 2 assumes tier 2 (80% coverage).
-- **Fixed destination**: `docs/issues/issue-{n}/02b-test-plan.md` (following `lex-issue-driven` convention).
+- **Fixed destination**: `.issues/{n}/02b-test-plan.md` (following `lex-issue-driven` convention).
