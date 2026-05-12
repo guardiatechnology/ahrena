@@ -4,7 +4,7 @@
 
 ## Ley
 
-> **Todo PR en un repositorio Guardia DEBE: (1) reflejar todas las labels del issue asociado; (2) tener exactamente una label de tamaño (`size/XS` a `size/XXL`), aplicada automáticamente por GitHub Actions o manualmente cuando la automatización aún no esté configurada; (3) aplicar labels específicas de PR cuando aplique (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) ser asignado al autor con `--assignee @me`; (5) tener reviewers solicitados a partir del `.github/CODEOWNERS` del repositorio — automáticamente por GitHub cuando la auto-request esté habilitada, o manualmente vía `gh pr edit --add-reviewer` antes del merge. El repositorio DEBE tener un archivo `.github/CODEOWNERS` con al menos un owner por defecto (`* @{team}`). Los PRs que no cumplan estos requisitos NO DEBEN mergearse.**
+> **Todo PR en un repositorio Guardia DEBE: (1) reflejar todas las labels del issue asociado; (2) tener exactamente una label de tamaño (`size/XS` a `size/XXL`), aplicada automáticamente por GitHub Actions o manualmente cuando la automatización aún no esté configurada; (3) aplicar labels específicas de PR cuando aplique (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) ser asignado al autor con `--assignee @me`; (5) tener reviewers solicitados a partir del `.github/CODEOWNERS` del repositorio — automáticamente por GitHub cuando la auto-request esté habilitada, o manualmente vía `gh pr edit --add-reviewer` antes del merge; (6) cuando el PR recibe comentarios de review (humanos o bots — Gemini, Argos, claude[bot], CodeRabbit, etc.) y se aplican fixes, CADA comentario abordado DEBE recibir una reply individual en el thread original conteniendo el SHA del commit de fix + una línea de justificación, antes de volver a solicitar review o marcar como listo para merge. El repositorio DEBE tener un archivo `.github/CODEOWNERS` con al menos un owner por defecto (`* @{team}`). Los PRs que no cumplan estos requisitos NO DEBEN mergearse.**
 
 ## Cobertura
 
@@ -108,6 +108,46 @@ Y verificar, **inmediatamente después** de `gh pr create`:
 8. Label `status: <name>` aplicada (`status: to review` por defecto al abrir el PR; per `lex-issue-status`).
 9. Sección **"Session Trace"** presente en el body del PR cuando `session_tracking.enabled == true` en `.ahrena/.directives` y el branch tiene heartbeat files asociados (per `codex-session-tracking` §7). Construida por `kata-pr-prepare` agregando `.ahrena/workflow/sessions/*.json` filtrados por la branch actual. En PRs dirigidos exclusivamente por humano (sin agente Claude Code), la sección puede ser `_(human-driven; no session trace)_`.
 
+### 7. Respuesta por thread a comentarios de review abordados
+
+Cuando el PR recibe comentarios de review (humanos o bots — `gemini-code-assist`, `warrior-argos`, `claude[bot]`, `coderabbitai`, etc.) y el autor (o el agente en su nombre) aplica fixes, CADA comentario abordado por el commit DEBE recibir una reply individual en el thread original. Un único comentario top-level que resuma "se aplicaron N fixes" NO basta — los bots de auto-resolve dependen de la reply en el thread para marcar como resuelto, y el reviewer humano requiere cierre por thread en PRs con más de 5 comentarios.
+
+**Formato canónico de la reply:**
+
+```
+Addressed in {SHA-corto}: {1-línea de justificación explicando qué cambió y por qué}
+```
+
+**Mecanismo (GitHub CLI):**
+
+```bash
+# Listar PR review comments (resumen del review + comentarios por línea de código)
+gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" --jq '.[] | {id, user: .user.login, body: .body, path, line}'
+
+# Publicar reply en el thread original
+gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
+  -f body="Addressed in ${SHA}: ${RATIONALE}"
+```
+
+> **Alcance de la Regla 7:** se aplica a los **PR review comments** — los devueltos por `/pulls/{N}/comments` (resumen de review + comentarios por línea de código). Los **issue comments en la pestaña *Conversation* del PR** (devueltos por `/issues/{N}/comments`) NO son threaded y no tienen endpoint `/replies`; quedan fuera del alcance de la Regla 7. Si un reviewer deja observaciones en la pestaña Conversation, el autor responde con un issue comment libre (quote-and-reply) — no hay requisito de cierre per-thread porque el thread no existe.
+
+**Cuándo consolidar en comment top-level (admitido en conjunto, no sustituto):**
+
+- Un comment top-level que resuma el batch (commit + lista de fixes) está permitido para dar contexto agregado al reviewer.
+- Pero cada thread abordado AÚN necesita su reply individual. Top-level no sustituye per-thread.
+
+**Comentarios no abordados (rechazados, diferidos):** también reciben reply, indicando el motivo:
+
+- `Deferred to #{issue-number} — out of scope for this PR.`
+- `Disagreed — keeping as is because {rationale}. Happy to discuss.`
+- `Not applicable — {explanation}.`
+
+La regla es "cada thread tiene cierre", no "estoy de acuerdo con cada comentario".
+
+**Cuándo se activa la regla:** siempre que el agente (o autor humano) hace push de commits de fix en respuesta a una ronda de review. PR sin comentarios de review aún recibidos NO está sujeto a la Regla 7 — se vuelve obligatoria a partir del primer comment abordado.
+
+> **Quién decide qué es "abordado":** el autor del PR. La reply per-thread declara *la intención del autor de haber abordado ese comment*. El reviewer mantiene el poder de reabrir el thread si está en desacuerdo — `Re-opening: the fix doesn't address {detail}` es respuesta válida y la Regla 7 vuelve a activarse hasta el próximo cierre. Los comments rechazados/diferidos/no-aplicables también están "abordados" en el sentido de la Regla (reciben reply explicando el motivo). El criterio no es "acuerdo", es "cierre documentado".
+
 ## HARD-GATE
 
 Conforme [`lex-hard-gate-pattern`](framework/es/_foundation/quality/lexis/lex-hard-gate-pattern.md), el bloqueo textual de esta Lex se expresa canónicamente como:
@@ -132,6 +172,12 @@ agente NO DEBE mergear PR sin que él satisfaga TODOS los criterios:
       session_tracking.enabled == true y el branch tiene heartbeat files
       asociados, per codex-session-tracking §7 (PRs human-driven pueden
       usar la frase canónica de excepción)
+  (k) Cada comentario de review abordado por un commit de fix tiene
+      reply individual en el thread original con SHA + 1-línea de
+      justificación, per Regla 7 (comentarios no abordados —
+      rechazados, diferidos — también reciben reply explicando el
+      motivo). El comment top-level de resumen está permitido en
+      conjunto, pero NO sustituye la reply per-thread.
 
 Esta regla se aplica a TODO PR, independientemente de:
   - tamaño percibido ("es un cambio trivial")
@@ -147,7 +193,7 @@ exige justificación explícita en el PR.
 
 ### Aplicación a Stacked PRs
 
-En flujos de **stacked Pull Requests** (`codex-stacked-prs`), cada capa de la cadena es un **PR real** en GitHub. El HARD-GATE de arriba se evalúa **por PR de la stack**, no una sola vez para la cadena completa: cada capa debe satisfacer **todos** los criterios (a)–(h) antes de ser mergeada. Los criterios en sí no cambian; solo el alcance de aplicación es por capa.
+En flujos de **stacked Pull Requests** (`codex-stacked-prs`), cada capa de la cadena es un **PR real** en GitHub. El HARD-GATE de arriba se evalúa **por PR de la stack**, no una sola vez para la cadena completa: cada capa debe satisfacer **todos** los criterios (a)–(k) antes de ser mergeada. Los criterios en sí no cambian; solo el alcance de aplicación es por capa.
 
 Implicaciones operativas:
 
@@ -190,4 +236,4 @@ gh pr create --title "docs: add site" --body "Closes #42"
 
 - **Herramienta:** GitHub Actions PR size labeler (auto-aplica `size/*`); GitHub Branch Protection con `required_pull_request_reviews` exigiendo aprobación de code owners; checklist de revisión verifica labels reflejadas, assignee y reviewers; `kata-contributing-pr` aplica todas las reglas de esta Lexis al crear PRs.
 - **Cuándo:** al crear y actualizar el PR; en el checklist de revisión; auditoría mensual del CODEOWNERS de los repositorios.
-- **Métrica:** 0 PRs mergeados sin label de tamaño; 0 PRs mergeados sin reflejar las labels del issue; 0 PRs sin assignee; 0 PRs mergeados sin ningún reviewer solicitado; 100% de los repositorios Guardia con `.github/CODEOWNERS` configurado.
+- **Métrica:** 0 PRs mergeados sin label de tamaño; 0 PRs mergeados sin reflejar las labels del issue; 0 PRs sin assignee; 0 PRs mergeados sin ningún reviewer solicitado; 0 PRs mergeados con comentarios de review abordados por commit pero sin reply per-thread; 100% de los repositorios Guardia con `.github/CODEOWNERS` configurado.
