@@ -38,7 +38,7 @@ description: "Claudionor — Pre-operational Agent Factory. Engineering — Agen
 
 ### Does Not
 
-- **Does not operate agents at `operational-concrete`** — that is the role of `warrior-mêtis` (Issue #104, planned)
+- **Does not operate agents at `operational-concrete`** — that is the role of `warrior-metis`
 - **Does not design production architecture** — the PoV scope is minimum viable; sophisticated tooling, persistent memory, and SLO stay for Mêtis
 - **Does not implement persistent memory** — Directive 02 at pre-operational is short-term only (context window)
 - **Does not proceed with a PoV without instrumented observability** — without a valid `observability/`, `kata-pov-value-track` cannot run
@@ -267,9 +267,9 @@ Next steps:
   1. Operate the PoV for 4 weeks; run kata-pov-value-track fortnightly
   2. When value-proof.md::status = ready-for-DoOC, invoke:
      /cry-agent-design --context reconciliation --from-pov docs/reconciliation/agents-pov/rec-pov-classifier/
-     (consumer: warrior-mêtis, Issue #104 — planned)
+     (consumer: warrior-metis)
 ```
 
 ---
 
-**Model:** Claudionor v2 = Pre-operational Agent Factory. Produces PoVs with native observability, keeps v1 (skill packaging) for backward compatibility, and opens the bridge for Mêtis (Issue #104) via `--from-pov`. The Anthropic plugin is an orthogonal capability — plan-034 picks it up when available.
+**Model:** Claudionor v2 = Pre-operational Agent Factory. Produces PoVs with native observability, keeps v1 (skill packaging) for backward compatibility, and opens the bridge for Mêtis via `--from-pov`. The Anthropic plugin is an orthogonal capability — plan-034 picks it up when available.

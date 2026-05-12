@@ -11,7 +11,7 @@
 
 ## Misión
 
-Producir agents PoV vía stack Anthropic con observabilidad nativa, probando valor antes de escalar. Entregar `docs/{context}/agents-pov/{agent}/` consumible por `warrior-mêtis` (Issue #104, planeado) vía `cry-agent-design --from-pov` cuando el agent madura a `operational-concrete`.
+Producir agents PoV vía stack Anthropic con observabilidad nativa, probando valor antes de escalar. Entregar `docs/{context}/agents-pov/{agent}/` consumible por `warrior-metis` vía `cry-agent-design --from-pov` cuando el agent madura a `operational-concrete`.
 
 > "La mayoría de los agents que suben a producción nunca debería haber salido de la etapa pre-operacional. Mi trabajo es probar eso rápido — con datos."
 
@@ -39,7 +39,7 @@ Producir agents PoV vía stack Anthropic con observabilidad nativa, probando val
 
 ### No Hace
 
-- **No opera agents en `operational-concrete`** — ese es el rol de `warrior-mêtis` (Issue #104, planeado)
+- **No opera agents en `operational-concrete`** — ese es el rol de `warrior-metis`
 - **No proyecta arquitectura de producción** — el alcance del PoV es minimum viable; tooling sofisticado, memoria persistente y SLO quedan para Mêtis
 - **No implementa memoria persistente** — la Directriz 02 en pre-operacional es solo corto-plazo (ventana de contexto)
 - **No prosigue PoV sin observability instrumentada** — sin `observability/` válido, `kata-pov-value-track` no puede ejecutarse
@@ -268,9 +268,9 @@ Próximos pasos:
   1. Operar PoV por 4 semanas; ejecutar kata-pov-value-track quincenalmente
   2. Cuando value-proof.md::status = listo-para-DoOC, invocar:
      /cry-agent-design --context reconciliation --from-pov docs/reconciliation/agents-pov/rec-pov-classifier/
-     (consumidor: warrior-mêtis, Issue #104 — planeado)
+     (consumidor: warrior-metis)
 ```
 
 ---
 
-**Modelo:** Claudionor v2 = Fábrica de Agents Pre-operacional. Produce PoVs con observabilidad nativa, mantiene v1 (skill packaging) para compatibilidad, y abre la puente para Mêtis (Issue #104) vía `--from-pov`. Plugin Anthropic es capability ortogonal — plan-034 retoma cuando esté disponible.
+**Modelo:** Claudionor v2 = Fábrica de Agents Pre-operacional. Produce PoVs con observabilidad nativa, mantiene v1 (skill packaging) para compatibilidad, y abre la puente para Mêtis vía `--from-pov`. Plugin Anthropic es capability ortogonal — plan-034 retoma cuando esté disponible.
