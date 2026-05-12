@@ -141,7 +141,7 @@ Criterio: `pov_path/system-prompt.md` contiene literalmente `stage: pre-operatio
 
 En `entry_mode: direct-entry`, los ítems (a), (b), (d) y (e) pueden aparecer como `N/A — direct-entry` si el ADR/PDR del Paso 1 declara (i) razón del bypass, (ii) leading metric objetivo + ventana post-deploy, (iii) plan de observability día 0. Ítems (c) y (f)-(i) permanecen mandatorios.
 
-En `entry_mode: user-override` (CEO o Brand owner promueve con evidencias parciales), exige ADR/PDR declarando (i) cuáles ítems fueron overrided, (ii) `Promoted by: {nombre}` en `dooc/{agent}.md`, (iii) ventana de compensación retroactiva (sugerido 30 días). Ítems overrided se vuelven `N/A — user-override`.
+En `entry_mode: user-override` (CEO o Brand owner promueve con evidencias parciales), exige ADR/PDR declarando (i) cuáles ítems fueron sobrescritos, (ii) `Promoted by: {nombre}` en `dooc/{agent}.md`, (iii) ventana de compensación retroactiva (sugerido 30 días). Ítems sobrescritos se vuelven `N/A — user-override`.
 
 ### Paso 12: Producir informe `dooc/{agent}.md` + decisión
 

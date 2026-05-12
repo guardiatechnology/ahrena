@@ -124,7 +124,7 @@ Criterion: `pov_path/system-prompt.md` contains the literal string `stage: pre-o
 
 In `entry_mode: direct-entry`, items (a), (b), (d), and (e) MAY appear as `N/A — direct-entry` if the ADR/PDR from Step 1 declares (i) reason for bypass, (ii) target leading metric + post-deploy window, (iii) day-0 observability plan. Items (c) and (f)-(i) remain mandatory.
 
-In `entry_mode: user-override` (CEO or designated Brand owner promotes with partial evidence), require an ADR/PDR declaring (i) which items are overrided, (ii) `Promoted by: {name}` in `dooc/{agent}.md`, (iii) retroactive compensation window (suggested 30 days). Overrided items become `N/A — user-override`.
+In `entry_mode: user-override` (CEO or designated Brand owner promotes with partial evidence), require an ADR/PDR declaring (i) which items are overridden, (ii) `Promoted by: {name}` in `dooc/{agent}.md`, (iii) retroactive compensation window (suggested 30 days). Overridden items become `N/A — user-override`.
 
 ### Step 12: Produce `dooc/{agent}.md` report + decision
 
