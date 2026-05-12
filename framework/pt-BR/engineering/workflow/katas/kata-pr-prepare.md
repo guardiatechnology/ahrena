@@ -172,6 +172,16 @@ Per `lex-pr-quality` (regras 9, j) e `codex-session-tracking` §7, antes de invo
 
 Esta seção é métrica complementar ao `cry-pr-cost-stamp` (que mede tokens/USD). Aqui mede tempo de sessão real.
 
+### Passo 5c: Flush do plano (per ADR-002)
+
+Antes de invocar `create_pull_request`, garantir que o body da Issue reflete o estado atual do trabalho:
+
+1. Invocar `kata-flush-plan-to-issue` passando o número da Issue.
+2. O kata lê `.plans/{N}.md`, filtra blocos `<!-- not-flushed -->`, executa preflight de drift remoto, e grava o conteúdo filtrado no body da Issue via MCP `update_issue` (preferido) ou `gh issue edit --body-file` (fallback).
+3. Em caso de drift remoto detectado (default `force=false`), o kata pausa e oferece merge manual — não prosseguir até resolução.
+
+Esse passo substitui a mecânica antiga de "atualizar `status:` no front-matter do plano" (modelo legado pré-ADR-002): no Issue-as-plan model, o body da Issue é o canonical; o cache local `.plans/{N}.md` é regenerável.
+
 ### Passo 6: Criar PR linkado à issue
 
 1. Invocar `create_pull_request` com:
@@ -186,21 +196,21 @@ Esta seção é métrica complementar ao `cry-pr-cost-stamp` (que mede tokens/US
 
 ### Passo 6b: Aplicar `status: to review` (transição `development → to review`)
 
-Per `lex-issue-status` e `lex-agent-planning`, ao abrir o PR Athena executa a transição `development → to review`:
+Per `lex-issue-status` Eixo A e `lex-agent-planning` Tabela A, ao abrir o PR Athena executa a transição `development → to review`:
 
 ```bash
 # 1. PR — entra em "to review" imediatamente
 gh pr edit {pr_number} --add-label "status: to review"
 
-# 2. Issue — sincronizar (mutex de status:*)
+# 2. Issue — sincronizar (mutex intra-artefato)
 gh issue edit {issue_number} \
   --remove-label "status: development" \
   --add-label "status: to review"
-
-# 3. Plano — atualizar front-matter status: → to review e updated_at
 ```
 
-Per `lex-issue-status` Regra 2 (mutex), garantir que a Issue não fica com dois labels `status:*` simultâneos. Per Regra 3, atualizar o `status:` do plano no mesmo passo.
+Per `lex-issue-status` Regra 3 (mutex intra-artefato), garantir que cada artefato fica com exatamente um `status:*`. Per Regra 5 (sync Issue↔PR), atualizar simultaneamente.
+
+A label é a única fonte de truth do estado per ADR-002 — o body da Issue (canonical do plano) já foi atualizado no Passo 5c.
 
 ### Passo 7: Atualizar status dos ADRs (proposed → accepted)
 
