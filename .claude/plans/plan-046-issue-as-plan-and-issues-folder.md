@@ -68,16 +68,16 @@ Padrão inspirado em https://github.com/guardiatechnology/documents-context/tree
 - [ ] **Step 2 — ADR-002** registrando a decisão de migrar para o modelo de 3 camadas. Cobre: (a) razão de tirar plano de `.claude/plans/`, (b) por que `.plans/` é gitignored mas `.issues/` é committed, (c) por que Issue body é canonical em vez de arquivo, (d) cadência de load/flush, (e) compatibilidade com plan-043.
 - [ ] **Step 3 — Reescrever `lex-agent-planning` (3 línguas).** HARD-GATE passo (e) atualizado; front-matter do plano simplificado (sem status:, sem session keys — ou plano vira só arquivo de scratch); novo template do body da Issue (Summary + Plan section com Steps/Risks/Deps).
 - [ ] **Step 4 — Reescrever `codex-agent-planning` (3 línguas).** Manual operacional do 3-layer model. Fluxo load → edit → flush. Examples. Conventional location de `.plans/` e `.issues/`.
-- [ ] **Step 5 — Path move `docs/issues/issue-{N}/` → `.issues/{N}/`.** Atualizar `lex-issue-driven` + `codex-issue-workflow` (3 línguas). Em repos consumidores (ex.: `documents-context`), `git mv docs/issues/ .issues/` preserva history. Adicionar nota de migration no codex.
+- [ ] **Step 5 — Path move `docs/issues/issue-{N}/` → `.issues/{N}/`.** Atualizar `lex-issue-driven` + `codex-issue-workflow` (3 línguas). Em repos consumidores (ex.: `documents-context`), `git mv docs/issues/ .issues/` preserva history. **Janela de transição de 1 release** (per OQ#7, resolvida em 2026-05-11): durante esse período, `codex-issue-workflow` documenta **ambos** caminhos (`docs/issues/` legado + `.issues/` novo) como aceitos, com warning visual citando o release em que `docs/issues/` deixa de ser aceito. **Pós-janela** (próximo release tag após plan-046 mergear): Gate 2 (`kata-quality-gate`) falha encontrando arquivos em `docs/issues/issue-{N}/` — força migração.
 - [ ] **Step 6 — Reescrever `kata-plan-task` (3 línguas).** Não cria arquivo; preenche body da Issue. Os 5 passos canônicos do HARD-GATE permanecem (passo 5 troca de file → Issue body).
 - [ ] **Step 7 — Criar `kata-load-plan-from-issue` (3 línguas).** Procedimento idempotente: `gh issue view {N} --json body --jq .body > .plans/{N}.md`. Invocado no início de cada sessão de qualquer agente que opera no plano.
 - [ ] **Step 8 — Criar `kata-flush-plan-to-issue` (3 línguas).** Inverso: `gh issue edit {N} --body-file .plans/{N}.md`. Invocado em cada transição de `status:`, em handoffs, e no fim da sessão.
 - [ ] **Step 9 — Atualizar `kata-pr-prepare` (3 línguas).** Passo 6b mantém sync de label; remove "atualizar front-matter do plano"; adiciona chamada a `kata-flush-plan-to-issue` antes de `create_pull_request` (garante que Issue body reflete o estado final).
-- [ ] **Step 10 — Reescrever plan-044 (Eunomia) para o modelo novo.** Eunomia em modo top-level: cria Issue + branch + worktree + Issue body (sem criar arquivo `.plans/{N}.md` — esse é gerado on-demand pelo primeiro `kata-load-plan-from-issue`). Eunomia em modo subtask: idem, cria sub-Issue com Tracked by + body preenchido.
+- [ ] **Step 10 — Absorver plan-044 (Eunomia) em plan-046; cancelar plan-044 standalone.** Per OQ#6 (resolvida em 2026-05-11): Eunomia nasce já no modelo novo dentro deste plano. Eunomia em modo top-level: cria Issue + branch + worktree + Issue body (sem criar arquivo `.plans/{N}.md` — esse é gerado on-demand pelo primeiro `kata-load-plan-from-issue`). Eunomia em modo subtask: idem, cria sub-Issue com `Tracked by` + body preenchido. Adicionalmente: marcar `.claude/plans/plan-044-warrior-eunomia-plan-and-subtask-creator.md` com `status: abandoned` + nota canônica `"absorvido por plan-046 — Eunomia entregue no modelo Issue-as-plan"` no front-matter, no mesmo commit.
 - [ ] **Step 11 — Atualizar warriors Athena, Argos, Janus (3 línguas).** Substituir referências a "atualizar status: no front-matter do plano" por "atualizar body da Issue + label". Adicionar bullets sobre load/flush no fluxo de atuação.
 - [ ] **Step 12 — `.gitignore` + `.gitignore.sample`.** Adicionar `.plans/` em ambos.
 - [ ] **Step 13 — `framework/platforms.yaml`.** Entries para `kata-load-plan-from-issue` e `kata-flush-plan-to-issue` (mas katas não são listadas em platforms.yaml hoje — só Lex e Codex — então só atualizar entries de Lexis/Codex tocados).
-- [ ] **Step 14 — Migration de `.claude/plans/archived/` para `.issues/_legacy/`.** `git mv` preserva history; README explica que esse diretório é congelado, novo trabalho vive em Issues.
+- [ ] **Step 14 — Migration de `.claude/plans/archived/` para `.issues/_legacy/`.** Per OQ#1 (resolvida em 2026-05-11). Comando: `git mv .claude/plans/archived .issues/_legacy` (preserva history). Criar `.issues/_legacy/README.md` declarando: "Histórico imutável anterior a plan-046. Novos planos vivem em GitHub Issues; este diretório existe somente para preservar audit trail. Não editar arquivos aqui." Atualizar referências cruzadas em codex/lex que ainda apontem para `.claude/plans/archived/`.
 - [ ] **Step 15 — Atualizar READMEs (3 línguas).** Seção "Workflow Status" reescrita pro 3-layer model. Explicar `gh issue edit` como UX padrão.
 - [ ] **Step 16 — Sync `.claude/` + `.cursor/`** via `python3 scripts/install.py --self`.
 - [ ] **Step 17 — Commit, push, PR.** Commits atômicos: (a) ADR-002, (b) Lexis/Codex (3 línguas), (c) Katas novas + atualizadas, (d) Warriors, (e) path moves + .gitignore, (f) plan-044 atualizada, (g) sync. PR contra main com `Closes #{N}`.
@@ -86,7 +86,7 @@ Padrão inspirado em https://github.com/guardiatechnology/documents-context/tree
 ## Dependencies
 
 - **plan-043** — merge obrigatório antes. Plan-046 consome 7-status enum, owners, labels, notifications, sessions de 043. Conflitos de merge minimizados se sequencial.
-- **plan-044** (Eunomia) — *absorvido* por plan-046 Step 10. Plan-044 standalone vira opcional ou cancelado.
+- **plan-044** (Eunomia) — **absorvido** por plan-046 Step 10 (decisão registrada em OQ#6). Plan-044 standalone **cancelado**; status do rascunho de `.claude/plans/plan-044-*.md` vira `abandoned` no Step 10 com nota apontando para 046.
 - **plan-045** (Janus pointer) — inalterado. Janus opera em labels Issue/PR, não toca plano.
 - **plan-038** (reduzido) — depende de plan-046. Calliope cria Issues; sob modelo novo, zero arquivo de plano envolvido.
 
@@ -102,13 +102,13 @@ Padrão inspirado em https://github.com/guardiatechnology/documents-context/tree
 
 ## Open Questions
 
-1. **Deletar `.claude/plans/archived/` ou mover para `.issues/_legacy/`?** Recomendação: mover. Preserva audit, sinaliza congelamento.
+1. ~~**Deletar `.claude/plans/archived/` ou mover para `.issues/_legacy/`?**~~ **Resolvido em 2026-05-11:** mover. `.claude/plans/archived/` → `.issues/_legacy/` via `git mv` (preserva history). README em `.issues/_legacy/` declara "congelado em plan-046; novos planos vivem em Issues GitHub".
 2. **`.issues/{N}/` numbering sem prefix `issue-`?** Recomendação: sim, `.issues/3/` (não `.issues/issue-3/`). O `.issues/` já implica.
 3. **Cache local sync cadence (`kata-flush-plan-to-issue`):** sincronizar a cada toggle? a cada Step? a cada 5min? Recomendação: a cada transição de `status:` + a cada Step concluído + no fim da sessão. Toggles intermediários são scratch livre.
 4. **Schema do `.plans/{N}.md`:** estritamente espelho do body da Issue, ou superset com "## Working notes" e "## Next actions" locais que não saem no flush?** Recomendação: superset, com marcadores `<!-- not-flushed -->` que `kata-flush-plan-to-issue` filtra.
 5. **`gh issue edit` sem MCP**: se `mcp.servers` lista github MCP, o `gh` CLI ainda é OK? Recomendação: per `lex-mcp` regra 1, usar MCP `update_issue` quando disponível; `gh issue edit` é fallback CLI documentado.
-6. **Eunomia em plan-046 vs plan-044 standalone:** absorver totalmente em 046 ou manter 044 separado? Recomendação: absorver em 046 — Eunomia nasce no modelo novo sem retrofit. Cancela plan-044 ou converte em "Eunomia subtask creator" focado só em decomposição de child Issues (sem o lado de plan-as-file).
-7. **Janela de transição path move:** quanto tempo `docs/issues/` legado fica aceito antes do enforcement? Recomendação: 1 release após plan-046 mergear; depois Gate 2 falha se encontrar `docs/issues/`.
+6. ~~**Eunomia em plan-046 vs plan-044 standalone:** absorver totalmente em 046 ou manter 044 separado?~~ **Resolvido em 2026-05-11:** absorver. Eunomia nasce no modelo novo dentro de plan-046 Step 10 — sem retrofit, sem dia de incoerência. Plan-044 standalone fica **cancelado** (status `abandoned` no rascunho). Caso surja necessidade futura de uma plan focada só em decomposição de subtasks, abre-se plan-047 com escopo reduzido.
+7. ~~**Janela de transição path move:** quanto tempo `docs/issues/` legado fica aceito antes do enforcement?~~ **Resolvido em 2026-05-11:** 1 release após plan-046 mergear. Durante essa janela, `codex-issue-workflow` documenta os dois caminhos (`docs/issues/` legado + `.issues/` novo) como aceitos, com warning visual. Após o release seguinte, Gate 2 (`kata-quality-gate`) falha se encontrar arquivos em `docs/issues/issue-{N}/` — força migração.
 
 ## Coordinação com plan-043
 
