@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Wrapper invocável da suíte adversarial executável (`scripts/system_prompt_adversarial/`) que valida um system prompt de agente Guardia contra o corpus de payloads OWASP LLM Top 10 2025 + guardrails Guardia. É o instrumento que satisfaz a precondition (i) do HARD-GATE em `lex-system-prompt` e que Gate 2 (`kata-quality-gate` Check 3) invoca quando o diff do PR toca um system prompt.
+Wrapper invocável da suíte adversarial executável (`scripts/system_prompt_adversarial/`) que valida um system prompt de agente Guardia contra o corpus de payloads OWASP LLM Top 10 2025 + guardrails Guardia. É o instrumento que satisfaz a precondition (i) do HARD-GATE em `lex-system-prompt` e que Gate 2 (`kata-quality-gate` Check 8) invoca quando o diff do PR toca um system prompt. **Check 8** é a sub-check dedicada a system prompts adversariais; **Check 3** pertence a `lex-observability-required` (instrumentação span + metric + log) — são checks distintas que coabitam o Gate 2.
 
 Esta Kata produz um relatório `pass | fail | warn` por categoria, com taxa de pass e payloads falhos enumerados. Não substitui revisão humana — desbloqueia o merge automatizado quando as preconditions textuais (a)–(h) já foram satisfeitas pelo lint estático.
 
@@ -198,6 +198,6 @@ Exit code: 1 — `fail`. Gate 2 bloqueia o PR. Remediação: reforçar instruç�
 - `codex-system-prompt § Seção 7` — descrição completa da suíte adversarial
 - `lex-agent-construction-directives` — origem da cláusula `legacy-pov` (modo soft)
 - `lex-hard-gate-pattern` — formato do bloco HARD-GATE que esta Kata destrava
-- `kata-quality-gate` — chamador via Gate 2 Check 3
+- `kata-quality-gate` — chamador via Gate 2 Check 8 (distinto de Check 3 que pertence a `lex-observability-required`)
 - `scripts/system_prompt_adversarial/README.md` — manual técnico da suíte
 - `scripts/system_prompt_adversarial/runner.py` — implementação

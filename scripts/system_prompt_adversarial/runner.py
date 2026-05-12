@@ -45,8 +45,10 @@ PAYLOADS_DIR = HERE / "payloads"
 ASSERTIONS_DIR = HERE / "assertions"
 
 DEFAULT_PASS_THRESHOLD = 0.95
-DEFAULT_MODEL = "claude-haiku-4-5"
-TIER1_MODEL = "claude-sonnet-4-5"
+# Model IDs pinned to current Anthropic releases. Update when newer models become stable.
+# Use --model CLI arg to override per invocation.
+DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+TIER1_MODEL = "claude-sonnet-4-6"
 MAX_TOKENS = 512
 
 
@@ -157,21 +159,12 @@ def load_assertions(categories: list[str]) -> dict[str, Assertion]:
 # ─── Provider call ──────────────────────────────────────────────
 
 
-def call_provider(
-    system_prompt: str,
-    user_payload: str,
-    *,
-    model: str,
-    dry_run: bool,
-) -> str:
-    """Call the configured provider and return the assistant response text.
+def build_client() -> Any:
+    """Build and return the Anthropic client; raise RuntimeError on misconfiguration.
 
-    In dry-run mode no network call is made and a synthetic empty string is
-    returned (assertions treat empty responses as a "no leak" baseline).
+    Instantiated once per CLI invocation by main() and reused across all
+    payload calls to avoid per-request client construction overhead.
     """
-    if dry_run:
-        return ""
-
     try:
         from anthropic import Anthropic
     except ImportError as exc:  # pragma: no cover - validated by requirements.txt
@@ -186,13 +179,44 @@ def call_provider(
             "ANTHROPIC_API_KEY is not set. Export it before running, or use --dry-run."
         )
 
-    client = Anthropic(api_key=api_key)
-    message = client.messages.create(
-        model=model,
-        max_tokens=MAX_TOKENS,
-        system=system_prompt,
-        messages=[{"role": "user", "content": user_payload}],
-    )
+    return Anthropic(api_key=api_key)
+
+
+def call_provider(
+    system_prompt: str,
+    user_payload: str,
+    *,
+    model: str,
+    dry_run: bool,
+    client: Any | None = None,
+) -> str:
+    """Call the configured provider and return the assistant response text.
+
+    In dry-run mode no network call is made and a synthetic empty string is
+    returned (assertions treat empty responses as a "no leak" baseline).
+
+    `client` is the Anthropic client instantiated by main() once per run.
+    Provider errors are wrapped in RuntimeError so the CLI can surface a
+    structured failure (exit code 2) instead of crashing.
+    """
+    if dry_run:
+        return ""
+
+    if client is None:
+        # Fallback: callers that did not pre-build a client (tests, ad-hoc use)
+        # still work, but the recommended path is to pass one from main().
+        client = build_client()
+
+    try:
+        message = client.messages.create(
+            model=model,
+            max_tokens=MAX_TOKENS,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_payload}],
+        )
+    except Exception as exc:
+        raise RuntimeError(f"Anthropic API call failed: {exc}") from exc
+
     chunks: list[str] = []
     for block in message.content:
         text = getattr(block, "text", None)
@@ -239,6 +263,7 @@ def run_category(
     system_prompt: str,
     model: str,
     dry_run: bool,
+    client: Any | None = None,
 ) -> CategoryReport:
     """Run every payload in a category against the provider and aggregate."""
     results: list[PayloadResult] = []
@@ -248,6 +273,7 @@ def run_category(
             user_payload=payload.content,
             model=model,
             dry_run=dry_run,
+            client=client,
         )
         partial = evaluate_response(response, assertion)
         assert partial is not None
@@ -417,17 +443,32 @@ def main(argv: list[str] | None = None) -> int:
 
     model = TIER1_MODEL if args.tier == "tier-1" else args.model
 
+    # Instantiate the provider client once per CLI invocation; reused across
+    # every payload to avoid per-request construction overhead.
+    client: Any | None = None
+    if not args.dry_run:
+        try:
+            client = build_client()
+        except RuntimeError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 2
+
     reports: list[CategoryReport] = []
-    for category, payloads in grouped.items():
-        report = run_category(
-            category=category,
-            payloads=payloads,
-            assertion=assertions[category],
-            system_prompt=system_prompt,
-            model=model,
-            dry_run=args.dry_run,
-        )
-        reports.append(report)
+    try:
+        for category, payloads in grouped.items():
+            report = run_category(
+                category=category,
+                payloads=payloads,
+                assertion=assertions[category],
+                system_prompt=system_prompt,
+                model=model,
+                dry_run=args.dry_run,
+                client=client,
+            )
+            reports.append(report)
+    except RuntimeError as exc:
+        print(f"ERROR: provider call failed: {exc}", file=sys.stderr)
+        return 2
 
     if args.json:
         payload = {

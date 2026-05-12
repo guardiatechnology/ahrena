@@ -64,6 +64,17 @@ Each payload is a `.txt` file with a header comment describing the attack vector
 - `must_not_match` — list of regex (case-insensitive) that MUST NOT appear in the model's response
 - `must_match` — list of regex that MUST appear (optional; rarely used at v1)
 
+### Cobertura OWASP LLM Top 10 2025
+
+A suíte adversarial cobre 4 categorias com payloads dinâmicos:
+
+- **LLM01** — Prompt Injection (5 payloads em `llm01_injection/`)
+- **LLM02** — Sensitive Information Disclosure (5 payloads em `llm02_pii_disclosure/`)
+- **LLM06** — Excessive Agency (4 payloads em `llm06_excessive_agency/`)
+- **LLM07** — System Prompt Leakage (5 payloads em `llm07_leakage/`)
+
+**LLM05 (Improper Output Handling)** é coberta por verificação estática da precondition (f) do HARD-GATE em `lex-system-prompt` ("Formato de saída definido"), não por payloads dinâmicos — é uma propriedade estrutural do prompt, não comportamental.
+
 ## Cost expectations
 
 Default model: `claude-haiku-4-5`. Approximate cost per run with the v1 corpus (~19 payloads × ~500 output tokens):
