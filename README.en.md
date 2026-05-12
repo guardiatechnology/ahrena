@@ -243,24 +243,43 @@ Full guide: [engineering/workflow/README.md](framework/en/engineering/workflow/R
 
 ## Workflow Status
 
-Plan, Issue, and PR carry the same `status:` at every instant, from the unified 7-value enum (`lex-agent-planning`):
+Per ADR-002 (Issue-as-plan model), the canonical plan lives in three layers:
 
+1. **GitHub Issue body** — canonical. Summary + Plan (Objective, Steps, Risks, Dependencies, Open Questions). Audit log = GitHub's native timeline.
+2. **`.plans/{N}.md`** (gitignored) — AI working memory. Superset of the Issue body + `<!-- not-flushed -->` blocks for scratch. Materialized by `kata-load-plan-from-issue`; flushed by `kata-flush-plan-to-issue`.
+3. **`.issues/{N}/`** (committed) — Phase artifacts (`01-brief.md` … `06-quality-report.md`) from the Issue-Driven flow.
+
+The `status:` enum lives as a **label** on the Issue (and on the PR starting at `to review`), split into two disjoint axes (`lex-issue-status`):
+
+**Axis A — Dev cycle** (feature/fix/chore Issues/PRs):
 ```
-todo → development → to review → review → to release → release → done
-                          ↘            ↘            ↘
-                          abandoned (alternative terminal, any stage)
+todo → development → to review → review → done
+                          ↘
+                          abandoned (alternative terminal)
 ```
+
+**Axis B — Release cycle** (dedicated release Issue created by Janus):
+```
+to release → release → done
+                  ↘
+                  abandoned
+```
+
+Mutex is **intra-artifact** (each Issue/PR carries exactly one `status:*` label); cross-axis labeling is forbidden by the `lex-issue-status` HARD-GATE.
 
 Transition owners (`lex-agent-planning`):
 
-| Transition | Owner |
-|---|---|
-| `— → todo` | `warrior-eunomia` (fallback: session agent) |
-| `todo → development → to review → to release` | `warrior-athena` |
-| `to review ↔ review` | `warrior-argos` |
-| `to release → release → done` | `warrior-janus` |
+| Transition | Owner | Axis |
+|---|---|---|
+| `— → todo` | `warrior-eunomia` (fallback: session agent) | A |
+| `todo → development → to review` | `warrior-athena` | A |
+| `to review ↔ review` | `warrior-argos` | A |
+| `to review → done` | `warrior-athena` (on merge) | A |
+| `— → to release → release → done` | `warrior-janus` (dedicated release Issue with `Tracks: #N1, ...`) | B |
 
-The GitHub `status: <name>` label mirrors the state at every instant (`lex-issue-status`). Create the 7 canonical labels with `scripts/bootstrap_status_labels.sh [owner/repo]`.
+Create the canonical labels with `scripts/bootstrap_status_labels.sh [owner/repo]`.
+
+**Load/flush cadence:** synchronization between `.plans/{N}.md` and the Issue body runs on 3 canonical triggers: (a) each `status:` label transition, (b) each Step marked as completed, (c) end of session (heartbeat finishes). Intermediate toggles and scratch edits (`<!-- not-flushed -->`) are free. Operational documentation in `codex-agent-planning`.
 
 **3×15min loop:** after opening the PR, Athena schedules 3 cycles of 15 min and nudges the human reviewer via the notification MCP (`notifications.provider` in `.ahrena/.directives`, channel `notifications.channels.pr_review_timeout`) if no approval lands on the third cycle. Manuals: `codex-notifications` (provider-agnostic) and `codex-mcp-slack` (initial provider).
 
