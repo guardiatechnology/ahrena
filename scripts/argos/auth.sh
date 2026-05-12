@@ -27,6 +27,12 @@
 
 set -euo pipefail
 
+# Restrict default mode so any file/dir created below the cache root starts
+# at owner-only (0600 file / 0700 dir). Complementary to the explicit chmod
+# 600 on the cache file — closes the brief gap where the tempfile would
+# otherwise inherit the parent shell's umask before chmod is reached.
+umask 077
+
 # ─── Paths ─────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "${SCRIPT_DIR}/../.." && pwd )"
@@ -80,8 +86,10 @@ fi
 
 # ─── Generate JWT (RS256, 10-min expiry, 60s clock skew tolerance) ─────────
 b64url() {
-  # base64url encode (no padding) — portable across macOS/Linux
-  openssl base64 -A | tr '+/' '-_' | tr -d '='
+  # base64url encode (no padding) — portable across macOS/Linux.
+  # `-A` keeps output on one line; `tr -d '\n'` guards against OpenSSL
+  # builds/inputs that still emit newlines (would otherwise break the JWT).
+  openssl base64 -A | tr -d '\n' | tr '+/' '-_' | tr -d '='
 }
 
 IAT=$((NOW_EPOCH - 60))   # 60s back to tolerate clock skew
