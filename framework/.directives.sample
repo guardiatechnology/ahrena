@@ -36,6 +36,26 @@ paths:
     cries: "templates/cry-sample.md"
 
 
+# ─── References ─────────────────────────────────────────────────
+# External references consulted by framework artifacts. Each
+# reference is a URL or repo slug that lives outside the Ahrena
+# repository but is canonical for a specific convention. Codex
+# files point to these references instead of naming the URL
+# inline, so the URL can evolve without churning the Codex.
+#
+# component_template_repo: canonical reference repository for the
+# Guardia "bounded context" component layout (components/api,
+# components/agents, components/jobs, components/ui, deployment).
+# Consumed by codex-component-architecture and its 5 codex-filhos.
+# Future iterations MAY add pinned_ref (tag/SHA) and
+# last_reviewed_at to govern drift between the external repo and
+# the on-framework convention.
+
+references:
+  component_template_repo:
+    url: "https://github.com/guardiatechnology/bounded-context-template"
+
+
 # ─── MCP Servers ────────────────────────────────────────────────
 # List of MCP servers to activate. The installer merges each
 # server config from framework/mcp/<name>.json (or
