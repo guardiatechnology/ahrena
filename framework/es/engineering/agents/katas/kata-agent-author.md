@@ -6,7 +6,7 @@
 
 Scaffold rápido de un subagent Anthropic aislado en `agents/<name>.md` con frontmatter compatible con la spec Claude Code subagents. Útil para casos triviales de PoV donde la estructura completa de Skill es excesiva (sin widgets, sin tools/, sin references/) — basta un archivo `.md` con identidad + tooling declarado. Puede ser **standalone** (en `.claude/agents/`) o **dentro de un plugin** (delegado a plan-034).
 
-A diferencia de los 7 katas POV que producen el **dossier documental** en `docs/{context}/agents-pov/`, este kata produce el **artefacto ejecutable** (el subagent en sí). Se usa cuando `cry-pov --kind subagent` necesita instanciar el agent, o cuando el usuario invoca `cry-agent` directamente para creación trivial.
+A diferencia de los 7 katas POV que producen el **dossier documental** en `docs/{context}/agents-pov/{agent}/`, este kata produce el **artefacto ejecutable** (el subagent en sí). Se usa cuando `cry-pov --kind subagent` necesita instanciar el agent, o cuando el usuario invoca `cry-agent` directamente para creación trivial.
 
 ## Cuándo Usar
 
@@ -21,7 +21,7 @@ A diferencia de los 7 katas POV que producen el **dossier documental** en `docs/
 | `--slug <name>` | Sí | Identificador en kebab-case (ej.: `reconciliation-assistant`) |
 | `--target <path>` | No | Destino. Default: `.claude/agents/<slug>.md`. Puede ser `<plugin>/agents/<slug>.md` (plan-034) |
 | `--persona <warrior>` | No | Importa identidad base de un warrior existente |
-| `--from-pov <path>` | No | Si se invoca dentro de `cry-pov --kind subagent`, importa de `docs/{context}/agents-pov/` |
+| `--from-pov <path>` | No | Si se invoca dentro de `cry-pov --kind subagent`, importa de `docs/{context}/agents-pov/{agent}/` |
 | `--description <text>` | Sí | Descripción corta para el frontmatter (1-2 frases) |
 
 ## Workflow
@@ -52,7 +52,7 @@ description: <descripción literal de --description>
 ---
 ```
 
-Si se pasó `--from-pov`, se lee `docs/{context}/agents-pov/overview.md` y se popula `description` con la persona declarada allí (1 frase).
+Si se pasó `--from-pov`, se lee `docs/{context}/agents-pov/{agent}/pov.md` y se popula `description` con la persona declarada allí (1 frase).
 
 ### Paso 3: Componer cuerpo del subagent
 
@@ -65,7 +65,7 @@ Estructura mínima del cuerpo (el usuario puede expandirlo después):
 
 stage: pre-operational
 
-<contenido de la persona; si --from-pov, copia bloque persona de overview.md; si --persona, importa identidad del warrior referenciado>
+<contenido de la persona; si --from-pov, copia bloque persona de pov.md; si --persona, importa identidad del warrior referenciado>
 
 ## Capacidades
 

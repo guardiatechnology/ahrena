@@ -4,7 +4,7 @@
 
 ## Objective
 
-Produce `docs/{context}/agents-pov/context-pack.md` with 3-5 real few-shot examples and 2-3 curated negative examples (anti-patterns observed in a basic LLM for the domain). Apply Directive 06 of `lex-agent-construction-directives` (Rich Context) in PoV context. The context-pack is the **asset that feeds `--from-pov`** when the agent matures: Mêtis uses these examples as a starting point for the production context-pack.
+Produce `docs/{context}/agents-pov/{agent}/context-pack.md` with 3-5 real few-shot examples and 2-3 curated negative examples (anti-patterns observed in a basic LLM for the domain). Apply Directive 06 of `lex-agent-construction-directives` (Rich Context) in PoV context. The context-pack is the **asset that feeds `--from-pov`** when the agent matures: Mêtis uses these examples as a starting point for the production context-pack.
 
 ## When to Use
 
@@ -16,8 +16,8 @@ Produce `docs/{context}/agents-pov/context-pack.md` with 3-5 real few-shot examp
 
 | Input | Required | Description |
 |-------|:--------:|-------------|
-| `docs/{context}/agents-pov/overview.md` | Yes | Primary use case |
-| `docs/{context}/agents-pov/system-prompt.md` | Yes | Expected output format |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Yes | Primary use case |
+| `docs/{context}/agents-pov/{agent}/system-prompt.md` | Yes | Expected output format |
 | Domain knowledge | Yes | Customer domain knowledge (interviews, docs, samples) |
 | `--inputs-dir <path>` | No | Directory with anonymized real data to inspire examples |
 
@@ -77,7 +77,7 @@ Apply `lex-data-retention`:
 
 ### Step 6: Persist context-pack.md
 
-Write `docs/{context}/agents-pov/context-pack.md` with sections: Positive few-shot examples (3-5), Anti-patterns (2-3), Anonymization notes, Quality criteria applied.
+Write `docs/{context}/agents-pov/{agent}/context-pack.md` with sections: Positive few-shot examples (3-5), Anti-patterns (2-3), Anonymization notes, Quality criteria applied.
 
 ### Final Validation
 
@@ -91,7 +91,7 @@ Write `docs/{context}/agents-pov/context-pack.md` with sections: Positive few-sh
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| `context-pack.md` | Markdown | `docs/{context}/agents-pov/context-pack.md` |
+| `context-pack.md` | Markdown | `docs/{context}/agents-pov/{agent}/context-pack.md` |
 
 ## Execution Example
 

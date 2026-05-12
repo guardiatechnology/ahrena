@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Producir `docs/{context}/agents-pov/context-pack.md` con 3-5 few-shot examples reales y 2-3 ejemplos negativos curados (anti-patrones observados en LLM básico del dominio). Aplica la Directriz 06 de `lex-agent-construction-directives` (Contexto Rico) en la óptica de PoV. El context-pack es el **activo que alimenta `--from-pov`** cuando el agent madura: Mêtis usa esos ejemplos como punto de partida para el context-pack de producción.
+Producir `docs/{context}/agents-pov/{agent}/context-pack.md` con 3-5 few-shot examples reales y 2-3 ejemplos negativos curados (anti-patrones observados en LLM básico del dominio). Aplica la Directriz 06 de `lex-agent-construction-directives` (Contexto Rico) en la óptica de PoV. El context-pack es el **activo que alimenta `--from-pov`** cuando el agent madura: Mêtis usa esos ejemplos como punto de partida para el context-pack de producción.
 
 ## Cuándo Usar
 
@@ -16,8 +16,8 @@ Producir `docs/{context}/agents-pov/context-pack.md` con 3-5 few-shot examples r
 
 | Input | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
-| `docs/{context}/agents-pov/overview.md` | Sí | Caso de uso primario |
-| `docs/{context}/agents-pov/system-prompt.md` | Sí | Formato de salida esperado |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Sí | Caso de uso primario |
+| `docs/{context}/agents-pov/{agent}/system-prompt.md` | Sí | Formato de salida esperado |
 | Domain knowledge | Sí | Conocimiento del dominio del cliente (entrevistas, docs, samples) |
 | `--inputs-dir <path>` | No | Directorio con datos reales anonimizados para inspirar ejemplos |
 
@@ -77,7 +77,7 @@ Se aplica `lex-data-retention`:
 
 ### Paso 6: Persistir context-pack.md
 
-Se graba `docs/{context}/agents-pov/context-pack.md` con secciones: Few-shot positivos (3-5), Anti-patrones (2-3), Notas de anonimización, Criterios de calidad aplicados.
+Se graba `docs/{context}/agents-pov/{agent}/context-pack.md` con secciones: Few-shot positivos (3-5), Anti-patrones (2-3), Notas de anonimización, Criterios de calidad aplicados.
 
 ### Validación Final
 
@@ -91,7 +91,7 @@ Se graba `docs/{context}/agents-pov/context-pack.md` con secciones: Few-shot pos
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| `context-pack.md` | Markdown | `docs/{context}/agents-pov/context-pack.md` |
+| `context-pack.md` | Markdown | `docs/{context}/agents-pov/{agent}/context-pack.md` |
 
 ## Ejemplo de Ejecución
 

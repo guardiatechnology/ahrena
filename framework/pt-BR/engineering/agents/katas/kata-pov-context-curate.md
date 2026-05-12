@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Produzir `docs/{context}/agents-pov/context-pack.md` com 3-5 few-shot examples reais e 2-3 exemplos negativos curados (anti-padrões observados em LLM básico do domínio). Aplica Diretriz 06 de `lex-agent-construction-directives` (Contexto Rico) na ótica de PoV. O context-pack é o **ativo que alimenta `--from-pov`** quando o agent maturece: Mêtis usa esses exemplos como ponto de partida para o context-pack de produção.
+Produzir `docs/{context}/agents-pov/{agent}/context-pack.md` com 3-5 few-shot examples reais e 2-3 exemplos negativos curados (anti-padrões observados em LLM básico do domínio). Aplica Diretriz 06 de `lex-agent-construction-directives` (Contexto Rico) na ótica de PoV. O context-pack é o **ativo que alimenta `--from-pov`** quando o agent maturece: Mêtis usa esses exemplos como ponto de partida para o context-pack de produção.
 
 ## Quando Usar
 
@@ -16,8 +16,8 @@ Produzir `docs/{context}/agents-pov/context-pack.md` com 3-5 few-shot examples r
 
 | Input | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
-| `docs/{context}/agents-pov/overview.md` | Sim | Caso de uso primário |
-| `docs/{context}/agents-pov/system-prompt.md` | Sim | Formato de saída esperado |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Sim | Caso de uso primário |
+| `docs/{context}/agents-pov/{agent}/system-prompt.md` | Sim | Formato de saída esperado |
 | Domain knowledge | Sim | Conhecimento do domínio do cliente (entrevistas, docs, samples) |
 | `--inputs-dir <path>` | Não | Diretório com dados reais anonimizados para inspirar exemplos |
 
@@ -77,7 +77,7 @@ Aplica `lex-data-retention`:
 
 ### Passo 6: Persistir context-pack.md
 
-Grava `docs/{context}/agents-pov/context-pack.md` com seções: Few-shot positivos (3-5), Anti-padrões (2-3), Notas de anonimização, Critérios de qualidade aplicados.
+Grava `docs/{context}/agents-pov/{agent}/context-pack.md` com seções: Few-shot positivos (3-5), Anti-padrões (2-3), Notas de anonimização, Critérios de qualidade aplicados.
 
 ### Validação Final
 
@@ -91,7 +91,7 @@ Grava `docs/{context}/agents-pov/context-pack.md` com seções: Few-shot positiv
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| `context-pack.md` | Markdown | `docs/{context}/agents-pov/context-pack.md` |
+| `context-pack.md` | Markdown | `docs/{context}/agents-pov/{agent}/context-pack.md` |
 
 ## Exemplo de Execução
 

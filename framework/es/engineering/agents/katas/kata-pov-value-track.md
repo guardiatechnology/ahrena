@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Producir y mantener `docs/{context}/agents-pov/value-proof.md` — documento **vivo** durante toda la operación del PoV. Define el schema canónico (campos obligatorios + SHA de la telemetría), criterio go/no-go para promoción (insumo directo de la DoOC), y cadencia de revisión (`tier-1/2 semanal`; `tier-3/4 quincenal`). Sin `value-proof.md` consistente, Mêtis no puede ejecutar `kata-dooc-validate` ítems 2 (leading probada) y 5 (observability ≥ 7 días).
+Producir y mantener `docs/{context}/agents-pov/{agent}/value-proof.md` — documento **vivo** durante toda la operación del PoV. Define el schema canónico (campos obligatorios + SHA de la telemetría), criterio go/no-go para promoción (insumo directo de la DoOC), y cadencia de revisión (`tier-1/2 semanal`; `tier-3/4 quincenal`). Sin `value-proof.md` consistente, Mêtis no puede ejecutar `kata-dooc-validate` ítems 2 (leading probada) y 5 (observability ≥ 7 días).
 
 ## Cuándo Usar
 
@@ -17,9 +17,9 @@ Producir y mantener `docs/{context}/agents-pov/value-proof.md` — documento **v
 
 | Input | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
-| `docs/{context}/agents-pov/overview.md` | Sí | Value metric leading + criterio de descontinuación |
-| `docs/{context}/agents-pov/observability/value-metrics.md` | Sí | Definiciones y thresholds |
-| `docs/{context}/agents-pov/feedback.md` | Sí | Mecanismo de captura + pivot trigger |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Sí | Value metric leading + criterio de descontinuación |
+| `docs/{context}/agents-pov/{agent}/observability/value-metrics.md` | Sí | Definiciones y thresholds |
+| `docs/{context}/agents-pov/{agent}/feedback.md` | Sí | Mecanismo de captura + pivot trigger |
 | `--tier <1\|2\|3\|4>` | No | Default 3. Determina la cadencia |
 | `--cycle <N>` | No | Número de la ronda de revisión (1, 2, 3...) |
 
@@ -52,7 +52,7 @@ Schema canónico (campos obligatorios):
 - responsable: {persona / equipo}
 - métrica primaria: {nombre} (referencia: observability/value-metrics.md)
 - threshold leading: {valor + ventana}
-- criterio de descontinuación: {literal de overview.md}
+- criterio de descontinuación: {literal de pov.md}
 - pivot trigger: {literal de feedback.md}
 
 ## Registro de ciclos
@@ -95,9 +95,19 @@ Sin PII. Si un caso depende de detalle sensible, anonimícese o cítese por ID o
 
 ### Paso 4: Evaluar criterio de descontinuación y pivot trigger
 
-1. **Criterio de descontinuación** (de `overview.md`): si se alcanza, status → `cerrado`.
+1. **Criterio de descontinuación** (de `pov.md`): si se alcanza, status → `cerrado`.
 2. **Pivot trigger** (de `feedback.md`): si se alcanza, status → `pivotando` y se recomienda re-ejecutar `kata-pov-scope-define`.
 3. **Éxito continuado** (métrica ≥ threshold por ≥ 7 días y alcance estabilizado por 2 semanas): el status puede avanzar a `listo-para-DoOC` — Mêtis puede ejecutar `cry-agent-design --from-pov`.
+
+#### Precondición obligatoria — Boundary PII antes de `listo-para-DoOC`
+
+Antes de transicionar el status a `listo-para-DoOC` (y por lo tanto antes de habilitar el handoff `cry-agent-design --from-pov` para Mêtis), el kata **DEBE** ejecutar una verificación de frontera de PII sobre el directorio `docs/{context}/agents-pov/{agent}/`:
+
+1. Para cada archivo `.md` (y archivos bajo `observability/`) del PoV, grep contra los patrones declarados en `lex-data-retention` (CPF, CNPJ, email, teléfono, cuenta bancaria, token, secret, etc.).
+2. Si hay **cualquier** ocurrencia, el kata **RECHAZA** la transición y devuelve al usuario la lista de archivos y líneas alcanzadas, recomendando re-ejecutar `kata-pov-context-curate` para re-anonimización (`pov.md::Notas de anonimización`).
+3. Solo cuando el grep devuelve cero ocurrencias el status puede ser cambiado a `listo-para-DoOC`.
+
+Justificación: el documento `pov.md` (y el context-pack) se entrega como input directo a `warrior-mêtis` vía `--from-pov` en el ciclo `operational-concrete`. PII filtrada en el paquete PoV se propagaría al design de producción sin nueva revisión. El gate se ejecuta en este kata porque es el único punto en que la transición al handoff es decidida.
 
 ### Paso 5: Actualizar status del PoV
 
@@ -109,9 +119,9 @@ Se actualiza el bloque "Decisión actual" con:
 
 ### Paso 6: Persistir el documento
 
-1. Se graba `docs/{context}/agents-pov/value-proof.md` con el ciclo actual añadido.
+1. Se graba `docs/{context}/agents-pov/{agent}/value-proof.md` con el ciclo actual añadido.
 2. Se registra el commit en el historial del PoV (responsable + cycle number).
-3. Si status = `listo-para-DoOC`, se emite log diciendo "Listo para que Mêtis consuma vía `cry-agent-design --from-pov docs/{context}/agents-pov/`".
+3. Si status = `listo-para-DoOC`, se emite log diciendo "Listo para que Mêtis consuma vía `cry-agent-design --from-pov docs/{context}/agents-pov/{agent}/`".
 
 ### Validación Final
 
@@ -125,7 +135,7 @@ Se actualiza el bloque "Decisión actual" con:
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| `value-proof.md` | Markdown (vivo) | `docs/{context}/agents-pov/value-proof.md` |
+| `value-proof.md` | Markdown (vivo) | `docs/{context}/agents-pov/{agent}/value-proof.md` |
 
 ## Cadencia (referencia rápida)
 

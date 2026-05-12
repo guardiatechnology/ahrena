@@ -20,7 +20,7 @@ Atalho para invocar `kata-agent-author` diretamente e criar um subagent Anthropi
 | `--description` | Sim | Descrição curta (1-2 frases) — vai para o frontmatter | `"Sugere pareamentos extrato↔lançamento contábil"` |
 | `--persona` | Não | Importa identidade base de um warrior existente | `warrior-apollo` |
 | `--target` | Não | Path destino. Default `.claude/agents/<slug>.md` | `.claude/agents/`, `plugins/foo/agents/` |
-| `--from-pov` | Não | Importa de um PoV existente | `docs/reconciliation/agents-pov/` |
+| `--from-pov` | Não | Importa de um PoV existente | `docs/reconciliation/agents-pov/rec-pov-classifier/` |
 | `--force` | Não | Sobrescreve arquivo existente | (flag) |
 
 ## O que o Comando Faz
@@ -91,7 +91,7 @@ Próximos passos:
 ```
 /cry-agent --slug reconciliation-assistant \
            --description "Sugere pareamentos extrato↔lançamento contábil" \
-           --from-pov docs/reconciliation/agents-pov/
+           --from-pov docs/reconciliation/agents-pov/rec-pov-classifier/
 ```
 
 **Output esperado:**
@@ -99,10 +99,10 @@ Próximos passos:
 ```
 🛠  cry-agent — scaffold standalone (--from-pov)
    slug: reconciliation-assistant
-   importando de: docs/reconciliation/agents-pov/
+   importando de: docs/reconciliation/agents-pov/rec-pov-classifier/
 
 → kata-agent-author
-   ✅ persona importada de overview.md
+   ✅ persona importada de pov.md
    ✅ Capacidades e Restrições copiadas de system-prompt.md
    ✅ stage: pre-operational mantido
    ✅ arquivo criado em .claude/agents/reconciliation-assistant.md
@@ -121,7 +121,7 @@ Próximos passos:
 | Aspecto | `cry-agent` | `cry-pov` |
 |---|---|---|
 | **Natureza** | Scaffold trivial | Ciclo POV completo |
-| **Output** | 1 arquivo `.md` | `docs/{context}/agents-pov/` + implementação |
+| **Output** | 1 arquivo `.md` | `docs/{context}/agents-pov/{agent}/` + implementação |
 | **Quando usar** | Já há clareza de escopo e tooling; basta o arquivo | Início de um PoV real com cliente |
 | **Diretrizes** | Identidade declarada (Diretriz 01 mínima) | As 6 Diretrizes aplicadas no rigor pré-operacional |
 

@@ -6,7 +6,7 @@
 
 Quickly scaffold an isolated Anthropic subagent at `agents/<name>.md` with a frontmatter compatible with the Claude Code subagents spec. Useful for trivial PoV cases where the full Skill structure is overkill (no widgets, no tools/, no references/) — just a `.md` file with declared identity + tooling. Can be **standalone** (in `.claude/agents/`) or **inside a plugin** (delegated to plan-034).
 
-Unlike the 7 POV katas that produce the **documentation dossier** in `docs/{context}/agents-pov/`, this kata produces the **executable artifact** (the subagent itself). Used when `cry-pov --kind subagent` needs to instantiate the agent, or when the user invokes `cry-agent` directly for trivial creation.
+Unlike the 7 POV katas that produce the **documentation dossier** in `docs/{context}/agents-pov/{agent}/`, this kata produces the **executable artifact** (the subagent itself). Used when `cry-pov --kind subagent` needs to instantiate the agent, or when the user invokes `cry-agent` directly for trivial creation.
 
 ## When to Use
 
@@ -21,7 +21,7 @@ Unlike the 7 POV katas that produce the **documentation dossier** in `docs/{cont
 | `--slug <name>` | Yes | Identifier in kebab-case (e.g., `reconciliation-assistant`) |
 | `--target <path>` | No | Destination. Default: `.claude/agents/<slug>.md`. May be `<plugin>/agents/<slug>.md` (plan-034) |
 | `--persona <warrior>` | No | Imports base identity from an existing warrior |
-| `--from-pov <path>` | No | When invoked inside `cry-pov --kind subagent`, imports from `docs/{context}/agents-pov/` |
+| `--from-pov <path>` | No | When invoked inside `cry-pov --kind subagent`, imports from `docs/{context}/agents-pov/{agent}/` |
 | `--description <text>` | Yes | Short description for the frontmatter (1-2 sentences) |
 
 ## Workflow
@@ -52,7 +52,7 @@ description: <literal description from --description>
 ---
 ```
 
-If `--from-pov` was passed, read `docs/{context}/agents-pov/overview.md` and populate `description` with the persona declared there (1 sentence).
+If `--from-pov` was passed, read `docs/{context}/agents-pov/{agent}/pov.md` and populate `description` with the persona declared there (1 sentence).
 
 ### Step 3: Compose the subagent body
 
@@ -65,7 +65,7 @@ Minimum body structure (the user can expand later):
 
 stage: pre-operational
 
-<persona content; if --from-pov, copies the persona block from overview.md; if --persona, imports identity from the referenced warrior>
+<persona content; if --from-pov, copies the persona block from pov.md; if --persona, imports identity from the referenced warrior>
 
 ## Capabilities
 

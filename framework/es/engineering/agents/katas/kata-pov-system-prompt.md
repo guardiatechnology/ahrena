@@ -4,11 +4,11 @@
 
 ## Objetivo
 
-Producir `docs/{context}/agents-pov/system-prompt.md` en **versión mínima viable** conforme a `lex-system-prompt`, declarando literalmente `stage: pre-operational` en el bloque de identidad (precondición de la DoOC ítem 9). Aplica la Directriz 01 de `lex-agent-construction-directives` (Identidad Clara) en el rigor permitido a la etapa pre-operacional: propósito + alcance + restricciones básicas + etapa — nada más. Templates de producción (controles OWASP completos, guardrails complejos) quedan para Mêtis cuando el agent madure.
+Producir `docs/{context}/agents-pov/{agent}/system-prompt.md` en **versión mínima viable** conforme a `lex-system-prompt`, declarando literalmente `stage: pre-operational` en el bloque de identidad (precondición de la DoOC ítem 9). Aplica la Directriz 01 de `lex-agent-construction-directives` (Identidad Clara) en el rigor permitido a la etapa pre-operacional: propósito + alcance + restricciones básicas + etapa — nada más. Templates de producción (controles OWASP completos, guardrails complejos) quedan para Mêtis cuando el agent madure.
 
 ## Cuándo Usar
 
-- Después de que `kata-pov-scope-define` produce `overview.md`
+- Después de que `kata-pov-scope-define` produce `pov.md`
 - Cuando `warrior-claudionor` necesita instanciar el prompt del PoV
 - Cuando un PoV antiguo (`stage: legacy-pov`) se retrofitea para `stage: pre-operational` legítimo
 
@@ -16,7 +16,7 @@ Producir `docs/{context}/agents-pov/system-prompt.md` en **versión mínima viab
 
 | Input | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
-| `docs/{context}/agents-pov/overview.md` | Sí | Output de `kata-pov-scope-define` |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Sí | Output de `kata-pov-scope-define` |
 | `lex-system-prompt` | Sí | Fuente autoritativa de la estructura de los 4 bloques |
 | `codex-system-prompt` | Sí | Guía operacional con templates |
 | `lex-agent-construction-directives` | Sí | Define el vocabulario `stage:*` |
@@ -26,7 +26,7 @@ Producir `docs/{context}/agents-pov/system-prompt.md` en **versión mínima viab
 
 ```
 Progreso:
-- [ ] 1. Leer overview.md y extraer persona/alcance
+- [ ] 1. Leer pov.md y extraer persona/alcance
 - [ ] 2. Escribir bloque Identidad (con stage: pre-operational)
 - [ ] 3. Escribir bloque Capacidades (mínimo viable)
 - [ ] 4. Escribir bloque Restricciones (mínimo viable)
@@ -35,11 +35,11 @@ Progreso:
 - [ ] 7. Persistir system-prompt.md
 ```
 
-### Paso 1: Leer overview.md y extraer persona/alcance
+### Paso 1: Leer pov.md y extraer persona/alcance
 
-1. Se lee `docs/{context}/agents-pov/overview.md`.
+1. Se lee `docs/{context}/agents-pov/{agent}/pov.md`.
 2. Se extrae: persona (1 frase), caso de uso primario, value metric, criterio de descontinuación.
-3. Se confirma que `overview.md` contiene `stage: pre-operational`. Si ausente, se regresa a `kata-pov-scope-define` (no se intenta corregir aquí).
+3. Se confirma que `pov.md` contiene `stage: pre-operational`. Si ausente, se regresa a `kata-pov-scope-define` (no se intenta corregir aquí).
 
 ### Paso 2: Escribir bloque Identidad
 
@@ -49,7 +49,7 @@ Bloque mínimo viable de los 4 obligatorios de `lex-system-prompt`:
 # Identidad
 
 Eres {nombre del PoV}, un asistente en etapa **pre-operational** enfocado en
-{caso de uso primario extraído de overview.md}.
+{caso de uso primario extraído de pov.md}.
 
 stage: pre-operational
 ```
@@ -74,12 +74,12 @@ Máximo 3 capacidades. Más que eso quiebra la Directriz 05 (Alcance Restringido
 # Restricciones
 
 No puedes:
-- Ejecutar acciones fuera del caso de uso primario declarado en overview.md
+- Ejecutar acciones fuera del caso de uso primario declarado en pov.md
 - Persistir datos más allá de la ventana de contexto actual (sin memoria persistente)
 - Substituir el criterio de descontinuación o alterar la value metric
 ```
 
-Restricciones adicionales surgen de `overview.md::Fuera de alcance` (copia literal).
+Restricciones adicionales surgen de `pov.md::Fuera de alcance` (copia literal).
 
 ### Paso 5: Escribir bloque Estilo de salida
 
@@ -100,8 +100,8 @@ Se invoca `kata-system-prompt-adversarial-validate` en modo `--minimum-viable`:
 
 ### Paso 7: Persistir system-prompt.md
 
-1. Se graba `docs/{context}/agents-pov/system-prompt.md` con los 4 bloques.
-2. En el pie del archivo se anota: `# Notas`, `kata-pov-system-prompt`, fecha, hash del `overview.md` consumido (para trazabilidad).
+1. Se graba `docs/{context}/agents-pov/{agent}/system-prompt.md` con los 4 bloques.
+2. En el pie del archivo se anota: `# Notas`, `kata-pov-system-prompt`, fecha, hash del `pov.md` consumido (para trazabilidad).
 
 ### Validación Final
 
@@ -115,11 +115,11 @@ Se invoca `kata-system-prompt-adversarial-validate` en modo `--minimum-viable`:
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| `system-prompt.md` | Markdown (system prompt) | `docs/{context}/agents-pov/system-prompt.md` |
+| `system-prompt.md` | Markdown (system prompt) | `docs/{context}/agents-pov/{agent}/system-prompt.md` |
 
 ## Ejemplo de Ejecución
 
-### Input (overview.md, extracto)
+### Input (pov.md, extracto)
 
 ```
 Persona: Asistente que sugiere pareos extracto↔asiento contable.

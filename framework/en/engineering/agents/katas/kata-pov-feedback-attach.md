@@ -4,7 +4,7 @@
 
 ## Objective
 
-Produce `docs/{context}/agents-pov/feedback.md` declaring the PoV's feedback loop: **lightweight HITL** (human approves critical outputs) **OR** **1 objective metric** from the environment (e.g., "does the query return a valid result?"). The critic agent is optional. Apply Directive 04 of `lex-agent-construction-directives` (Explicit Feedback Loop) at minimum viable rigor: the PoV does not need the full production loop, but it needs **some objective signal** of whether it is hitting the mark.
+Produce `docs/{context}/agents-pov/{agent}/feedback.md` declaring the PoV's feedback loop: **lightweight HITL** (human approves critical outputs) **OR** **1 objective metric** from the environment (e.g., "does the query return a valid result?"). The critic agent is optional. Apply Directive 04 of `lex-agent-construction-directives` (Explicit Feedback Loop) at minimum viable rigor: the PoV does not need the full production loop, but it needs **some objective signal** of whether it is hitting the mark.
 
 ## When to Use
 
@@ -16,8 +16,8 @@ Produce `docs/{context}/agents-pov/feedback.md` declaring the PoV's feedback loo
 
 | Input | Required | Description |
 |-------|:--------:|-------------|
-| `docs/{context}/agents-pov/overview.md` | Yes | Primary use case and value metric |
-| `docs/{context}/agents-pov/observability/value-metrics.md` | Yes | Primary metric |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Yes | Primary use case and value metric |
+| `docs/{context}/agents-pov/{agent}/observability/value-metrics.md` | Yes | Primary metric |
 | `--tier <1\|2\|3\|4>` | No | Default 3. Tier-1/2 requires a stricter loop |
 
 ## Workflow
@@ -71,11 +71,11 @@ Declared condition that, when met, forces a PoV review (re-execution of `kata-po
 - Default: "Human approval < 50% for 2 consecutive weeks" (lightweight HITL)
 - Default: "Objective metric < 30% of the threshold for 2 consecutive weeks"
 
-The pivot trigger is **different** from the discontinuation criterion (`overview.md::Discontinuation criterion`): pivot asks for review; discontinuation closes.
+The pivot trigger is **different** from the discontinuation criterion (`pov.md::Discontinuation criterion`): pivot asks for review; discontinuation closes.
 
 ### Step 5: Persist feedback.md
 
-Write `docs/{context}/agents-pov/feedback.md` with sections: Chosen mechanism, Technical specification, Cadence, Pivot trigger, Cross-reference to `observability/value-metrics.md`.
+Write `docs/{context}/agents-pov/{agent}/feedback.md` with sections: Chosen mechanism, Technical specification, Cadence, Pivot trigger, Cross-reference to `observability/value-metrics.md`.
 
 ### Final Validation
 
@@ -89,11 +89,11 @@ Write `docs/{context}/agents-pov/feedback.md` with sections: Chosen mechanism, T
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| `feedback.md` | Markdown | `docs/{context}/agents-pov/feedback.md` |
+| `feedback.md` | Markdown | `docs/{context}/agents-pov/{agent}/feedback.md` |
 
 ## Execution Example
 
-### Input (overview.md, excerpt)
+### Input (pov.md, excerpt)
 
 ```
 Use case: suggest bank-statement-to-ledger-entry pairing. Advisory suggestion (human confirms before saving).

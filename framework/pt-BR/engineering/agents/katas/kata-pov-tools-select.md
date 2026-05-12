@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Produzir `docs/{context}/agents-pov/tools.md` com o subconjunto mínimo de tools Anthropic (web search, code execution, file write) necessárias para o caso de uso primário do PoV. Zero MCP custom, zero ML especializado, zero tooling fora do ecossistema Anthropic nativo. Aplica Diretriz 03 de `lex-agent-construction-directives` (Ferramentas Concretas) na ótica de PoV: busca + execução simples bastam para provar valor; sofisticação fica para Mêtis.
+Produzir `docs/{context}/agents-pov/{agent}/tools.md` com o subconjunto mínimo de tools Anthropic (web search, code execution, file write) necessárias para o caso de uso primário do PoV. Zero MCP custom, zero ML especializado, zero tooling fora do ecossistema Anthropic nativo. Aplica Diretriz 03 de `lex-agent-construction-directives` (Ferramentas Concretas) na ótica de PoV: busca + execução simples bastam para provar valor; sofisticação fica para Mêtis.
 
 ## Quando Usar
 
@@ -16,7 +16,7 @@ Produzir `docs/{context}/agents-pov/tools.md` com o subconjunto mínimo de tools
 
 | Input | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
-| `docs/{context}/agents-pov/overview.md` | Sim | Define o caso de uso primário |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Sim | Define o caso de uso primário |
 | `codex-skill-tools-and-widgets` | Sim | Convenção Ahrena para `tools/` e widgets dentro de Skills |
 | `codex-skill-anthropic-agent-skills` | Sim | Spec Anthropic para tools declaradas em SKILL.md |
 
@@ -24,16 +24,16 @@ Produzir `docs/{context}/agents-pov/tools.md` com o subconjunto mínimo de tools
 
 ```
 Progresso:
-- [ ] 1. Ler overview.md e listar capacidades requeridas
+- [ ] 1. Ler pov.md e listar capacidades requeridas
 - [ ] 2. Mapear capacidades → tools Anthropic nativos
 - [ ] 3. Recusar tooling fora do escopo
 - [ ] 4. Documentar parâmetros mínimos e exemplos
 - [ ] 5. Persistir tools.md
 ```
 
-### Passo 1: Ler overview.md e listar capacidades requeridas
+### Passo 1: Ler pov.md e listar capacidades requeridas
 
-1. Lê `docs/{context}/agents-pov/overview.md`.
+1. Lê `docs/{context}/agents-pov/{agent}/pov.md`.
 2. Para cada capacidade implícita no caso de uso primário, lista a operação concreta (ex.: "buscar lançamentos do ERP" → leitura de arquivo CSV; "validar reconciliação" → execução de script Python).
 
 ### Passo 2: Mapear capacidades → tools Anthropic nativos
@@ -53,12 +53,12 @@ Para cada item da lista do Passo 1, aponta exatamente 1 tool do catálogo. Se ne
 
 Vetado em PoV:
 
-- MCP servers custom (Anthropic MCP servers oficiais são OK se já listados em `.ahrena/.directives::mcp.servers`)
+- MCP servers custom (MCP servers oficiais listados em `.ahrena/.directives::mcp.servers` são OK — não exige ser autoria Anthropic, desde que estejam declarados e respeitem `lex-mcp` Rule 5 sobre ordem de preferência de transports)
 - Bibliotecas de ML treinadas (transformers, scikit-learn) — fica para `warrior-apollo-agents` (plan-013) quando Mêtis projetar produção
 - Integração com API externa **paga** sem sandbox público
 - Cache persistente entre sessões — Diretriz 02 em PoV é apenas curto-prazo
 
-Se o caso de uso primário **exige** algo da lista vetada, isso é sinal forte de que o PoV está prematuro: documenta o gap em `overview.md::Fora de escopo` e prossegue sem o tool.
+Se o caso de uso primário **exige** algo da lista vetada, isso é sinal forte de que o PoV está prematuro: documenta o gap em `pov.md::Fora de escopo` e prossegue sem o tool.
 
 ### Passo 4: Documentar parâmetros mínimos e exemplos
 
@@ -71,7 +71,7 @@ Para cada tool selecionada, documenta:
 
 ### Passo 5: Persistir tools.md
 
-Grava `docs/{context}/agents-pov/tools.md` com seções: Capacidades requeridas, Mapping capacidade→tool, Tools selecionadas (uma seção por tool), Tools recusadas (com justificativa), Limites por turn.
+Grava `docs/{context}/agents-pov/{agent}/tools.md` com seções: Capacidades requeridas, Mapping capacidade→tool, Tools selecionadas (uma seção por tool), Tools recusadas (com justificativa), Limites por turn.
 
 ### Validação Final
 
@@ -85,11 +85,11 @@ Grava `docs/{context}/agents-pov/tools.md` com seções: Capacidades requeridas,
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| `tools.md` | Markdown | `docs/{context}/agents-pov/tools.md` |
+| `tools.md` | Markdown | `docs/{context}/agents-pov/{agent}/tools.md` |
 
 ## Exemplo de Execução
 
-### Input (overview.md, extrato)
+### Input (pov.md, extrato)
 
 ```
 Caso de uso primário: sugerir pareamento extrato↔lançamento contábil por valor + data + descrição.
@@ -129,7 +129,7 @@ Caso de uso primário: sugerir pareamento extrato↔lançamento contábil por va
 
 ## Tools recusadas
 
-- MCP custom para ERP: gap declarado em overview.md::Fora de escopo
+- MCP custom para ERP: gap declarado em pov.md::Fora de escopo
 - Modelo NER treinado: prematuro para PoV
 ```
 

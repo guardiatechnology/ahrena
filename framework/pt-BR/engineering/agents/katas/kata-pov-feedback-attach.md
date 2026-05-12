@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Produzir `docs/{context}/agents-pov/feedback.md` declarando o loop de feedback do PoV: **HITL leve** (humano aprova outputs críticos) **OU** **1 métrica objetiva** do ambiente (ex.: "query retorna resultado válido?"). Critic agent é opcional. Aplica Diretriz 04 de `lex-agent-construction-directives` (Loop de Feedback Explícito) no rigor mínimo viável: PoV não precisa do loop completo de produção, mas precisa de **alguma sinalização objetiva** se está acertando.
+Produzir `docs/{context}/agents-pov/{agent}/feedback.md` declarando o loop de feedback do PoV: **HITL leve** (humano aprova outputs críticos) **OU** **1 métrica objetiva** do ambiente (ex.: "query retorna resultado válido?"). Critic agent é opcional. Aplica Diretriz 04 de `lex-agent-construction-directives` (Loop de Feedback Explícito) no rigor mínimo viável: PoV não precisa do loop completo de produção, mas precisa de **alguma sinalização objetiva** se está acertando.
 
 ## Quando Usar
 
@@ -16,8 +16,8 @@ Produzir `docs/{context}/agents-pov/feedback.md` declarando o loop de feedback d
 
 | Input | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
-| `docs/{context}/agents-pov/overview.md` | Sim | Caso de uso primário e value metric |
-| `docs/{context}/agents-pov/observability/value-metrics.md` | Sim | Métrica primária |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Sim | Caso de uso primário e value metric |
+| `docs/{context}/agents-pov/{agent}/observability/value-metrics.md` | Sim | Métrica primária |
 | `--tier <1\|2\|3\|4>` | Não | Default 3. Tier-1/2 exige loop mais rígido |
 
 ## Workflow
@@ -71,11 +71,11 @@ Condição declarada que, se atingida, força revisão do PoV (re-execução de 
 - Default: "Aprovação humana < 50% por 2 semanas consecutivas" (HITL leve)
 - Default: "Métrica objetiva < 30% do threshold por 2 semanas consecutivas"
 
-Pivot trigger é **diferente** de critério de descontinuação (`overview.md::Critério de descontinuação`): pivot pede revisão; descontinuação encerra.
+Pivot trigger é **diferente** de critério de descontinuação (`pov.md::Critério de descontinuação`): pivot pede revisão; descontinuação encerra.
 
 ### Passo 5: Persistir feedback.md
 
-Grava `docs/{context}/agents-pov/feedback.md` com seções: Mecanismo escolhido, Especificação técnica, Cadência, Pivot trigger, Referência cruzada para `observability/value-metrics.md`.
+Grava `docs/{context}/agents-pov/{agent}/feedback.md` com seções: Mecanismo escolhido, Especificação técnica, Cadência, Pivot trigger, Referência cruzada para `observability/value-metrics.md`.
 
 ### Validação Final
 
@@ -89,11 +89,11 @@ Grava `docs/{context}/agents-pov/feedback.md` com seções: Mecanismo escolhido,
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| `feedback.md` | Markdown | `docs/{context}/agents-pov/feedback.md` |
+| `feedback.md` | Markdown | `docs/{context}/agents-pov/{agent}/feedback.md` |
 
 ## Exemplo de Execução
 
-### Input (overview.md, extrato)
+### Input (pov.md, extrato)
 
 ```
 Caso de uso: sugerir pareamento extrato↔lançamento. Sugestão consultiva (humano confirma antes de gravar).

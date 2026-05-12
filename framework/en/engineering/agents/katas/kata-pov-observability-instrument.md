@@ -4,7 +4,7 @@
 
 ## Objective
 
-Produce `docs/{context}/agents-pov/observability/` with 4 canonical files (`traces-spec.md`, `prompts-log.md`, `tool-calls-log.md`, `value-metrics.md`) declaring the PoV's observability **contract**: which spans, which log fields, which leading metrics. Observability is a **first-class citizen** in the PoV — without instrumentation, there is no base for Directive 06 (rich context for retrofit) nor for DoOC item 5 (observability data ≥ 7 days). Apply `lex-observability-required` at pre-operational rigor: 1 trace + 1 metric + structured log are enough.
+Produce `docs/{context}/agents-pov/{agent}/observability/` with 4 canonical files (`traces-spec.md`, `prompts-log.md`, `tool-calls-log.md`, `value-metrics.md`) declaring the PoV's observability **contract**: which spans, which log fields, which leading metrics. Observability is a **first-class citizen** in the PoV — without instrumentation, there is no base for Directive 06 (rich context for retrofit) nor for DoOC item 5 (observability data ≥ 7 days). Apply `lex-observability-required` at pre-operational rigor: 1 trace + 1 metric + structured log are enough.
 
 ## When to Use
 
@@ -16,8 +16,8 @@ Produce `docs/{context}/agents-pov/observability/` with 4 canonical files (`trac
 
 | Input | Required | Description |
 |-------|:--------:|-------------|
-| `docs/{context}/agents-pov/overview.md` | Yes | Defines the leading value metric |
-| `docs/{context}/agents-pov/tools.md` | Yes | Tools list for the logs |
+| `docs/{context}/agents-pov/{agent}/pov.md` | Yes | Defines the leading value metric |
+| `docs/{context}/agents-pov/{agent}/tools.md` | Yes | Tools list for the logs |
 | `lex-observability-required` | Yes | Minimum rigor (trace + metric + log) |
 | `lex-data-retention` | Yes | PII restrictions in logs |
 
@@ -149,7 +149,7 @@ At the end of `traces-spec.md`, add section `## Conformance with lex-observabili
 
 ### Step 6: Persist observability/
 
-Create directory `docs/{context}/agents-pov/observability/` with:
+Create directory `docs/{context}/agents-pov/{agent}/observability/` with:
 
 - `traces-spec.md`
 - `prompts-log.md`
@@ -170,7 +170,7 @@ Add a short `README.md` listing the 4 files and the directory's purpose.
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| `observability/traces-spec.md` | Markdown + YAML | `docs/{context}/agents-pov/observability/` |
+| `observability/traces-spec.md` | Markdown + YAML | `docs/{context}/agents-pov/{agent}/observability/` |
 | `observability/prompts-log.md` | Markdown + YAML | same |
 | `observability/tool-calls-log.md` | Markdown + YAML | same |
 | `observability/value-metrics.md` | Markdown | same |

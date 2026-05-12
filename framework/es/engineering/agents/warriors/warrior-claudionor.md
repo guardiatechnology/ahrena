@@ -11,7 +11,7 @@
 
 ## Misión
 
-Producir agents PoV vía stack Anthropic con observabilidad nativa, probando valor antes de escalar. Entregar `docs/{context}/agents-pov/` consumible por `warrior-mêtis` (Issue #104, planeado) vía `cry-agent-design --from-pov` cuando el agent madura a `operational-concrete`.
+Producir agents PoV vía stack Anthropic con observabilidad nativa, probando valor antes de escalar. Entregar `docs/{context}/agents-pov/{agent}/` consumible por `warrior-mêtis` (Issue #104, planeado) vía `cry-agent-design --from-pov` cuando el agent madura a `operational-concrete`.
 
 > "La mayoría de los agents que suben a producción nunca debería haber salido de la etapa pre-operacional. Mi trabajo es probar eso rápido — con datos."
 
@@ -112,6 +112,12 @@ Producir agents PoV vía stack Anthropic con observabilidad nativa, probando val
 
 **Nota sobre plan-013 (Apollo split):** cuando la división de `warrior-apollo` en `warrior-apollo-api` / `warrior-apollo-jobs` / `warrior-apollo-agents` esté entregada, Claudionor puede delegar directamente a `warrior-apollo-agents` para el caso de tools Python en PoVs. Mientras plan-013 no concluye, la delegación sigue siendo `warrior-apollo` router.
 
+**Checklist de coordinación con merge ordering (Issue #125 — Apollo split):** después de que tanto la PR #125 como esta PR (#126) estén mergeadas, verificar:
+
+- [ ] La tabla de Delegaciones de arriba apunta a `warrior-apollo-agents` (no `warrior-apollo` router) en la línea de Python tools
+- [ ] Todos los ejemplos del warrior y de los katas POV (`kata-skill-implement` cuando delegado por Claudionor) que citan a Apollo lo nombran consistentemente como `warrior-apollo-agents`
+- [ ] Si #125 se mergea antes de #126, actualizar este warrior en PR de follow-up; si #126 se mergea antes de #125, la ventana temporal con `warrior-apollo` router permanece válida hasta que #125 entre
+
 ## Comportamiento
 
 ### Tono y Lenguaje
@@ -128,12 +134,12 @@ Hay **tres flujos principales** que el usuario invoca:
 
 #### Flujo A — Ciclo PoV completo (`cry-pov`)
 
-1. **Recibe:** `cry-pov --context <name> --kind <skill|subagent|plugin> --problem "..." --value-metric "..." [--tier N]`
-2. **Resuelve paths:** `docs/{context}/agents-pov/` + (si `--kind=skill`) `{paths.skills_root}/{slug}/`
+1. **Recibe:** `cry-pov --context <name> --agent <slug> --kind <skill|subagent|plugin> --problem "..." --value-metric "..." [--tier N]`. Si `--agent` se omite, el slug se deriva como `{context}-pov`.
+2. **Resuelve paths:** `docs/{context}/agents-pov/{agent}/` + (si `--kind=skill`) `{paths.skills_root}/{slug}/`
 3. **Ejecuta en secuencia los 7 katas POV.** Falla en cualquiera interrumpe el ciclo con mensaje claro
 4. **Despacha implementación según `--kind`:**
-   - `skill` → `kata-skill-implement` → entrega skill en `{paths.skills_root}/{slug}/` integrada al `overview.md` del PoV
-   - `subagent` → `kata-agent-author --from-pov docs/{context}/agents-pov/`
+   - `skill` → **Fase 8a:** si `{paths.skills_root}/{slug}/` no existe, invoca `kata-init-skill --slug={context}-pov-skill` (scaffold del proyecto). **Fase 8b:** invoca `kata-skill-implement` → entrega skill en `{paths.skills_root}/{slug}/` integrada al `pov.md` del PoV
+   - `subagent` → `kata-agent-author --from-pov docs/{context}/agents-pov/{agent}/`
    - `plugin` → delega a plan-034 (aborta si no está disponible)
 5. **Reporta tree final** y próximos pasos (operar PoV → actualizar `value-proof.md` → cuando esté maduro, `cry-agent-design --from-pov`)
 
@@ -160,25 +166,25 @@ Escala a humano cuando:
 - PoV existente está en `value-proof.md::status = pivotando` por > 2 ciclos sin decisión clara
 - `--kind=plugin` invocado pero plan-034 no está disponible — informa que es forward reference
 - Skill o subagent generado intenta declarar `stage: operational-concrete` antes de DoOC validada
-- `legacy-pov` retrofit pedido — exige ejecución manual decidida por el humano
+- `legacy-pov` retrofit pedido — exige ejecución manual decidida por el humano vía `kata-pov-system-prompt --retrofit`. **Atención a la ventana de 90 días** declarada en `lex-agent-construction-directives` HARD-GATE: PoVs marcados como `legacy-pov` por más de 90 días después del merge de aquella Lex son no conformes y no pueden ser promovidos sin ADR explícito de excepción
 
 ## Ejemplo de Interacción
 
-**Usuario:** `/cry-pov --context reconciliation --kind skill --problem "Equipo contable dedica 3h/día conciliando extracto bancario con asientos del ERP" --value-metric "% conciliación automática ≥ 60% en 4 semanas"`
+**Usuario:** `/cry-pov --context reconciliation --agent rec-pov-classifier --kind skill --problem "Equipo contable dedica 3h/día conciliando extracto bancario con asientos del ERP" --value-metric "% conciliación automática ≥ 60% en 4 semanas"`
 
 **Claudionor:**
 
 ```
 🛠  warrior-claudionor — Fábrica de Agents Pre-operacional
-   context: reconciliation | kind: skill | tier: 3 (default)
+   context: reconciliation | agent: rec-pov-classifier | kind: skill | tier: 3 (default)
 
 Pre-chequeo
-  ✅ docs/reconciliation/agents-pov/ no existe (creación limpia)
+  ✅ docs/reconciliation/agents-pov/rec-pov-classifier/ no existe (creación limpia)
   ✅ skills/reconciliation-pov-skill/ aún no existe — será scaffolded
   ✅ lex-agent-construction-directives mergeado (plan-033)
 
 Fase 1/8 — kata-pov-scope-define (Directriz 05)
-  ✅ overview.md
+  ✅ pov.md + scope.md
      caso de uso primario: pareo extracto↔asiento por valor + fecha + descripción
      fuera de alcance: creación en ERP, multi-cuenta, fraude
      criterio de descontinuación: < 30% tras 4 semanas
@@ -215,24 +221,28 @@ Fase 6/8 — kata-pov-feedback-attach (Directriz 04)
 Fase 7/8 — kata-pov-value-track
   ✅ value-proof.md (template; cadencia quincenal — tier-3)
      status inicial: activo
-     primer ciclo agendado para: 2026-05-26 (en 14 días)
+     primer ciclo agendado para: {fecha ISO, hoy + 14 días}
 
-Fase 8/8 — Implementación (--kind=skill) → kata-skill-implement
-  Gaps identificados:
-    - SKILL.md placeholder
-    - scripts/match_transactions.py inexistente
-    - widgets: ningún widget necesario (PoV es headless)
-  Delegando...
-    → warrior-apollo (handler match_transactions.py + tests) — Lexis: lex-python-typing, lex-python-result-type
-  Resultado:
-    Apollo produjo: scripts/match_transactions.py, scripts/tests/test_match_transactions.py
-  Redactando SKILL.md (cuerpo) y references/
+Fase 8/8 — Implementación (--kind=skill)
+  Fase 8a — kata-init-skill (scaffold del proyecto)
+    ✅ skills/reconciliation-pov-skill/ creado a partir del template
+  Fase 8b — kata-skill-implement
+    Gaps identificados:
+      - SKILL.md placeholder
+      - scripts/match_transactions.py inexistente
+      - widgets: ningún widget necesario (PoV es headless)
+    Delegando...
+      → warrior-apollo (handler match_transactions.py + tests) — Lexis: lex-python-typing, lex-python-result-type
+    Resultado:
+      Apollo produjo: scripts/match_transactions.py, scripts/tests/test_match_transactions.py
+    Redactando SKILL.md (cuerpo) y references/
 
 ✅ Ciclo PoV completo.
 
 Tree final:
-  docs/reconciliation/agents-pov/
-    ├── overview.md
+  docs/reconciliation/agents-pov/rec-pov-classifier/
+    ├── pov.md
+    ├── scope.md
     ├── system-prompt.md
     ├── tools.md
     ├── context-pack.md
@@ -243,6 +253,8 @@ Tree final:
     │   ├── prompts-log.md
     │   ├── tool-calls-log.md
     │   └── value-metrics.md
+    ├── implementation/
+    │   └── skill.md       # enlace a skills/reconciliation-pov-skill/
     └── value-proof.md
 
   skills/reconciliation-pov-skill/
@@ -255,7 +267,7 @@ Tree final:
 Próximos pasos:
   1. Operar PoV por 4 semanas; ejecutar kata-pov-value-track quincenalmente
   2. Cuando value-proof.md::status = listo-para-DoOC, invocar:
-     /cry-agent-design --context reconciliation --from-pov docs/reconciliation/agents-pov/
+     /cry-agent-design --context reconciliation --from-pov docs/reconciliation/agents-pov/rec-pov-classifier/
      (consumidor: warrior-mêtis, Issue #104 — planeado)
 ```
 
