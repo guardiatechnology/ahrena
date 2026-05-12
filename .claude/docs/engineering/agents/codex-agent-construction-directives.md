@@ -28,7 +28,7 @@ Each Directive is detailed with (a) what it is, (b) why it matters, (c) minimum 
 
 **Pre-operational.** Short system prompt (~10 lines) covering role, domain, 1-2 explicit refusals. Acceptable to omit detailed tone.
 
-**Operational Concrete.** Full identity manual under `docs/{context}/agents/{agent}/identity.md` — role, domain, enumerated refusals, tone, escalation matrix, Guardia voice. The system prompt references the manual.
+**Operational Concrete.** Identity encoded in the canonical `docs/{context}/agents/{agent}/system-prompt.md` per `codex-agent-design-docs` — role, domain, enumerated refusals, tone, escalation matrix, Guardia voice. The system prompt is the canonical artifact for Directive 01 (no separate `identity.md` exists in the 13-file template).
 
 ### Directive 02 — Layered Memory
 
@@ -84,7 +84,7 @@ Each Directive is detailed with (a) what it is, (b) why it matters, (c) minimum 
 
 | # | Directive | `pre-operational` (Claudionor) | `operational-concrete` (Mêtis) |
 |---|-----------|--------------------------------|--------------------------------|
-| 01 | Identity | Minimum viable system prompt (~10 lines) + `stage:` declared + 1-2 refusals | Full manual under `docs/{context}/agents/{agent}/identity.md`; system prompt references the manual; tone, Guardia voice, escalation declared |
+| 01 | Identity | Minimum viable system prompt (~10 lines) + `stage:` declared + 1-2 refusals | Identity encoded in `docs/{context}/agents/{agent}/system-prompt.md` (canonical per `codex-agent-design-docs`); tone, Guardia voice, escalation declared |
 | 02 | Memory | Short-term only | 3 mandatory layers (short + medium + long) with retention declared per `lex-data-retention` |
 | 03 | Tools | 1-3 tools, search + simple execution, structured log | Tripartite catalog (deterministic + ML + MCP) with schema, idempotency, observability per `lex-observability-required` |
 | 04 | Feedback | Light HITL OR 1 objective metric | HITL for irreversibles + critic LLM + ≥3 objective metrics; SLO when tier-1/2 |
@@ -124,18 +124,18 @@ Feedback: every classification is reviewed by a Guardia analyst.
 # stage: operational-concrete
 # DoOC: ✅ validated on 2026-04-12, ADR-018 (docs/adr/ADR-018-rec-classifier-promotion.md)
 # tier: tier-2
-# SLO: docs/reconciliation/metrics/slo-rec-classifier.yaml
+# Metrics + SLO: docs/reconciliation/agents/rec-classifier/metrics.md
 # Owner: warrior-metis; product owner: @ana.santos
-# Manual: docs/reconciliation/agents/rec-classifier/identity.md (consult for tone, voice, escalation)
+# Canonical system prompt: docs/reconciliation/agents/rec-classifier/system-prompt.md (encodes role, tone, voice, escalation)
 
-Role, domain, refusals, tone, Guardia voice: see manual.
+Role, domain, refusals, tone, Guardia voice: see canonical system-prompt.md (linked in the header).
 
 Memory:
 - Short: current session window
 - Medium: customer's last 50 classifications (Redis, TTL 30d)
 - Long: classification rules versioned under docs/reconciliation/rules/
 
-Tools (full catalog at docs/reconciliation/agents/rec-classifier/tools/):
+Tools (full catalog at docs/reconciliation/agents/rec-classifier/tools.md):
 - deterministic: validate_account, parse_statement, normalize_currency
 - ML: classify_transaction, embed_description
 - MCP: github (reading versioned rules)
@@ -177,7 +177,7 @@ Each DoOC item declared in the Lex has an expected evidence format. **All 9 item
 | (e) | Observability data ≥ 7 days | Dashboard link (CloudWatch, Grafana) + a 7-day window covered |
 | (f) | Identified stakeholder owner | Name, role, escalation channel (Slack handle + email) |
 | (g) | Implementation capacity | Scheduled `warrior-apollo-agents` sprint OR ADR justifying the alternative path |
-| (h) | Criticality tier | `tier-1` \| `tier-2` \| `tier-3` \| `tier-4`. Tier-1/2 triggers a mandatory SLO under `docs/{context}/metrics/slo-{agent}.yaml` per `lex-slo-required`. Tier-3/4 does NOT waive metrics (b) and (c) — it only waives the formal SLO |
+| (h) | Criticality tier | `tier-1` \| `tier-2` \| `tier-3` \| `tier-4`. Tier-1/2 triggers a mandatory SLO under `docs/{context}/agents/{agent}/metrics.md` per `lex-slo-required` (KPIs + SLI/SLO + dashboards consolidated in the canonical file). Tier-3/4 does NOT waive metrics (b) and (c) — it only waives the formal SLO |
 | (i) | Explicit stage in the prompt | SHA of the commit that added `stage: pre-operational` to the PoV prompt |
 
 ## Observed anti-patterns
