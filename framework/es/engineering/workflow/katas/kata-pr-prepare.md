@@ -236,11 +236,36 @@ de cobranza 3×15min al reviewer humano?
 
 Comportamiento por elección:
 
-- **(a)** El agente llama `ScheduleWakeup` con `delaySeconds=900` y prompt re-checando `gh pr view {N} --json reviewDecision,reviews`. Si `APPROVED` por humano → transición para `done` en el merge per Tabla A. Si 3 ciclos sin aprobación → dispara la notificación MCP en `notifications.channels.pr_review_timeout`.
-- **(b)** El agente invoca la skill `schedule` creando una rutina cron `*/15 * * * *` con un agente que ejecuta el check y reporta. Mismo comportamiento de notificación en el 3º ciclo sin aprobación humana.
-- **(c)** Athena registra la elección en el body de la Issue (vía `kata-flush-plan-to-issue`) con la nota: "Loop manual — humano avisa cuando la review ocurra." Sin `ScheduleWakeup` y sin cron.
+- **(a)** El agente llama `ScheduleWakeup` con `delaySeconds=900` y prompt re-checando `gh pr view {N} --json reviewDecision,reviews`. Si `APPROVED` por humano → transición para `done` en el merge per Tabla A. Si 3 ciclos sin aprobación → dispara la notificación MCP en `notifications.channels.pr_review_timeout`. **En cada ciclo, Athena sugiere al usuario invocar `warrior-argos` para review automatizada** (ver "Sugerencia de Argos por ciclo" abajo).
+- **(b)** El agente invoca la skill `schedule` creando una rutina cron `*/15 * * * *` con un agente que ejecuta el check y reporta. Mismo comportamiento de notificación en el 3º ciclo sin aprobación humana. **El agente remoto sugiere invocar Argos en cada ciclo** (mismas reglas de la opción (a)).
+- **(c)** Athena registra la elección en el body de la Issue (vía `kata-flush-plan-to-issue`) con la nota: "Loop manual — humano avisa cuando la review ocurra." Sin `ScheduleWakeup` y sin cron. **Athena aún sugiere invocar Argos una vez** al final del Paso 6c (registrado en el body), antes de proseguir.
 
-Sin esa elección del humano, Athena **NO DEBE** proseguir para el Paso 7 — el loop es responsabilidad declarada en la Tabla A; asumir una opción default sin confirmación sería contrario al principio AI-First (que exige aprobación explícita en acciones con efecto colateral, ver `lex-ai-first-experience`).
+#### Sugerencia de Argos por ciclo
+
+En cada wake-up (o ejecución de cron), antes de decidir reagendar, Athena DEBE evaluar si vale proponer una revisión automatizada por `warrior-argos` (sub-ciclo `to review ↔ review` de la Tabla A):
+
+1. **Recoger dos datos vía `gh`:**
+   - `gh pr view {N} --json commits --jq '.commits[-1].oid'` → HEAD SHA actual del PR.
+   - `gh pr view {N} --json reviews --jq '[.reviews[] | select(.author.login == "argos[bot]" or (.body | contains("argos-review-id"))) | .submittedAt] | last'` → timestamp de la última review marcada con el marker idempotente de Argos (`argos-review-id:...`).
+2. **Criterio de sugerencia:** sugerir si (a) nunca hubo review de Argos O (b) hubo nuevos commits desde la última review de Argos (HEAD SHA difiere del SHA capturado en el último marker).
+3. **Criterio de NO sugerir:** Argos ya revisó el HEAD actual (idempotente — él mismo abortaría por marker presente en el mismo commit).
+4. **Cuándo sugerir:** presentar al usuario (en el chat o vía comentario en el PR según el contexto):
+
+   ```
+   Athena: "Cycle {n}/3 — sin aprobación humana aún. ¿Quieres que
+   invoque /cry-review-pr {N} para que Argos haga review automatizada
+   antes del próximo wake-up? (sí / no)"
+   ```
+
+   Si **sí** → invocar `cry-review-pr` (que delega a `warrior-argos`); Argos opera el sub-ciclo `to review → review → to review`; al terminar, el control vuelve a Athena que sigue el loop normal.
+
+   Si **no** → registrar el rechazo en working notes (bloque `<!-- not-flushed -->` en `.plans/{N}.md`) para no re-proponer en el mismo ciclo; reagendar normalmente.
+
+5. **Idempotencia inter-ciclos:** si Argos ya revisó el HEAD actual sin findings P0/P1 (caso "Argos approves, awaiting human"), Athena NO re-sugiere en el próximo ciclo hasta que el PR reciba nuevos commits. Esto evita poluir el histórico con llamadas redundantes.
+
+La sugerencia es **opcional** y respeta la elección del humano. Athena nunca invoca Argos sin confirmación explícita.
+
+Sin esa elección del humano sobre el agendamiento (opciones a/b/c arriba), Athena **NO DEBE** proseguir para el Paso 7 — el loop es responsabilidad declarada en la Tabla A; asumir una opción default sin confirmación sería contrario al principio AI-First (que exige aprobación explícita en acciones con efecto colateral, ver `lex-ai-first-experience`).
 
 ### Paso 7: Actualizar status de los ADRs (proposed → accepted)
 
