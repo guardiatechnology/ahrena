@@ -205,17 +205,77 @@ Paso 1/8 — kata-agent-overview-design (Directriz 01)
   ✅ overview.md (PR ref + Authored by: warrior-metis + serves_features [transaction-classification, monthly-close-acceleration])
   ✅ system-prompt.md (4 bloques; stage: operational-concrete; 5 controles OWASP críticos)
 
-(... pasos 2-8 ...)
+Paso 2/8 — kata-agent-orchestrator-design
+  ✅ orchestrator.md (patrón: plan-and-execute; 2 specialists declarados: statement-parser + category-matcher)
+  ✅ reasoning-loop.md (max_iterations=5, timeout_per_step=8s, temperature=0.1)
+
+Paso 3/8 — kata-agent-specialists-design
+  → category-matcher mapea al aggregate TransactionCategory → delegando a warrior-theseus
+     ✅ docs/reconciliation/entities/transaction-category.md (creado por Theseus)
+  ✅ specialists/statement-parser.md
+  ✅ specialists/category-matcher.md
+
+Paso 4/8 — kata-agent-tools-design (Directriz 03)
+  ✅ tools.md
+     Deterministic (2): normalize_description, parse_amount
+     ML (1): category_classifier (modelo v1.3.0, threshold 0.85)
+     MCP (2): banking_integration (idempotent), erp_writer (idempotent + Idempotency-Key)
+
+Paso 5/8 — kata-agent-memory-design (Directriz 02)
+  ✅ memory.md
+     Corta: session context
+     Media: per-tenant 90d (PII redacted)
+     Larga: category rules + embeddings (sin PII)
+     Right to be forgotten: DELETE /agents/rec-classifier/memory ≤ 15d
+
+Paso 6/8 — kata-agent-feedback-design (Directriz 04)
+  ✅ feedback.md (HITL para erp_writer; critic LLM en outputs ambiguos; 3 métricas objetivas)
+  ✅ metrics.md
+     SLO (tier-2): availability 99.5%, latency_p99 8s, critic_acceptance ≥ 80%
+     3 runbook placeholders creados en docs/runbooks/
+
+Paso 7/8 — kata-agent-context-pack-design (Directriz 06; --from-pov)
+  ✅ context-pack.md
+     6 few-shot positivos (derivados de PoV/context-pack.md + observability/prompts-log.md)
+     12 ejemplos negativos (out-of-scope: 2, ambiguity: 2, pii: 2, prompt-injection: 3, tool-injection: 1, cross-tenant: 2)
+     Telemetría observada: 21 días del PoV, sanitizada
+     Re-curación: trimestral
+
+Paso 8/8 — kata-agent-guardrails-design (Directriz 05)
+  ✅ guardrails.md (5 OWASP + tool injection + PII boundary + cross-tenant)
+  ✅ authorization.md (callers: Isac human-mediated, /v1/agents/rec-classifier API)
+  ✅ escalation.md (matriz con 8 disparadores + 3 runbooks enlazados)
 
 Paso 9 — Reciprocidad Feature ↔ Agent
   ✅ docs/reconciliation/features/transaction-classification.md::served_by_agents incluye rec-classifier
+  ✅ docs/reconciliation/features/monthly-close-acceleration.md::served_by_agents incluye rec-classifier
   ✅ docs/reconciliation/feature-agent-map.md (forward + reverse consistentes)
 
 Paso 10 — DoOC snapshot
-  ✅ docs/reconciliation/dooc/rec-classifier.md persistido
+  ✅ docs/reconciliation/dooc/rec-classifier.md persistido (PR ref guardiatechnology/ahrena#NNN, decisión go)
 
 Paso 11 — Handoff a warrior-apollo-agents
-  Paquete listo. Apollo-Agents puede iniciar implementación.
+  Paquete listo. Apollo-Agents puede iniciar implementación consumiendo:
+    docs/reconciliation/agents/rec-classifier/
+      ├── overview.md
+      ├── orchestrator.md
+      ├── reasoning-loop.md
+      ├── specialists/
+      │   ├── statement-parser.md
+      │   └── category-matcher.md
+      ├── system-prompt.md
+      ├── tools.md
+      ├── memory.md
+      ├── feedback.md
+      ├── metrics.md
+      ├── context-pack.md
+      ├── guardrails.md
+      ├── authorization.md
+      └── escalation.md
+    + docs/reconciliation/dooc/rec-classifier.md
+
+Próximo paso sugerido:
+  Apollo-Agents implementa per plan-013; SLO declarado en metrics.md se vuelve un CloudWatch alarm en el deploy.
 ```
 
 ---

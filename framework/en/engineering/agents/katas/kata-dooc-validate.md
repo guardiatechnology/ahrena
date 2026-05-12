@@ -114,7 +114,7 @@ Mandatory in all `entry_mode`. Fail without declared exception.
 
 Criterion:
 
-1. `warrior-apollo-agents` is available (plan-013 merged — verify via existence of `framework/{lang}/engineering/agents/warriors/warrior-apollo-agents.md`) → ✅
+1. `warrior-apollo-agents` is available (plan-013 merged — verify via existence of `framework/{lang}/engineering/backend/warriors/warrior-apollo-agents.md`) → ✅
 2. OR alternative path declared in an ADR (`docs/adr/ADR-{N}-{slug}.md`)
 
 Without either, fail.

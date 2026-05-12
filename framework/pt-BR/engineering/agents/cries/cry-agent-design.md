@@ -105,7 +105,7 @@ Pacote pronto para warrior-apollo-agents implementar (plan-013).
 
 - O Cry NÃO invoca Lexis nem Codex diretamente (per `lex-pilars`); invoca apenas `warrior-metis`
 - `warrior-metis` orquestra todos os 9 katas internamente; o Cry permanece o entry point único
-- Em `direct-entry` sem `--adr`, o Cry falha antes de invocar Mêtis (validação no shell wrapper)
+- Em `direct-entry` sem `--adr`, Mêtis aborta antes de orquestrar os 9 katas (pré-checagem de argumentos em `kata-dooc-validate` Step 1)
 - Em `legacy-pov` fora da janela de 90 dias sem `--adr`, idem
 - O Cry NÃO modifica `.ahrena/.directives` nem `framework/`
 

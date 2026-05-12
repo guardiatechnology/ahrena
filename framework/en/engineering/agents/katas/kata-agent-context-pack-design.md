@@ -39,16 +39,18 @@ When the `--from-pov` flag is provided, the Kata expects the following files at 
 | `tools.md` | `kata-pov-tools-select` | Tools used in the PoV |
 | `context-pack.md` | `kata-pov-context-curate` | **Positive few-shot + anti-patterns — primary enrichment source** |
 | `feedback.md` | `kata-pov-feedback-attach` | Value metric + pivot trigger |
-| `value-proof.md` | `kata-pov-value-track` | Proven leading metric, `ready-for-DoOC` decision |
+| `value-proof.md` | `kata-pov-value-track` | Proven leading metric, `ready_for_dooc` decision (canonical machine-readable, language-invariant token) |
 | `observability/value-metrics.md` | `kata-pov-observability-instrument` | Observed operational metrics |
 | `observability/prompts-log.md` | `kata-pov-observability-instrument` | Edge cases identified in production (references, no PII) |
 | `observability/tool-calls-log.md` | `kata-pov-observability-instrument` | Tool usage patterns |
 | `observability/traces-spec.md` | `kata-pov-observability-instrument` | Typical trace snippets |
 | `implementation/skill.md` or `subagent.md` | `kata-skill-implement` or `kata-agent-author` | Reference of the PoV implementation |
 
-**PII redaction assumption:** the Kata trusts that `kata-pov-value-track::Step 4` applied the PII grep gate before marking `ready-for-DoOC` (recorded in `value-proof.md`). It does not revalidate PII on input; it documents the trust boundary in the `Boundary input validation` section.
+**PII redaction assumption:** the Kata trusts that `kata-pov-value-track::Step 4` applied the PII grep gate before marking `ready_for_dooc` (recorded in `value-proof.md`). It does not revalidate PII on input; it documents the trust boundary in the `Boundary input validation` section.
 
-If the PoV is **not** yet `ready-for-DoOC` in `value-proof.md`, the Kata aborts with a clear error — a context pack based on an immature PoV violates the spirit of the DoOC.
+If the PoV is **not** yet `ready_for_dooc` in `value-proof.md`, the Kata aborts with a clear error — a context pack based on an immature PoV violates the spirit of the DoOC.
+
+> **Transition compatibility for the status token:** `ready_for_dooc` is the canonical machine-readable token. During the transition window, `kata-pov-value-track` (in main, plan-031 v2) still emits language-localized literals (`pronto-para-DoOC`, `ready-for-DoOC`, `listo-para-DoOC`). Implementations of `kata-agent-context-pack-design` MUST accept both `ready_for_dooc` and any of the 3 legacy literals until the upstream migration in `kata-pov-value-track` (follow-up Issue to be opened post-merge of this PR).
 
 ## Workflow
 
@@ -65,7 +67,7 @@ Progress:
 ### Step 1: Validate `--from-pov` input (when applicable)
 
 1. If `--from-pov` provided:
-   - Verify `pov_path/value-proof.md::status == ready-for-DoOC` (or equivalent). Fail if different
+   - Verify `pov_path/value-proof.md::status == ready_for_dooc` (or any of the legacy literals during the transition window — see "Transition compatibility" block). Fail if different
    - Verify `pov_path/context-pack.md` exists (it is the primary source)
    - Verify `pov_path/observability/` contains the 4 expected files
 2. If `--from-pov` absent:
@@ -197,7 +199,7 @@ In `direct-entry`/`cold-start`, omit this section; mark obligation to add after 
 
 ## Boundary input validation
 
-- **PII trust boundary:** we trust the PII grep gate applied by `kata-pov-value-track::Step 4` on the origin PoV (when `with-pov`). This Kata does not revalidate PII; it assumes `pov_path/value-proof.md::status == ready-for-DoOC` as proof of gate approval
+- **PII trust boundary:** we trust the PII grep gate applied by `kata-pov-value-track::Step 4` on the origin PoV (when `with-pov`). This Kata does not revalidate PII; it assumes `pov_path/value-proof.md::status == ready_for_dooc` (or a legacy literal during the transition) as proof of gate approval
 - **Source attribution:** each example declares its origin (PoV path | synthetic)
 - **Versioning:** changes pass through `kata-system-prompt-adversarial-validate` when they alter negatives related to prompt injection
 
@@ -237,7 +239,7 @@ In `direct-entry`/`cold-start`, omit this section; mark obligation to add after 
 - < 5 positive few-shot violates Directive 06 at production rigor
 - < 10 negative examples violates Directive 06 at production rigor
 - Invented few-shot when a PoV is available is prohibited — prefer real sources
-- Immature PoV (`value-proof.md::status != ready-for-DoOC`) as a source is prohibited — Kata aborts
+- Immature PoV (`value-proof.md::status` does not match `ready_for_dooc` nor any legacy transition literal) as a source is prohibited — Kata aborts
 - Telemetry snippets with clear (un-sanitized) PII are prohibited
 
 ---
