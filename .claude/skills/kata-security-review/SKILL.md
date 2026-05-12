@@ -17,7 +17,7 @@ Progress:
 - [ ] 4. Sensitive data and credentials
 - [ ] 5. Dependencies (CVE scan)
 - [ ] 6. Consolidate report with severity
-- [ ] 7. Persist to docs/issues/issue-{n}/05-security-review.md
+- [ ] 7. Persist to .issues/{n}/05-security-review.md
 - [ ] 8. Update checkpoint
 ```
 
@@ -88,7 +88,7 @@ Consolidate all findings into a prioritized list:
 
 If **zero critical or high findings**, report `approved` to proceed to Gate 2.
 
-### Step 7: Persist to `docs/issues/issue-{n}/05-security-review.md`
+### Step 7: Persist to `.issues/{n}/05-security-review.md`
 
 Structure:
 
@@ -152,7 +152,7 @@ Structure:
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Security report | Markdown | `docs/issues/issue-{n}/05-security-review.md` |
+| Security report | Markdown | `.issues/{n}/05-security-review.md` |
 | Result | `approved` / `changes-required` / `blocked` | Return to orchestrator |
 | Updated checkpoint | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 
@@ -162,4 +162,4 @@ Structure:
 - **Severity is blocking:** critical findings always block Gate 2; there is no automatic override.
 - **Scope limited to the diff:** do not review pre-existing code not touched by the diff (that would be a separate audit task).
 - **No silent false positives:** if a finding is a false positive after analysis, record it explicitly in the report with justification, do not omit.
-- **Fixed destination:** `docs/issues/issue-{n}/05-security-review.md` (per `lex-issue-driven`).
+- **Fixed destination:** `.issues/{n}/05-security-review.md` (per `lex-issue-driven`).

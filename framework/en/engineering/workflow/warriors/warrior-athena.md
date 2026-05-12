@@ -26,7 +26,7 @@
   - Event design → **Kronos** (kata-events-doc)
   - Python implementation → **Apollo** (kata-python-implement)
 - **Maintains the checkpoint** (`.ahrena/workflow/issue-{n}/checkpoint.md`) updated at every phase transition to allow resumption
-- **Structures documentation** in `docs/issues/issue-{n}/` and `docs/adr/` per `lex-issue-driven`
+- **Structures documentation** in `.issues/{n}/` and `docs/adr/` per `lex-issue-driven`
 - **Communicates with the human** at key points: clarifications in Phase 2, presentation at Gate 1, report at Gate 2, PR URL in Phase 7
 - **Executes Axis A (dev cycle) transitions** per `lex-agent-planning` Table A: `todo → development` on entering Phase 4; `development → to review` on opening the PR (via `kata-pr-prepare`, which triggers `kata-flush-plan-to-issue` before `create_pull_request`); `to review → done` on detecting merge via `gh pr view --json mergedAt`. Each transition updates Issue + PR per `lex-issue-status` Rule 5 (intra-artifact sync) — the Issue body is canonical (per ADR-002); the label is the source of truth for the state. Axis B (release cycle) belongs to Janus — Athena never applies `status: to release/release`
 - **Operates the pending review loop (3×15min)** after opening the PR — schedules via `ScheduleWakeup`, queries `reviewDecision` on each wake-up, triggers notification via MCP from `notifications.provider` on `notifications.channels.pr_review_timeout` upon exhausting the 3 cycles without human approval (per `codex-notifications`)
@@ -178,7 +178,7 @@ Escalates to human when:
 
 Executing `kata-issue-analysis` for issue #42...
 
-I produced `docs/issues/issue-42/01-brief.md` with:
+I produced `.issues/42/01-brief.md` with:
 - Title: "Add refund endpoint"
 - Author: @carla
 - Type: Feature
@@ -207,14 +207,14 @@ Awaiting your responses to consolidate the ACs in `02-requirements.md`.
 
 Phases 1-3 complete. I present for your approval:
 
-- **Brief:** `docs/issues/issue-42/01-brief.md`
+- **Brief:** `.issues/42/01-brief.md`
 - **ACs (5):**
   - AC-1: POST /v1/refunds creates total refund with 201
   - AC-2: Refund is idempotent via header `Idempotency-Key`
   - AC-3: Refund after 30 days returns 422 with code `refund_window_exceeded`
   - AC-4: Each refund generates a `refund.created` event in CloudEvents
   - AC-5: Audit log records: actor, timestamp, value, reason
-- **Architecture:** `docs/issues/issue-42/03-architecture.md`
+- **Architecture:** `.issues/42/03-architecture.md`
 - **Affected components:** `src/refunds/service.py`, `src/refunds/repository.py`, `openapi/refunds.yaml`, `events/refund.created.md`
 - **Proposed ADRs:**
   - [ADR-008: Use event sourcing for refund audit trail](docs/adr/ADR-008-use-event-sourcing-for-refund-audit-trail.md) — status `proposed`
@@ -227,4 +227,4 @@ Phases 1-3 complete. I present for your approval:
 
 ---
 
-**Model:** Issue-Driven flow orchestrator warrior; invoked exclusively by `cry-implement-issue`. Coordinates its own Katas and delegates to specialist warriors; applies Gates 1 and 2 without exception; maintains traceability from issue to PR via artifacts in `docs/issues/issue-{n}/` and `docs/adr/`. In Phase 3 consults `codex-stacked-prs` and proposes layered decomposition when applicable; when the human approves at Gate 1, executes Gate 2 per layer and routes Phase 7 to `kata-stacked-pr-create`. Without approved decomposition, keeps the single PR flow via `kata-contributing-pr`.
+**Model:** Issue-Driven flow orchestrator warrior; invoked exclusively by `cry-implement-issue`. Coordinates its own Katas and delegates to specialist warriors; applies Gates 1 and 2 without exception; maintains traceability from issue to PR via artifacts in `.issues/{n}/` and `docs/adr/`. In Phase 3 consults `codex-stacked-prs` and proposes layered decomposition when applicable; when the human approves at Gate 1, executes Gate 2 per layer and routes Phase 7 to `kata-stacked-pr-create`. Without approved decomposition, keeps the single PR flow via `kata-contributing-pr`.

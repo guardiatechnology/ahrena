@@ -119,7 +119,10 @@ cursor:
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
     _foundation/contributing/lexis/lex-issue-status:
       alwaysApply: false
-      description: "When applying or transitioning a status:* label on an Issue or PR, use the canonical set of 7 labels (status: todo/development/to review/review/to release/release/done), respect the mutex, and mirror the plan status: in the same step."
+      description: "When applying or transitioning a status:* label, choose the axis based on artifact type: Axis A (dev cycle: todo→development→to review→review→done) for feature/fix Issues/PRs; Axis B (release cycle: to release→release→done) exclusively for the release Issue. Mutex is intra-artifact; cross-axis labeling is a HARD-GATE violation."
+    _foundation/contributing/lexis/lex-issue-type-verified:
+      alwaysApply: false
+      description: "When creating an Issue via CLI/MCP (not via UI template), verify the native type field is populated post-creation and apply manually via gh api -X PATCH when empty. status: todo cannot be applied to a typeless Issue."
     _foundation/contributing/lexis/lex-pr-quality:
       alwaysApply: false
       description: "When creating a PR, mirror issue labels, apply size label, set assignee to author, and request reviewers per CODEOWNERS."
@@ -677,7 +680,10 @@ claude-code:
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, has a defined Issue Type, has an assignee, and answers Why/What/How."
     _foundation/contributing/lexis/lex-issue-status:
       paths: [".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**", "scripts/bootstrap_status_labels.sh"]
-      description: "When applying or transitioning a status:* label on an Issue or PR, use the canonical set of 7 labels (status: todo/development/to review/review/to release/release/done), respect the mutex, and mirror the plan status: in the same step."
+      description: "When applying or transitioning a status:* label, choose the axis based on artifact type: Axis A (dev cycle: todo→development→to review→review→done) for feature/fix Issues/PRs; Axis B (release cycle: to release→release→done) exclusively for the release Issue. Mutex is intra-artifact; cross-axis labeling is a HARD-GATE violation."
+    _foundation/contributing/lexis/lex-issue-type-verified:
+      paths: [".github/ISSUE_TEMPLATE/**"]
+      description: "When creating an Issue via CLI/MCP (not via UI template), verify the native type field is populated post-creation and apply manually via gh api -X PATCH when empty. status: todo cannot be applied to a typeless Issue."
     _foundation/contributing/lexis/lex-issue-first:
       paths: [".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**"]
       description: "When starting any code change, ensure a GitHub Issue exists first; PR body must include Closes #N or Refs #N."

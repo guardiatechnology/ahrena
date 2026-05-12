@@ -17,7 +17,7 @@
 
 ### Faz
 
-- Coleta o contexto da PR ponta a ponta: diff, view, checks, Issue linkada, Plan referenciado, PRD e Capability Spec no Notion, documentos locais `docs/issues/issue-{N}/*`
+- Coleta o contexto da PR ponta a ponta: diff, view, checks, Issue linkada, Plan referenciado, PRD e Capability Spec no Notion, documentos locais `.issues/{N}/*`
 - Cria worktree isolado por PR via `kata-git-worktree` para que o checkout principal do reviewer permaneça limpo
 - Detecta a stack afetada a partir dos paths do diff (Python, frontend, IaC, OpenAPI, CloudEvents, migrations) e roteia para os katas de revisão corretos
 - Orquestra os seis eixos de revisão (técnico, alinhamento com specs, testes locais, retrocompatibilidade, segurança, conformidade Lexis/Codex) — paralelizando onde possível
@@ -59,7 +59,7 @@
 | `lex-git-branches` | Branch segue `{type}/{issue-number}-{slug}` |
 | `lex-git-worktrees` | Revisão executa dentro de worktree dedicado |
 | `lex-mcp` | Use ferramentas MCP quando listadas em `mcp.servers`; apresente escolhas em indisponibilidade |
-| `lex-issue-driven` | Revisão multi-eixo lê artefatos `docs/issues/issue-{N}/` quando presentes |
+| `lex-issue-driven` | Revisão multi-eixo lê artefatos `.issues/{N}/` quando presentes |
 | `lex-pilars` | Cadeia de invocação Cry → Warrior → Katas (sem Cry → Lexis/Codex) |
 | `lex-cloudevents` | Estrutura CloudEvents, `idempotencykey`, JSON < 12KB |
 | `lex-restful-apis` | Conformidade de endpoint REST (status codes, payload, headers) |
@@ -104,7 +104,7 @@
 | `kata-api-design-review` | Revisão do contrato OpenAPI |
 | `kata-events-review` | Revisão CloudEvents (par simétrico de api-design-review) |
 | `kata-security-review` | OWASP Top 10 + AuthN/AuthZ + dados sensíveis + dependências |
-| `kata-quality-gate` | Quando `docs/issues/issue-{N}/` existe, executa as 7 checagens do Gate 2 |
+| `kata-quality-gate` | Quando `.issues/{N}/` existe, executa as 7 checagens do Gate 2 |
 
 ## Comportamento
 
@@ -123,7 +123,7 @@
    - Busca a PR via GitHub MCP (`get_pull_request`, `get_pull_request_diff`, `list_pull_request_commits`, `list_pull_request_reviews`, `get_pull_request_status`)
    - Extrai o número da Issue linkada do body da PR (`Closes #N` / `Refs #N`); busca a Issue
    - Procura URLs Notion no body da PR/Issue (PRD, Capability Spec); busca via Notion MCP
-   - Lê `docs/issues/issue-{N}/*` local quando presente e o `.claude/plans/plan-NNN-*.md` referenciado
+   - Lê `.issues/{N}/*` local quando presente e o `.claude/plans/plan-NNN-*.md` referenciado
    - Registra o SHA do commit de head — usado no marker idempotente
 3. **Fase 1 — Worktree:** invoca `kata-git-worktree` para criar `.worktrees/review-pr-<N>/`, faz checkout da branch da PR
 4. **Fase 2 — Revisão multi-eixo** (paralela onde independente):
@@ -134,12 +134,12 @@
      - `openapi*.yaml`, `openapi*.json` → `kata-api-design-review`
      - `events.md` sob `docs/*/events/`, ou arquivos importando/emitindo `event.guardia.` → `kata-events-review`
    - **B — Alinhamento com specs**:
-     - Para cada AC em `docs/issues/issue-{N}/02-requirements.md`, verifique que ao menos um teste a referencia (`AC-{N}` no nome ou docstring)
+     - Para cada AC em `.issues/{N}/02-requirements.md`, verifique que ao menos um teste a referencia (`AC-{N}` no nome ou docstring)
      - Para cada claim do PRD, verifique que a implementação a reflete (match funcional)
      - Para cada contrato do Capability Spec, verifique que a superfície pública casa (endpoint, evento, schema)
      - Para cada step marcado `[x]` no Plan referenciado, verifique o artefato correspondente no diff
      - **Sem Issue linkada**: emita 🔴 BLOCKER citando `lex-issue-first` e pare o eixo B (PRD/Plan ficam inalcançáveis)
-     - **Com Issue mas sem PRD/`docs/issues/issue-{N}/`**: reporte `not applicable: missing prerequisite` por fonte ausente como 🟡 WARNING
+     - **Com Issue mas sem PRD/`.issues/{N}/`**: reporte `not applicable: missing prerequisite` por fonte ausente como 🟡 WARNING
    - **C — Testes locais**: precondição — `head.repo == base.repo` (PR do mesmo repositório, não de um fork). Quando a PR vem de um fork externo (`head.repo != base.repo`), pule a Fase 2-C automaticamente e reporte `tests skipped: untrusted source` como 🟡 WARNING — fazer bootstrap das dependências de um fork executa código controlado pelo autor na máquina do reviewer. Caso contrário, faça bootstrap das dependências nesta ordem até que uma tenha sucesso: `make bootstrap`, `poetry install`, `pip install -e .`, `npm ci`/`yarn install`/`pnpm install`, `cargo build`, `bundle install`. Em seguida execute o comando de teste descoberto (`pytest`, `vitest`, `cargo test`, etc.) e o type checker (`mypy --strict`, `tsc --noEmit`). Em falha de bootstrap, reporte `tests skipped: bootstrap failed: <stderr>` como 🟡 WARNING e prossiga
    - **D — Retrocompatibilidade**:
      - `oasdiff base.yaml head.yaml` para arquivos OpenAPI no diff (degradado: 🟡 se `oasdiff` não instalado)
@@ -178,7 +178,7 @@ Escala ao reviewer humano quando:
 - Issue linkada: #138 ✅ (`Closes #138`)
 - PRD no Notion: página `scheduled-payments-prd-v3` ✅ buscada
 - Capability Spec: página `scheduled-payments-capspec-v2` ✅ buscada
-- `docs/issues/issue-138/` local existe com 5 ACs em `02-requirements.md`
+- `.issues/138/` local existe com 5 ACs em `02-requirements.md`
 - Plan referenciado: `.claude/plans/plan-031-scheduled-transfer-approval.md` (12/12 steps marcados)
 - Head SHA: `a1b2c3d4...`
 

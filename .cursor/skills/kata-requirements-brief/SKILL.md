@@ -16,13 +16,13 @@ Progress:
 - [ ] 3. Formulate ACs in Given/When/Then format
 - [ ] 4. Resolve unknowns with user questions
 - [ ] 5. Define DoD and out-of-scope
-- [ ] 6. Persist to docs/issues/issue-{n}/02-requirements.md
+- [ ] 6. Persist to .issues/{n}/02-requirements.md
 - [ ] 7. Update checkpoint
 ```
 
 ### Step 1: Read the Phase 1 brief
 
-1. Read `docs/issues/issue-{n}/01-brief.md`.
+1. Read `.issues/{n}/01-brief.md`.
 2. If it does not exist, inform that Phase 1 was not executed and stop.
 3. Focus on sections: Problem, Additional Context, Work Type, Risks and Unknowns.
 
@@ -62,7 +62,7 @@ AC-{N}: {short title}
 1. **Definition of Done** — objective checklist:
    - All ACs have a corresponding test (traceability `AC-N`)
    - Gate 2 approved
-   - Documentation in `docs/issues/issue-{n}/` complete
+   - Documentation in `.issues/{n}/` complete
    - ADR(s) created if there was a relevant architectural decision
    - PR approved by at least 1 reviewer
 
@@ -70,7 +70,7 @@ AC-{N}: {short title}
    - Extract from the brief and from interaction with the user
    - Each out-of-scope item should have a justification or a link to a future issue
 
-### Step 6: Persist to `docs/issues/issue-{n}/02-requirements.md`
+### Step 6: Persist to `.issues/{n}/02-requirements.md`
 
 Document structure:
 
@@ -96,7 +96,7 @@ Document structure:
 
 - [ ] All ACs above have at least one test with `AC-N` marking
 - [ ] Gate 2 (`kata-quality-gate`) approved
-- [ ] Complete documentation in `docs/issues/issue-{n}/`
+- [ ] Complete documentation in `.issues/{n}/`
 - [ ] ADR(s) created if applicable in `docs/adr/`
 - [ ] PR approved by at least 1 reviewer
 
@@ -120,7 +120,7 @@ Phase 3: architectural design (`kata-architecture-brief`).
 1. Update `.ahrena/workflow/issue-{n}/checkpoint.md` with:
    - completed phase: 2
    - next phase: 3
-   - reference: `docs/issues/issue-{n}/02-requirements.md`
+   - reference: `.issues/{n}/02-requirements.md`
    - total number of ACs
    - pending questions (if any)
 2. Inform `warrior-athena`.
@@ -129,7 +129,7 @@ Phase 3: architectural design (`kata-architecture-brief`).
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Requirements document | Markdown with numbered ACs | `docs/issues/issue-{n}/02-requirements.md` |
+| Requirements document | Markdown with numbered ACs | `.issues/{n}/02-requirements.md` |
 | Updated checkpoint | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 | User questions (if any) | Structured text | Response to the orchestrator |
 
@@ -138,4 +138,4 @@ Phase 3: architectural design (`kata-architecture-brief`).
 - **ACs must be testable:** do not accept vague ACs ("the system must be fast"); always with an observable metric.
 - **Continuous numbering:** `AC-1`, `AC-2`, `AC-3`... with no gaps; removed ACs stay as `AC-N: (removed — see note)` to preserve numbering across iterations.
 - **No inference of undocumented requirements:** if it is not in the brief nor confirmed by the user, it goes to "Pending Questions".
-- **Fixed destination:** `docs/issues/issue-{n}/02-requirements.md` (per `lex-issue-driven`).
+- **Fixed destination:** `.issues/{n}/02-requirements.md` (per `lex-issue-driven`).

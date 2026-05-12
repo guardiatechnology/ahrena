@@ -108,7 +108,7 @@ Antes de modelar, preciso de:
 
 *(Após: 50k/mês; sim 7y; refund → payment 1:N; transacional forte.)*
 
-**Demeter:** Proposta em `docs/issues/issue-42/03b-schema.md`:
+**Demeter:** Proposta em `.issues/42/03b-schema.md`:
 
 **Entidade principal: `Refund`** (aggregate root, Aurora PostgreSQL)
 

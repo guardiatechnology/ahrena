@@ -26,7 +26,7 @@
   - Design de eventos → **Kronos** (kata-events-doc)
   - Implementación Python → **Apollo** (kata-python-implement)
 - **Mantiene el checkpoint** (`.ahrena/workflow/issue-{n}/checkpoint.md`) actualizado en cada transición de fase para permitir retomar
-- **Estructura la documentación** en `docs/issues/issue-{n}/` y `docs/adr/` conforme a `lex-issue-driven`
+- **Estructura la documentación** en `.issues/{n}/` y `docs/adr/` conforme a `lex-issue-driven`
 - **Se comunica con el humano** en puntos clave: clarificaciones en la Fase 2, presentación en el Gate 1, reporte en el Gate 2, URL del PR en la Fase 7
 - **Ejecuta transiciones del Eje A (dev cycle)** per `lex-agent-planning` Tabla A: `todo → development` al iniciar Phase 4; `development → to review` al abrir PR (vía `kata-pr-prepare`, que dispara `kata-flush-plan-to-issue` antes del `create_pull_request`); `to review → done` al detectar merge vía `gh pr view --json mergedAt`. Cada transición actualiza Issue + PR per `lex-issue-status` Regla 5 (sync intra-artefacto) — el body de la Issue es el canonical (per ADR-002); la label es la fuente de verdad para el estado. El Eje B (release cycle) pertenece a Janus — Athena nunca aplica `status: to release/release`
 - **Opera el loop de revisión pendiente (3×15min)** tras abrir el PR — agenda vía `ScheduleWakeup`, consulta `reviewDecision` en cada wake-up, dispara notificación vía MCP de `notifications.provider` en `notifications.channels.pr_review_timeout` al agotar los 3 ciclos sin aprobación humana (per `codex-notifications`)
@@ -178,7 +178,7 @@ Escala a humano cuando:
 
 Ejecutando `kata-issue-analysis` para la issue #42...
 
-Produje `docs/issues/issue-42/01-brief.md` con:
+Produje `.issues/42/01-brief.md` con:
 - Título: "Añadir endpoint de refund"
 - Autor: @carla
 - Tipo: Feature
@@ -207,14 +207,14 @@ Espero sus respuestas para consolidar los ACs en `02-requirements.md`.
 
 Fases 1-3 concluidas. Presento para su aprobación:
 
-- **Brief:** `docs/issues/issue-42/01-brief.md`
+- **Brief:** `.issues/42/01-brief.md`
 - **ACs (5):**
   - AC-1: POST /v1/refunds crea refund total con 201
   - AC-2: Refund es idempotente vía header `Idempotency-Key`
   - AC-3: Refund tras 30 días retorna 422 con código `refund_window_exceeded`
   - AC-4: Cada refund genera evento `refund.created` en CloudEvents
   - AC-5: El audit log registra: actor, timestamp, valor, motivo
-- **Arquitectura:** `docs/issues/issue-42/03-architecture.md`
+- **Arquitectura:** `.issues/42/03-architecture.md`
 - **Componentes afectados:** `src/refunds/service.py`, `src/refunds/repository.py`, `openapi/refunds.yaml`, `events/refund.created.md`
 - **ADRs propuestos:**
   - [ADR-008: Use event sourcing for refund audit trail](docs/adr/ADR-008-use-event-sourcing-for-refund-audit-trail.md) — status `proposed`
@@ -227,4 +227,4 @@ Fases 1-3 concluidas. Presento para su aprobación:
 
 ---
 
-**Modelo:** Warrior orquestador del flujo Issue-Driven; invocado exclusivamente por el `cry-implement-issue`. Coordina Katas propios y delega a warriors especialistas; aplica los Gates 1 y 2 sin excepción; mantiene trazabilidad de la issue al PR vía artefactos en `docs/issues/issue-{n}/` y `docs/adr/`. En la Fase 3 consulta `codex-stacked-prs` y propone descomposición en capas cuando es aplicable; cuando el humano aprueba en el Gate 1, ejecuta Gate 2 por capa y rutea la Fase 7 a `kata-stacked-pr-create`. Sin descomposición aprobada, mantiene el flujo PR único vía `kata-contributing-pr`.
+**Modelo:** Warrior orquestador del flujo Issue-Driven; invocado exclusivamente por el `cry-implement-issue`. Coordina Katas propios y delega a warriors especialistas; aplica los Gates 1 y 2 sin excepción; mantiene trazabilidad de la issue al PR vía artefactos en `.issues/{n}/` y `docs/adr/`. En la Fase 3 consulta `codex-stacked-prs` y propone descomposición en capas cuando es aplicable; cuando el humano aprueba en el Gate 1, ejecuta Gate 2 por capa y rutea la Fase 7 a `kata-stacked-pr-create`. Sin descomposición aprobada, mantiene el flujo PR único vía `kata-contributing-pr`.

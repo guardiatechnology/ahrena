@@ -137,7 +137,7 @@ Estimar duración por fase; si alguna excede 10min en prod, detallar estrategia 
 
 ### Paso 8: Persistir documento de schema
 
-Estructura en `docs/issues/issue-{n}/03b-schema.md` (complementa architecture.md):
+Estructura en `.issues/{n}/03b-schema.md` (complementa architecture.md):
 
 ```markdown
 # Schema — Issue #{n}: {título}
@@ -188,7 +188,7 @@ ADR referenciado: docs/adr/ADR-XXX-aurora-for-refund.md
 
 | Salida | Formato | Destino |
 |-------|---------|---------|
-| Documento de schema | Markdown | `docs/issues/issue-{n}/03b-schema.md` |
+| Documento de schema | Markdown | `.issues/{n}/03b-schema.md` |
 | Diagrama ER | Mermaid embebido | En el documento |
 | Actualización de retención | YAML | `docs/data-retention.yaml` |
 | ADR (si es necesario) | Markdown MADR | `docs/adr/ADR-*` |

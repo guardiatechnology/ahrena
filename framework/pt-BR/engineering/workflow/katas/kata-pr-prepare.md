@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Após o Gate 2 resultar em `go`, criar a branch, fazer push dos arquivos modificados e abrir um Pull Request no GitHub via MCP. O body do PR é estruturado referenciando a issue original, os ACs numerados, os ADRs criados e os artefatos do fluxo em `docs/issues/issue-{n}/`. O resultado é um PR pronto para revisão humana, com rastreabilidade completa.
+Após o Gate 2 resultar em `go`, criar a branch, fazer push dos arquivos modificados e abrir um Pull Request no GitHub via MCP. O body do PR é estruturado referenciando a issue original, os ACs numerados, os ADRs criados e os artefatos do fluxo em `.issues/{n}/`. O resultado é um PR pronto para revisão humana, com rastreabilidade completa.
 
 ## Quando Usar
 
@@ -18,7 +18,7 @@ Após o Gate 2 resultar em `go`, criar a branch, fazer push dos arquivos modific
 | Número da issue | Sim | Número da issue original (ex.: `42`) |
 | Repositório | Sim | `owner/repo` |
 | Base branch | Não | Branch alvo do PR; padrão: `main` |
-| Artefatos do fluxo | Sim | `docs/issues/issue-{n}/*` e `docs/adr/ADR-*` criados nas fases anteriores |
+| Artefatos do fluxo | Sim | `.issues/{n}/*` e `docs/adr/ADR-*` criados nas fases anteriores |
 | Estratégia do PR | Não | `draft` (padrão: `false`) |
 
 ## Workflow
@@ -39,7 +39,7 @@ Progresso:
 
 1. Confirmar que `github` está em `mcp.servers` (conforme `lex-mcp`). Se não, informar e encerrar.
 2. Confirmar `GITHUB_PAT` definida.
-3. Ler `docs/issues/issue-{n}/06-quality-report.md` e confirmar resultado `go`. Se `no-go`, recusar criar PR e retornar ao orquestrador.
+3. Ler `.issues/{n}/06-quality-report.md` e confirmar resultado `go`. Se `no-go`, recusar criar PR e retornar ao orquestrador.
 4. Consultar `codex-mcp-github` para identificar ferramentas corretas (`create_branch`, `push_files`, `create_pull_request`).
 
 ### Passo 2: Determinar nome da branch e título do PR
@@ -104,7 +104,7 @@ Resolves #{n}
 
 ## Critérios de Aceitação
 
-<!-- Copiados de docs/issues/issue-{n}/02-requirements.md -->
+<!-- Copiados de .issues/{n}/02-requirements.md -->
 
 - [x] **AC-1:** {descrição}
 - [x] **AC-2:** {descrição}
@@ -112,7 +112,7 @@ Resolves #{n}
 
 ## Arquitetura
 
-Ver [documento de arquitetura](docs/issues/issue-{n}/03-architecture.md).
+Ver [documento de arquitetura](.issues/{n}/03-architecture.md).
 
 ### ADRs criados
 
@@ -122,8 +122,8 @@ Ver [documento de arquitetura](docs/issues/issue-{n}/03-architecture.md).
 
 ## Qualidade
 
-- ✅ Gate 2 aprovado ([relatório](docs/issues/issue-{n}/06-quality-report.md))
-- ✅ Revisão de segurança aprovada ([relatório](docs/issues/issue-{n}/05-security-review.md))
+- ✅ Gate 2 aprovado ([relatório](.issues/{n}/06-quality-report.md))
+- ✅ Revisão de segurança aprovada ([relatório](.issues/{n}/05-security-review.md))
 - Cobertura: {atual}% (threshold: {threshold}%)
 
 ## Como testar
@@ -358,7 +358,7 @@ Para cada ADR criado na Fase 3 (listados no checkpoint):
 - **Usar apenas MCP:** não usar `git push` direto nem `gh pr create` quando o MCP GitHub está ativo (conforme `lex-mcp`).
 - **Sem credenciais hardcoded:** autenticação exclusivamente via `GITHUB_PAT`.
 - **Gate 2 `go` é pré-requisito inviolável:** não abrir PR se `06-quality-report.md` resultou `no-go`.
-- **Body do PR deve referenciar docs/issues/issue-{n}/:** rastreabilidade desde a issue até o PR exige esses links.
+- **Body do PR deve referenciar .issues/{n}/:** rastreabilidade desde a issue até o PR exige esses links.
 - **Conventional Commits obrigatório:** título do PR e mensagens de commit devem seguir o formato (conforme `lex-conventional-commits`).
 
 ## Referências

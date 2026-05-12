@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Executar o Gate 2 do fluxo Issue-Driven: 7 verificações stack-aware sobre a implementação concluída na Fase 4 (e revisada pela Fase 5). Produz relatório `go`/`no-go`/`unverifiable` em `docs/issues/issue-{n}/06-quality-report.md`. Qualquer falha retorna à Fase 4 com contexto detalhado; apenas `go` permite avançar à Fase 7. Checks individuais que não podem ser executados no ambiente atual (ferramenta ausente, sem arquivos aplicáveis) reportam `unverifiable` e aparecem ao humano em vez de passar silenciosamente.
+Executar o Gate 2 do fluxo Issue-Driven: 7 verificações stack-aware sobre a implementação concluída na Fase 4 (e revisada pela Fase 5). Produz relatório `go`/`no-go`/`unverifiable` em `.issues/{n}/06-quality-report.md`. Qualquer falha retorna à Fase 4 com contexto detalhado; apenas `go` permite avançar à Fase 7. Checks individuais que não podem ser executados no ambiente atual (ferramenta ausente, sem arquivos aplicáveis) reportam `unverifiable` e aparecem ao humano em vez de passar silenciosamente.
 
 Esta kata é a **guardiã da qualidade** do fluxo — garante que a implementação cobre todos os ACs, não ultrapassou o escopo, aplicou as best practices definidas nas Lexis, e não regrediu performance além dos budgets declarados.
 
@@ -17,10 +17,10 @@ Esta kata é a **guardiã da qualidade** do fluxo — garante que a implementaç
 
 | Input | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
-| Requisitos Fase 2 | Sim | `docs/issues/issue-{n}/02-requirements.md` (ACs numerados) |
-| Arquitetura Fase 3 | Sim | `docs/issues/issue-{n}/03-architecture.md` (tabela de componentes — escopo) |
+| Requisitos Fase 2 | Sim | `.issues/{n}/02-requirements.md` (ACs numerados) |
+| Arquitetura Fase 3 | Sim | `.issues/{n}/03-architecture.md` (tabela de componentes — escopo) |
 | Implementação Fase 4 | Sim | Código + testes no working tree |
-| Revisão Fase 5 | Sim | `docs/issues/issue-{n}/05-security-review.md` (deve estar `approved`) |
+| Revisão Fase 5 | Sim | `.issues/{n}/05-security-review.md` (deve estar `approved`) |
 | Coverage threshold | Não | `quality.coverage_threshold` em `.directives` (padrão: 80) |
 | Stack | Sim | Linguagem do código implementado (detectado via arquivos tocados) |
 
@@ -37,7 +37,7 @@ Progresso:
 - [ ] 7. Check 6 — Tipos
 - [ ] 8. Check 7 — Performance budget
 - [ ] 9. Consolidar resultado go/no-go/unverifiable
-- [ ] 10. Persistir em docs/issues/issue-{n}/06-quality-report.md
+- [ ] 10. Persistir em .issues/{n}/06-quality-report.md
 - [ ] 11. Atualizar checkpoint
 ```
 
@@ -100,7 +100,7 @@ Resultado do Check 1: ✅ se ambas as direções estão completas; ❌ caso cont
 3. **Exceções legítimas** (não flagar):
    - Arquivos de teste correspondentes a componentes declarados (ex.: se `service.py` está na tabela, `test_service.py` é implícito).
    - Arquivos de configuração automática (ex.: `requirements.lock`, `yarn.lock`).
-   - Documentação gerada pelo próprio fluxo (ex.: `docs/issues/issue-{n}/*`).
+   - Documentação gerada pelo próprio fluxo (ex.: `.issues/{n}/*`).
 4. Funções/classes públicas novas em arquivos tocados que não mapeiam a nenhum AC → flagar.
 
 Resultado do Check 2: ✅ se só arquivos declarados + exceções foram modificados; ❌ se há scope creep não justificado.
@@ -161,7 +161,7 @@ Para cada ❌, registrar:
 - Detalhes (arquivos, linhas, comandos, output)
 - Recomendação de correção
 
-### Passo 9: Persistir em `docs/issues/issue-{n}/06-quality-report.md`
+### Passo 9: Persistir em `.issues/{n}/06-quality-report.md`
 
 Estrutura:
 
@@ -226,7 +226,7 @@ Estrutura:
 
 | Saída | Formato | Destino |
 |-------|---------|---------|
-| Relatório do Gate | Markdown com 6 checks + matriz de rastreabilidade | `docs/issues/issue-{n}/06-quality-report.md` |
+| Relatório do Gate | Markdown com 6 checks + matriz de rastreabilidade | `.issues/{n}/06-quality-report.md` |
 | Resultado | `go` / `no-go` | Retorno ao orquestrador |
 | Checkpoint atualizado | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 
@@ -236,7 +236,7 @@ Estrutura:
 - **Ordem dos checks é mandatória:** checks 1-3 (análise estática) antes de 4-6 (execução); se análise falha, ainda executar os demais para reportar panorama completo.
 - **Threshold configurável mas não opcional:** `quality.coverage_threshold` pode ser ajustado em `.directives`, mas Check 5 é sempre executado.
 - **Sem override para `no-go`:** a única saída legítima de `no-go` é corrigir a implementação ou renegociar os ACs (via Gate 1). Nenhum humano ou agente pode marcar como `go` manualmente.
-- **Destino fixo:** `docs/issues/issue-{n}/06-quality-report.md` (conforme `lex-issue-driven`). No modo por camada, o relatório acumula uma seção por camada e uma seção final agregada.
+- **Destino fixo:** `.issues/{n}/06-quality-report.md` (conforme `lex-issue-driven`). No modo por camada, o relatório acumula uma seção por camada e uma seção final agregada.
 - **Subset por camada não relaxa critérios:** o filtro de ACs/componentes apenas reduz o escopo da execução; thresholds (cobertura, performance) e estritude dos checks permanecem idênticos.
 
 ## Referências

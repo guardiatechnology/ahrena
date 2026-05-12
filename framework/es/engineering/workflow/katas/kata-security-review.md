@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Ejecutar revisión de seguridad sobre el código implementado en la Fase 4, identificando vulnerabilidades conocidas (OWASP Top 10), problemas de autenticación/autorización, exposición de datos sensibles, credenciales en código y dependencias con CVEs conocidos. Produce informe en `docs/issues/issue-{n}/05-security-review.md` con severidad clasificada; los hallazgos críticos bloquean el Gate 2.
+Ejecutar revisión de seguridad sobre el código implementado en la Fase 4, identificando vulnerabilidades conocidas (OWASP Top 10), problemas de autenticación/autorización, exposición de datos sensibles, credenciales en código y dependencias con CVEs conocidos. Produce informe en `.issues/{n}/05-security-review.md` con severidad clasificada; los hallazgos críticos bloquean el Gate 2.
 
 ## Cuándo Usar
 
@@ -16,8 +16,8 @@ Ejecutar revisión de seguridad sobre el código implementado en la Fase 4, iden
 | Input | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
 | Diff de la implementación | Sí | `git diff` entre branch de trabajo y branch base |
-| Requisitos Fase 2 | Sí | `docs/issues/issue-{n}/02-requirements.md` |
-| Arquitectura Fase 3 | Sí | `docs/issues/issue-{n}/03-architecture.md` (incluye integraciones externas) |
+| Requisitos Fase 2 | Sí | `.issues/{n}/02-requirements.md` |
+| Arquitectura Fase 3 | Sí | `.issues/{n}/03-architecture.md` (incluye integraciones externas) |
 
 ## Workflow
 
@@ -29,7 +29,7 @@ Progreso:
 - [ ] 4. Datos sensibles y credenciales
 - [ ] 5. Dependencias (CVE scan)
 - [ ] 6. Consolidar informe con severidad
-- [ ] 7. Persistir en docs/issues/issue-{n}/05-security-review.md
+- [ ] 7. Persistir en .issues/{n}/05-security-review.md
 - [ ] 8. Actualizar checkpoint
 ```
 
@@ -100,7 +100,7 @@ Consolidar todos los hallazgos en una lista priorizada:
 
 Si **cero hallazgos críticos o altos**, reportar `approved` para seguir al Gate 2.
 
-### Paso 7: Persistir en `docs/issues/issue-{n}/05-security-review.md`
+### Paso 7: Persistir en `.issues/{n}/05-security-review.md`
 
 Estructura:
 
@@ -164,7 +164,7 @@ Estructura:
 
 | Salida | Formato | Destino |
 |--------|---------|---------|
-| Informe de seguridad | Markdown | `docs/issues/issue-{n}/05-security-review.md` |
+| Informe de seguridad | Markdown | `.issues/{n}/05-security-review.md` |
 | Resultado | `approved` / `changes-required` / `blocked` | Retorno al orquestador |
 | Checkpoint actualizado | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 
@@ -174,7 +174,7 @@ Estructura:
 - **La severidad es bloqueante:** los hallazgos críticos siempre bloquean el Gate 2; no hay override automático.
 - **Alcance limitado al diff:** no revisar código preexistente no tocado por el diff (sería tarea de auditoría separada).
 - **Sin falsos positivos silenciosos:** si un hallazgo es falso positivo tras análisis, registrar explícitamente en el informe con justificación, no omitir.
-- **Destino fijo:** `docs/issues/issue-{n}/05-security-review.md` (según `lex-issue-driven`).
+- **Destino fijo:** `.issues/{n}/05-security-review.md` (según `lex-issue-driven`).
 
 ## Referencias
 

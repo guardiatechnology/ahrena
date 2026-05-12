@@ -102,7 +102,7 @@ Before mapping, two questions:
 
 *(After answers: tier-1; Stripe sandbox available.)*
 
-**Hera:** Plan produced in `docs/issues/issue-42/02b-test-plan.md`:
+**Hera:** Plan produced in `.issues/42/02b-test-plan.md`:
 
 **AC → levels mapping:**
 
