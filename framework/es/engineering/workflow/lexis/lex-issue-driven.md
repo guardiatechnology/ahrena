@@ -205,6 +205,31 @@ La Fase 7 elige el kata de creación de PR con base en el estado de `stack`:
 
 La regla de referencia de la issue paraguas (Regla 5 de `codex-stacked-prs`, sección 1.2) es aplicada por `kata-stacked-pr-create`: las capas intermedias usan `Refs #N`; la última usa `Closes #N` para cerrar la issue automáticamente en el merge.
 
+### 13. Delegación directa a especialistas Python por `component` declarado
+
+Cuando `.issues/{n}/03-architecture.md` declara explícitamente el `component` en la tabla de componentes (valores: `api`, `jobs`, `agents`, `ui`, `deployment`), `warrior-athena` **PUEDE** invocar al especialista correspondiente directamente en la Phase 4, saltando el nivel de indirección vía `warrior-apollo` (router).
+
+Tabla de routing:
+
+| `component` declarado en Phase 3 | Warrior invocado en Phase 4 |
+|---|---|
+| `api` | `warrior-apollo-api` |
+| `jobs` | `warrior-apollo-jobs` |
+| `agents` | `warrior-apollo-agents` |
+| `ui` | `warrior-hephaestus` |
+| `deployment` | `warrior-atlas` |
+| **transversal** (más de un valor) o `component` **ausente/ambiguo** | `warrior-apollo` (router) — decide o pregunta |
+
+Reglas:
+
+1. **Componente unívoco:** Athena delega al especialista directo y registra la entrada de delegación en el `checkpoint.md` con el nombre canónico del especialista (e.g., `warrior: warrior-apollo-api`).
+2. **Componente transversal:** cuando Phase 3 declara más de un `component` para la misma feature (e.g., `api` + `jobs`), Athena puede (a) descomponer en stacked PRs por capa (Regla 10) con un especialista por capa, o (b) invocar `warrior-apollo` (router) para coordinar especialistas múltiples en un PR único cuando la checklist de `codex-stacked-prs` no justifica stack.
+3. **Componente ausente o ambiguo:** Athena invoca `warrior-apollo` (router), que aplica heurística (texto, paths) y, en última instancia, pregunta al humano antes de delegar — sin adivinar.
+4. **Cries legados preservados:** `cry-python-implement`, `cry-python-review`, `cry-python-refactor`, `cry-python-debug` siguen invocando `warrior-apollo` (router); la delegación directa a especialista vale para el flujo Issue-Driven conducido por Athena, no para invocaciones externas vía cry.
+5. **Lexis y Codex consumidos por el especialista:** Apollo-API consume `docs/{context}/oas/openapi.yaml`; Apollo-Jobs consume `docs/{context}/events/events.md`; Apollo-Agents consume todos los 13 archivos Hub & Spoke en `docs/{context}/agents/{agent}/` + `docs/{context}/dooc/{agent}.md` + `docs/{context}/feature-agent-map.md` per `codex-agent-design-docs`.
+
+La delegación directa no cambia ninguna otra regla del flujo (Gates 1 y 2, trazabilidad AC ↔ test, ADRs, scope creep, máquina de estados de delegación) — es sólo un atajo de routing en la Phase 4 cuando el `component` está claro.
+
 ## Alcance
 
 - **Se aplica a:** cualquier invocación de `/cry-implement-issue` y cualquier actividad conducida por `warrior-athena`.
