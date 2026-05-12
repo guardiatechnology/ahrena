@@ -14,7 +14,7 @@ Guardia construye agentes de IA como productos (Isac, conciliación, clasificaci
 
 - **Se aplica a:** todo agente de IA construido sobre la plataforma Guardia — Isac, agentes de conciliación, clasificación fiscal, cierre contable, agentes internos de automatización, agentes customer-facing, agentes de soporte. Se aplica al prompt del agente, a la capa de tooling, a la capa de memoria y al ciclo de promoción entre etapas.
 - **Agentes vinculados:** `warrior-claudionor` (Fábrica de PoV — plan-031), `warrior-metis` (APM Operación Concreta — plan-032), `warrior-apollo-agents` (implementación — plan-013), `warrior-athena` (Gate 2 del Issue-Driven Flow cuando la feature toca `docs/{context}/agents/`).
-- **Excepciones:** las Lexis no admiten excepciones. La única cláusula declarada es la transición `legacy-pov` descrita abajo: los agentes creados antes del merge de esta Lex son tratados como `stage: legacy-pov` y DEBEN migrar a `pre-operational` u `operational-concrete` en hasta 90 días, mediante DoOC retroactiva + ADR registrando el gap histórico.
+- **Excepciones:** las Lexis no admiten excepciones. Las 3 cláusulas declaradas en el HARD-GATE son `legacy-pov`, `direct-entry` y `user-override`; cada una exige compensación documentada en un ADR o PDR y la marca correspondiente en `dooc/{agent}.md` según `codex-agent-design-docs`. Sin un ADR/PDR válido, las excepciones se consideran no conformes.
 
 ## Etapas cognitivas
 
@@ -71,13 +71,42 @@ Guardia, independientemente de:
   - quién solicitó ("lo pidió el CEO")
   - confianza del equipo ("ya probamos bastante")
 
-Excepción única declarada: los agentes creados antes del merge de
-esta Lex son tratados como `stage: legacy-pov`. La promoción a
-`operational-concrete` exige DoOC retroactiva + ADR registrando el
-gap histórico. La tag `legacy-pov` NO es permanente: los agentes en
-esa etapa DEBEN migrar a `pre-operational` u `operational-concrete`
-en hasta 90 días tras el merge de esta Lex; los agentes en
-`legacy-pov` más allá de ese plazo se consideran no conformes.
+Excepciones declaradas (3):
+
+(1) `legacy-pov` — los agentes creados antes del merge de esta Lex
+    son tratados como `stage: legacy-pov`. La promoción a
+    `operational-concrete` exige DoOC retroactiva + ADR registrando
+    el gap histórico. La tag NO es permanente: los agentes en
+    `legacy-pov` DEBEN migrar a `pre-operational` u
+    `operational-concrete` en hasta 90 días tras el merge de esta
+    Lex; más allá de ese plazo se consideran no conformes.
+
+(2) `direct-entry` — Mêtis es invocada para diseñar un agente
+    directamente en `operational-concrete` sin PoV previa (Claudionor
+    no fue invocado). Permitido solo con un ADR o PDR que declare:
+      (i) la razón del bypass de la etapa `pre-operational`;
+      (ii) métrica leading objetivo + ventana de validación
+           post-deploy;
+      (iii) plan de observability instrumentado desde el día 0.
+    Los ítems (a), (b), (d) y (e) de la DoOC pueden completarse como
+    `N/A — direct-entry` en `dooc/{agent}.md`, siempre referenciando
+    el ADR/PDR; los ítems (c) y (f)-(i) permanecen obligatorios.
+
+(3) `user-override` — el usuario (CEO o Brand owner designado) promueve
+    un agente con evidencia parcial de la DoOC. Permitido solo con un
+    ADR o PDR que declare:
+      (i) qué ítems de la DoOC están siendo overrided y por qué;
+      (ii) responsabilidad explícita del usuario (`Promoted by`
+           completado en `dooc/{agent}.md`);
+      (iii) compensación retroactiva en una ventana declarada
+            (sugerido: 30 días).
+    Los ítems overrided aparecen como `N/A — user-override` en
+    `dooc/{agent}.md`.
+
+En todas las excepciones, la Lex permanece inviolada — las excepciones
+son rellenos canónicos de `dooc/{agent}.md` con justificación
+auditable en un ADR o PDR, NO un bypass del gate. Sin un ADR/PDR
+válido, las excepciones declaradas se consideran no conformes.
 </HARD-GATE>
 ```
 
