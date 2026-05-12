@@ -61,9 +61,9 @@ def migrate_file(path: Path, now_iso: str, dry_run: bool) -> tuple[str, str] | N
     if new is None:
         return None  # already migrated or unknown — skip
 
-    new_head = STATUS_LINE.sub(f"{m.group(1)}{new}", head, count=1)
+    new_head = STATUS_LINE.sub(lambda match: f"{match.group(1)}{new}", head, count=1)
     if UPDATED_AT_LINE.search(new_head):
-        new_head = UPDATED_AT_LINE.sub(f'\\1"{now_iso}"', new_head, count=1)
+        new_head = UPDATED_AT_LINE.sub(lambda match: f'{match.group(1)}"{now_iso}"', new_head, count=1)
     new_text = new_head + tail
 
     if not dry_run:
