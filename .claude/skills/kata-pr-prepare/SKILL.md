@@ -11,19 +11,19 @@ description: "Prepare Pull Request. Phase 7 of the Issue-Driven flow — creatin
 
 ```
 Progress:
-- [ ] 1. Verify MCP preconditions and Gate 2
+- [ ] 1. Verify MCP and Gate 2 preconditions
 - [ ] 2. Determine branch name and PR title
 - [ ] 3. Create branch via GitHub MCP
 - [ ] 4. Push modified files
 - [ ] 5. Compose PR body with references
 - [ ] 6. Create PR linked to the issue
-- [ ] 7. Update ADR statuses (proposed → accepted)
+- [ ] 7. Update ADR status (proposed → accepted)
 - [ ] 8. Update final checkpoint
 ```
 
-### Step 1: Verify MCP preconditions and Gate 2
+### Step 1: Verify MCP and Gate 2 preconditions
 
-1. Confirm that `github` is in `mcp.servers` (per `lex-mcp`). If not, inform and stop.
+1. Confirm that `github` is in `mcp.servers` (per `lex-mcp`). If not, report and end.
 2. Confirm `GITHUB_PAT` is defined.
 3. Read `docs/issues/issue-{n}/06-quality-report.md` and confirm the result is `go`. If `no-go`, refuse to create the PR and return to the orchestrator.
 4. Consult `codex-mcp-github` to identify the correct tools (`create_branch`, `push_files`, `create_pull_request`).
@@ -37,7 +37,7 @@ Progress:
 ```
 
 Where:
-- `{type}` — extract from the Phase 1 brief ("Work Type" section): `feat`, `fix`, `refactor`, `chore`
+- `{type}` — extract from the Phase 1 brief ("Work type" section): `feat`, `fix`, `refactor`, `chore`
 - `{short-slug}` — from the issue title, converted to kebab-case, limited to ~40 chars
 
 **Example:** `feat/issue-42-add-refund-endpoint`
@@ -49,7 +49,7 @@ Where:
 ```
 
 Where:
-- `{scope}` — primary affected module (detected via Phase 3 components)
+- `{scope}` — main affected module (detected via the Phase 3 components)
 - `{description}` — short summary of the change
 
 **Example:** `feat(refunds): add refund creation endpoint (#42)`
@@ -60,12 +60,12 @@ Where:
    - `owner`, `repo`
    - `branch` — name generated in Step 2
    - `from_branch` — base branch (`main` or the configured one)
-2. If the branch already exists (from a prior iteration), skip this step.
+2. If the branch already exists (from a previous iteration), skip this step.
 
 ### Step 4: Push modified files
 
 1. Run `git diff --name-only {base}...HEAD` to list touched files.
-2. For each file, read its content from the working tree.
+2. For each file, read content from the working tree.
 3. Invoke `push_files` with:
    - `owner`, `repo`, `branch` (created in Step 3)
    - `message` — commit message in Conventional Commits format:
@@ -84,7 +84,7 @@ Structure:
 ```markdown
 ## Summary
 
-{1-2 paragraphs describing the change, extracted from brief and requirements}
+{1-2 paragraphs describing the change, extracted from the brief and requirements}
 
 Resolves #{n}
 
@@ -98,7 +98,7 @@ Resolves #{n}
 
 ## Architecture
 
-See the [architecture document](docs/issues/issue-{n}/03-architecture.md).
+See [architecture document](docs/issues/issue-{n}/03-architecture.md).
 
 ### Created ADRs
 
@@ -114,21 +114,22 @@ See the [architecture document](docs/issues/issue-{n}/03-architecture.md).
 
 ## How to test
 
-{Instructions extracted from architecture-brief — how to run, required env vars, key scenarios}
+{Instructions extracted from the architecture-brief — how to run, required variables, key scenarios}
 
 ## Review checklist
 
-- [ ] ACs met (verify the traceability matrix in the Gate 2 report)
+- [ ] ACs met (check traceability matrix in the Gate 2 report)
 - [ ] ADRs reviewed (if applicable)
 - [ ] Tests run locally
 - [ ] Usage documentation updated (if applicable)
 
 ## Session Trace
 
-<!-- Built by Step 5b from .ahrena/workflow/sessions/*.json filtered
-     by branch == {branch}. Required when session_tracking.enabled == true
-     and the branch has heartbeat files. Human-driven PRs may use
-     "_(human-driven; no session trace)_". Per lex-pr-quality and codex-session-tracking. -->
+<!-- Built by Step 5b from .ahrena/workflow/sessions/*.json
+     filtered by branch == {branch}. Mandatory when session_tracking.enabled
+     == true and the branch has heartbeat files. Human-driven PRs may use
+     the phrase "_(human-driven; no session trace)_". Per lex-pr-quality
+     and codex-session-tracking. -->
 
 | Session | Entrypoint | Role | Started | Last Heartbeat |
 |---|---|---|---|---|
@@ -145,18 +146,28 @@ See the [architecture document](docs/issues/issue-{n}/03-architecture.md).
 
 ### Step 5b: Build the "Session Trace" section
 
-Per `lex-pr-quality` (rules 9, j) and `codex-session-tracking` §7, before invoking `create_pull_request` aggregate all heartbeat files for the current branch:
+Per `lex-pr-quality` (rules 9, j) and `codex-session-tracking` §7, before invoking `create_pull_request` aggregate all heartbeat files of the current branch:
 
-1. Check `session_tracking.enabled` in `.ahrena/.directives` (default `true`). If `false`, skip this step.
+1. Verify `session_tracking.enabled` in `.ahrena/.directives` (default `true`). If `false`, skip this step.
 2. Resolve `session_tracking.heartbeat_dir` (default `.ahrena/workflow/sessions/`).
-3. List `*.json` in the directory; filter those whose `branch` matches the current branch (`git rev-parse --abbrev-ref HEAD`).
-4. Sort ascending by `started_at`.
+3. List `*.json` in the directory; filter by those whose `branch` matches the current branch (`git rev-parse --abbrev-ref HEAD`).
+4. Sort by `started_at` ascending.
 5. Compute `cumulative_active_time` = sum of `(last_heartbeat - started_at)` per session. Format as `~Xh Ymin`.
-6. Build a table with columns `Session` (short UUID — first 8 chars), `Entrypoint`, `Role`, `Started`, `Last Heartbeat`.
-7. Insert the section in the PR body before the "🤖 Generated…" block.
+6. Build the table with columns `Session` (short UUID — first 8 chars), `Entrypoint`, `Role`, `Started`, `Last Heartbeat`.
+7. Insert the section into the PR body before the "🤖 Generated..." block.
 8. **PR with no associated heartbeats** (pure human, no Claude Code agent running): replace the table with the canonical phrase `_(human-driven; no session trace)_`.
 
-This section is a complementary metric to `cry-pr-cost-stamp` (which measures tokens/USD). Here it measures actual session time.
+This section is a complementary metric to `cry-pr-cost-stamp` (which measures tokens/USD). Here it measures real session time.
+
+### Step 5c: Plan flush (per ADR-002)
+
+Before invoking `create_pull_request`, ensure that the Issue body reflects the current state of the work:
+
+1. Invoke `kata-flush-plan-to-issue` passing the Issue number.
+2. The kata reads `.plans/{N}.md`, filters `<!-- not-flushed -->` blocks, runs the remote drift preflight, and writes the filtered content to the Issue body via MCP `update_issue` (preferred) or `gh issue edit --body-file` (fallback).
+3. On remote drift detected (default `force=false`), the kata pauses and offers manual merge — do not proceed until resolved.
+
+This step replaces the old mechanic of "update `status:` in the plan front-matter" (legacy pre-ADR-002 model): in the Issue-as-plan model, the Issue body is canonical; the local cache `.plans/{N}.md` is regenerable.
 
 ### Step 6: Create PR linked to the issue
 
@@ -172,35 +183,35 @@ This section is a complementary metric to `cry-pr-cost-stamp` (which measures to
 
 ### Step 6b: Apply `status: to review` (transition `development → to review`)
 
-Per `lex-issue-status` and `lex-agent-planning`, when opening the PR Athena executes the `development → to review` transition:
+Per `lex-issue-status` Axis A and `lex-agent-planning` Table A, when opening the PR Athena executes the transition `development → to review`:
 
 ```bash
 # 1. PR — enters "to review" immediately
 gh pr edit {pr_number} --add-label "status: to review"
 
-# 2. Issue — sync (status:* mutex)
+# 2. Issue — sync (intra-artifact mutex)
 gh issue edit {issue_number} \
   --remove-label "status: development" \
   --add-label "status: to review"
-
-# 3. Plan — update front-matter status: → to review and updated_at
 ```
 
-Per `lex-issue-status` Rule 2 (mutex), ensure the Issue is not left with two `status:*` labels simultaneously. Per Rule 3, update the plan's `status:` in the same step.
+Per `lex-issue-status` Rule 3 (intra-artifact mutex), ensure each artifact carries exactly one `status:*`. Per Rule 5 (Issue↔PR sync), update simultaneously.
 
-### Step 7: Update ADR statuses (proposed → accepted)
+The label is the single source of truth for the state per ADR-002 — the Issue body (canonical plan) was already updated in Step 5c.
+
+### Step 7: Update ADR status (proposed → accepted)
 
 For each ADR created in Phase 3 (listed in the checkpoint):
 
 1. Read `docs/adr/ADR-{n}-{slug}.md`.
 2. Change `**Status:** proposed` to `**Status:** accepted`.
 3. The ADR was approved at Gate 1 and survived Gate 2 — it is now official.
-4. Include these modified files in the push (or make an additional commit if already pushed).
+4. Include these modified files in the push (or make an additional commit if a push was already done).
 
 ### Step 8: Update final checkpoint
 
 1. Update `.ahrena/workflow/issue-{n}/checkpoint.md`:
-   - completed phase: 7
+   - phase completed: 7
    - final status: `completed`
    - created PR URL
    - created branch
@@ -222,8 +233,8 @@ For each ADR created in Phase 3 (listed in the checkpoint):
 
 ## Restrictions
 
-- **Use MCP only:** do not use `git push` directly or `gh pr create` when the GitHub MCP is active (per `lex-mcp`).
+- **Use MCP only:** do not use `git push` directly nor `gh pr create` when the GitHub MCP is active (per `lex-mcp`).
 - **No hardcoded credentials:** authentication exclusively via `GITHUB_PAT`.
 - **Gate 2 `go` is an inviolable prerequisite:** do not open a PR if `06-quality-report.md` resulted in `no-go`.
-- **PR body must reference docs/issues/issue-{n}/:** traceability from the issue to the PR requires those links.
+- **PR body MUST reference docs/issues/issue-{n}/:** traceability from issue to PR requires these links.
 - **Conventional Commits mandatory:** PR title and commit messages must follow the format (per `lex-conventional-commits`).

@@ -11,7 +11,7 @@ paths:
 
 ## Law
 
-> **Every agent MUST create a plan document at `./{agent_dir}/plans/plan-{NNN}-{slug}.md` (or the path defined in `paths.plans` in `.ahrena/.directives`) BEFORE starting any task that involves 2 or more steps, affects multiple files, or produces permanent artifacts. The plan MUST be presented to the user for confirmation before execution begins. Starting multi-step execution without a documented and confirmed plan is FORBIDDEN. The plan `status:` MUST belong to the unified enum `todo | development | to review | review | to release | release | done` (plus the alternative terminal `abandoned`); each transition MUST be executed by the owner declared in this Lex.**
+> **Every agent MUST register a canonical plan in the corresponding **GitHub Issue body** BEFORE starting any task that involves 2 or more steps, affects multiple files, or produces permanent artifacts. The plan MUST be presented to the user for confirmation before execution begins. Starting multi-step execution without a registered and confirmed plan is FORBIDDEN. The plan `status:` lives as a **canonical label** on the Issue (and on the PR, starting at `to review`); the unified enum is `todo | development | to review | review | to release | release | done` (plus the alternative terminal `abandoned`); every transition MUST be executed by the owner declared in this Lex.**
 
 ## Coverage
 
@@ -19,170 +19,243 @@ paths:
 - **Bound agents:** all, without role exceptions
 - **Allowed exceptions:** trivial single-step operations (editing a single file with a direct instruction, pure read queries, isolated commands with no permanent side effects)
 
-## Plan Path Resolution (precedence)
+## Three-layer storage model (per ADR-002)
 
-| Priority | Source | Value |
-|:---:|---|---|
-| 1 | `paths.plans` in `.ahrena/.directives` | Project override — supersedes everything else |
-| 2 | Agent-specific default | `.claude/plans/` for Claude Code; `.cursor/plans/` for Cursor; `.plans/` for unknown agent |
+| Layer | Location | Role | Versioning |
+|---|---|---|---|
+| **Issue body** | `https://github.com/{owner}/{repo}/issues/{N}` | Canonical. Summary + Plan section with Objective, Steps, Risks, Dependencies, Open Questions | GitHub-native audit log (timestamp + author per edit) |
+| **`.plans/{N}.md`** | Repo root, gitignored | AI working memory + scratch. Superset of the Issue body + `<!-- not-flushed -->` sections | Regenerable local cache; `kata-load-plan-from-issue` materializes, `kata-flush-plan-to-issue` flushes |
+| **`.issues/{N}/`** | Repo root, committed | Phase artifacts of the Issue-Driven flow (`01-brief.md` … `06-quality-report.md`) | Git |
 
-File name: `plan-{NNN}-{slug}.md` where `{NNN}` is sequential per directory (001, 002, …), no gaps.
+The `.plans/` path is configurable via `paths.plans` in `.ahrena/.directives` (default: `.plans/`). Do not confuse this with the legacy `paths.plans` that pointed to `.claude/plans/` — the new default is `.plans/` at the repo root, agent-agnostic.
 
-## Minimum Required Plan Structure
+## Issue body schema (canonical plan)
 
 ```markdown
----
-plan_id: "{NNN}"
-title: "{slug}"
-status: todo | development | to review | review | to release | release | done | abandoned
-agent: claude | cursor | unknown
-issue: "{owner/repo#N}"
-branch: "{type}/{N}-{slug}"
-worktree: ".worktrees/{N}-{slug}"
-claude_session: "{short-uuid}"        # optional; populated by kata-session-heartbeat
-session_entrypoint: "claude-vscode | claude-cli | claude-desktop | claude-web"
-created_at: "YYYY-MM-DDTHH:MM:SSZ"
-updated_at: "YYYY-MM-DDTHH:MM:SSZ"
----
+## Summary
 
-# Plan: {human-readable title}
+{2-4 sentences describing the objective. Typically inherited from the template (feature-request "Objective" / simple-task "Why").}
 
-## Objective
-{Why this task is being done — 1 to 3 sentences}
+## Plan
 
-## Steps
+### Objective
+{Why this task is being done — 1 to 3 sentences.}
+
+### Steps
 - [ ] Step 1
 - [ ] Step 2
 ...
 
-## Dependencies
-{Plans or issues this task depends on; "None" if there are none}
+### Dependencies
+{Plans, Issues, or PRs this task depends on; "None" if there are none.}
 
-## Risks
-{Known risks and mitigations; "None identified" if there are none}
+### Risks
+{Known risks and mitigations; "None identified" if there are none.}
+
+### Open Questions
+{Open questions requiring a decision before/during execution; "None" if there are none.}
 ```
 
-## Plan Lifecycle
+`.plans/{N}.md` schema (per plan-046 Open Question #4): **superset** of the Issue body. Carries the full mirrored body + locally marked sections:
+
+```markdown
+<!-- not-flushed -->
+## Working notes
+- debugging decision X at 14:32
+- error Y reproduced in test-Z
+
+## Next actions
+1. try approach A; if it fails, B
+
+## Scratch
+any free text the AI wants to keep as local context
+<!-- /not-flushed -->
+```
+
+`kata-flush-plan-to-issue` filters `<!-- not-flushed -->` blocks before writing to the Issue body.
+
+## Plan lifecycle
+
+The lifecycle operates on **two disjoint axes** (per ADR-002 / absorbed plan-045):
+
+### Axis A — Dev cycle (feature/fix/chore/refactor Issue)
 
 ```
-todo → development → to review → review → to release → release → done
-                          ↘            ↘            ↘
-                          abandoned (alternative terminal, any stage)
+todo → development → to review → review → done
+                           ↘
+                           abandoned (alternative terminal, at any stage)
 ```
 
-Semantics of each state:
-
-- `todo` — plan created, Issue opened, remote branch linked, worktree ready, work not yet started.
+- `todo` — plan created, Issue opened, remote branch linked, worktree ready.
 - `development` — Athena has delegated and implementation is in progress.
 - `to review` — PR opened, waiting for a reviewer (human or Argos) to pick it up.
-- `review` — Argos (or human) actively reviewing.
-- `to release` — review approved, waiting for the release agent to start.
-- `release` — release in execution (tag/build/deploy).
-- `done` — release completed, PR merged, cycle closed.
-- `abandoned` — alternative terminal (any stage → `abandoned`); plan discarded.
+- `review` — Argos (or human) is actively reviewing.
+- `done` — PR merged; Issue closed via `Closes #N`.
+- `abandoned` — alternative terminal; plan discarded.
 
-The `archived/` folder remains as a filesystem organization convention for post-merge plans — **it is no longer a state** of the enum.
+### Axis B — Release cycle (dedicated release Issue)
+
+```
+to release → release → done
+                  ↘
+                  abandoned (alternative terminal, at any stage)
+```
+
+- `to release` — release Issue created by Janus; `Tracks: #N1, #N2, ...` listing PRs merged since the last tag.
+- `release` — release in execution (`kata-release-prepare` running; human approved bump/changelog).
+- `done` — tag pushed, `validate-tag.yml` passed, Release published on GitHub.
+- `abandoned` — release aborted before tag.
+
+Label mutex is **intra-artifact** (within each Issue/PR), not cross-artifact: an Issue carries exactly one `status: <name>` label at a time. A HARD-GATE in `lex-issue-status` forbids applying Axis B labels to a feature Issue/PR, and vice versa.
+
+The `.issues/_legacy/` folder (history prior to ADR-002) preserves plans in the old format — **it is no longer a state** of the enum.
 
 ## Owner of `— → todo`: warrior-eunomia
 
-Every plan (top-level or subtask) MUST be created by `warrior-eunomia` via `kata-plan-task` (top-level) or `kata-create-subtasks` (subtask, downstream of Athena Phase 4). Eunomia executes the 5 steps below before marking `status: todo` as definitive:
+Every plan (top-level or subtask) MUST be created by `warrior-eunomia` via `kata-plan-task` (top-level) or `kata-create-subtasks` (subtask, downstream of Athena Phase 4). Eunomia executes the 5 steps below before marking the `status: todo` label as definitive:
 
 1. Open the corresponding Issue (per `lex-issue-first` and `lex-issue-quality`).
-2. Verify Issue Type after creation (per `lex-issue-type-verified`).
-3. Create the remote branch and link it to the Issue via `gh issue develop {N} --base main --name {type}/{N}-{slug}` (registers the branch as "Development" on the GitHub sidebar).
+2. Verify the Issue Type after creation (per `lex-issue-type-verified`).
+3. Create the remote branch and link it to the Issue via `gh issue develop {N} --base main --name {type}/{N}-{slug}` (registers the branch as "Development" in the GitHub sidebar).
 4. Create the worktree per `lex-git-worktrees`.
-5. Record the Issue number, branch name, and worktree path in the plan front-matter (`issue:`, `branch:`, `worktree:`). Without this anchoring, the plan remains a draft — it cannot be presented as `todo` to the user.
+5. **Populate the Issue body with the canonical plan** (Summary + Plan: Objective, Steps, Risks, Dependencies, Open Questions) via MCP `update_issue` (GitHub MCP) — or CLI fallback `gh issue edit {N} --body-file <path>` (per `lex-mcp` rule 4). Without a populated body, the plan remains a draft — it cannot be presented as `todo` to the user.
 
-**Fallback while Eunomia is not yet shipped:** the responsibility falls to the current session agent, following the same contract — with no subsequent refactor when Eunomia ships.
+**Fallback while Eunomia is not yet shipped:** the responsibility falls on the current session's agent, following the same contract — with no subsequent refactoring when Eunomia goes to production.
 
 <HARD-GATE>
-warrior-eunomia (or the session agent acting as fallback while Eunomia
-is not yet shipped) MUST NOT mark `status: todo` as definitive in a plan
+warrior-eunomia (or the current session's agent acting as fallback while Eunomia
+is not yet shipped) MUST NOT apply the `status: todo` label on an Issue
 without satisfying ALL 5 canonical steps:
 
   (a) Issue opened per lex-issue-first and lex-issue-quality
       (template, label, Issue Type, assignee, Why/What/How)
   (b) Issue Type verified per lex-issue-type-verified (delivered
-      in plan-044). Until plan-044 ships, satisfy via
-      `gh api repos/{owner}/{repo}/issues/{N}` returning a populated
-      `type` compatible with the template — same contract, without
-      the dedicated Lex yet
+      in plan-044; absorbed by plan-046). Until it ships,
+      satisfy via `gh api repos/{owner}/{repo}/issues/{N}` returning
+      `type` populated and compatible with the template — same contract
   (c) Remote branch created and linked to the Issue via
       gh issue develop {N} --base main --name {type}/{N}-{slug}
-  (d) Worktree created per lex-git-worktrees at
+  (d) Worktree created per lex-git-worktrees in
       `.worktrees/{N}-{slug}/`
-  (e) Plan front-matter updated with issue, branch, and worktree
+  (e) Issue body populated with canonical plan (Summary +
+      Plan section containing Objective, Steps, Risks, Dependencies,
+      Open Questions) via MCP `update_issue` (preferred) or
+      `gh issue edit {N} --body-file <path>` (fallback)
 
 This rule applies to EVERY plan (top-level or subtask), regardless of:
-  - perceived size ("it's just a chore")
+  - perceived size ("it is just a chore")
   - urgency ("production fire")
-  - who asked ("the CEO requested it")
+  - who requested ("the CEO asked")
   - team confidence ("we already tested a lot")
 
-Single declared exception: none. Even on hotfix, the 5 steps execute
-in sequence — Eunomia (or fallback) does not skip the Issue↔branch↔worktree
-anchoring.
+Declared exception: none. Even in a hotfix, the 5 steps are executed
+in sequence — Eunomia (or fallback) does not skip the
+Issue↔branch↔worktree↔body binding.
 </HARD-GATE>
 
-## Owners of Each Transition
+## Owners of each transition
+
+### Table A — Dev cycle (Eunomia / Athena / Argos)
 
 | Transition | Owner | Trigger |
 |---|---|---|
-| `— → todo` | `warrior-eunomia` (fallback: session agent) | Creates plan + opens Issue + `gh issue develop` + worktree |
+| `— → todo` | `warrior-eunomia` (fallback: session agent) | Creates plan + opens Issue + `gh issue develop` + worktree + populated body |
 | `todo → development` | `warrior-athena` | Phase 4 (implementation delegation) |
-| `development → to review` | `warrior-athena` | `kata-pr-prepare` opens PR |
-| `to review → review` | `warrior-argos` | Argos begins automated review cycle |
-| `review → to review` | `warrior-argos` | Argos ends cycle without approving (changes-requested or awaiting-human) |
-| `to review → to release` | `warrior-athena` | Human approves PR (wake-up loop detects `APPROVED`) |
-| `to release → release` | `warrior-janus` | `kata-release-prepare` begins; human gate for bump/changelog |
-| `release → done` | `warrior-janus` | `kata-release-publish` completes (tag pushed, `validate-tag.yml` passes, Release created); notification via MCP at `notifications.channels.release_notify` |
+| `development → to review` | `warrior-athena` | `kata-pr-prepare` opens PR; prior flush of `.plans/{N}.md` via `kata-flush-plan-to-issue` |
+| `to review → review` | `warrior-argos` | Argos starts an automated review cycle |
+| `review → to review` | `warrior-argos` | Argos finishes a cycle without approving (changes-requested or awaiting-human) |
+| `to review → done` | `warrior-athena` | Human approves PR; merge closes Issue via `Closes #N` |
 | `any → abandoned` | creator or current owner | Plan discarded |
+
+### Table B — Release cycle (Janus)
+
+| Transition | Owner | Trigger |
+|---|---|---|
+| `— → to release` | `warrior-janus` | Opens release Issue; populates `Tracks: #N1, #N2, ...` with PRs merged since the last tag |
+| `to release → release` | `warrior-janus` | `kata-release-prepare` starts; human gate on bump/changelog |
+| `release → done` | `warrior-janus` | `kata-release-publish` completes (tag pushed, `validate-tag.yml` passes, Release created); notification via MCP on `notifications.channels.release_notify` |
+| `any → abandoned` | `warrior-janus` | Release aborted before tag |
 
 Each owner MUST:
 
-- Update `status:` in the plan front-matter.
-- Apply the corresponding `status: <name>` label on the GitHub Issue (per `lex-issue-status`).
-- Apply the corresponding `status: <name>` label on the PR (starting at `to review`).
+- Apply the matching `status: <name>` label on the GitHub Issue (per `lex-issue-status`).
+- Apply the matching `status: <name>` label on the PR (starting at `to review`).
+- Trigger `kata-flush-plan-to-issue` if the local cache `.plans/{N}.md` is ahead of the Issue body.
 
-## Relationship to Other Artifacts
+## Closing audit
 
-- **GitHub Issue:** a plan references an issue; an issue may have multiple plans (e.g.: design, implementation, tests). The `status: <name>` label on the Issue mirrors the plan `status:`.
-- **PR:** starting at `to review`, the PR carries the corresponding `status: <name>` label, updated by Athena/Argos/Janus as the state advances.
-- **Checkpoint (`.checkpoint`):** the plan covers the **task** (committed, with Steps, Decisions, Risks); the checkpoint covers the **session** (working-window focus, hand-off between plans, parallel threads, scratchpad). Overlap is FORBIDDEN — see `lex-checkpoint` rule 5
-- **ADR:** when a plan identifies a relevant architectural decision, an ADR MUST be opened per `lex-issue-driven`
-- **Session heartbeat:** the plan front-matter references the Claude Code session currently operating on the plan (`claude_session`, `session_entrypoint`); details in `codex-session-tracking`.
+For post-merge audit, two fields are derived from native GitHub APIs (with no dedicated front-matter on the plan):
 
-### Plan vs `.checkpoint` — what goes where
+| Logical field | Canonical source | Command |
+|---|---|---|
+| `closed_at` | `Issue.closedAt` | `gh issue view {N} --json closedAt --jq .closedAt` |
+| `merge_commit` | `PullRequest.mergeCommit.oid` | `gh pr view {PR} --json mergeCommit --jq .mergeCommit.oid` |
+
+For legacy plans in `.issues/_legacy/` that keep historical YAML front-matter (plans 043-045 and earlier), `merge_commit:` and `closed_at:` are recognized as accepted optional front-matter — this preserves the audit trail with no retrofit.
+
+## Load/flush cadence (per ADR-002 §3)
+
+Synchronization between `.plans/{N}.md` and the Issue body happens at **3 canonical triggers** (not on every toggle):
+
+| Trigger | Operation |
+|---|---|
+| Session start / handoff between agents | `kata-load-plan-from-issue` |
+| `status:` label transition on the Issue/PR | `kata-flush-plan-to-issue` |
+| Plan step marked complete (`[ ]` → `[x]`) | `kata-flush-plan-to-issue` |
+| Session end (heartbeat finishes or Athena/Argos exits) | `kata-flush-plan-to-issue` |
+
+Intermediate toggles, scratch edits (`<!-- not-flushed -->`), and working notes are **free** — they do not trigger a flush. Operational documentation lives in `codex-agent-planning` §9.
+
+## Relationship to other artifacts
+
+- **GitHub Issue:** carries the canonical plan in its body; the `status: <name>` label is the single source of truth for the state.
+- **PR:** starting at `to review`, the PR carries the matching `status: <name>` label, updated by Athena/Argos/Janus as the state advances. Syncing the label is the responsibility of the transition's owner.
+- **`.plans/{N}.md`:** regenerable local cache; never committed; rebuilt by `kata-load-plan-from-issue` on a fresh clone.
+- **`.issues/{N}/`:** committed; receives the Issue-Driven flow's Phase artifacts (per `lex-issue-driven`).
+- **Checkpoint (`.checkpoint`):** the plan covers **task** (Steps, Decisions, Risks in the Issue body); the checkpoint covers **session** (window focus, hand-off between plans, parallel threads). Overlap is FORBIDDEN — see `lex-checkpoint` rule 5.
+- **ADR:** when a plan identifies a relevant architectural decision, an ADR MUST be opened per `lex-issue-driven`.
+- **Session heartbeat:** the Claude Code session operating on the plan is recorded in `.ahrena/workflow/sessions/<session-id>.json` (per `codex-session-tracking`); it does not live in the Issue body.
+
+### Plan (Issue body) vs `.plans/` vs `.checkpoint` — what goes where
 
 | Content | Lives in |
 |---|---|
-| Objective, `[x]` Steps, Status (from the unified enum), closed Decisions, Risks, Verification | Plan — committed |
-| Activity, detailed Progress, Artifacts produced, Next steps of a task | Plan — committed |
-| Overall focus of the working window (Session focus) | `.checkpoint` — gitignored |
+| Objective, Steps `[x]`, Risks, Dependencies, Open Questions | Issue body (canonical) |
+| Relevant architectural decisions | ADR in `docs/adr/` (referenced by the plan) |
+| Working notes, debugging diary, scratch | `.plans/{N}.md` in `<!-- not-flushed -->` blocks |
+| Overall focus of the work window (Session focus) | `.checkpoint` — gitignored |
 | Pointers to multiple active plans (Active plans) | `.checkpoint` — gitignored |
-| Parallel threads that did not become a plan (Open threads) | `.checkpoint` — gitignored |
-| Free scratchpad, links, reminders (Notes) | `.checkpoint` — gitignored |
+| Parallel threads that have not become a plan (Open threads) | `.checkpoint` — gitignored |
 
-When in doubt, content goes to the plan. The plan wins on durability (committed) and on scope (it covers the task; the checkpoint covers the session).
+When in doubt: structural content goes to the Issue body; volatile content goes to `.plans/{N}.md` in a not-flushed block; session focus goes to `.checkpoint`.
 
 ## Examples
 
 ### Correct
 
 ```
-Task: implement unified status across plan and Issue
-→ Eunomia opens Issue #90 (feature-request template, Issue Type Feature, labels)
+Task: migrate plan storage to the Issue-as-plan model
+→ Eunomia (fallback: session agent) opens Issue #96
+   (feature-request template, Feature Issue Type, labels)
 → Eunomia verifies type via gh api (per lex-issue-type-verified)
-→ Eunomia creates branch via gh issue develop 90 --base main --name feat/90-...
-→ Eunomia creates worktree at .worktrees/90-.../
-→ Eunomia writes plan-043 with status: todo, issue, branch, worktree in the front-matter
-→ Athena takes Phase 4: status → development
-→ Athena opens PR: status → to review
-→ Argos starts review: status → review
-→ Argos ends without changes: status → to review (human nudged at 3×15min)
-→ Human approves: status → to release
-→ Janus begins release: status → release
-→ Janus concludes: status → done
+→ Eunomia creates branch via gh issue develop 96 --base main
+   --name feat/96-issue-as-plan-and-issues-folder
+→ Eunomia creates worktree in .worktrees/96-issue-as-plan-and-issues-folder/
+→ Eunomia populates Issue #96 body with Summary + Plan section
+   (Objective, Steps, Risks, Dependencies, Open Questions)
+→ Eunomia applies `status: todo` label on the Issue
+→ Athena takes over Phase 4: applies `status: development`
+→ Athena opens PR; applies `status: to review` on Issue + PR;
+   triggers kata-flush-plan-to-issue
+→ Argos starts review: `status: review`
+→ Argos finishes without approving: `status: to review` (human pinged at 3×15min)
+→ Human approves; merge closes Issue via Closes #N: `status: done`
+
+Release cycle (separate):
+→ Janus opens release Issue (e.g. #100); Tracks: #93, #96, #101
+→ Janus applies `status: to release` on the release Issue
+→ Janus starts kata-release-prepare: `status: release`
+→ Janus completes kata-release-publish: `status: done`
 ```
 
 ### Incorrect
@@ -190,13 +263,23 @@ Task: implement unified status across plan and Issue
 ```
 Task: implement feature X
 → Agent creates branch directly via git checkout -b without opening an Issue
-→ ❌ Violates lex-issue-first; without an Issue, the plan cannot be marked todo
-→ Agent marks status: todo on the plan without a remote branch linked to the Issue
-→ ❌ Violates the HARD-GATE in this Lex (precondition (c) not satisfied)
+→ ❌ Violates lex-issue-first; without an Issue, the plan cannot be registered
+
+→ Agent applies `status: todo` on the Issue without populating the body
+→ ❌ Violates HARD-GATE precondition (e): the body must carry
+   Summary + Plan section before definitive status: todo
+
+→ Agent creates `.claude/plans/plan-NNN-*.md` as canonical
+→ ❌ Legacy pre-ADR-002 model. The canonical plan lives in the Issue body;
+   `.plans/{N}.md` is the regenerable local cache, not the source of truth
+
+→ Agent applies `status: to release` to a feature Issue
+→ ❌ Violates intra-artifact mutex of lex-issue-status: `to release`
+   belongs to Axis B (release Issue), forbidden in Axis A
 ```
 
 ## Automated Validation
 
-- **Tool:** agent self-check before any multi-step execution; `kata-plan-task` as canonical entry point; PR review confirms that plan `status:`, Issue `status:*` label, and PR `status:*` label are aligned.
-- **Timing:** before any multi-step task execution — without exception; and on every state transition.
-- **Metric:** 0 multi-step tasks executed without a plan documented in `{agent_dir}/plans/`; 0 PRs merged with divergent `status:` between plan, Issue, and PR; 100% of transitions executed by the declared owner.
+- **Tool:** agent self-check before any multi-step execution; `kata-plan-task` as the canonical entry point; PR review confirms that the Issue's `status:*` label and the PR's `status:*` label are aligned, and that the Issue body carries Summary + Plan section.
+- **Timing:** before any multi-step task execution — without exception; and at every state transition.
+- **Metric:** 0 multi-step tasks executed without a populated Issue body; 0 PRs merged with a divergent `status:` between Issue and PR; 100% of transitions executed by the declared owner; 100% of release Issues with `Tracks:` listing PRs merged since the last tag.
