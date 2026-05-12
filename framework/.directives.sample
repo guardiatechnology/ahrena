@@ -89,6 +89,12 @@ mcp:
 #     bundle_kb_max: 250              # Frontend: main bundle size limit (KB)
 #     api_p99_ms_max: 300             # Backend: p99 latency limit (ms) for modified endpoints
 #     benchmark_regression_pct: 10    # Backend: max regression vs. baseline on main (%)
+#   system_prompt_adversarial:
+#     enabled: false                  # enable when project adopts Guardia agents
+                                      # When true, kata-quality-gate Check 3 invokes
+                                      # kata-system-prompt-adversarial-validate on every PR
+                                      # whose diff touches docs/**/agents/**/system-prompt*.md.
+                                      # See lex-system-prompt and codex-system-prompt § Seção 7.
 
 
 # ─── Knowledge (Issue-Driven Workflow) ──────────────────────────

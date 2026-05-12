@@ -431,9 +431,15 @@ cursor:
     engineering/agents/lexis/lex-agent-construction-directives:
       alwaysApply: false
       description: "When building, reviewing, or promoting an AI agent on the Guardia platform, declare its cognitive stage (pre-operational/operational-concrete/legacy-pov) in the system prompt and enforce the 9-item DoOC HARD-GATE on every pre-operational → operational-concrete promotion."
+    engineering/agents/lexis/lex-system-prompt:
+      alwaysApply: false
+      description: "When authoring or reviewing a Guardia agent system prompt, enforce the 4 mandatory blocks (Identity → Source of Truth → Workflow → Canonical Examples), the 5 critical OWASP LLM Top 10 2025 controls (LLM01, LLM02, LLM06, LLM07, LLM05), the org_id/client_id guardrail, and the 9-precondition HARD-GATE backed by the executable adversarial suite."
     engineering/agents/codex/codex-agent-construction-directives:
       alwaysApply: false
       description: "When architecting an AI agent on the Guardia platform, consult the Piaget analogy, the 6 Construction Directives (Identity, Layered Memory, Concrete Tools, Feedback Loop, Restricted Scope, Rich Context), the cross-tab of differential rigor by stage, and the DoOC evidence formats. Notion is the live source."
+    engineering/agents/codex/codex-system-prompt:
+      alwaysApply: false
+      description: "When authoring, reviewing, or auditing a Guardia agent system prompt, consult the 3 principles, the 4 mandatory blocks with canonical templates, the 5 OWASP LLM Top 10 2025 controls, the org_id/client_id guardrail, writing rules, the review and security checklists, and the executable adversarial suite (scripts/system_prompt_adversarial/). Notion is the live source."
     engineering/agents/lexis/lex-agent-design-docs:
       alwaysApply: false
       description: "When promoting an agent to operational-concrete, enforce the 5-precondition HARD-GATE: 13 files in docs/{context}/agents/{agent}/, dooc/{agent}.md, serves_features populated, reciprocity in feature-agent-map.md, and warrior-metis declared as author."
@@ -577,6 +583,9 @@ claude-code:
     engineering/agents/lexis/lex-agent-construction-directives:
       paths: ["docs/**/agents/**", "docs/**/agents-pov/**", "docs/**/system_prompt*.md", "docs/**/system-prompt*.md"]
       description: "When building, reviewing, or promoting an AI agent on the Guardia platform, declare its cognitive stage in the system prompt and enforce the 9-item DoOC HARD-GATE on pre-operational → operational-concrete promotion."
+    engineering/agents/lexis/lex-system-prompt:
+      paths: ["docs/**/agents/**/system-prompt*.md", "docs/**/agents-pov/**/system-prompt*.md", "docs/**/system_prompt*.md", "docs/**/system-prompt*.md"]
+      description: "When authoring or reviewing a Guardia agent system prompt, enforce the 4 mandatory blocks, the 5 critical OWASP controls, the org_id/client_id guardrail, and the 9-precondition HARD-GATE backed by the executable adversarial suite."
     engineering/workflow/lexis/lex-issue-driven:
       paths: ["docs/issues/**", ".ahrena/workflow/**"]
       description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
@@ -777,6 +786,8 @@ claude-code:
       description: "When defining tools/ (MCP) or widgets/ (React) inside a skill project, follow the Ahrena convention for mcp.config.json, manifest.json, and widget↔script bindings."
     engineering/agents/codex/codex-agent-construction-directives:
       description: "When architecting an AI agent on the Guardia platform, consult the Piaget analogy, the 6 Construction Directives, the cross-tab of differential rigor by stage, and the DoOC evidence formats. Notion is the live source."
+    engineering/agents/codex/codex-system-prompt:
+      description: "When authoring, reviewing, or auditing a Guardia agent system prompt, consult the 3 principles, the 4 mandatory blocks with canonical templates, the 5 OWASP LLM Top 10 2025 controls, the org_id/client_id guardrail, writing rules, the review/security checklists, and the executable adversarial suite. Notion is the live source."
     engineering/agents/codex/codex-agent-design-docs:
       description: "When producing agent design documents on the Guardia platform, follow the 15 templates: 13 Hub & Spoke files for agents/{agent}/, dooc/{agent}.md snapshot, and the feature-agent-map.md m:n correlation with the parallel Feature Design axis."
     engineering/workflow/codex/codex-issue-workflow:
