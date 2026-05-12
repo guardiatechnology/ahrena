@@ -13,7 +13,7 @@ A modelagem de domínio, o desenho de API e a documentação de eventos produzem
 ## Abrangência
 
 - **Aplica-se a:** todos os documentos produzidos pelos warriors de design (`warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, `warrior-kronos`) e por qualquer agente que crie ou atualize artefatos de design de feature na plataforma Guardia.
-- **Agentes vinculados:** `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, `warrior-kronos`, `warrior-athena` quando orquestra design, e qualquer Kata invocado por eles (`kata-domain-model`, `kata-api-design-oas`, `kata-api-design-doc`, `kata-event-storm`, `kata-events-doc`, `kata-feature-design-docs`).
+- **Agentes vinculados:** `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, `warrior-kronos`, `warrior-metis` (para `docs/{context}/agents/`), `warrior-athena` quando orquestra design, e qualquer Kata invocado por eles (`kata-domain-model`, `kata-api-design-oas`, `kata-api-design-doc`, `kata-event-storm`, `kata-events-doc`, `kata-feature-design-docs`).
 - **Exceções:** Nenhuma. Lexis não admitem exceções. Documentos transitórios de orquestração (checkpoints, scratchpads de fase) não são alvo desta Lexis e permanecem em `.ahrena/workflow/`.
 
 ## Estrutura Canônica
@@ -27,7 +27,8 @@ docs/
     │   └── openapi.yaml        # OpenAPI 3.x da API do contexto
     ├── events/
     │   └── events.md           # Eventos do contexto, organizados por entidade
-    ├── agents/                 # (reservado — definição posterior)
+    ├── agents/
+    │   └── {agent}/            # 11 arquivos por agente (ver codex-feature-design-docs § 4)
     └── metrics/                # (reservado — definição posterior)
 ```
 
@@ -48,6 +49,7 @@ Cada categoria DEVE seguir o template definido em `codex-feature-design-docs`:
 - `entities/{entity}.md` — cabeçalho com **Classificação DDD** (Entity, Aggregate Root ou Value Object), seção **Por que existe**, tabela **Campos** (Campo, Tipo, Tamanho, Obrigatório, Descrição), e seções **Regras de Negócio**, **Invariantes**, **Relações**, **Erros** e **Referências**.
 - `oas/openapi.yaml` — OpenAPI 3.x em YAML legível, conforme `codex-oas-structure`.
 - `events/events.md` — agrupado por entidade, com `stateDiagram-v2` Mermaid do ciclo de vida, e para cada evento o payload em CloudEvents conforme `codex-cloudevents`.
+- `agents/{agent}/` — 11 arquivos canônicos (`overview.md`, `orchestrator.md`, `specialists/{name}.md`, `tools.md`, `memory.md`, `feedback.md`, `context-pack.md`, `system-prompt.md`, `observability.md`, `guardrails.md`, `dooc-snapshot.md`) cobrindo as 6 Diretrizes de `lex-agent-construction-directives` + DoOC snapshot. Estrutura por agente análoga à de `entities/`. Detalhamento em `codex-feature-design-docs` § 4.
 
 ## Consequências de Violação
 
