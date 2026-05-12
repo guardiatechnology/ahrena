@@ -14,7 +14,7 @@ Guardia construye agentes de IA como productos (Isac, conciliación, clasificaci
 
 - **Se aplica a:** todo agente de IA construido sobre la plataforma Guardia — Isac, agentes de conciliación, clasificación fiscal, cierre contable, agentes internos de automatización, agentes customer-facing, agentes de soporte. Se aplica al prompt del agente, a la capa de tooling, a la capa de memoria y al ciclo de promoción entre etapas.
 - **Agentes vinculados:** `warrior-claudionor` (Fábrica de PoV — plan-031), `warrior-metis` (APM Operación Concreta — plan-032), `warrior-apollo-agents` (implementación — plan-013), `warrior-athena` (Gate 2 del Issue-Driven Flow cuando la feature toca `docs/{context}/agents/`).
-- **Excepciones:** las Lexis no admiten excepciones. Las 3 cláusulas declaradas en el HARD-GATE son `legacy-pov`, `direct-entry` y `user-override`; cada una exige compensación documentada en un ADR o PDR y la marca correspondiente en `dooc/{agent}.md` per `codex-agent-design-docs`. Sin un ADR/PDR válido, las excepciones se consideran no conformes.
+- **Excepciones:** las Lexis no admiten excepciones. Las 3 cláusulas declaradas en el HARD-GATE son `legacy-pov`, `direct-entry` y `user-override`; cada una exige compensación documentada en un ADR o PDR y la marca correspondiente en `dooc/{agent}.md` según `codex-agent-design-docs`. Sin un ADR/PDR válido, las excepciones se consideran no conformes.
 
 ## Etapas cognitivas
 
@@ -88,9 +88,9 @@ Excepciones declaradas (3):
       (ii) métrica leading objetivo + ventana de validación
            post-deploy;
       (iii) plan de observability instrumentado desde el día 0.
-    Los ítems (a)-(e) de la DoOC pueden completarse como
+    Los ítems (a), (b), (d) y (e) de la DoOC pueden completarse como
     `N/A — direct-entry` en `dooc/{agent}.md`, siempre referenciando
-    el ADR/PDR; los ítems (f)-(i) permanecen obligatorios.
+    el ADR/PDR; los ítems (c) y (f)-(i) permanecen obligatorios.
 
 (3) `user-override` — el usuario (CEO o Brand owner designado) promueve
     un agente con evidencia parcial de la DoOC. Permitido solo con un
@@ -100,13 +100,13 @@ Excepciones declaradas (3):
            completado en `dooc/{agent}.md`);
       (iii) compensación retroactiva en una ventana declarada
             (sugerido: 30 días).
-    Los ítems overrided aparecen como `N/A — user-override` en el
-    snapshot.
+    Los ítems overrided aparecen como `N/A — user-override` en
+    `dooc/{agent}.md`.
 
 En todas las excepciones, la Lex permanece inviolada — las excepciones
 son rellenos canónicos de `dooc/{agent}.md` con justificación
 auditable en un ADR o PDR, NO un bypass del gate. Sin un ADR/PDR
-válido, `direct-entry` y `user-override` se consideran no conformes.
+válido, las excepciones declaradas se consideran no conformes.
 </HARD-GATE>
 ```
 

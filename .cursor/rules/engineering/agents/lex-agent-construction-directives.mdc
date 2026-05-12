@@ -88,8 +88,8 @@ Declared exceptions (3):
       (i) the reason for bypassing the `pre-operational` stage;
       (ii) target leading metric + post-deploy validation window;
       (iii) observability plan instrumented from day 0.
-    DoOC items (a)-(e) may be filled as `N/A — direct-entry` in
-    `dooc/{agent}.md`, always referencing the ADR/PDR; items (f)-(i)
+    DoOC items (a), (b), (d) and (e) may be filled as `N/A — direct-entry` in
+    `dooc/{agent}.md`, always referencing the ADR/PDR; items (c) and (f)-(i)
     remain mandatory.
 
 (3) `user-override` — the user (CEO or designated Brand owner) promotes
@@ -100,12 +100,12 @@ Declared exceptions (3):
            `dooc/{agent}.md`);
       (iii) retroactive compensation in a declared window
             (suggested: 30 days).
-    Overridden items appear as `N/A — user-override` in the snapshot.
+    Overridden items appear as `N/A — user-override` in `dooc/{agent}.md`.
 
 In all exceptions, the Lex stays inviolate — exceptions are canonical
 fillings of `dooc/{agent}.md` with auditable justification in an ADR
-or PDR, NOT a bypass of the gate. Without a valid ADR/PDR,
-`direct-entry` and `user-override` are non-compliant.
+or PDR, NOT a bypass of the gate. Without a valid ADR/PDR, the
+declared exceptions are non-compliant.
 </HARD-GATE>
 ```
 
