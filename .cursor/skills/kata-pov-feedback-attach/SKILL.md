@@ -58,11 +58,11 @@ Declared condition that, when met, forces a PoV review (re-execution of `kata-po
 - Default: "Human approval < 50% for 2 consecutive weeks" (lightweight HITL)
 - Default: "Objective metric < 30% of the threshold for 2 consecutive weeks"
 
-The pivot trigger is **different** from the discontinuation criterion (`overview.md::Discontinuation criterion`): pivot asks for review; discontinuation closes.
+The pivot trigger is **different** from the discontinuation criterion (`pov.md::Discontinuation criterion`): pivot asks for review; discontinuation closes.
 
 ### Step 5: Persist feedback.md
 
-Write `docs/{context}/agents-pov/feedback.md` with sections: Chosen mechanism, Technical specification, Cadence, Pivot trigger, Cross-reference to `observability/value-metrics.md`.
+Write `docs/{context}/agents-pov/{agent}/feedback.md` with sections: Chosen mechanism, Technical specification, Cadence, Pivot trigger, Cross-reference to `observability/value-metrics.md`.
 
 ### Final Validation
 
@@ -76,11 +76,11 @@ Write `docs/{context}/agents-pov/feedback.md` with sections: Chosen mechanism, T
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| `feedback.md` | Markdown | `docs/{context}/agents-pov/feedback.md` |
+| `feedback.md` | Markdown | `docs/{context}/agents-pov/{agent}/feedback.md` |
 
 ## Execution Example
 
-### Input (overview.md, excerpt)
+### Input (pov.md, excerpt)
 
 ```
 Use case: suggest bank-statement-to-ledger-entry pairing. Advisory suggestion (human confirms before saving).

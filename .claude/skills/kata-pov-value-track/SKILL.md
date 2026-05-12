@@ -36,7 +36,7 @@ Canonical schema (mandatory fields):
 - responsible: {person / team}
 - primary metric: {name} (reference: observability/value-metrics.md)
 - leading threshold: {value + window}
-- discontinuation criterion: {literal from overview.md}
+- discontinuation criterion: {literal from pov.md}
 - pivot trigger: {literal from feedback.md}
 
 ## Cycle log
@@ -79,9 +79,19 @@ No PII. If a case depends on sensitive detail, anonymize or refer by opaque ID.
 
 ### Step 4: Evaluate discontinuation criterion and pivot trigger
 
-1. **Discontinuation criterion** (from `overview.md`): if reached, status → `closed`.
+1. **Discontinuation criterion** (from `pov.md`): if reached, status → `closed`.
 2. **Pivot trigger** (from `feedback.md`): if reached, status → `pivoting` and recommend re-running `kata-pov-scope-define`.
 3. **Sustained success** (metric ≥ threshold for ≥ 7 days and scope stable for 2 weeks): status can advance to `ready-for-DoOC` — Mêtis can run `cry-agent-design --from-pov`.
+
+#### Mandatory precondition — PII boundary before `ready-for-DoOC`
+
+Before transitioning status to `ready-for-DoOC` (and therefore before enabling the `cry-agent-design --from-pov` handoff to Mêtis), the kata **MUST** run a PII boundary check against the `docs/{context}/agents-pov/{agent}/` directory:
+
+1. For each `.md` file (and files under `observability/`) of the PoV, grep against the patterns declared in `lex-data-retention` (CPF, CNPJ, email, phone, bank account, token, secret, etc.).
+2. If there is **any** match, the kata **REFUSES** the transition and returns to the user the list of hit files and lines, recommending re-running `kata-pov-context-curate` for re-anonymization (`pov.md::Anonymization notes`).
+3. Only when the grep returns zero matches may the status flip to `ready-for-DoOC`.
+
+Rationale: the `pov.md` document (and the context-pack) is delivered as direct input to `warrior-mêtis` via `--from-pov` for the `operational-concrete` cycle. PII leaked in the PoV package would propagate to the production design without a new review. The gate executes in this kata because it is the only point at which the handoff transition is decided.
 
 ### Step 5: Update PoV status
 
@@ -93,9 +103,9 @@ Update the "Current decision" block with:
 
 ### Step 6: Persist the document
 
-1. Write `docs/{context}/agents-pov/value-proof.md` with the current cycle added.
+1. Write `docs/{context}/agents-pov/{agent}/value-proof.md` with the current cycle added.
 2. Record the commit in the PoV history (responsible + cycle number).
-3. If status = `ready-for-DoOC`, emit a log saying "Ready for Mêtis to consume via `cry-agent-design --from-pov docs/{context}/agents-pov/`".
+3. If status = `ready-for-DoOC`, emit a log saying "Ready for Mêtis to consume via `cry-agent-design --from-pov docs/{context}/agents-pov/{agent}/`".
 
 ### Final Validation
 
@@ -109,7 +119,7 @@ Update the "Current decision" block with:
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| `value-proof.md` | Markdown (living) | `docs/{context}/agents-pov/value-proof.md` |
+| `value-proof.md` | Markdown (living) | `docs/{context}/agents-pov/{agent}/value-proof.md` |
 
 ## Cadence (quick reference)
 

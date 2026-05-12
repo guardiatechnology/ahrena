@@ -11,7 +11,7 @@ description: "Write PoV System Prompt. Engineering — Agents (pre-operational s
 
 ```
 Progress:
-- [ ] 1. Read overview.md and extract persona/scope
+- [ ] 1. Read pov.md and extract persona/scope
 - [ ] 2. Write Identity block (with stage: pre-operational)
 - [ ] 3. Write Capabilities block (minimum viable)
 - [ ] 4. Write Restrictions block (minimum viable)
@@ -20,11 +20,11 @@ Progress:
 - [ ] 7. Persist system-prompt.md
 ```
 
-### Step 1: Read overview.md and extract persona/scope
+### Step 1: Read pov.md and extract persona/scope
 
-1. Read `docs/{context}/agents-pov/overview.md`.
+1. Read `docs/{context}/agents-pov/{agent}/pov.md`.
 2. Extract: persona (1 sentence), primary use case, value metric, discontinuation criterion.
-3. Confirm `overview.md` contains `stage: pre-operational`. If absent, return to `kata-pov-scope-define` (do not try to fix here).
+3. Confirm `pov.md` contains `stage: pre-operational`. If absent, return to `kata-pov-scope-define` (do not try to fix here).
 
 ### Step 2: Write Identity block
 
@@ -34,7 +34,7 @@ Minimum viable block of the 4 required by `lex-system-prompt`:
 # Identity
 
 You are {PoV name}, an assistant at the **pre-operational** stage focused on
-{primary use case extracted from overview.md}.
+{primary use case extracted from pov.md}.
 
 stage: pre-operational
 ```
@@ -59,12 +59,12 @@ Maximum 3 capabilities. More than that breaks Directive 05 (Restricted Scope).
 # Restrictions
 
 You cannot:
-- Execute actions outside the primary use case declared in overview.md
+- Execute actions outside the primary use case declared in pov.md
 - Persist data beyond the current context window (no persistent memory)
 - Override the discontinuation criterion or change the value metric
 ```
 
-Additional restrictions come from `overview.md::Out of scope` (literal copy).
+Additional restrictions come from `pov.md::Out of scope` (literal copy).
 
 ### Step 5: Write Output style block
 
@@ -85,8 +85,8 @@ Invoke `kata-system-prompt-adversarial-validate` in `--minimum-viable` mode:
 
 ### Step 7: Persist system-prompt.md
 
-1. Write `docs/{context}/agents-pov/system-prompt.md` with the 4 blocks.
-2. At the file footer, annotate: `# Notes`, `kata-pov-system-prompt`, date, hash of the consumed `overview.md` (for traceability).
+1. Write `docs/{context}/agents-pov/{agent}/system-prompt.md` with the 4 blocks.
+2. At the file footer, annotate: `# Notes`, `kata-pov-system-prompt`, date, hash of the consumed `pov.md` (for traceability).
 
 ### Final Validation
 
@@ -100,11 +100,11 @@ Invoke `kata-system-prompt-adversarial-validate` in `--minimum-viable` mode:
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| `system-prompt.md` | Markdown (system prompt) | `docs/{context}/agents-pov/system-prompt.md` |
+| `system-prompt.md` | Markdown (system prompt) | `docs/{context}/agents-pov/{agent}/system-prompt.md` |
 
 ## Execution Example
 
-### Input (overview.md, excerpt)
+### Input (pov.md, excerpt)
 
 ```
 Persona: Assistant that suggests bank-statement-to-ledger-entry pairings.

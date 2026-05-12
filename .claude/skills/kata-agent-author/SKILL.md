@@ -35,7 +35,7 @@ description: <literal description from --description>
 ---
 ```
 
-If `--from-pov` was passed, read `docs/{context}/agents-pov/overview.md` and populate `description` with the persona declared there (1 sentence).
+If `--from-pov` was passed, read `docs/{context}/agents-pov/{agent}/pov.md` and populate `description` with the persona declared there (1 sentence).
 
 ### Step 3: Compose the subagent body
 
@@ -48,7 +48,7 @@ Minimum body structure (the user can expand later):
 
 stage: pre-operational
 
-<persona content; if --from-pov, copies the persona block from overview.md; if --persona, imports identity from the referenced warrior>
+<persona content; if --from-pov, copies the persona block from pov.md; if --persona, imports identity from the referenced warrior>
 
 ## Capabilities
 

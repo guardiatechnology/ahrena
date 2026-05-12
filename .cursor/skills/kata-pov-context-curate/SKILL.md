@@ -63,7 +63,7 @@ Apply `lex-data-retention`:
 
 ### Step 6: Persist context-pack.md
 
-Write `docs/{context}/agents-pov/context-pack.md` with sections: Positive few-shot examples (3-5), Anti-patterns (2-3), Anonymization notes, Quality criteria applied.
+Write `docs/{context}/agents-pov/{agent}/context-pack.md` with sections: Positive few-shot examples (3-5), Anti-patterns (2-3), Anonymization notes, Quality criteria applied.
 
 ### Final Validation
 
@@ -77,7 +77,7 @@ Write `docs/{context}/agents-pov/context-pack.md` with sections: Positive few-sh
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| `context-pack.md` | Markdown | `docs/{context}/agents-pov/context-pack.md` |
+| `context-pack.md` | Markdown | `docs/{context}/agents-pov/{agent}/context-pack.md` |
 
 ## Execution Example
 

@@ -20,7 +20,7 @@ description: "Scaffold Isolated Anthropic Subagent. Engineering — Agents (pre-
 | `--description` | Yes | Short description (1-2 sentences) — goes to the frontmatter | `"Suggests bank-statement-to-ledger pairings"` |
 | `--persona` | No | Imports base identity from an existing warrior | `warrior-apollo` |
 | `--target` | No | Destination path. Default `.claude/agents/<slug>.md` | `.claude/agents/`, `plugins/foo/agents/` |
-| `--from-pov` | No | Imports from an existing PoV | `docs/reconciliation/agents-pov/` |
+| `--from-pov` | No | Imports from an existing PoV | `docs/reconciliation/agents-pov/rec-pov-classifier/` |
 | `--force` | No | Overwrites existing file | (flag) |
 
 ## What the Command Does
@@ -91,7 +91,7 @@ Next steps:
 ```
 /cry-agent --slug reconciliation-assistant \
            --description "Suggests bank-statement-to-ledger pairings" \
-           --from-pov docs/reconciliation/agents-pov/
+           --from-pov docs/reconciliation/agents-pov/rec-pov-classifier/
 ```
 
 **Expected output:**
@@ -99,10 +99,10 @@ Next steps:
 ```
 🛠  cry-agent — standalone scaffold (--from-pov)
    slug: reconciliation-assistant
-   importing from: docs/reconciliation/agents-pov/
+   importing from: docs/reconciliation/agents-pov/rec-pov-classifier/
 
 → kata-agent-author
-   ✅ persona imported from overview.md
+   ✅ persona imported from pov.md
    ✅ Capabilities and Restrictions copied from system-prompt.md
    ✅ stage: pre-operational preserved
    ✅ file created at .claude/agents/reconciliation-assistant.md
@@ -121,7 +121,7 @@ Next steps:
 | Aspect | `cry-agent` | `cry-pov` |
 |---|---|---|
 | **Nature** | Trivial scaffold | Full POV cycle |
-| **Output** | 1 `.md` file | `docs/{context}/agents-pov/` + implementation |
+| **Output** | 1 `.md` file | `docs/{context}/agents-pov/{agent}/` + implementation |
 | **When to use** | Scope and tooling are clear; just the file is needed | Start of a real PoV with a customer |
 | **Directives** | Declared identity (minimum Directive 01) | The 6 Directives applied at pre-operational rigor |
 

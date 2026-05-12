@@ -135,7 +135,7 @@ At the end of `traces-spec.md`, add section `## Conformance with lex-observabili
 
 ### Step 6: Persist observability/
 
-Create directory `docs/{context}/agents-pov/observability/` with:
+Create directory `docs/{context}/agents-pov/{agent}/observability/` with:
 
 - `traces-spec.md`
 - `prompts-log.md`
@@ -156,7 +156,7 @@ Add a short `README.md` listing the 4 files and the directory's purpose.
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| `observability/traces-spec.md` | Markdown + YAML | `docs/{context}/agents-pov/observability/` |
+| `observability/traces-spec.md` | Markdown + YAML | `docs/{context}/agents-pov/{agent}/observability/` |
 | `observability/prompts-log.md` | Markdown + YAML | same |
 | `observability/tool-calls-log.md` | Markdown + YAML | same |
 | `observability/value-metrics.md` | Markdown | same |
