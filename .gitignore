@@ -36,3 +36,13 @@ temp.md
 
 # External skill projects — build intermediates (per lex-skill-project-structure)
 .build/
+
+# Local environment files (credentials, never commit)
+.env.local
+.env.*.local
+.env
+.env.*
+
+# Sample/template env files (committed as documentation)
+!.env.sample
+!.env.example
