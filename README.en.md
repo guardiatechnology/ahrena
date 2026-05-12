@@ -241,6 +241,31 @@ Full guide: [engineering/workflow/README.md](framework/en/engineering/workflow/R
 
 ---
 
+## Workflow Status
+
+Plan, Issue, and PR carry the same `status:` at every instant, from the unified 7-value enum (`lex-agent-planning`):
+
+```
+todo → development → to review → review → to release → release → done
+                          ↘            ↘            ↘
+                          abandoned (alternative terminal, any stage)
+```
+
+Transition owners (`lex-agent-planning`):
+
+| Transition | Owner |
+|---|---|
+| `— → todo` | `warrior-eunomia` (fallback: session agent) |
+| `todo → development → to review → to release` | `warrior-athena` |
+| `to review ↔ review` | `warrior-argos` |
+| `to release → release → done` | `warrior-janus` |
+
+The GitHub `status: <name>` label mirrors the state at every instant (`lex-issue-status`). Create the 7 canonical labels with `scripts/bootstrap_status_labels.sh [owner/repo]`.
+
+**3×15min loop:** after opening the PR, Athena schedules 3 cycles of 15 min and nudges the human reviewer via the notification MCP (`notifications.provider` in `.ahrena/.directives`, channel `notifications.channels.pr_review_timeout`) if no approval lands on the third cycle. Manuals: `codex-notifications` (provider-agnostic) and `codex-mcp-slack` (initial provider).
+
+---
+
 ## Cursor support
 
 Ahrena provides **integrated support for Cursor IDE**. With `--platform cursor` (or `PLATFORM=cursor` in the Makefile), the installer generates the `.cursor/` directory from the `framework/`, so that Lexis, Codex, Katas, Warriors, and Cries are available directly in the editor:

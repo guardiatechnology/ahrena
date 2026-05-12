@@ -24,5 +24,8 @@ temp.md
 # Harness runtime artifacts (transient agent worktrees)
 .claude/worktrees/
 
+# Claude Code session heartbeat dir (codex-session-tracking §6 — runtime-only)
+.ahrena/workflow/sessions/
+
 # External skill projects — build intermediates (per lex-skill-project-structure)
 .build/

@@ -110,6 +110,8 @@ And verify, **immediately after** `gh pr create`:
 5. Labels from the issue have been mirrored.
 6. The size label has been applied (manually if needed).
 7. At least one reviewer has been requested (auto via CODEOWNERS or manual via `--add-reviewer`).
+8. `status: <name>` label applied (`status: to review` by default when opening the PR; per `lex-issue-status`).
+9. **"Session Trace"** section present in the PR body when `session_tracking.enabled == true` in `.ahrena/.directives` and the branch has associated heartbeat files (per `codex-session-tracking` §7). Built by `kata-pr-prepare` by aggregating `.ahrena/workflow/sessions/*.json` filtered by the current branch. In PRs driven exclusively by a human (no Claude Code agent), the section may be `_(human-driven; no session trace)_`.
 
 ## HARD-GATE
 
@@ -129,6 +131,12 @@ agent MUST NOT merge PR without it satisfying ALL criteria:
       applied when applicable
   (g) Assignee = PR author
   (h) At least one reviewer requested from .github/CODEOWNERS
+  (i) `status: <name>` label applied per lex-issue-status (entry at
+      `status: to review` when opening the PR; mirrors plan `status:`)
+  (j) "Session Trace" section present in the body when
+      session_tracking.enabled == true and the branch has associated
+      heartbeat files, per codex-session-tracking §7 (human-driven PRs
+      may use the canonical exception phrase)
 
 This rule applies to EVERY PR, regardless of:
   - perceived size ("it's a trivial change")

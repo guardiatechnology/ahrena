@@ -28,6 +28,10 @@
 - **Mantém o checkpoint** (`.ahrena/workflow/issue-{n}/checkpoint.md`) atualizado a cada transição de fase para permitir retomada
 - **Estrutura a documentação** em `docs/issues/issue-{n}/` e `docs/adr/` conforme `lex-issue-driven`
 - **Comunica com o humano** em pontos-chave: clarificações na Fase 2, apresentação no Gate 1, relatório no Gate 2, URL do PR na Fase 7
+- **Executa transições de status do plano e da Issue** per `lex-agent-planning` "Owners de cada transição": `todo → development` ao iniciar Phase 4; `development → to review` ao abrir PR (via `kata-pr-prepare` Passo 6b); `to review → to release` ao detectar aprovação humana via `gh pr view --json reviewDecision`. Cada transição atualiza simultaneamente plano + Issue + PR per `lex-issue-status` Regra 3 (mutex de labels `status:*`)
+- **Opera o loop de revisão pendente (3×15min)** após abrir o PR — agenda via `ScheduleWakeup`, consulta `reviewDecision` a cada wake-up, dispara notificação via MCP de `notifications.provider` em `notifications.channels.pr_review_timeout` ao esgotar os 3 ciclos sem aprovação humana (per `codex-notifications`)
+- **Invoca `warrior-eunomia` na Phase 4** para decomposição de child Issue em sub-issues quando aplicável (downstream de plan-038 reduzido). Cada sub-issue criada por Eunomia roda seu próprio ciclo `todo → development → ...`. Athena recalcula o estado agregado do child a cada transição de sub-issue (regra "max-laggard": child fica em `development` enquanto ≥1 sub-issue não está em `done`)
+- **Atualiza heartbeat de sessão** via `kata-session-heartbeat` em cada transição (per `codex-session-tracking`)
 
 ### Não Faz
 
@@ -48,6 +52,8 @@
 | `lex-directives` | Diretivas canônicas do Ahrena |
 | `lex-checkpoint` | Persistência de contexto de sessão |
 | `lex-issue-driven` | Leis invioláveis do fluxo Issue-Driven |
+| `lex-agent-planning` | Enum unificado de `status:` e tabela de owners das transições |
+| `lex-issue-status` | Labels canônicos `status:*` na Issue/PR e mutex |
 | `lex-mcp` | Uso obrigatório de ferramentas MCP |
 | `lex-conventional-commits` | Formato de commits e título do PR |
 
@@ -56,6 +62,9 @@
 | Codex | Descrição |
 |-------|-----------|
 | `codex-issue-workflow` | Estrutura completa do fluxo, fases, gates e artefatos |
+| `codex-agent-planning` | Manual operacional do ciclo de status + diagrama de owners |
+| `codex-notifications` | Mapeamento `notifications.provider` → tool MCP de envio |
+| `codex-session-tracking` | Heartbeat de sessão Claude Code |
 | `codex-stacked-prs` | Decision Checklist e modelo de decomposição em stacked PRs (consultado na Fase 3) |
 | `codex-mcp-github` | Ferramentas do GitHub MCP |
 | `codex-mcp-notion` | Ferramentas do Notion MCP |
@@ -71,19 +80,25 @@
 | `kata-adr-write` | Produz ADRs quando há decisão relevante |
 | `kata-security-review` | Fase 5 — revisão de segurança |
 | `kata-quality-gate` | Fase 6 — Gate 2 com 7 checks; roda por camada quando `stack.approved: true` |
-| `kata-pr-prepare` | Fase 7 — cria branch e PR via MCP (fluxo PR único) |
+| `kata-pr-prepare` | Fase 7 — cria branch e PR via MCP (fluxo PR único); aplica `status: to review` (Passo 6b) |
 | `kata-contributing-pr` | Fase 7 — cria PR único quando `stack` ausente OU `stack.approved: false` |
 | `kata-stacked-pr-create` | Fase 7 — cria cadeia de PRs encadeados quando `stack.approved: true` |
+| `kata-session-heartbeat` | Atualiza heartbeat em cada transição (per `codex-session-tracking`) |
 
 ### Warriors delegados
 
 | Warrior | Quando delega | Via Kata |
 |---------|---------------|----------|
+| `warrior-eunomia` *(ainda não shipado — entregue em plan-044)* | Decomposição de child Issue em sub-issues (Phase 4) | `kata-create-subtasks` *(idem)* |
 | `warrior-daedalus` | Feature envolve API REST | `kata-api-design-oas`, `kata-api-design-doc` |
 | `warrior-kronos` | Feature envolve eventos (CloudEvents) | `kata-events-doc` |
 | `warrior-apollo` | Implementação Python (Fase 4) | `kata-python-implement` |
 | `warrior-hephaestus` | Implementação Frontend (Fase 4) | `kata-frontend-implement` |
 | `warrior-atlas` | Arquitetura/infraestrutura AWS (Fase 3) | `kata-aws-design` |
+| `warrior-argos` | Revisão automatizada do PR (sub-ciclo `to review ↔ review`) | `cry-review-pr` |
+| `warrior-janus` | Release (transições `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
+
+> **Forward references:** as linhas marcadas *(ainda não shipado — entregue em plan-044)* citam artefatos cuja entrega está planejada em plan-044. Enquanto isso, o agente da sessão executa o contrato per `lex-agent-planning` HARD-GATE com fallback documentado.
 
 ## Comportamento
 
@@ -119,6 +134,18 @@
    - `stack.approved: true` → invoca `kata-stacked-pr-create`, que segue a variante (`vanilla` ou `gs`) configurada em `.directives.stacked_prs.tool`
    - Em ambos os caminhos: transiciona ADRs para `accepted` e informa URL(s) do(s) PR(s)
 10. **Encerra:** atualiza checkpoint final; entrega ao humano o(s) PR(s) para revisão
+
+### Loop de Revisão Pendente (estado `to review`)
+
+Ao abrir o PR (Fase 7 → `kata-pr-prepare` Passo 6b), Athena agenda 3 ciclos de 15 min via `ScheduleWakeup`. A cada wake-up:
+
+1. Consulta `gh pr view {N} --json reviewDecision,reviews` e `gh pr checks {N}`.
+2. Se `reviewDecision == APPROVED` por humano → executa transição `to review → to release` (label no PR + Issue, `status:` no plano) e sai do loop.
+3. Se `reviewDecision == CHANGES_REQUESTED` → atualiza plano com nota, faz ping no PR via `gh pr comment`, mantém em `to review`, sai do loop (autor entra em ação).
+4. Se Argos publicou findings P0/P1 (label `status: to review` mantida por Argos) → mantém em `to review`, sai do loop e reagenda quando Argos sinalizar nova rodada.
+5. Caso contrário (`REVIEW_REQUIRED` ou `null`, sem aprovação humana) → conta ciclo; se < 3, reagenda 15 min; se == 3, dispara notificação via MCP em `notifications.channels.pr_review_timeout` (per `codex-notifications`) com link do PR + lista de reviewers + autor, e encerra o loop sem mudar `status`.
+
+Argos opera o sub-ciclo `to review ↔ review` em paralelo, intercalado com a janela de espera de Athena. Athena nunca move para `review` ou `to review` — isso é responsabilidade de Argos. Athena só atua em `to release` ao detectar aprovação humana.
 
 ### Critérios de Escalação
 

@@ -1,11 +1,11 @@
 ---
 plan_id: "040"
 title: "reposition-checkpoint-scope"
-status: in-progress
+status: development
 agent: claude
 issue: "guardiatechnology/ahrena#73"
 created_at: "2026-05-09T00:00:00Z"
-updated_at: "2026-05-10T01:50:00Z"
+updated_at: "2026-05-11T22:28:15Z"
 ---
 
 # Plano: Reposicionar `.checkpoint` para o que `lex-agent-planning` não cobre

@@ -1,0 +1,12 @@
+{
+  "_comment": "Ahrena MCP: Slack server config. HTTP-first per lex-mcp §5. Both platforms use the official remote endpoint at mcp.slack.com/mcp; auth is confidential OAuth 2.0 (browser flow on first call; client_id + client_secret per the Slack app). Source of truth: https://docs.slack.dev/ai/slack-mcp-server/. This is the first notification-provider MCP in the framework — codex-mcp-slack documents the provider-specific tools; codex-notifications maps the logical channels declared in .ahrena/.directives (notifications.channels.*) to the corresponding Slack channel names. Merged into platform MCP files during install.",
+  "cursor": {
+    "url": "https://mcp.slack.com/mcp",
+    "requires": []
+  },
+  "claude-code": {
+    "type": "http",
+    "url": "https://mcp.slack.com/mcp",
+    "requires": []
+  }
+}

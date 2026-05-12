@@ -28,6 +28,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/_foundation/process/codex-naming.md`
 - `.claude/docs/_foundation/process/codex-paths.md`
 - `.claude/docs/_foundation/process/codex-platforms.md`
+- `.claude/docs/_foundation/process/codex-session-tracking.md`
 - `.claude/docs/_foundation/quality/codex-tone.md`
 - `.claude/docs/_foundation/tooling/codex-ahrena-mcp.md`
 - `.claude/docs/_foundation/tooling/codex-git-spice.md`
@@ -36,6 +37,8 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/_foundation/tooling/codex-mcp-figma.md`
 - `.claude/docs/_foundation/tooling/codex-mcp-github.md`
 - `.claude/docs/_foundation/tooling/codex-mcp-notion.md`
+- `.claude/docs/_foundation/tooling/codex-mcp-slack.md`
+- `.claude/docs/_foundation/tooling/codex-notifications.md`
 - `.claude/docs/_foundation/tooling/codex-pr-cost-tracking.md`
 - `.claude/docs/_foundation/tooling/codex-terminal-type.md`
 - `.claude/docs/design/brand/codex-brand-colors.md`

@@ -137,10 +137,40 @@ Ver [documento de arquitectura](docs/issues/issue-{n}/03-architecture.md).
 - [ ] Las pruebas ejecutan localmente
 - [ ] Documentación de uso actualizada (si aplica)
 
+## Session Trace
+
+<!-- Construido por el Paso 5b a partir de .ahrena/workflow/sessions/*.json
+     filtrados por branch == {branch}. Obligatorio cuando session_tracking.enabled
+     == true y el branch tiene heartbeat files. PRs human-driven pueden usar
+     "_(human-driven; no session trace)_". Per lex-pr-quality y codex-session-tracking. -->
+
+| Session | Entrypoint | Role | Started | Last Heartbeat |
+|---|---|---|---|---|
+| `85846253` | claude-vscode | creator + executor | 2026-05-11T12:30Z | 2026-05-11T14:00Z |
+
+- Plan(s): plan-{NNN}
+- Worktree: `.worktrees/{N}-{slug}`
+- Cumulative active time: ~Xh Ymin
+
 ---
 
 🤖 Generado por el flujo Issue-Driven Development de Ahrena (`warrior-athena`)
 ```
+
+### Paso 5b: Construir la sección "Session Trace"
+
+Per `lex-pr-quality` (reglas 9, j) y `codex-session-tracking` §7, antes de invocar `create_pull_request` agregar todos los heartbeat files de la branch actual:
+
+1. Verificar `session_tracking.enabled` en `.ahrena/.directives` (default `true`). Si `false`, omitir este paso.
+2. Resolver `session_tracking.heartbeat_dir` (default `.ahrena/workflow/sessions/`).
+3. Listar `*.json` en el directorio; filtrar por aquellos cuyo `branch` coincide con la branch actual (`git rev-parse --abbrev-ref HEAD`).
+4. Ordenar por `started_at` ascendente.
+5. Calcular `cumulative_active_time` = suma de `(last_heartbeat - started_at)` por sesión. Formatear como `~Xh Ymin`.
+6. Construir tabla con columnas `Session` (UUID corto — primeros 8 chars), `Entrypoint`, `Role`, `Started`, `Last Heartbeat`.
+7. Insertar la sección en el body del PR antes del bloque "🤖 Generado...".
+8. **PR sin heartbeats asociados** (humano puro, sin agente Claude Code corriendo): reemplazar la tabla por la frase canónica `_(human-driven; no session trace)_`.
+
+Esta sección es métrica complementaria a `cry-pr-cost-stamp` (que mide tokens/USD). Aquí mide tiempo de sesión real.
 
 ### Paso 6: Crear PR vinculado a la issue
 
@@ -153,6 +183,24 @@ Ver [documento de arquitectura](docs/issues/issue-{n}/03-architecture.md).
    - `draft` — según input (por defecto `false`)
 2. Capturar `html_url` del PR creado.
 3. Si `Resolves #{n}` está en el body, GitHub vinculará automáticamente la issue.
+
+### Paso 6b: Aplicar `status: to review` (transición `development → to review`)
+
+Per `lex-issue-status` y `lex-agent-planning`, al abrir el PR Athena ejecuta la transición `development → to review`:
+
+```bash
+# 1. PR — entra en "to review" inmediatamente
+gh pr edit {pr_number} --add-label "status: to review"
+
+# 2. Issue — sincronizar (mutex de status:*)
+gh issue edit {issue_number} \
+  --remove-label "status: development" \
+  --add-label "status: to review"
+
+# 3. Plan — actualizar front-matter status: → to review y updated_at
+```
+
+Per `lex-issue-status` Regla 2 (mutex), garantizar que la Issue no quede con dos labels `status:*` simultáneos. Per Regla 3, actualizar el `status:` del plan en el mismo paso.
 
 ### Paso 7: Actualizar status de los ADRs (proposed → accepted)
 

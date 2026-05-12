@@ -117,6 +117,9 @@ cursor:
     _foundation/contributing/lexis/lex-issue-quality:
       alwaysApply: false
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
+    _foundation/contributing/lexis/lex-issue-status:
+      alwaysApply: false
+      description: "When applying or transitioning a status:* label on an Issue or PR, use the canonical set of 7 labels (status: todo/development/to review/review/to release/release/done), respect the mutex, and mirror the plan status: in the same step."
     _foundation/contributing/lexis/lex-pr-quality:
       alwaysApply: false
       description: "When creating a PR, mirror issue labels, apply size label, set assignee to author, and request reviewers per CODEOWNERS."
@@ -171,6 +174,15 @@ cursor:
     _foundation/tooling/codex/codex-mcp-figma:
       alwaysApply: false
       description: "When using Figma MCP server, use tools (get_file, get_component, get_local_variables, export_node, etc.) and auth from this codex."
+    _foundation/tooling/codex/codex-mcp-slack:
+      alwaysApply: false
+      description: "When using the Slack MCP server (HTTP at mcp.slack.com/mcp, OAuth 2.0), use tools (slack_send_message, slack_read_channel, etc.) and channel resolution from this codex. Primary consumer: codex-notifications."
+    _foundation/tooling/codex/codex-notifications:
+      alwaysApply: false
+      description: "When firing a framework notification (Athena PR timeout, Janus release, Eunomia plans digest), read notifications.provider and notifications.channels.* from .ahrena/.directives and invoke the corresponding MCP tool per this codex. Provider-agnostic; do not name the concrete provider in Lexis/Warriors/Katas."
+    _foundation/process/codex/codex-session-tracking:
+      alwaysApply: false
+      description: "When operating on a plan as a Claude Code session, update the heartbeat file at .ahrena/workflow/sessions/<session-id>.json per this codex; kata-pr-prepare aggregates these into the Session Trace block of the PR body."
     _foundation/tooling/codex/codex-ahrena-mcp:
       alwaysApply: false
       description: "When querying the Ahrena framework via MCP (ahrena_query_lex, ahrena_get_codex, ahrena_search, ahrena_resolve_ref, etc.), consult this codex for tools, parameters, install path, and when to use vs read files directly."
@@ -654,12 +666,15 @@ claude-code:
     _foundation/contributing/lexis/lex-issue-quality:
       paths: [".github/ISSUE_TEMPLATE/**"]
       description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, has a defined Issue Type, has an assignee, and answers Why/What/How."
+    _foundation/contributing/lexis/lex-issue-status:
+      paths: [".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**", "scripts/bootstrap_status_labels.sh"]
+      description: "When applying or transitioning a status:* label on an Issue or PR, use the canonical set of 7 labels (status: todo/development/to review/review/to release/release/done), respect the mutex, and mirror the plan status: in the same step."
     _foundation/contributing/lexis/lex-issue-first:
       paths: [".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**"]
       description: "When starting any code change, ensure a GitHub Issue exists first; PR body must include Closes #N or Refs #N."
     _foundation/contributing/lexis/lex-pr-quality:
       paths: [".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**", ".github/CODEOWNERS"]
-      description: "When creating a PR, mirror issue labels, apply size label, set assignee to author, and request reviewers per CODEOWNERS."
+      description: "When creating a PR, mirror issue labels, apply size label, set assignee to author, request reviewers per CODEOWNERS, apply status:* label, and include Session Trace section when heartbeat files exist for the branch."
     _foundation/contributing/lexis/lex-git-branches:
       paths: [".github/CODEOWNERS", ".github/workflows/**.yml", ".github/workflows/**.yaml"]
       description: "When creating a branch, use format {type}/{issue-number}-{kebab-slug}; type must be a Conventional Commits type; issue number is mandatory."
@@ -695,6 +710,12 @@ claude-code:
       description: "When using Notion MCP server, reference tools (create_page, search, update_page, etc.) from this codex."
     _foundation/tooling/codex/codex-mcp-figma:
       description: "When using Figma MCP server, reference tools (get_file, get_component, get_local_variables, etc.) from this codex."
+    _foundation/tooling/codex/codex-mcp-slack:
+      description: "When using the Slack MCP server (HTTP at mcp.slack.com/mcp, OAuth 2.0), reference tools (slack_send_message, slack_read_channel, etc.) and channel resolution from this codex. Primary consumer: codex-notifications."
+    _foundation/tooling/codex/codex-notifications:
+      description: "When firing a framework notification (Athena PR timeout, Janus release, Eunomia plans digest), read notifications.provider and notifications.channels.* from .ahrena/.directives and invoke the corresponding MCP tool per this codex. Provider-agnostic; do not name the concrete provider in Lexis/Warriors/Katas."
+    _foundation/process/codex/codex-session-tracking:
+      description: "When operating on a plan as a Claude Code session, update the heartbeat at .ahrena/workflow/sessions/<session-id>.json per this codex; kata-pr-prepare aggregates these into the Session Trace block of the PR body."
     _foundation/tooling/codex/codex-mcp-common:
       description: "Shared MCP patterns — consulted alongside any server-specific MCP codex."
     _foundation/tooling/codex/codex-ahrena-mcp:
