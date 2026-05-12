@@ -24,8 +24,10 @@ docs/
     ├── events/
     │   └── events.md
     ├── agents/
-    │   └── {agent}/            # 11 arquivos por agente (ver seção 4)
-    └── metrics/                # reservado
+    │   └── {agent}/            # 13 arquivos por agente (ver seção 4)
+    ├── dooc/
+    │   └── {agent-name}.md     # DoOC snapshot por agent (ver seção 5)
+    └── metrics/                # reservado — métricas capability-level (ver seção 6)
 ```
 
 ### Convenções
@@ -291,7 +293,9 @@ stateDiagram-v2
 
 ### 4. `agents/`
 
-Documenta os agentes de IA que atuam no Bounded Context — incluindo `system-prompt`, memória, ferramentas, feedback, escopo, observability, guardrails e snapshot da DoOC. Produzido por `warrior-metis` durante o ciclo de design e consumido por `warrior-apollo-agents` durante a implementação. A estrutura é análoga à de `entities/`: cada specialist tem seu arquivo dedicado dentro de `specialists/`, espelhando o padrão `entities/{entity}.md`.
+Documenta os agentes de IA que atuam no Bounded Context — identidade (system-prompt embutido), memória, ferramentas, **loop de raciocínio**, feedback, **autorização**, **escalação**, escopo, métricas, guardrails. Produzido por `warrior-metis` durante o ciclo de design e consumido por `warrior-apollo-agents` durante a implementação. Cada agent é uma unidade Hub & Spoke (orchestrator + specialists subordinados) — a estrutura interna de cada agent espelha o padrão `entities/{entity}.md` aplicado aos specialists.
+
+O **snapshot da DoOC** vive **fora** de `agents/` — em `docs/{context}/dooc/{agent}.md` (seção 5) — porque é artefato de governança (gate de promoção `pre-operational` → `operational-concrete`), não estrutura do agent.
 
 #### Convenções específicas
 
@@ -315,15 +319,17 @@ docs/{context}/
         │   └── {specialist-2}.md
         ├── tools.md
         ├── memory.md
+        ├── reasoning-loop.md
         ├── feedback.md
         ├── context-pack.md
         ├── system-prompt.md
-        ├── observability.md
+        ├── metrics.md
         ├── guardrails.md
-        └── dooc-snapshot.md
+        ├── authorization.md
+        └── escalation.md
 ```
 
-Os 11 arquivos mapeiam às 6 Diretrizes de `lex-agent-construction-directives` (consulte `codex-agent-construction-directives` para detalhamento conceitual e exemplos canônicos de stage tags e itens da DoOC).
+Os 13 arquivos mapeiam às 6 Diretrizes de `lex-agent-construction-directives` (consulte `codex-agent-construction-directives` para detalhamento conceitual e exemplos canônicos de stage tags e itens da DoOC). **`feedback`, `guardrails`, `reasoning-loop`, `authorization` e `escalation` são conceitos distintos e não se sobrepõem** — feedback é o sinal de retorno após a ação, guardrails são restrições de runtime em I/O, reasoning-loop é o padrão cognitivo do agent, authorization é a permissão de ação, escalação é o protocolo de handoff. **`dooc-snapshot` vive fora de `agents/` — ver seção 5 (`dooc/`).**
 
 #### 4.1. `overview.md`
 
@@ -763,12 +769,14 @@ Este arquivo é a **instância** do system prompt aplicado ao agente. A especifi
 - `guardrails.md` — controles aplicados
 ````
 
-#### 4.9. `observability.md`
+#### 4.9. `metrics.md`
 
-SLO/SLI, dashboards e alertas do agente. Diagrama Mermaid `sequenceDiagram` **obrigatório** mapeando o request lifecycle (orchestrator → specialists → tools → response) com **pontos de instrumentação** explícitos (spans, métricas, log structurado).
+KPIs, SLO/SLI, dashboards e alertas do agente — cobre tanto o lado **operacional** (latência, error rate, token cost) quanto o lado **de produto** (accuracy, reversal rate, time-to-action). Diagrama Mermaid `sequenceDiagram` **obrigatório** mapeando o request lifecycle (orchestrator → specialists → tools → response) com **pontos de instrumentação** explícitos (spans, métricas, log estruturado).
+
+> Distinção: este arquivo é per-agent (operacional + KPIs do agent). Métricas **capability-level** (e.g. KPI do bounded context inteiro) ficam em `docs/{context}/metrics/` quando essa seção sair de reservada.
 
 ````markdown
-# Observability — {AgentName}
+# Metrics — {AgentName}
 
 > **Tier:** `{tier-1 | tier-2 | tier-3 | tier-4}` (tier-1/2 dispara SLO obrigatório per `lex-slo-required`).
 
@@ -889,9 +897,255 @@ Em logs (per `lex-observability-required`): CPF mascarado (últimos 4 dígitos),
 - Diretriz 05 em `codex-agent-construction-directives`
 ````
 
-#### 4.11. `dooc-snapshot.md`
+#### 4.11. `reasoning-loop.md`
 
-Snapshot da **Definition of Operational Concrete** preenchido por `warrior-metis` durante o design, citando evidências fornecidas pelo usuário. Suporta 3 **entry modes**:
+Define o **padrão cognitivo** do agent — como ele pensa entre receber uma requisição e produzir uma resposta. Distingue-se de `feedback.md` (que é o sinal pós-ação) e de `orchestrator.md` (que é a coreografia entre specialists): `reasoning-loop` descreve o ciclo interno de pensamento. Padrões canônicos: ReAct, Chain-of-Thought, Tree-of-Thought, Self-Refine, Plan-and-Solve. Diagramas Mermaid `stateDiagram-v2` **obrigatório** (estados do loop) + `sequenceDiagram` **obrigatório** (chamadas a tools dentro do loop, com dependências entre tools).
+
+````markdown
+# Reasoning Loop — {AgentName}
+
+> **Padrão:** `ReAct` | `Chain-of-Thought` | `Tree-of-Thought` | `Self-Refine` | `Plan-and-Solve` | `custom`
+> **Max iterações:** N
+> **Critério de parada:** {confidence ≥ threshold | resposta final emitida | budget de tokens excedido | erro}
+
+## Padrão escolhido
+
+{Nome do padrão + justificativa em 2-4 frases. Por que este padrão para este agent? Que tipo de problema ele resolve melhor que alternativas?}
+
+## Estados do loop
+
+```mermaid
+stateDiagram-v2
+    [*] --> think
+    think --> act: tool_needed
+    think --> respond: confidence >= threshold
+    act --> observe: tool_returned
+    observe --> think: continue_loop
+    observe --> respond: enough_info
+    think --> escalate: max_iterations
+    escalate --> [*]
+    respond --> [*]
+```
+
+## Workflow (com tools e dependências)
+
+```mermaid
+sequenceDiagram
+    participant Agent
+    participant ReasoningLoop
+    participant Tool_A
+    participant Tool_B
+    participant Memory
+
+    Agent->>ReasoningLoop: input
+    ReasoningLoop->>ReasoningLoop: think (iteration 1)
+    ReasoningLoop->>Memory: retrieve(context)
+    Memory-->>ReasoningLoop: relevant_context
+    ReasoningLoop->>Tool_A: act(query_a)
+    Tool_A-->>ReasoningLoop: result_a
+    ReasoningLoop->>Tool_B: act(use(result_a))
+    Tool_B-->>ReasoningLoop: result_b
+    ReasoningLoop->>ReasoningLoop: think (iteration 2)
+    ReasoningLoop-->>Agent: response (confidence >= threshold)
+```
+
+## Parâmetros operacionais
+
+| Parâmetro | Valor | Justificativa |
+|-----------|-------|---------------|
+| `max_iterations` | N | {balanço entre cobertura e custo de tokens} |
+| `confidence_threshold` | 0.X | {calibrado contra dataset de validação} |
+| `token_budget_per_loop` | N | {limite duro; loop aborta se excedido} |
+| `temperature` | 0.X | {alta para exploração, baixa para determinismo} |
+
+## Encadeamento com outros arquivos
+
+- O loop **chama tools** declaradas em `tools.md`; dependências entre tools (qual consome output de qual) são canonizadas no `sequenceDiagram` acima.
+- O loop **consulta memória** declarada em `memory.md` (camadas curto/médio/longo) durante o estado `think`.
+- O loop **emite sinais de feedback** capturados em `feedback.md` (critic, métricas) — feedback é consequência, não parte do loop.
+- O loop **escala** para humano/outro agent via protocolo em `escalation.md` quando `max_iterations` é atingido ou guardrail bloqueia ação.
+
+## Referências
+
+- `codex-agent-construction-directives` — Diretriz 03 (Ferramentas) + Diretriz 06 (Contexto) aplicadas ao loop
+- `tools.md` — catálogo de tools chamadas pelo loop
+- `memory.md` — camadas consultadas durante `think`
+- `escalation.md` — trigger por `max_iterations`
+````
+
+#### 4.12. `authorization.md`
+
+Permissões de ação do agent — **o que ele PODE fazer**. Distingue-se de `guardrails.md` (que é restrição de runtime em I/O) e de `escalation.md` (que é trigger de handoff): `authorization` define o catálogo de ações permitidas + escopo de cada uma + identidade IAM/RBAC sob a qual o agent atua. Tabela-heavy; **sem Mermaid obrigatório**.
+
+````markdown
+# Authorization — {AgentName}
+
+> **Identidade IAM:** {role / service-account / claims OAuth} per `lex-auth`
+> **Princípio:** least-privilege — agent tem o conjunto mínimo de permissões para o escopo declarado.
+
+## Catálogo de ações permitidas
+
+| Ação | Escopo | Tipo | Aprovação requerida | Tool relacionada |
+|------|--------|------|:-------------------:|------------------|
+| `read_transaction` | tenant scope (`org_id` + `client_id`) | read | não | `get_transaction` |
+| `classify_transaction` | per-transaction | mutate (label only, reversível) | não (critic LLM) | `classify` |
+| `post_journal_entry` | per-transaction | mutate (irreversível) | **HITL obrigatório** per `feedback.md` | `post_entry` |
+| `delete_transaction` | per-transaction | irreversível | **HITL obrigatório** + ADR de exceção | — (proibido por default) |
+
+## Permissões por tier
+
+| Tier | Permissões adicionais ou restrições |
+|------|--------------------------------------|
+| tier-1 | Todas as ações `irreversível` requerem HITL ativo + observability span dedicado |
+| tier-2 | HITL obrigatório para ações `irreversível` em transações > R$ 10.000 |
+| tier-3/4 | Critic LLM substitui HITL para `irreversível` em batch (com rollback budget declarado) |
+
+## Mapeamento IAM/RBAC
+
+| Recurso | Permission set | Role/Policy |
+|---------|----------------|-------------|
+| Database (tenant tables) | `read`, `write` (com filtro `org_id`+`client_id`) | `{agent}-data-role` |
+| Event bus (publish) | `publish` em `event.guardia.{module}.{entity}.*` | `{agent}-publisher-role` |
+| Secret manager | `read` em `agent/{name}/*` | `{agent}-secrets-role` |
+| MCP servers | per `lex-mcp` allow-list (declarado em `tools.md`) | — |
+
+## Recusas explícitas
+
+O agent **DEVE** recusar (com mensagem estruturada de erro per `lex-error-handling`) quando:
+
+- Solicitação cruza tenant boundary (`org_id` ou `client_id` divergem do contexto)
+- Ação não está no catálogo acima
+- Ação requer HITL e nenhum aprovador está disponível dentro do SLA declarado
+
+## Auditoria
+
+Toda execução de ação `mutate` ou `irreversível` emite evento `event.guardia.agents.{agent}.action.executed` com `action_id`, `permission_used`, `actor` (`org_id`+`user_id`), `correlation_id`. Retenção per `lex-data-retention` classe `audit-logs`.
+
+## Referências
+
+- `lex-auth` — OAuth + RBAC + tenant isolation
+- `lex-error-handling` — formato de erro estruturado em recusa
+- `lex-data-retention` — retenção de audit-logs
+- `guardrails.md` — controles complementares (I/O); este arquivo é catálogo de **permissões**, não restrições
+- `escalation.md` — quando ação proibida exige handoff humano
+````
+
+#### 4.13. `escalation.md`
+
+Protocolo de **handoff** — quando e como o agent transfere controle para humano ou outro agent. Distingue-se de `feedback.md` (que captura sinal pós-ação) e de `authorization.md` (que define permissões): `escalation` define os **triggers** + **destino** + **contrato de handoff** (o que é transferido, o que é preservado, audit trail). Diagramas Mermaid `stateDiagram-v2` **obrigatório** (níveis de escalação) + `sequenceDiagram` **obrigatório** (handoff com tools e dependências quando outro agent é destino).
+
+````markdown
+# Escalation — {AgentName}
+
+> **Princípio:** escalação é falha controlada — preferível a comportamento ambíguo. Sempre preserva contexto e audit trail.
+
+## Triggers
+
+| Trigger | Origem | Destino | SLA de resposta |
+|---------|--------|---------|-----------------|
+| `confidence < threshold_critical` | `reasoning-loop.md` | humano (HITL) | 4h business |
+| `reversal_rate > threshold (24h)` | `feedback.md` (critic) | humano (owner) | 1h business |
+| `max_iterations reached` | `reasoning-loop.md` | humano OU agent {fallback-name} | conforme tier |
+| `authorization denied` (ação requer aprovação) | `authorization.md` | humano (aprovador HITL) | conforme `feedback.md` |
+| `guardrail violation` | `guardrails.md` | humano (Security) + log de violação | 30min |
+| `user explicit request` | input do usuário ("transfira para humano") | humano | imediato |
+
+## Níveis de escalação
+
+```mermaid
+stateDiagram-v2
+    [*] --> normal_execution
+    normal_execution --> level_1_critic: confidence_drop
+    normal_execution --> level_2_human_review: irreversible_or_guardrail
+    level_1_critic --> normal_execution: critic_approves
+    level_1_critic --> level_2_human_review: critic_rejects
+    level_2_human_review --> resolved: human_handles
+    level_2_human_review --> level_3_oncall: SLA_breach
+    level_3_oncall --> resolved: oncall_handles
+    level_3_oncall --> level_4_incident: severity >= S2
+    level_4_incident --> [*]: post_mortem
+    resolved --> [*]
+```
+
+## Handoff entre agents (quando aplicável)
+
+```mermaid
+sequenceDiagram
+    participant SourceAgent
+    participant ContextBundle
+    participant FallbackAgent
+    participant AuditLog
+
+    SourceAgent->>SourceAgent: trigger detected
+    SourceAgent->>ContextBundle: package(conversation, memory_snapshot, decision_trail, correlation_id)
+    SourceAgent->>AuditLog: emit(handoff_initiated_event)
+    SourceAgent->>FallbackAgent: handoff(ContextBundle)
+    FallbackAgent->>FallbackAgent: validate(ContextBundle)
+    FallbackAgent->>AuditLog: emit(handoff_accepted_event)
+    FallbackAgent-->>SourceAgent: ack
+    SourceAgent->>AuditLog: emit(handoff_completed_event)
+```
+
+## Contrato de handoff
+
+O `ContextBundle` transferido **DEVE** conter:
+
+- `conversation_id` + transcript completo (input do usuário, respostas intermediárias, ferramentas chamadas)
+- Snapshot da memória **média** (episódica) — não a longa (preserva isolamento)
+- `decision_trail` — sequência de decisões do `reasoning-loop` com confidence por etapa
+- `correlation_id` para rastreio cross-agent em `metrics.md`
+- Razão da escalação (trigger acima) + tier do agent original
+
+O `ContextBundle` **NÃO PODE** conter:
+
+- Credenciais (mesmo da sessão original)
+- `org_id` ou `client_id` em texto livre (apenas em campos estruturados isolados)
+- Memória **longa** (vector store completo) — só referências
+
+## Destinos válidos
+
+| Destino | Quando | Como acionado |
+|---------|--------|---------------|
+| Humano (HITL) | aprovação irreversível, guardrail, request explícito | Slack webhook + e-mail per `feedback.md` matriz |
+| Humano (on-call) | SLA breach do HITL, severity ≥ S2 | PagerDuty per `lex-runbook-for-every-alert` |
+| Agent {fallback-name} | `max_iterations` em loop quando há agent especializado para edge case | direct invocation com `ContextBundle` |
+| Incidente formal | guardrail violation S1, dados vazaram, financial impact | per `codex-incident-response` |
+
+## Referências
+
+- `feedback.md` — HITL como destino primário
+- `reasoning-loop.md` — `max_iterations` trigger
+- `authorization.md` — recusas que disparam escalação
+- `guardrails.md` — violações que disparam handoff a Security
+- `lex-runbook-for-every-alert` — runbook para alerta de SLA breach
+- `codex-incident-response` — quando escalação vira incidente formal
+- Diretriz 04 em `codex-agent-construction-directives` — feedback explícito (de que escalação é caso particular)
+````
+
+### 5. `dooc/`
+
+Snapshot da **Definition of Operational Concrete** por agent. **Sibling de `agents/`** — não vive dentro de `agents/` porque é artefato de **governança** (gate de promoção `pre-operational` → `operational-concrete`), não estrutura do agent. Cada agent que sai de PoV produz um arquivo aqui; o arquivo é preenchido por `warrior-metis` durante o design citando evidências fornecidas pelo usuário.
+
+#### Convenções específicas
+
+| Item | Regra |
+|------|-------|
+| Naming | `{agent-name}.md` em kebab-case (mesmo slug usado em `agents/{agent}/`) |
+| Idioma | conforme `language.default` em `.ahrena/.directives` |
+| Versionamento | append-only via git history; snapshot reflete o **momento da promoção** ou da **última auditoria** |
+
+#### Estrutura da pasta
+
+```
+docs/{context}/
+└── dooc/
+    ├── {agent-1}.md
+    └── {agent-2}.md
+```
+
+#### 5.1. `dooc/{agent}.md`
+
+Suporta 3 **entry modes**:
 
 - **`with-pov`** — fluxo canônico: agente vem de PoV produzido por `warrior-claudionor`, com evidências completas dos 9 itens.
 - **`direct-entry`** — Mêtis acionada sem PoV prévia; ADR ou PDR obrigatório registrando a decisão.
@@ -955,7 +1209,7 @@ Cada item da DoOC aceita evidência real OU `N/A — direct-entry` OU `N/A — u
 
 ### (i) Stage explícito no system prompt
 
-- **Evidence:** `stage: operational-concrete` literal em `system-prompt.md` linha {N}
+- **Evidence:** `stage: operational-concrete` literal em `agents/{agent}/system-prompt.md` linha {N}
 - **Notes:**
 
 ## Aprovação
@@ -969,15 +1223,16 @@ Cada item da DoOC aceita evidência real OU `N/A — direct-entry` OU `N/A — u
 - `lex-agent-construction-directives` — HARD-GATE da DoOC
 - `codex-agent-construction-directives` — detalhamento dos 9 itens
 - `warrior-metis` — agente que preenche e valida o snapshot
+- `agents/{agent}/` — agent ao qual este snapshot pertence
 ````
 
-### 5. `metrics/` — reservado
+### 6. `metrics/` — reservado
 
-Reservado para SLI/SLO, dashboards e métricas de produto e operação do contexto. Estrutura definida em rodada futura, alinhada a `lex-slo-required` e `lex-observability-required`.
+Reservado para SLI/SLO, dashboards e métricas **capability-level** (KPIs do bounded context inteiro) — distintas das métricas **per-agent** (operacionais + de produto do agent), que vivem em `agents/{agent}/metrics.md`. Estrutura definida em rodada futura, alinhada a `lex-slo-required` e `lex-observability-required`.
 
 ## Relações Cruzadas
 
-Os quatro tipos de documento se referenciam:
+Os tipos de documento se referenciam:
 
 | De → Para | Referência |
 |-----------|------------|
@@ -985,14 +1240,20 @@ Os quatro tipos de documento se referenciam:
 | `entities/{e}.md` → `oas/openapi.yaml` | Lista os endpoints REST que expõem a entidade |
 | `events/events.md` → `entities/` | Cada seção da entidade no events.md referencia o arquivo da entidade |
 | `oas/openapi.yaml` → `entities/` | Schemas refletem o catálogo de campos das entidades |
-| `agents/{agent}/orchestrator.md` → `specialists/` | Orchestrator lista os specialists subordinados |
+| `agents/{agent}/orchestrator.md` → `specialists/` | Orchestrator lista os specialists subordinados (Hub & Spoke) |
 | `agents/{agent}/specialists/{s}.md` → `agents/{agent}/tools.md` | Specialist declara o subset de tools que consome |
 | `agents/{agent}/specialists/{s}.md` → `agents/{agent}/memory.md` | Specialist declara o subset de memória que consulta |
+| `agents/{agent}/reasoning-loop.md` → `agents/{agent}/tools.md`, `memory.md` | Loop chama tools (com dependências entre tools) e consulta memória durante `think` |
+| `agents/{agent}/reasoning-loop.md` → `agents/{agent}/escalation.md` | Loop escala quando `max_iterations` é atingido |
+| `agents/{agent}/feedback.md` → `agents/{agent}/escalation.md` | Feedback (critic/HITL) escala em violação |
+| `agents/{agent}/authorization.md` → `agents/{agent}/feedback.md`, `escalation.md` | Ação proibida dispara HITL ou escalação |
+| `agents/{agent}/guardrails.md` → `agents/{agent}/escalation.md` | Guardrail violation força handoff a Security |
 | `agents/{agent}/system-prompt.md` → `agents/{agent}/guardrails.md` | System prompt referencia os controles OWASP aplicados |
-| `agents/{agent}/dooc-snapshot.md` → `lex-agent-construction-directives` | Snapshot referencia a HARD-GATE com os 9 itens |
+| `agents/{agent}/tools.md` (Type=MCP) → `lex-mcp` | Tools tipo MCP linkam `lex-mcp` para preferência de transporte e fallback |
+| `dooc/{agent}.md` → `agents/{agent}/`, `lex-agent-construction-directives` | Snapshot da DoOC referencia o agent e a HARD-GATE com os 9 itens |
 | `agents/{agent}/` → `entities/`, `events/`, `oas/` | Agentes operam sobre entidades, emitem/consomem eventos e podem expor endpoints (cross-link por arquivo quando aplicável) |
 
-A consistência cruzada é verificada pelo `warrior-prometheus` ao final do ciclo (Fase 4 — Verificação de Consistência); para `agents/`, a verificação é orquestrada por `warrior-metis`.
+A consistência cruzada é verificada pelo `warrior-prometheus` ao final do ciclo (Fase 4 — Verificação de Consistência); para `agents/` e `dooc/`, a verificação é orquestrada por `warrior-metis`.
 
 ## Restrições
 
@@ -1001,8 +1262,10 @@ A consistência cruzada é verificada pelo `warrior-prometheus` ao final do cicl
 - **Não criar arquivo único de "domínio":** o modelo de domínio se distribui entre `entities/` (tabelas e regras), `events/` (ciclo de vida) e `oas/` (contrato exposto). O documento monolítico `domain-model.md` é descontinuado.
 - **Não usar paths configuráveis:** `paths.domain`, `paths.oas`, `paths.events` foram removidos de `.ahrena/.directives`. A estrutura é fixa e codificada nesta Lexis/Codex.
 - **`specialists/` é collection (N arquivos), não documento único:** kebab-case ordenável; **máximo de 5 specialists por agente** — acima disso, reconsiderar a arquitetura (specialists adicionais viram agentes próprios).
-- **`dooc-snapshot.md` é preenchido manualmente por Mêtis:** evidências citadas DEVEM ser verificáveis; placeholder ou TODO é PROIBIDO em snapshot `operational-concrete`. Quando `entry_mode` ≠ `with-pov`, ADR ou PDR é obrigatório.
-- **Mudanças em arquivos de `agents/` são instantâneas por default:** ADR obrigatória apenas para breaking changes (mudança de stage, mudança em itens da DoOC, remoção de Diretriz).
+- **`reasoning-loop`, `feedback`, `guardrails`, `authorization`, `escalation` são conceitos distintos** — não misturar. Loop é cognição interna; feedback é sinal pós-ação; guardrails são restrições em I/O; authorization é catálogo de permissões; escalation é protocolo de handoff. Sobreposição é code smell — refatorar para reduzir duplicação por composição (cross-link), não por mistura conceitual.
+- **`dooc/` vive fora de `agents/`:** snapshot da DoOC é artefato de governança, não estrutura do agent. Mover `dooc-snapshot.md` para dentro de `agents/{agent}/` é PROIBIDO.
+- **`dooc/{agent}.md` é preenchido manualmente por Mêtis:** evidências citadas DEVEM ser verificáveis; placeholder ou TODO é PROIBIDO em snapshot `operational-concrete`. Quando `entry_mode` ≠ `with-pov`, ADR ou PDR é obrigatório.
+- **Mudanças em arquivos de `agents/` são instantâneas por default:** ADR obrigatória apenas para breaking changes (nova/removida Diretriz, mudança em itens da DoOC, mudança de stage).
 
 ## Referências
 
@@ -1013,8 +1276,10 @@ A consistência cruzada é verificada pelo `warrior-prometheus` ao final do cicl
 - `lex-cloudevents`, `codex-cloudevents` — eventos
 - `codex-oas-structure` — estrutura do OpenAPI
 - `codex-restful-payload`, `codex-restful-headers`, `codex-restful-pagination` — convenções REST
-- `lex-agent-construction-directives`, `codex-agent-construction-directives` — 6 Diretrizes + DoOC + stage tags (consumidos pelo template `agents/`)
-- `lex-mcp` — uso correto de servers MCP em tools
-- `lex-idempotency`, `lex-data-retention`, `lex-observability-required`, `lex-slo-required`, `lex-runbook-for-every-alert`, `lex-python-security` — Lexis referenciadas pelos 11 arquivos do template `agents/`
+- `lex-agent-construction-directives`, `codex-agent-construction-directives` — 6 Diretrizes + DoOC + stage tags (consumidos pelos templates `agents/` e `dooc/`)
+- `lex-mcp` — uso correto de servers MCP em tools (link obrigatório de `tools.md` quando Type=MCP)
+- `lex-auth` — OAuth + RBAC + tenant isolation (consumido por `authorization.md`)
+- `lex-idempotency`, `lex-data-retention`, `lex-observability-required`, `lex-slo-required`, `lex-runbook-for-every-alert`, `lex-python-security` — Lexis referenciadas pelos 13 arquivos do template `agents/`
+- `codex-incident-response` — escalação que vira incidente formal (consumido por `escalation.md`)
 - `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, `warrior-kronos`, `warrior-metis` — agentes que produzem estes documentos
 - `warrior-apollo-agents` — consumidor canônico de `docs/{context}/agents/` durante implementação
