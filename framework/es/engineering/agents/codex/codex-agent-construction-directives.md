@@ -40,7 +40,7 @@ Cada Directriz se detalla con (a) qué es, (b) por qué importa, (c) versión m�
 
 **Pre-operacional.** System prompt corto (~10 líneas) cubriendo rol, dominio, 1-2 rechazos explícitos. Aceptable omitir tono detallado.
 
-**Operación Concreta.** Manual de identidad completo en `docs/{context}/agents/{agent}/identity.md` — rol, dominio, rechazos enumerados, tono, escalation matrix, voz Guardia. El system prompt referencia el manual.
+**Operación Concreta.** Identidad codificada en el `docs/{context}/agents/{agent}/system-prompt.md` canónico per `codex-agent-design-docs` — rol, dominio, rechazos enumerados, tono, escalation matrix, voz Guardia. El system prompt es el artefacto canónico de la Directriz 01 (no hay `identity.md` separado en el template de 13 archivos).
 
 ### Directriz 02 — Memoria en Capas
 
@@ -96,7 +96,7 @@ Cada Directriz se detalla con (a) qué es, (b) por qué importa, (c) versión m�
 
 | # | Directriz | `pre-operational` (Claudionor) | `operational-concrete` (Mêtis) |
 |---|-----------|--------------------------------|--------------------------------|
-| 01 | Identidad | System prompt mínimo viable (~10 líneas) + `stage:` declarado + 1-2 rechazos | Manual completo en `docs/{context}/agents/{agent}/identity.md`; system prompt referencia el manual; tono, voz Guardia, escalation declarados |
+| 01 | Identidad | System prompt mínimo viable (~10 líneas) + `stage:` declarado + 1-2 rechazos | Identidad codificada en `docs/{context}/agents/{agent}/system-prompt.md` (canónico per `codex-agent-design-docs`); tono, voz Guardia, escalation declarados |
 | 02 | Memoria | Solo corto plazo | 3 capas obligatorias (corto + medio + largo) con retención declarada per `lex-data-retention` |
 | 03 | Herramientas | 1-3 herramientas, búsqueda + ejecución simple, log estructurado | Catálogo tripartito (deterministic + ML + MCP) con schema, idempotencia, observability per `lex-observability-required` |
 | 04 | Feedback | HITL ligero O 1 métrica objetiva | HITL para irreversibles + critic LLM + ≥3 métricas objetivas; SLO cuando tier-1/2 |
@@ -136,18 +136,18 @@ Feedback: cada clasificación es revisada por un analista Guardia.
 # stage: operational-concrete
 # DoOC: ✅ validada el 2026-04-12, ADR-018 (docs/adr/ADR-018-rec-classifier-promotion.md)
 # tier: tier-2
-# SLO: docs/reconciliation/metrics/slo-rec-classifier.yaml
+# Métricas + SLO: docs/reconciliation/agents/rec-classifier/metrics.md
 # Owner: warrior-metis; product owner: @ana.santos
-# Manual: docs/reconciliation/agents/rec-classifier/identity.md (consultar para tono, voz, escalation)
+# System prompt canónico: docs/reconciliation/agents/rec-classifier/system-prompt.md (codifica rol, tono, voz, escalation)
 
-Rol, dominio, rechazos, tono, voz Guardia: ver manual.
+Rol, dominio, rechazos, tono, voz Guardia: ver system-prompt.md canónico (linkado en el header).
 
 Memoria:
 - Corta: ventana de la sesión actual
 - Media: últimas 50 clasificaciones del cliente (Redis, TTL 30d)
 - Larga: reglas de clasificación versionadas en docs/reconciliation/rules/
 
-Herramientas (catálogo completo en docs/reconciliation/agents/rec-classifier/tools/):
+Herramientas (catálogo completo en docs/reconciliation/agents/rec-classifier/tools.md):
 - deterministic: validate_account, parse_statement, normalize_currency
 - ML: classify_transaction, embed_description
 - MCP: github (lectura de reglas versionadas)
@@ -189,7 +189,7 @@ Cada ítem de la DoOC declarado en la Lex tiene un formato de evidencia esperado
 | (e) | Observability data ≥ 7 días | Link al dashboard (CloudWatch, Grafana) + ventana de 7 días cubierta |
 | (f) | Stakeholder owner identificado | Nombre, rol, canal de escalado (Slack handle + email) |
 | (g) | Capacidad de implementación | Sprint del `warrior-apollo-agents` agendado O ADR justificando el camino alternativo |
-| (h) | Tier de criticidad | `tier-1` \| `tier-2` \| `tier-3` \| `tier-4`. Tier-1/2 dispara SLO obligatorio en `docs/{context}/metrics/slo-{agent}.yaml` per `lex-slo-required`. Tier-3/4 NO dispensa las métricas (b) y (c) — solo dispensa el SLO formal |
+| (h) | Tier de criticidad | `tier-1` \| `tier-2` \| `tier-3` \| `tier-4`. Tier-1/2 dispara SLO obligatorio en `docs/{context}/agents/{agent}/metrics.md` per `lex-slo-required` (KPIs + SLI/SLO + dashboards consolidados en el archivo canónico). Tier-3/4 NO dispensa las métricas (b) y (c) — solo dispensa el SLO formal |
 | (i) | Stage explícito en el prompt | SHA del commit que añadió `stage: pre-operational` al prompt del PoV |
 
 ## Anti-patrones observados
@@ -216,6 +216,7 @@ La siguiente lista codifica trampas reales. Cuando aparezcan en revisión, bloqu
   - `lex-mcp` — uso correcto de servers MCP en herramientas
   - `lex-idempotency` — idempotencia para herramientas que modifican estado
 - **Codex relacionados:**
+  - `codex-agent-design-docs` — **manual operacional** del template canónico de 13 archivos (`system-prompt.md`, `tools.md`, `metrics.md`, `memory.md`, `guardrails.md`, etc.); este Codex describe el **rigor conceptual por Directriz**, aquel prescribe la **estructura física**
   - `codex-ai-first-experience` — UX agentic, HITL para irreversibles
   - `codex-incident-response` — ciclo de incidente cuando un agente en producción falla
 - **Warriors relacionados (entrega futura):**
