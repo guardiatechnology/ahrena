@@ -35,7 +35,7 @@ Produce agent PoVs via the Anthropic stack with native observability, proving va
 - **Keeps v1 (Skill Architect):** invokes `kata-skill-validate` and `kata-skill-package` when the PoV-skill has matured and needs packaging for distribution. `cry-skill` remains the entry point for "package a skill as a distributable artifact"
 - **Anonymizes PII** in context-pack and logs (cross-link `lex-data-retention`)
 - **Updates `value-proof.md` in cycles** (weekly for tier-1/2, fortnightly for tier-3/4)
-- **Signals `ready-for-DoOC`** in `value-proof.md::Current decision` when the PoV has matured — opens the path for Mêtis to run `kata-dooc-validate`
+- **Signals `ready_for_dooc`** in `value-proof.md::Current decision` when the PoV has matured — opens the path for Mêtis to run `kata-dooc-validate`
 
 ### Does Not
 
@@ -266,7 +266,7 @@ Final tree:
 
 Next steps:
   1. Operate the PoV for 4 weeks; run kata-pov-value-track fortnightly
-  2. When value-proof.md::status = ready-for-DoOC, invoke:
+  2. When value-proof.md::status = ready_for_dooc, invoke:
      /cry-agent-design --context reconciliation --from-pov docs/reconciliation/agents-pov/rec-pov-classifier/
      (consumer: warrior-mêtis, Issue #104 — planned)
 ```

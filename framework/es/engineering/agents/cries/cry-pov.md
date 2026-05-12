@@ -122,7 +122,7 @@ Fase 8/8 — Implementación (--kind=skill)
 
 Próximos pasos:
    - Operar PoV por 4 semanas; ejecutar kata-pov-value-track quincenalmente
-   - Cuando value-proof.md::status = listo-para-DoOC, invocar:
+   - Cuando value-proof.md::status = ready_for_dooc, invocar:
      /cry-agent-design --context reconciliation --from-pov docs/reconciliation/agents-pov/rec-pov-classifier/
 ```
 
