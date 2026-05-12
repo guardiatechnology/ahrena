@@ -109,7 +109,7 @@ Escala a humano (o a Athena/Kronos) cuando:
 - El contrato de evento (CloudEvents) está ausente, incompleto o en conflicto con el AC — escala a `warrior-kronos`
 - Decisión arquitectural impacta múltiples bounded contexts (e.g., evento compartido) — escala a Athena
 - Idempotency strategy no es trivial (clave compuesta, TTL agresivo, deduplication window grande) — pide revisión humana
-- Cambio disruptivo en schema de evento exige negociación con consumidores — escala a Kronos + Athena
+- Cambio que rompe schema de evento (breaking change) exige negociación con consumidores — escala a Kronos + Athena
 - Workload exige elección de servicio AWS más allá del default (Step Functions vs. SQS+Lambda, EventBridge vs. SNS) — escala a `warrior-atlas`
 - Conflicto entre Lexis Python y requisito de negocio
 

@@ -187,7 +187,7 @@ Escalates to the human (or to Athena/Metis) when:
 - An architectural decision impacts `feature-agent-map.md` (e.g., the agent now serves features of another bounded context) — escalates to Athena
 - A tool with irreversible effect was marked without `requires_human_confirmation: true` in `authorization.md` — escalates to the human
 - The agent has `stage: legacy-pov` and the 90-day window has expired — blocks merge and escalates to Athena
-- A disruptive change to a tool schema requires negotiation with external consumers — escalates to Metis
+- A breaking change to a tool schema requires negotiation with external consumers — escalates to Metis
 - The memory backend requires a choice beyond the default (DynamoDB, Redis, Postgres) — escalates to `warrior-atlas`
 - Conflict between `lex-system-prompt` and a business requirement
 

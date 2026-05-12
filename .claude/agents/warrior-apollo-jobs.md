@@ -64,7 +64,7 @@ Escalates to the human (or to Athena/Kronos) when:
 - The event contract (CloudEvents) is missing, incomplete, or conflicts with an AC — escalates to `warrior-kronos`
 - An architectural decision impacts multiple bounded contexts (e.g., shared event) — escalates to Athena
 - The idempotency strategy is non-trivial (composite key, aggressive TTL, large deduplication window) — requests human review
-- A disruptive change to the event schema requires consumer negotiation — escalates to Kronos + Athena
+- A breaking change to the event schema requires consumer negotiation — escalates to Kronos + Athena
 - The workload requires an AWS service choice beyond the default (Step Functions vs. SQS+Lambda, EventBridge vs. SNS) — escalates to `warrior-atlas`
 - Conflict between a Python Lexis and a business requirement
 

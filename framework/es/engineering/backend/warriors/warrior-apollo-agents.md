@@ -187,7 +187,7 @@ Escala a humano (o a Athena/Metis) cuando:
 - Decisión arquitectural impacta el `feature-agent-map.md` (e.g., el agente pasa a servir features de otro bounded context) — escala a Athena
 - Tool con efecto irreversible fue marcada sin `requires_human_confirmation: true` en `authorization.md` — escala a humano
 - Agente tiene `stage: legacy-pov` y la ventana de 90 días está expirada — bloquea merge y escala a Athena
-- Cambio disruptivo en schema de tool exige negociación con consumidores externos — escala a Metis
+- Cambio que rompe schema de tool (breaking change) exige negociación con consumidores externos — escala a Metis
 - Memory backend exige elección más allá del default (DynamoDB, Redis, Postgres) — escala a `warrior-atlas`
 - Conflicto entre `lex-system-prompt` y requisito de negocio
 

@@ -63,7 +63,7 @@ Escalates to the human (or to Athena/Daedalus) when:
 - The OAS contract is missing, incomplete, or conflicts with an AC — escalates to `warrior-daedalus`
 - An architectural decision impacts multiple bounded contexts — escalates to Athena
 - An AC remains ambiguous after one round of clarification
-- A disruptive change to the HTTP contract requires negotiation with external consumers
+- A breaking change to the HTTP contract requires negotiation with external consumers
 - A new dependency requires security/license audit
 - Conflict between a Python Lexis and a business requirement
 - The feature requires synchronous integration with `components/jobs/` or direct modification in `components/agents/` — signals incorrect coupling and escalates to Athena

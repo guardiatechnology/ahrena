@@ -112,7 +112,7 @@ Escala para humano (ou para Athena/Daedalus) quando:
 - O contrato OAS está ausente, incompleto, ou em conflito com o AC — escala para `warrior-daedalus`
 - Decisão arquitetural impacta múltiplos bounded contexts — escala para Athena
 - AC permanece ambíguo após uma rodada de clarificação
-- Mudança disruptiva no contrato HTTP exige negociação com consumidores externos
+- Mudança que quebra o contrato HTTP (breaking change) exige negociação com consumidores externos
 - Introdução de nova dependência requer auditoria de segurança/licença
 - Conflito entre Lexis Python e requisito de negócio
 - Feature exige integração síncrona com `components/jobs/` ou modificação direta em `components/agents/` — sinaliza acoplamento incorreto e escala para Athena
