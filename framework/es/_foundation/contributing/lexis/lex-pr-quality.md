@@ -121,13 +121,15 @@ Addressed in {SHA-corto}: {1-línea de justificación explicando qué cambió y 
 **Mecanismo (GitHub CLI):**
 
 ```bash
-# Listar comentarios de review (top-level y por línea) del PR
+# Listar PR review comments (resumen del review + comentarios por línea de código)
 gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" --jq '.[] | {id, user: .user.login, body: .body, path, line}'
 
 # Publicar reply en el thread original
 gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
   -f body="Addressed in ${SHA}: ${RATIONALE}"
 ```
+
+> **Alcance de la Regla 7:** se aplica a los **PR review comments** — los devueltos por `/pulls/{N}/comments` (resumen de review + comentarios por línea de código). Los **issue comments en la pestaña *Conversation* del PR** (devueltos por `/issues/{N}/comments`) NO son threaded y no tienen endpoint `/replies`; quedan fuera del alcance de la Regla 7. Si un reviewer deja observaciones en la pestaña Conversation, el autor responde con un issue comment libre (quote-and-reply) — no hay requisito de cierre per-thread porque el thread no existe.
 
 **Cuándo consolidar en comment top-level (admitido en conjunto, no sustituto):**
 
@@ -143,6 +145,8 @@ gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
 La regla es "cada thread tiene cierre", no "estoy de acuerdo con cada comentario".
 
 **Cuándo se activa la regla:** siempre que el agente (o autor humano) hace push de commits de fix en respuesta a una ronda de review. PR sin comentarios de review aún recibidos NO está sujeto a la Regla 7 — se vuelve obligatoria a partir del primer comment abordado.
+
+> **Quién decide qué es "abordado":** el autor del PR. La reply per-thread declara *la intención del autor de haber abordado ese comment*. El reviewer mantiene el poder de reabrir el thread si está en desacuerdo — `Re-opening: the fix doesn't address {detail}` es respuesta válida y la Regla 7 vuelve a activarse hasta el próximo cierre. Los comments rechazados/diferidos/no-aplicables también están "abordados" en el sentido de la Regla (reciben reply explicando el motivo). El criterio no es "acuerdo", es "cierre documentado".
 
 ## HARD-GATE
 
@@ -189,7 +193,7 @@ exige justificación explícita en el PR.
 
 ### Aplicación a Stacked PRs
 
-En flujos de **stacked Pull Requests** (`codex-stacked-prs`), cada capa de la cadena es un **PR real** en GitHub. El HARD-GATE de arriba se evalúa **por PR de la stack**, no una sola vez para la cadena completa: cada capa debe satisfacer **todos** los criterios (a)–(h) antes de ser mergeada. Los criterios en sí no cambian; solo el alcance de aplicación es por capa.
+En flujos de **stacked Pull Requests** (`codex-stacked-prs`), cada capa de la cadena es un **PR real** en GitHub. El HARD-GATE de arriba se evalúa **por PR de la stack**, no una sola vez para la cadena completa: cada capa debe satisfacer **todos** los criterios (a)–(k) antes de ser mergeada. Los criterios en sí no cambian; solo el alcance de aplicación es por capa.
 
 Implicaciones operativas:
 

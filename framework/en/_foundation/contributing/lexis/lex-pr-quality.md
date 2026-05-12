@@ -121,13 +121,15 @@ Addressed in {short-SHA}: {one-line rationale explaining what changed and why}
 **Mechanism (GitHub CLI):**
 
 ```bash
-# List review comments (top-level and per-line) on the PR
+# List PR review comments (review summary + per-line code comments)
 gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" --jq '.[] | {id, user: .user.login, body: .body, path, line}'
 
 # Post a reply on the original thread
 gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
   -f body="Addressed in ${SHA}: ${RATIONALE}"
 ```
+
+> **Rule 7 scope:** applies to **PR review comments** — those returned by `/pulls/{N}/comments` (review summary + per-line code comments). **Issue comments on the PR *Conversation* tab** (returned by `/issues/{N}/comments`) are NOT threaded and have no `/replies` endpoint; they are out of scope for Rule 7. If a reviewer leaves remarks on the Conversation tab, the author responds with a free-form issue comment (quote-and-reply) — there is no per-thread closure requirement because the thread does not exist.
 
 **When to add a top-level comment (allowed alongside, not as a substitute):**
 
@@ -143,6 +145,8 @@ gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
 The rule is "every thread has closure," not "I agree with every comment."
 
 **When the rule kicks in:** any time the agent (or human author) pushes fix commits in response to a review round. A PR that has not yet received review comments is NOT subject to Rule 7 — it becomes mandatory from the first addressed comment onward.
+
+> **Who decides what is "addressed":** the PR author. The per-thread reply declares *the author's intent to have addressed that comment*. The reviewer retains the power to reopen the thread if they disagree — `Re-opening: the fix doesn't address {detail}` is a valid response and Rule 7 reactivates until the next closure. Rejected/deferred/not-applicable comments are also "addressed" in the Rule's sense (they receive a reply explaining why). The criterion is not "agreement" — it is "documented closure".
 
 ## HARD-GATE
 
@@ -189,7 +193,7 @@ explicit justification in the PR.
 
 ### Application to Stacked PRs
 
-In **stacked Pull Request** flows (`codex-stacked-prs`), every layer of the chain is a **real PR** on GitHub. The HARD-GATE above is evaluated **per PR of the stack**, not once for the whole chain: each layer must satisfy **all** criteria (a)–(h) before merging. The criteria themselves do not change; only the application scope is per layer.
+In **stacked Pull Request** flows (`codex-stacked-prs`), every layer of the chain is a **real PR** on GitHub. The HARD-GATE above is evaluated **per PR of the stack**, not once for the whole chain: each layer must satisfy **all** criteria (a)–(k) before merging. The criteria themselves do not change; only the application scope is per layer.
 
 Operational implications:
 
