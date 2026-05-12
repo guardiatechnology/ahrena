@@ -63,6 +63,21 @@ Consulte `lex-framework-language` e `codex-framework-language` para a estrutura 
 
 Se ausente, o agente infere pelo sistema operacional ou pergunta ao usuário.
 
+### Seção `references`
+
+Centraliza URLs e slugs de repositórios externos consultados por artefatos do framework. Cada chave em `references` aponta para uma fonte externa canônica para uma convenção específica. Codex e Lexis referenciam essas chaves em vez de nomear a URL inline — assim a URL pode evoluir sem exigir mudança nos artefatos.
+
+| Chave | Significado | Uso |
+|-------|-------------|-----|
+| `references.component_template_repo.url` | URL do repositório de referência canônico do layout de bounded context Guardia (`components/api`, `components/agents`, `components/jobs`, `components/ui`, `deployment`) | Consumido por `codex-component-architecture` e seus 5 codex-filhos (`codex-component-api`, `codex-component-agents`, `codex-component-jobs`, `codex-component-ui`, `codex-component-deployment`). Os codex apontam para essa diretiva como source-of-truth viva — o nome do repo nunca aparece hardcoded em texto de codex. |
+
+**Roadmap.** Iterações futuras MAY adicionar subchaves para governar drift entre o repo externo e a convenção codificada no framework:
+
+- `pinned_ref` — tag ou SHA do commit congelado (ex.: `v1.2.0` ou `abc123…`). Mudança requer ADR.
+- `last_reviewed_at` — data ISO 8601 da última auditoria de aderência do framework ao repo externo.
+
+Hoje (v1) a diretiva carrega apenas `url`. Adicionar subchaves não quebra leitores existentes (campos extras são ignorados per `lex-directives` regra 5).
+
 ### Seção `naming`
 
 | Chave | Significado | Uso |

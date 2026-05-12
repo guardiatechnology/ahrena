@@ -16,25 +16,31 @@ Este Codex é o manual canônico dos documentos de design de feature da platafor
 
 ```
 docs/
-└── {context}/                  # Bounded Context em kebab-case
+└── {context}/                  # Bounded Context em kebab-case (Capability)
     ├── entities/
     │   └── {entity-name}.md
     ├── oas/
     │   └── openapi.yaml
     ├── events/
     │   └── events.md
-    ├── agents/                 # reservado
-    └── metrics/                # reservado
+    ├── features/
+    │   └── {feature-name}.md   # 1 arquivo por feature (ver seção 4)
+    ├── metrics/                # reservado — métricas capability-level (ver seção 5)
+    └── feature-agent-map.md    # correlação m:n feature ↔ agent (ver seção 6)
 ```
+
+> **Eixo paralelo — Agent Design.** `agents/{agent}/` (13 arquivos Hub & Spoke) e `dooc/{agent}.md` (snapshot da DoOC) NÃO vivem sob este Codex — eles compõem o eixo Agent Design e são governados por `codex-agent-design-docs` + `lex-agent-design-docs`. Feature e Agent são paralelos sob a Capability (1..n ↔ 1..n), não hierárquicos. A correlação entre os eixos é declarada em `feature-agent-map.md` (seção 6) com cross-refs bidirecionais.
 
 ### Convenções
 
 | Item | Regra |
 |------|-------|
-| `{context}` | Bounded Context em kebab-case. Ex.: `ScheduledPayments` → `scheduled-payments` |
+| `{context}` | Bounded Context em kebab-case (Capability). Ex.: `ScheduledPayments` → `scheduled-payments` |
 | Arquivos de `entities/` | kebab-case do PascalCase. Ex.: `ScheduledTransfer` → `scheduled-transfer.md` |
 | Arquivo de `oas/` | `openapi.yaml`; quando múltiplas APIs: `openapi-{slug}.yaml` |
 | Arquivo de `events/` | `events.md` |
+| Arquivos de `features/` | `{feature-name}.md` em kebab-case derivado do nome lógico. Ex.: `ScheduledTransferReview` → `scheduled-transfer-review.md` |
+| `feature-agent-map.md` | Arquivo único no root da capability (não dentro de subpasta) |
 | Idioma | conforme `language.default` em `.ahrena/.directives` |
 
 ## Templates
@@ -288,17 +294,118 @@ stateDiagram-v2
 - `docs/{context}/entities/` — entidades que emitem estes eventos
 ````
 
-### 4. `agents/` — reservado
+### 4. `features/{feature-name}.md`
 
-Reservado para documentar agentes (Isac, automações, integrações) que atuam neste contexto. Estrutura definida em rodada futura.
+Cada feature do Bounded Context tem um arquivo dedicado em `docs/{context}/features/`. Documenta a intenção do produto (purpose, user stories, ACs), o lifecycle, os agentes que a servem, e os artefatos relacionados (entidades, eventos, endpoints). Produzido por `warrior-prometheus` durante o ciclo de design.
+
+#### Convenções específicas
+
+| Item | Regra |
+|------|-------|
+| Naming | kebab-case derivado do nome lógico (`ScheduledTransferReview` → `scheduled-transfer-review.md`) |
+| Idioma | conforme `language.default` em `.ahrena/.directives` |
+
+#### Template
+
+````markdown
+# Feature: {FeatureName}
+
+> **Tier:** tier-1 | tier-2 | tier-3 | tier-4
+> **Stage:** discovery | design | implementation | live | deprecated
+> **Owner:** @{username}
+
+## Purpose
+
+{2-4 sentenças com a intenção de produto/negócio. Foque no problema que a feature resolve e no resultado esperado, não na arquitetura.}
+
+## User Stories
+
+- As {persona}, I want {action}, so that {benefit}
+- ...
+
+## Acceptance Criteria
+
+1. **AC-1:** {testable}
+2. **AC-2:** ...
+3. **AC-3:** ...
+
+## Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> discovery
+    discovery --> design
+    design --> implementation
+    implementation --> live
+    live --> deprecated
+    deprecated --> [*]
+```
+
+## Served by agents
+
+| Agent | Coverage | Notas |
+|-------|----------|-------|
+| `{agent-name}` | default path \| edge case \| exclusive | ... |
+
+> Conforme `feature-agent-map.md` (seção 6), esta lista DEVE ser reflexa em `agents/{agent}/overview.md` campo `serves_features`. Inconsistência bidirecional bloqueia em Gate 2.
+
+## Related artifacts
+
+- `entities/{...}.md` — entidades envolvidas
+- `oas/openapi.yaml` — endpoints REST que expõem a feature
+- `events/events.md` — eventos emitidos/consumidos
+- `metrics/` — KPIs da feature (quando aplicável)
+
+## References
+
+- `lex-feature-design-docs` — Lei correspondente
+- `feature-agent-map.md` — correlação m:n com agents
+- `codex-agent-design-docs` — eixo paralelo (agents que servem esta feature)
+````
 
 ### 5. `metrics/` — reservado
 
-Reservado para SLI/SLO, dashboards e métricas de produto e operação do contexto. Estrutura definida em rodada futura, alinhada a `lex-slo-required` e `lex-observability-required`.
+Reservado para SLI/SLO, dashboards e métricas **capability-level** (KPIs do bounded context inteiro) — distintas das métricas **per-agent** (operacionais + de produto do agent), que vivem em `agents/{agent}/metrics.md` sob `codex-agent-design-docs`. Estrutura definida em rodada futura, alinhada a `lex-slo-required` e `lex-observability-required`.
+
+### 6. `feature-agent-map.md` (no root da capability)
+
+Documento de **correlação m:n** entre features e agents da capability. Vive em `docs/{context}/feature-agent-map.md` (root, não dentro de subpasta). É **resumo derivado** das cross-refs bidirecionais em `features/` e `agents/`; em divergência, cada artefato é fonte primária do seu lado (feature é fonte de `served_by_agents`; agent é fonte de `serves_features`).
+
+#### Template
+
+````markdown
+# Feature ↔ Agent Map — {Capability}
+
+## Mapeamento Feature → Agents
+
+| Feature | Served by Agents | Tier | Notas |
+|---------|------------------|------|-------|
+| `feature-x` | `agent-a`, `agent-b` | tier-1 | agent-a default; agent-b edge cases |
+| `feature-y` | `agent-c` | tier-2 | exclusivo |
+
+## Reverse mapping (per agent)
+
+| Agent | Serves Features | Coverage |
+|-------|-----------------|----------|
+| `agent-a` | `feature-x`, `feature-z` | default em x; primary em z |
+| `agent-b` | `feature-x` | edge cases |
+| `agent-c` | `feature-y` | exclusivo |
+
+## Lifecycle correlation
+
+- Feature deprecada → agents servindo DEVEM ser reassessed (handoff para feature substituta ou sunset)
+- Novo agent → DEVE declarar `serves_features` (forward); cada feature listada DEVE atualizar `served_by_agents` (backward)
+- Consistência bidirecional verificada por `warrior-prometheus` (features) + `warrior-metis` (agents) ao final do ciclo de design
+
+## References
+
+- `lex-feature-design-docs`, `codex-feature-design-docs` — eixo Feature
+- `lex-agent-design-docs`, `codex-agent-design-docs` — eixo Agent
+````
 
 ## Relações Cruzadas
 
-Os três tipos de documento se referenciam:
+Os tipos de documento se referenciam:
 
 | De → Para | Referência |
 |-----------|------------|
@@ -306,8 +413,12 @@ Os três tipos de documento se referenciam:
 | `entities/{e}.md` → `oas/openapi.yaml` | Lista os endpoints REST que expõem a entidade |
 | `events/events.md` → `entities/` | Cada seção da entidade no events.md referencia o arquivo da entidade |
 | `oas/openapi.yaml` → `entities/` | Schemas refletem o catálogo de campos das entidades |
+| `features/{f}.md` → `entities/`, `oas/`, `events/` | Cada feature lista artefatos relacionados (entidades envolvidas, endpoints, eventos) |
+| `features/{f}.md` → `feature-agent-map.md` | Campo `served_by_agents` consistente com o mapa de correlação |
+| `feature-agent-map.md` → `features/{f}.md` | Forward mapping (feature → agents) reflete o campo `served_by_agents` de cada feature |
+| `feature-agent-map.md` → `agents/{agent}/overview.md` (eixo Agent Design) | Reverse mapping (agent → features) reflete o campo `serves_features` de cada agent — declarado em `codex-agent-design-docs` |
 
-A consistência cruzada é verificada pelo `warrior-prometheus` ao final do ciclo (Fase 4 — Verificação de Consistência).
+A consistência cruzada é verificada pelo `warrior-prometheus` ao final do ciclo (Fase 4 — Verificação de Consistência). Para a correlação bidirecional com agents (`feature-agent-map.md` ↔ `agents/{agent}/overview.md`), Prometheus coordena com `warrior-metis` (autora do eixo Agent Design).
 
 ## Restrições
 
@@ -315,6 +426,9 @@ A consistência cruzada é verificada pelo `warrior-prometheus` ao final do cicl
 - **Não duplicar campo de entidade no payload de evento:** o payload referencia o catálogo da entidade; só campos relevantes ao evento são reproduzidos.
 - **Não criar arquivo único de "domínio":** o modelo de domínio se distribui entre `entities/` (tabelas e regras), `events/` (ciclo de vida) e `oas/` (contrato exposto). O documento monolítico `domain-model.md` é descontinuado.
 - **Não usar paths configuráveis:** `paths.domain`, `paths.oas`, `paths.events` foram removidos de `.ahrena/.directives`. A estrutura é fixa e codificada nesta Lexis/Codex.
+- **`features/` é collection (1 arquivo por feature):** kebab-case derivado do nome lógico; cada feature é independente. Documento monolítico `features.md` listando várias features é PROIBIDO.
+- **`feature-agent-map.md` é resumo derivado, nunca fonte primária:** em divergência, `features/{f}.md` (campo `served_by_agents`) é fonte para forward mapping; `agents/{agent}/overview.md` (campo `serves_features`, declarado em `codex-agent-design-docs`) é fonte para reverse mapping. Editar o mapa sem atualizar a fonte é PROIBIDO.
+- **Mover `agents/` ou `dooc/` para dentro deste Codex é PROIBIDO:** eles vivem sob `codex-agent-design-docs` + `lex-agent-design-docs`. Feature Design e Agent Design são eixos paralelos, não hierárquicos.
 
 ## Referências
 
@@ -325,4 +439,6 @@ A consistência cruzada é verificada pelo `warrior-prometheus` ao final do cicl
 - `lex-cloudevents`, `codex-cloudevents` — eventos
 - `codex-oas-structure` — estrutura do OpenAPI
 - `codex-restful-payload`, `codex-restful-headers`, `codex-restful-pagination` — convenções REST
-- `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, `warrior-kronos` — agentes que produzem estes documentos
+- `lex-agent-design-docs`, `codex-agent-design-docs` — eixo paralelo Agent Design (agents/, dooc/ e correlação m:n)
+- `warrior-prometheus`, `warrior-theseus`, `warrior-daedalus`, `warrior-kronos` — agentes que produzem estes documentos (eixo Feature)
+- `warrior-metis` — agente principal do eixo Agent Design (coordena com Prometheus na correlação bidirecional)

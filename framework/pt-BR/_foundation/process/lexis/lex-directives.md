@@ -81,6 +81,7 @@ O agente **DEVE** aplicar cada seção da diretiva ao comportamento corresponden
 | `session_tracking.heartbeat_dir` | Diretório onde os arquivos de heartbeat `.json` por sessão são escritos. Default `.ahrena/workflow/sessions` (gitignored). |
 | `session_tracking.stale_threshold_minutes` | Intervalo (minutos) sem heartbeat após o qual Eunomia considera a sessão offline. Default `30`. |
 | `session_tracking.pr_trace_required` | Quando `true`, Gate 2 (`kata-quality-gate`) rejeita PRs sem a seção "Session Trace" no body. Default `true`. |
+| `references.component_template_repo.url` | URL do repositório de referência canônico do layout de bounded context Guardia (`components/api`, `components/agents`, `components/jobs`, `components/ui`, `deployment`). Consumido por `codex-component-architecture` e seus 5 codex-filhos. Ver `codex-component-architecture`. |
 
 Manuais complementares para interpretação das seções: `codex-directives` (visão geral do arquivo), `codex-paths` (caminhos canônicos), `codex-naming` (convenções de nomenclatura), `codex-notifications` (mapeamento provider → MCP tool), `codex-session-tracking` (schema do heartbeat e Session Trace).
 

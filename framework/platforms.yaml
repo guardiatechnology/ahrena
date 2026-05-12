@@ -243,7 +243,7 @@ cursor:
       description: "When publishing or consuming events, use CloudEvents format with idempotencykey and type catalog."
     engineering/platform/lexis/lex-feature-design-docs:
       alwaysApply: false
-      description: "When persisting feature design artifacts (entities, OpenAPI, events), use docs/{context}/{category}/ structure with category in entities/oas/events/agents/metrics."
+      description: "When persisting feature design artifacts (entities, OpenAPI, events, features, metrics), use docs/{context}/{category}/ structure plus feature-agent-map.md at the capability root. Agent design (agents/, dooc/) is governed by the parallel lex-agent-design-docs."
     engineering/platform/codex/codex-auth:
       alwaysApply: false
       description: "When implementing API authentication, use OAuth 2.0, FAPI 2.0, JWT, RBAC from this codex."
@@ -286,6 +286,29 @@ cursor:
     engineering/platform/codex/codex-feature-design-docs:
       alwaysApply: false
       description: "When producing feature design documents (entities, oas, events) under docs/{context}/, follow templates and conventions from this codex."
+    engineering/platform/codex/codex-component-architecture:
+      alwaysApply: false
+      description: "When starting or auditing a Guardia bounded context, consult this parent codex for the canonical physical layout (components/api, agents, jobs, ui, deployment/, docs/), inter-component boundaries, and pointers to the 5 child codices."
+    engineering/platform/codex/codex-component-api:
+      alwaysApply: false
+      globs: ["**/components/api/**"]
+      description: "When working inside components/api/, follow hexagonal layout (adapters/inbound, adapters/outbound, application/ports, application/use_cases, domain), FastAPI/Powertools stack, idempotency middleware, and Result type."
+    engineering/platform/codex/codex-component-agents:
+      alwaysApply: false
+      globs: ["**/components/agents/**"]
+      description: "When working inside components/agents/, follow Orchestrator + Specialists pattern, tool registry, memory port abstraction; system prompt lives in docs/{context}/agents/ (documental axis)."
+    engineering/platform/codex/codex-component-jobs:
+      alwaysApply: false
+      globs: ["**/components/jobs/**"]
+      description: "When working inside components/jobs/, follow Lambda + Powertools stack, Step Functions I/O schemas, idempotency store, BatchProcessor for SQS/Kinesis."
+    engineering/platform/codex/codex-component-ui:
+      alwaysApply: false
+      globs: ["**/components/ui/**"]
+      description: "When working inside components/ui/, follow Next.js App Router + tsup widgets, mandatory @guardia/design-system, typed API client from openapi.yaml."
+    engineering/platform/codex/codex-component-deployment:
+      alwaysApply: false
+      globs: ["**/deployment/**", "**/infra/**"]
+      description: "When working inside deployment/, follow IaC per lex-aws-iac (one tool per bounded context), tagging per lex-aws-cost, security per lex-aws-security, runbooks linked to alarms."
     engineering/backend/lexis/lex-python-typing:
       alwaysApply: false
       globs: ["**/*.py"]
@@ -417,6 +440,12 @@ cursor:
     engineering/agents/codex/codex-system-prompt:
       alwaysApply: false
       description: "When authoring, reviewing, or auditing a Guardia agent system prompt, consult the 3 principles, the 4 mandatory blocks with canonical templates, the 5 OWASP LLM Top 10 2025 controls, the org_id/client_id guardrail, writing rules, the review and security checklists, and the executable adversarial suite (scripts/system_prompt_adversarial/). Notion is the live source."
+    engineering/agents/lexis/lex-agent-design-docs:
+      alwaysApply: false
+      description: "When promoting an agent to operational-concrete, enforce the 5-precondition HARD-GATE: 13 files in docs/{context}/agents/{agent}/, dooc/{agent}.md, serves_features populated, reciprocity in feature-agent-map.md, and warrior-metis declared as author."
+    engineering/agents/codex/codex-agent-design-docs:
+      alwaysApply: false
+      description: "When producing agent design documents on the Guardia platform, follow the 15 templates: 13 Hub & Spoke files for agents/{agent}/, dooc/{agent}.md snapshot, and the feature-agent-map.md m:n correlation with the parallel Feature Design axis."
     engineering/quality/lexis/lex-test-pyramid:
       alwaysApply: false
       description: "When authoring test suites, enforce 70/20/10 distribution (unit/integration/E2E); E2E only for critical journeys."
@@ -680,7 +709,10 @@ claude-code:
       description: "When designing HTTP endpoints, follow RESTful spec: status codes, payload, headers, pagination."
     engineering/platform/lexis/lex-feature-design-docs:
       paths: ["docs/**"]
-      description: "When persisting feature design artifacts (entities, OpenAPI, events), use docs/{context}/{category}/ structure with category in entities/oas/events/agents/metrics."
+      description: "When persisting feature design artifacts (entities, OpenAPI, events, features, metrics), use docs/{context}/{category}/ structure plus feature-agent-map.md at the capability root. Agent design (agents/, dooc/) is governed by the parallel lex-agent-design-docs."
+    engineering/agents/lexis/lex-agent-design-docs:
+      paths: ["docs/**/agents/**", "docs/**/dooc/**", "docs/**/feature-agent-map.md"]
+      description: "When promoting an agent to operational-concrete, enforce the 5-precondition HARD-GATE: 13 files in docs/{context}/agents/{agent}/, dooc/{agent}.md, serves_features populated, reciprocity in feature-agent-map.md, and warrior-metis declared as author."
     _foundation/process/lexis/lex-agent-planning:
       paths: [".claude/plans/**", ".cursor/plans/**", "**/plan-*.md"]
       description: "Before starting any multi-step task, create a plan at ./{agent}/plans/plan-{NNN}-{slug}.md (or paths.plans override). Show it to the user and wait for confirmation before executing."
@@ -756,12 +788,26 @@ claude-code:
       description: "When architecting an AI agent on the Guardia platform, consult the Piaget analogy, the 6 Construction Directives, the cross-tab of differential rigor by stage, and the DoOC evidence formats. Notion is the live source."
     engineering/agents/codex/codex-system-prompt:
       description: "When authoring, reviewing, or auditing a Guardia agent system prompt, consult the 3 principles, the 4 mandatory blocks with canonical templates, the 5 OWASP LLM Top 10 2025 controls, the org_id/client_id guardrail, writing rules, the review/security checklists, and the executable adversarial suite. Notion is the live source."
+    engineering/agents/codex/codex-agent-design-docs:
+      description: "When producing agent design documents on the Guardia platform, follow the 15 templates: 13 Hub & Spoke files for agents/{agent}/, dooc/{agent}.md snapshot, and the feature-agent-map.md m:n correlation with the parallel Feature Design axis."
     engineering/workflow/codex/codex-issue-workflow:
       description: "Reference for the 7-phase Issue-Driven flow, the 2 gates, MADR format, and delegation."
     engineering/frontend/codex/codex-frontend-architecture:
       description: "Reference for frontend architecture layers, state management, composition, and performance."
     engineering/platform/codex/codex-known-errors:
       description: "Catalog of standardized code/reason pairs across the platform; consulted when emitting or handling errors."
+    engineering/platform/codex/codex-component-architecture:
+      description: "When starting or auditing a Guardia bounded context, consult this parent codex for the canonical physical layout (components/api, agents, jobs, ui, deployment/, docs/), inter-component boundaries, and pointers to the 5 child codices."
+    engineering/platform/codex/codex-component-api:
+      description: "Conventions inside components/api/: hexagonal layout (adapters/inbound, adapters/outbound, application/ports, application/use_cases, domain), FastAPI/Powertools, idempotency middleware, Result type."
+    engineering/platform/codex/codex-component-agents:
+      description: "Conventions inside components/agents/: Orchestrator + Specialists, tool registry, memory port abstraction; system prompt lives in docs/{context}/agents/ (documental axis)."
+    engineering/platform/codex/codex-component-jobs:
+      description: "Conventions inside components/jobs/: Lambda + Powertools, Step Functions I/O schemas, idempotency store, BatchProcessor for SQS/Kinesis."
+    engineering/platform/codex/codex-component-ui:
+      description: "Conventions inside components/ui/: Next.js App Router + tsup widgets, mandatory @guardia/design-system, typed API client from openapi.yaml."
+    engineering/platform/codex/codex-component-deployment:
+      description: "Conventions inside deployment/: IaC per lex-aws-iac (one tool per bounded context), tagging per lex-aws-cost, security per lex-aws-security, runbooks linked to alarms."
     engineering/devops/codex/codex-aws-well-architected:
       description: "Reference for the 6 pillars of AWS Well-Architected Framework."
     engineering/devops/codex/codex-aws-services:

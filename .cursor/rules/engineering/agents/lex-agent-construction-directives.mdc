@@ -15,7 +15,7 @@ alwaysApply: false
 
 - **Applies to:** every AI agent built on the Guardia platform — Isac, reconciliation agents, fiscal classification agents, closing agents, internal automation agents, customer-facing agents, support agents. Applies to the agent prompt, the tooling layer, the memory layer, and the promotion cycle between stages.
 - **Bound agents:** `warrior-claudionor` (PoV Factory — plan-031), `warrior-metis` (APM Operational Concrete — plan-032), `warrior-apollo-agents` (implementation — plan-013), `warrior-athena` (Gate 2 of the Issue-Driven Flow when the feature touches `docs/{context}/agents/`).
-- **Exceptions:** Lexis admit no exceptions. The only declared clause is the `legacy-pov` transition described below: agents created before this Lex's merge are treated as `stage: legacy-pov` and MUST migrate to `pre-operational` or `operational-concrete` within 90 days, with a retroactive DoOC plus an ADR recording the historical gap.
+- **Exceptions:** Lexis admit no exceptions. The 3 clauses declared in the HARD-GATE are `legacy-pov`, `direct-entry`, and `user-override`; each requires compensation documented in an ADR or PDR and a corresponding marker in `dooc/{agent}.md` per `codex-agent-design-docs`. Without a valid ADR/PDR, the exceptions are non-compliant.
 
 ## Cognitive stages
 
@@ -72,14 +72,40 @@ regardless of:
   - who requested ("the CEO asked")
   - team confidence ("we already tested a lot")
 
-Single declared exception: agents created before this Lex's merge
-are treated as `stage: legacy-pov`. Promotion to
-`operational-concrete` requires a retroactive DoOC + ADR recording
-the historical gap. The `legacy-pov` tag is NOT permanent: agents
-in that stage MUST migrate to `pre-operational` or
-`operational-concrete` within 90 days after this Lex's merge;
-agents in `legacy-pov` beyond that deadline are considered
-non-compliant.
+Declared exceptions (3):
+
+(1) `legacy-pov` — agents created before this Lex's merge are
+    treated as `stage: legacy-pov`. Promotion to `operational-concrete`
+    requires a retroactive DoOC + ADR recording the historical gap.
+    The tag is NOT permanent: agents in `legacy-pov` MUST migrate to
+    `pre-operational` or `operational-concrete` within 90 days after
+    this Lex's merge; beyond that deadline they are considered
+    non-compliant.
+
+(2) `direct-entry` — Mêtis invoked to design an agent directly into
+    `operational-concrete` without a prior PoV (Claudionor was not
+    invoked). Permitted only with an ADR or PDR declaring:
+      (i) the reason for bypassing the `pre-operational` stage;
+      (ii) target leading metric + post-deploy validation window;
+      (iii) observability plan instrumented from day 0.
+    DoOC items (a), (b), (d) and (e) may be filled as `N/A — direct-entry` in
+    `dooc/{agent}.md`, always referencing the ADR/PDR; items (c) and (f)-(i)
+    remain mandatory.
+
+(3) `user-override` — the user (CEO or designated Brand owner) promotes
+    an agent with partial DoOC evidence. Permitted only with an ADR
+    or PDR declaring:
+      (i) which DoOC items are being overridden and why;
+      (ii) explicit user accountability (`Promoted by` filled in
+           `dooc/{agent}.md`);
+      (iii) retroactive compensation in a declared window
+            (suggested: 30 days).
+    Overridden items appear as `N/A — user-override` in `dooc/{agent}.md`.
+
+In all exceptions, the Lex stays inviolate — exceptions are canonical
+fillings of `dooc/{agent}.md` with auditable justification in an ADR
+or PDR, NOT a bypass of the gate. Without a valid ADR/PDR, the
+declared exceptions are non-compliant.
 </HARD-GATE>
 ```
 

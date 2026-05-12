@@ -1,12 +1,17 @@
 ---
 plan_id: "012"
 title: "component-architecture-codex-foundation"
-status: pending
+status: abandoned
 agent: claude
-issue: "TBD (a abrir antes da branch — lex-issue-first)"
+issue: "guardiatechnology/ahrena#107"
+absorbed_by: "guardiatechnology/ahrena#107"
 created_at: "2026-05-07T22:00:00Z"
-updated_at: "2026-05-07T22:00:00Z"
+updated_at: "2026-05-12T00:00:00Z"
+closed_at: "2026-05-12T00:00:00Z"
 ---
+
+> **Absorvido por pre-req-A (Issue #107) — escopo unificado em `codex-component-architecture` + 5 codex-filhos.**
+> `closed_at` será atualizado para o timestamp efetivo de merge da PR de Issue #107 quando aplicável.
 
 # Plano: Codex base de arquitetura por Component (api, agents, jobs, ui, deployment)
 
