@@ -288,7 +288,7 @@ cursor:
       description: "When producing feature design documents (entities, oas, events) under docs/{context}/, follow templates and conventions from this codex."
     engineering/platform/codex/codex-component-architecture:
       alwaysApply: false
-      description: "When starting or auditing a Guardia bounded context, consult this mãe codex for the canonical physical layout (components/api, agents, jobs, ui, deployment/, docs/), inter-component boundaries, and pointers to the 5 codex-filhos."
+      description: "When starting or auditing a Guardia bounded context, consult this parent codex for the canonical physical layout (components/api, agents, jobs, ui, deployment/, docs/), inter-component boundaries, and pointers to the 5 child codices."
     engineering/platform/codex/codex-component-api:
       alwaysApply: false
       globs: ["**/components/api/**"]
@@ -775,7 +775,7 @@ claude-code:
     engineering/platform/codex/codex-known-errors:
       description: "Catalog of standardized code/reason pairs across the platform; consulted when emitting or handling errors."
     engineering/platform/codex/codex-component-architecture:
-      description: "When starting or auditing a Guardia bounded context, consult this mãe codex for the canonical physical layout (components/api, agents, jobs, ui, deployment/, docs/), inter-component boundaries, and pointers to the 5 codex-filhos."
+      description: "When starting or auditing a Guardia bounded context, consult this parent codex for the canonical physical layout (components/api, agents, jobs, ui, deployment/, docs/), inter-component boundaries, and pointers to the 5 child codices."
     engineering/platform/codex/codex-component-api:
       description: "Conventions inside components/api/: hexagonal layout (adapters/inbound, adapters/outbound, application/ports, application/use_cases, domain), FastAPI/Powertools, idempotency middleware, Result type."
     engineering/platform/codex/codex-component-agents:

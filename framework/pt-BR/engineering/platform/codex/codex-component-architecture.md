@@ -87,7 +87,7 @@ Para cada component produtivo + deployment, existe um codex especializado que de
 | `codex-component-ui` | `components/ui/` | Next.js + tsup (widgets); consumo de `@guardia/design-system` |
 | `codex-component-deployment` | `deployment/` | IaC per `lex-aws-iac`; tagging per `lex-aws-cost`; security per `lex-aws-security` |
 
-Hierarquia: o codex-mãe (este) define fronteiras e lista os filhos. Filhos detalham o interior de cada component, **não referenciam o mãe nem outros filhos** (compõem por leitura sequencial quando necessário).
+Hierarquia: o codex-mãe (este) define fronteiras e lista os filhos. Filhos detalham o interior de cada component, **não referenciam o codex-mãe nem outros filhos** (compõem por leitura sequencial quando necessário).
 
 ## Referência externa via diretiva
 
@@ -99,7 +99,7 @@ Como consumir:
 2. Encontra `references.component_template_repo.url`.
 3. Quando precisar inspecionar layout exato (ex.: nome de arquivo de manifest, ordem de imports padrão), consulta o repo apontado.
 
-Codex e Lexis nunca hardcoded o nome do repo. ADR é exigido para mudar a URL apontada.
+Codex e Lexis nunca usam o nome do repo hardcoded. ADR é exigido para mudar a URL apontada.
 
 ## Anti-padrões
 
@@ -108,7 +108,7 @@ Codex e Lexis nunca hardcoded o nome do repo. ADR é exigido para mudar a URL ap
 | Importar código de `api/` em `jobs/` direto via path relativo | Acopla components que deveriam ser independentes | Extrair lógica para `libs/` interna com ADR, ou comunicar via evento |
 | Criar componentes top-level fora de `components/` | Quebra a convenção; agentes e ferramentas esperam o layout fixo | Sempre criar dentro de `components/{name}/` |
 | Documentar agent dentro de `components/agents/README.md` | Mistura código e especificação; revisão fica fragmentada | Especificação em `docs/{context}/agents/`; código em `components/agents/` |
-| Hardcoded o URL do repo template no codex | Acopla o codex a um repo que pode mudar | Apontar para `references.component_template_repo.url` no `.directives` |
+| URL do repo template hardcoded no codex | Acopla o codex a um repo que pode mudar | Apontar para `references.component_template_repo.url` no `.directives` |
 | Component sem `deployment/` correspondente | Não dá para subir em produção sem IaC | `deployment/` é obrigatório mesmo que mínimo |
 
 ## Glossário

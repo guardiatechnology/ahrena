@@ -75,7 +75,7 @@ A linha entre `adapters/inbound/` e `application/use_cases/` é estrita: control
 | Lógica de negócio em controller (router function) | Mover para `application/use_cases/`; controller só traduz |
 | Pydantic model exposto direto como entidade de domínio | Modelo HTTP em `adapters/inbound/`, entidade pura em `domain/` |
 | Cliente DB instanciado dentro de use case | Injetar via port; adapter outbound implementa |
-| Sem `Idempotency-Key` em POST | Header obrigatório; CI/lint pega |
+| Sem `Idempotency-Key` em rotas mutativas (POST, PATCH, DELETE) | Header obrigatório; CI/lint pega |
 | Bare `except` ou raise de exceção em fluxo esperado | Per `lex-python-error-handling` + `lex-python-result-type` |
 
 ## Referências
