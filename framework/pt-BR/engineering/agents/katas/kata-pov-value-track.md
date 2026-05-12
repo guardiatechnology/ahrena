@@ -70,7 +70,7 @@ Schema canônico (campos obrigatórios):
 
 ## Decisão atual
 
-- status: ativo | pivotando | encerrado | pronto-para-DoOC
+- status: active | pivoting | closed | ready_for_dooc
 - atualizado em: {ISO date}
 - próximo ciclo agendado: {ISO date}
 ```
@@ -95,17 +95,17 @@ Sem PII. Se um caso depende de detalhe sensível, anonimiza ou cita por ID opaco
 
 ### Passo 4: Avaliar critério de descontinuação e pivot trigger
 
-1. **Critério de descontinuação** (de `pov.md`): se atingido, status → `encerrado`.
-2. **Pivot trigger** (de `feedback.md`): se atingido, status → `pivotando` e recomenda re-execução de `kata-pov-scope-define`.
-3. **Sucesso continuado** (métrica ≥ threshold por ≥ 7 dias e escopo estabilizado por 2 semanas): status pode avançar para `pronto-para-DoOC` — Mêtis pode rodar `cry-agent-design --from-pov`.
+1. **Critério de descontinuação** (de `pov.md`): se atingido, status → `closed`.
+2. **Pivot trigger** (de `feedback.md`): se atingido, status → `pivoting` e recomenda re-execução de `kata-pov-scope-define`.
+3. **Sucesso continuado** (métrica ≥ threshold por ≥ 7 dias e escopo estabilizado por 2 semanas): status pode avançar para `ready_for_dooc` — Mêtis pode rodar `cry-agent-design --from-pov`.
 
-#### Pré-condição obrigatória — Boundary PII antes de `pronto-para-DoOC`
+#### Pré-condição obrigatória — Boundary PII antes de `ready_for_dooc`
 
-Antes de transicionar status para `pronto-para-DoOC` (e portanto antes de habilitar o handoff `cry-agent-design --from-pov` para Mêtis), o kata **DEVE** executar uma verificação de fronteira de PII sobre o diretório `docs/{context}/agents-pov/{agent}/`:
+Antes de transicionar status para `ready_for_dooc` (e portanto antes de habilitar o handoff `cry-agent-design --from-pov` para Mêtis), o kata **DEVE** executar uma verificação de fronteira de PII sobre o diretório `docs/{context}/agents-pov/{agent}/`:
 
 1. Para cada arquivo `.md` (e arquivos sob `observability/`) do PoV, grep contra os padrões declarados em `lex-data-retention` (CPF, CNPJ, email, telefone, conta bancária, token, secret, etc.).
 2. Se houver **qualquer** ocorrência, o kata **REJEITA** a transição e retorna ao usuário com a lista de arquivos e linhas atingidas, recomendando re-execução de `kata-pov-context-curate` para reanonimização (`pov.md::Notas de anonimização`).
-3. Apenas quando o grep retorna zero ocorrências o status pode ser flipado para `pronto-para-DoOC`.
+3. Apenas quando o grep retorna zero ocorrências o status pode ser flipado para `ready_for_dooc`.
 
 Justificativa: o documento `pov.md` (e o context-pack) é entregue como input direto ao `warrior-mêtis` via `--from-pov` no ciclo `operational-concrete`. PII vazada no pacote PoV se propagaria para o design de produção sem nova revisão. O gate é executado neste kata porque ele é o único ponto em que a transição para o handoff é decidida.
 
@@ -113,7 +113,7 @@ Justificativa: o documento `pov.md` (e o context-pack) é entregue como input di
 
 Atualiza o bloco "Decisão atual" com:
 
-- status (vocabulário fechado: `ativo`, `pivotando`, `encerrado`, `pronto-para-DoOC`)
+- status (vocabulário fechado: `active`, `pivoting`, `closed`, `ready_for_dooc`)
 - timestamp
 - próximo ciclo agendado (cadência: semanal para tier-1/2, quinzenal para tier-3/4)
 
@@ -121,7 +121,7 @@ Atualiza o bloco "Decisão atual" com:
 
 1. Grava `docs/{context}/agents-pov/{agent}/value-proof.md` com o ciclo atual adicionado.
 2. Registra o commit no histórico do PoV (responsável + cycle number).
-3. Se status = `pronto-para-DoOC`, emite log dizendo "Pronto para Mêtis consumir via `cry-agent-design --from-pov docs/{context}/agents-pov/{agent}/`".
+3. Se status = `ready_for_dooc`, emite log dizendo "Pronto para Mêtis consumir via `cry-agent-design --from-pov docs/{context}/agents-pov/{agent}/`".
 
 ### Validação Final
 
