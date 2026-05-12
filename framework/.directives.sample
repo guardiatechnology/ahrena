@@ -175,10 +175,12 @@ language:
 #                                  #   branches.jsonl. Manual purge until a
 #                                  #   future iteration ships rotation.
 #   known_ai_reviewers:            # extra GitHub logins recognized as AI
-#     - "gemini-code-assist[bot]"  #   reviewers in the Review subsection
-#     - "claude[bot]"              #   (built-ins are always recognized;
-#     - "coderabbitai[bot]"        #   logins listed here extend the set).
-#     - "qodo-merge-pro[bot]"
+#     - "gemini-code-assist[bot]"  #   reviewers in the Review subsection.
+#     - "claude[bot]"              #   Built-ins (gemini-code-assist[bot],
+#     - "coderabbitai[bot]"        #   claude[bot], coderabbitai[bot],
+#     - "qodo-merge-pro[bot]"      #   qodo-merge-pro[bot], ahrena-warrior-argos[bot])
+#                                  #   are always recognized; entries here
+#                                  #   extend the set.
 #
 # Reserved for future iterations (declared so the schema is stable;
 # the kata does not yet consume them):

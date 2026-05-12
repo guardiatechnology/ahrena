@@ -106,6 +106,33 @@
 | `kata-security-review` | OWASP Top 10 + AuthN/AuthZ + datos sensibles + dependencias |
 | `kata-quality-gate` | Cuando `.issues/{N}/` existe, ejecuta las 7 verificaciones del Gate 2 |
 
+## Autenticación
+
+Argos se autentica como **GitHub App `ahrena-warrior-argos`** (identidad de bot `ahrena-warrior-argos[bot]`) al escribir en PRs — NO usa el PAT del reviewer humano. Esto hace visualmente obvio quién comentó: las reviews de Argos aparecen bajo el nombre del bot, sin necesidad del marker `<!-- argos-review-id:... -->` para distinguirlas.
+
+**Requisitos previos** (una vez por instalación):
+1. App `ahrena-warrior-argos` instalada en el repo objetivo con permisos `Pull requests` R/W, `Contents` R, `Issues` R/W, `Metadata` R
+2. Llave privada almacenada fuera del repo (sugerencia: `~/.guardia/{org}/{repo}/warrior-argos.{YYYY-MM-DD}.private-key.pem`, `chmod 600`)
+3. `.env.local` (en la raíz del repo, gitignored — ver `.env.sample`) con:
+
+```
+AHRENA_WARRIOR_ARGOS_GH_APP_ID=<numérico>
+AHRENA_WARRIOR_ARGOS_GH_INSTALLATION_ID=<numérico>
+AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH=~/.guardia/.../warrior-argos.<YYYY-MM-DD>.private-key.pem
+```
+
+**En tiempo de ejecución,** al ejecutar cualquier operación `gh` que **escribe** (publicar review, comentar, editar comment, responder en thread), Argos antepone `GH_TOKEN=$(scripts/argos/auth.sh)`:
+
+```bash
+GH_TOKEN=$(scripts/argos/auth.sh) gh pr review 142 --request-changes --body-file body.md
+GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments \
+  -f body="Addressed in <SHA>: ..." -F in_reply_to=<comment-id>
+```
+
+`scripts/argos/auth.sh` carga `.env.local`, firma un JWT (RS256, 10min) con la llave privada, lo intercambia por un installation token (TTL 1h, cacheado en `.ahrena/argos/installation-token.json` por 50min) y emite el token en stdout. Las operaciones `gh` de **lectura** (`view`, `list`, `api GET`) pueden seguir usando el PAT del reviewer humano normalmente — solo las escrituras necesitan el token del bot.
+
+**Conformidad:** `pr_cost_tracking.known_ai_reviewers` en `.ahrena/.directives` (built-in) reconoce `ahrena-warrior-argos[bot]` como AI reviewer, así que `kata-pr-cost-stamp` separa correctamente a Argos del humano en el stamp de costo.
+
 ## Comportamiento
 
 ### Tono y Lenguaje
@@ -153,8 +180,8 @@
    - Cada línea de finding: `Severidad | Archivo:Línea | Lexis/Codex | Finding | Sugerencia`
    - Resumen de conteos en el tope
    - Marker idempotente: calcula `sha256(pr_number + ":" + head_commit_sha)`, toma los primeros 16 caracteres, embute como `<!-- argos-review-id:<hash> -->` al inicio del body
-   - Lista comments existentes del PR vía `gh api repos/{owner}/{repo}/issues/{pr}/comments`; encuentra `argos-review-id:<hash>` previo que coincida con el hash actual → edita vía `gh api -X PATCH .../comments/<id>`. Si el hash difiere (commit nuevo pusheado) → crea nueva review (audit trail preservado)
-   - Publica: `gh pr review <PR#> --request-changes --body-file <body>` si BLOCKER ≥ 1 o WARNING ≥ 1; `--comment` si 0 findings
+   - Lista comments existentes del PR vía `gh api repos/{owner}/{repo}/issues/{pr}/comments` (lectura, PAT del reviewer); encuentra `argos-review-id:<hash>` previo que coincida con el hash actual → edita vía `GH_TOKEN=$(scripts/argos/auth.sh) gh api -X PATCH .../comments/<id>` (escritura, bot token). Si el hash difiere (commit nuevo pusheado) → crea nueva review (audit trail preservado)
+   - Publica: `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --request-changes --body-file <body>` si BLOCKER ≥ 1 o WARNING ≥ 1; `--comment` si 0 findings — el autor del comment aparece como `ahrena-warrior-argos[bot]`
 6. **Fase 4 — Cleanup:** `git worktree remove .worktrees/review-pr-<N> --force`
 
 ### Criterios de Escalación
