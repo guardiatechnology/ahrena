@@ -6,6 +6,8 @@
 
 Shortcut for the skill cycle after the initial scaffold (`cry-new-skill`). Invokes `warrior-claudionor`, who orchestrates one of three katas (or all three in sequence), with Hephaestus/Apollo delegated per gap.
 
+> **When to prefer `cry-pov`:** if the goal is an **agent PoV** (proving value to the client via the Anthropic stack — Skills, Subagents, Plugins — with native observability and value-proof), use `cry-pov` as the preferred entry point. `cry-pov --kind skill` triggers the full PoV cycle (7 POV katas + `kata-skill-implement`) and produces `docs/{context}/agents-pov/` consumable by Mêtis via `--from-pov`. `cry-skill` remains the entry point when the goal is **packaging a skill as a distributable artifact** isolated from the PoV cycle.
+
 ## Invocation
 
 ```

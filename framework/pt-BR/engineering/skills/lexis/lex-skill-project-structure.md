@@ -64,8 +64,11 @@ O conteúdo do projeto **herda** as Lexis de qualidade já codificadas no framew
 | `tools/` MCP | `lex-mcp`, `codex-mcp-common`, mais Lexis da linguagem do handler |
 | Logging em qualquer linguagem | `lex-logging-decorator` |
 | Texto em `SKILL.md` e `references/` | `lex-tone` |
+| Skill usada como tooling de PoV de agent | `lex-agent-construction-directives` (Diretriz 03 — Ferramentas Concretas no rigor pré-operacional; `stage: pre-operational` declarado no system prompt do PoV consumidor) |
 
 Violar Lexis de qualidade dentro de um projeto de skill é violação direta — não há "modo skill" que afrouxe regra existente.
+
+**Nota sobre skills consumidas em PoV de agent:** quando a skill é o artefato de implementação de um PoV de `warrior-claudionor` (`cry-pov --kind skill`), o consumidor — não a skill em si — declara `stage: pre-operational` no system prompt do PoV (`docs/{context}/agents-pov/system-prompt.md`), per `lex-agent-construction-directives`. A skill como artefato distribuível continua governada apenas por esta Lexis.
 
 ### 6. `.gitignore` mínimo
 
