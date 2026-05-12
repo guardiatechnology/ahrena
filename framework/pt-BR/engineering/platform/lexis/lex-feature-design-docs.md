@@ -103,6 +103,7 @@ docs/
 ## Referências
 
 - `codex-feature-design-docs` — manual com templates de cada categoria
+- `codex-component-architecture` — `docs/{context}/` é parte do layout físico do bounded context (component-architecture). Esta Lexis governa o conteúdo de `docs/`; `codex-component-architecture` governa a estrutura física (`components/`, `deployment/`)
 - `kata-feature-design-docs` — procedimento para criar e atualizar os documentos
 - `lex-entities`, `lex-entity-naming` — estrutura e nomeação de entidades
 - `lex-cloudevents`, `codex-cloudevents` — formato de eventos
