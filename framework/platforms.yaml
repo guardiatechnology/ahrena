@@ -531,7 +531,7 @@ claude-code:
       paths: [".dist/**"]
       description: "When reviewing a PR that adds or modifies a packaged .skill in .dist/, enforce all 5 criteria (frontmatter, manifest schema, files+sha256, references+source_commit, no orphans). Agnostic to build stack."
     engineering/agents/lexis/lex-agent-construction-directives:
-      paths: ["docs/**/agents/**", "docs/**/agents-pov/**", "**/system_prompt*.md", "**/system-prompt*.md", "**/SYSTEM_PROMPT*"]
+      paths: ["docs/**/agents/**", "docs/**/agents-pov/**", "docs/**/system_prompt*.md", "docs/**/system-prompt*.md"]
       description: "When building, reviewing, or promoting an AI agent on the Guardia platform, declare its cognitive stage in the system prompt and enforce the 9-item DoOC HARD-GATE on pre-operational → operational-concrete promotion."
     engineering/workflow/lexis/lex-issue-driven:
       paths: ["docs/issues/**", ".ahrena/workflow/**"]
