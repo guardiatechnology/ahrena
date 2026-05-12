@@ -102,8 +102,11 @@ without satisfying ALL 5 canonical steps:
 
   (a) Issue opened per lex-issue-first and lex-issue-quality
       (template, label, Issue Type, assignee, Why/What/How)
-  (b) Issue Type verified per lex-issue-type-verified
-      (gh api repos/{owner}/{repo}/issues/{N} confirms type populated)
+  (b) Issue Type verified per lex-issue-type-verified (delivered
+      in plan-044). Until plan-044 ships, satisfy via
+      `gh api repos/{owner}/{repo}/issues/{N}` returning a populated
+      `type` compatible with the template — same contract, without
+      the dedicated Lex yet
   (c) Remote branch created and linked to the Issue via
       gh issue develop {N} --base main --name {type}/{N}-{slug}
   (d) Worktree created per lex-git-worktrees at

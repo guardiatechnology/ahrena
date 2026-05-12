@@ -89,7 +89,7 @@
 
 | Warrior | Cuándo delega | Vía Kata |
 |---------|----------------|----------|
-| `warrior-eunomia` | Descomposición de child Issue en sub-issues (Phase 4) | `kata-create-subtasks` |
+| `warrior-eunomia` *(aún no publicado — entregado en plan-044)* | Descomposición de child Issue en sub-issues (Phase 4) | `kata-create-subtasks` *(idem)* |
 | `warrior-daedalus` | Feature involucra API REST | `kata-api-design-oas`, `kata-api-design-doc` |
 | `warrior-kronos` | Feature involucra eventos (CloudEvents) | `kata-events-doc` |
 | `warrior-apollo` | Implementación Python (Fase 4) | `kata-python-implement` |
@@ -97,6 +97,8 @@
 | `warrior-atlas` | Arquitectura/infraestructura AWS (Fase 3) | `kata-aws-design` |
 | `warrior-argos` | Revisión automatizada del PR (sub-ciclo `to review ↔ review`) | `cry-review-pr` |
 | `warrior-janus` | Release (transiciones `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
+
+> **Forward references:** las líneas marcadas *(aún no publicado — entregado en plan-044)* citan artefactos cuya entrega está planificada en plan-044. Mientras tanto, el agente de la sesión ejecuta el contrato per `lex-agent-planning` HARD-GATE con fallback documentado.
 
 ## Comportamiento
 

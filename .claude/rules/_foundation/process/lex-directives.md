@@ -66,7 +66,7 @@ The agent **MUST** apply each section of the directives to the corresponding beh
 | `notifications.channels.release_notify` | Logical channel for release-completed announcement (Janus, per plan-045 → plan-027). |
 | `notifications.channels.plans_status` | Logical channel for the periodic active-plans digest (Eunomia, per plan-044). |
 | `notifications.working_hours.*` | Working window (`start`, `end`, `timezone`) for non-critical digests by Eunomia. Critical stalled (`pm.critical_stalled_hours`) bypasses the window. |
-| `pm.loop_interval_minutes` | Cadence of Eunomia's PM loop (default 15). Consumed by `kata-plans-status-digest`. |
+| `pm.loop_interval_minutes` | Cadence of Eunomia's PM loop (default 15). Consumed by `kata-plans-status-digest` *(not yet shipped — delivered in plan-044)*. |
 | `pm.stalled_threshold_hours` | Threshold in hours after which Eunomia marks a plan as `stalled` in the digest. |
 | `pm.critical_stalled_hours` | Threshold in hours for critical `stalled` — bypasses `notifications.working_hours` and alerts immediately. |
 | `session_tracking.enabled` | Master switch for Claude Code session tracking per `codex-session-tracking`. Default `true` when the section exists. |

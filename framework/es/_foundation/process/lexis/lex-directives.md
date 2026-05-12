@@ -74,7 +74,7 @@ El agente **DEBE** aplicar cada sección de la directiva al comportamiento corre
 | `notifications.channels.release_notify` | Canal lógico para anuncio de release concluida (Janus, per plan-045 → plan-027). |
 | `notifications.channels.plans_status` | Canal lógico para el digest periódico de planes activos (Eunomia, per plan-044). |
 | `notifications.working_hours.*` | Ventana útil (`start`, `end`, `timezone`) para publicación de digests no críticos por Eunomia. Stalled crítico (`pm.critical_stalled_hours`) bypassa la ventana. |
-| `pm.loop_interval_minutes` | Cadencia del loop PM de Eunomia (default 15). Consumido por `kata-plans-status-digest`. |
+| `pm.loop_interval_minutes` | Cadencia del loop PM de Eunomia (default 15). Consumido por `kata-plans-status-digest` *(aún no publicado — entregado en plan-044)*. |
 | `pm.stalled_threshold_hours` | Umbral en horas tras el cual Eunomia marca un plan como `stalled` en el digest. |
 | `pm.critical_stalled_hours` | Umbral en horas para `stalled` crítico — bypassa `notifications.working_hours` y alerta inmediatamente. |
 | `session_tracking.enabled` | Master switch para tracking de sesión Claude Code per `codex-session-tracking`. Default `true` cuando la sección existe. |

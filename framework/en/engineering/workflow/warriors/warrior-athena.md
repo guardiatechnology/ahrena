@@ -89,7 +89,7 @@
 
 | Warrior | When delegated | Via Kata |
 |---------|----------------|----------|
-| `warrior-eunomia` | Child Issue decomposition into sub-issues (Phase 4) | `kata-create-subtasks` |
+| `warrior-eunomia` *(not yet shipped — delivered in plan-044)* | Child Issue decomposition into sub-issues (Phase 4) | `kata-create-subtasks` *(idem)* |
 | `warrior-daedalus` | Feature involves REST API | `kata-api-design-oas`, `kata-api-design-doc` |
 | `warrior-kronos` | Feature involves events (CloudEvents) | `kata-events-doc` |
 | `warrior-apollo` | Python implementation (Phase 4) | `kata-python-implement` |
@@ -97,6 +97,8 @@
 | `warrior-atlas` | AWS architecture/infrastructure (Phase 3) | `kata-aws-design` |
 | `warrior-argos` | Automated PR review (`to review ↔ review` sub-cycle) | `cry-review-pr` |
 | `warrior-janus` | Release (transitions `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
+
+> **Forward references:** rows marked *(not yet shipped — delivered in plan-044)* cite artifacts whose delivery is planned in plan-044. Meanwhile, the session agent runs the contract per `lex-agent-planning` HARD-GATE with the documented fallback.
 
 ## Behavior
 

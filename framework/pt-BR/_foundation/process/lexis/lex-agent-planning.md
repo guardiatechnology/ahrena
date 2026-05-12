@@ -102,8 +102,11 @@ um plano sem satisfazer TODOS os 5 passos canônicos:
 
   (a) Issue aberta per lex-issue-first e lex-issue-quality
       (template, label, Issue Type, assignee, Why/What/How)
-  (b) Issue Type verificado per lex-issue-type-verified
-      (gh api repos/{owner}/{repo}/issues/{N} confirma type populado)
+  (b) Issue Type verificado per lex-issue-type-verified (entregue
+      em plan-044). Enquanto plan-044 não shipa, satisfazer via
+      `gh api repos/{owner}/{repo}/issues/{N}` retornando `type`
+      populado e compatível com o template — mesmo contrato, sem o
+      Lex dedicado ainda
   (c) Branch remota criada e vinculada à Issue via
       gh issue develop {N} --base main --name {type}/{N}-{slug}
   (d) Worktree criado per lex-git-worktrees em

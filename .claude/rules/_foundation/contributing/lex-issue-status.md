@@ -1,3 +1,11 @@
+---
+paths:
+  - '.github/ISSUE_TEMPLATE/**'
+  - '.github/PULL_REQUEST_TEMPLATE.md'
+  - '.github/PULL_REQUEST_TEMPLATE/**'
+  - 'scripts/bootstrap_status_labels.sh'
+---
+
 # Lexis: Canonical Status Labels on Issue and PR
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Issues and Pull Requests in Guardia repositories that participate in the Issue-Driven flow
