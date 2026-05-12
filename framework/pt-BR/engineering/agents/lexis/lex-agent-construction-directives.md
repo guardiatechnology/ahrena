@@ -20,6 +20,8 @@ A Guardia constrói agentes de IA como produtos (Isac, reconciliação, classifi
 
 A analogia de Piaget detalhada em `codex-agent-construction-directives` é o framework conceitual; o rigor diferencial expresso aqui é a tradução operacional.
 
+> **Diretriz 01 — Identidade:** o conteúdo, a estrutura e os controles de segurança do bloco de identidade do system prompt são governados por [`lex-system-prompt`](framework/pt-BR/engineering/agents/lexis/lex-system-prompt.md) — fonte autoritativa para os 4 blocos obrigatórios, os 5 controles OWASP LLM Top 10 2025 críticos e o guardrail `org_id`/`client_id`. Esta Lex declara *quando* a identidade é exigida por estágio; `lex-system-prompt` declara *como* a identidade DEVE ser escrita.
+
 | Tag | Quando usar | Rigor exigido das 6 Diretrizes |
 |-----|-------------|--------------------------------|
 | `pre-operational` | PoV ativo, provando valor antes de escala | Versão mínima viável de cada Diretriz; gaps declarados em PoV doc/PDR |
