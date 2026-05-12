@@ -106,6 +106,7 @@ Progresso:
    - Slug, description, language, license aplicados
    - Subdiretórios incluídos (widgets/scripts/tools, conforme opt-outs)
    - Próximos passos: editar `SKILL.md` corpo, adicionar componentes em `widgets/src/`, etc.
+   - Sugestão de orquestração: `cry-skill --mode implement --slug <slug>` para passar a fase de autoria a `warrior-claudionor`
 2. Apontar para `codex-skill-project-architecture` para autoria.
 
 ## Saídas
@@ -145,6 +146,8 @@ Próximos passos:
 - Edite skills/scheduled-payments-skill/SKILL.md (corpo)
 - Adicione componentes em widgets/src/
 - Adicione handlers em tools/handlers/
+- Para orquestrar autoria + validação + empacotamento, invoque:
+    /cry-skill --mode implement --slug scheduled-payments-skill
 ```
 
 ## Restrições
@@ -165,3 +168,4 @@ Próximos passos:
 - `lex-terminal-type` — sintaxe de comandos shell quando o kata precisar tocar filesystem em PowerShell vs bash
 - `cry-new-skill` — ponto de entrada do usuário
 - `framework/templates/skill-project-sample/` — origem do scaffold
+- `warrior-claudionor`, `cry-skill --mode implement` — sucessor recomendado após o scaffold

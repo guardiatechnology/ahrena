@@ -89,6 +89,7 @@ Progress:
    - Slug, description, language, license applied
    - Subdirectories included (widgets/scripts/tools, per opt-outs)
    - Next steps: edit `SKILL.md` body, add components in `widgets/src/`, etc.
+   - Orchestration suggestion: `cry-skill --mode implement --slug <slug>` to hand the authoring phase to `warrior-claudionor`
 2. Point to `codex-skill-project-architecture` for authoring.
 
 ## Outputs
@@ -128,6 +129,8 @@ Next steps:
 - Edit skills/scheduled-payments-skill/SKILL.md (body)
 - Add components in widgets/src/
 - Add handlers in tools/handlers/
+- To orchestrate authoring + validation + packaging, invoke:
+    /cry-skill --mode implement --slug scheduled-payments-skill
 ```
 
 ## Restrictions

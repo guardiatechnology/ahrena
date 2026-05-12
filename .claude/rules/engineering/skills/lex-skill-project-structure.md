@@ -15,7 +15,7 @@ paths:
 ## Coverage
 
 - **Applies to:** every skill project maintained in the Ahrena repository, in any language declared in `metadata.language`
-- **Bound agents:** `kata-init-skill` (scaffold), `cry-new-skill` (shortcut), `warrior-hephaestus` (widgets), `warrior-apollo` (Python scripts/tools), and any agent that edits the project during the dev → build → dist cycle
+- **Bound agents:** `kata-init-skill` (scaffold), `cry-new-skill` (shortcut), `warrior-claudionor` (end-to-end orchestration of the `implement → validate → package` cycle), `kata-skill-validate` (deterministic validation of this Lex), `warrior-hephaestus` (widgets), `warrior-apollo` (Python scripts/tools), and any agent that edits the project during the dev → build → dist cycle
 - **Exceptions:** None. Lexis admit no exceptions. Experimental or test skills follow the same layout — ad-hoc exploration directories outside `paths.skills_root` are not skill projects and are not governed by this Lex
 
 ## Rules
@@ -133,8 +133,9 @@ skills/payments-skill/
 
 - **Tool:**
   - `kata-init-skill` validates slug, frontmatter, and required-file presence at creation
+  - `kata-skill-validate` (via `scripts/skills/validate.py`) runs the deterministic check of this Lex — invoked by `warrior-claudionor` and by `cry-skill --mode validate`
   - PR review (human) checks the layout while `kata-quality-gate` does not integrate the check
   - Generic existing lint detects violations of `lex-frontend-*` / `lex-python-*` inside the project, no new rule needed
   - Root `.gitignore` contains `.build/` (verifiable by inspection)
-- **When:** scaffold (`kata-init-skill`); PR review; future Gate 2 integration
+- **When:** scaffold (`kata-init-skill`); on each edit (`kata-skill-validate`); PR review; future Gate 2 integration
 - **Metric:** 0 skill projects with `name` diverging from slug; 0 commits editing `.build/` or `.dist/` directly; 100% of projects with `SKILL.md` + `skill.config.json` at the root

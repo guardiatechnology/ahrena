@@ -14,7 +14,7 @@ paths:
 ## Coverage
 
 - **Applies to:** every `.skill` (directory or sealed file per Anthropic spec) delivered in `{paths.skills_dist}/`, in any language declared in `metadata.language`
-- **Bound agents:** human reviewer, `kata-quality-gate` when it integrates the verification, authors who add or modify packages in `.dist/`
+- **Bound agents:** `warrior-claudionor` (orchestrator), `kata-skill-package` (deterministic packager that produces the package against this Lex), human reviewer, `kata-quality-gate` when it integrates the verification, authors who add or modify packages in `.dist/`
 - **Exceptions:** None. Lexis admit no exceptions. `.skill` packages produced by automation or manually follow the same law
 
 ## Canonical schema of `.skill-manifest.json`
@@ -180,6 +180,6 @@ A PR containing this package MUST be blocked in review for 5 criteria violated s
 
 ## Automated Validation
 
-- **Tool:** Python validator (future) using `jsonschema` to validate `.skill-manifest.json` and `hashlib.sha256` to check each declared file; orphan-file check via the difference between `os.walk(package)` and `manifest.files[]`. While the automated validator does not exist, the human reviewer runs the checklist on the PR.
+- **Tool:** `scripts/skills/package.py` implements the deterministic validator of this Lex using stdlib (`hashlib.sha256` to check each declared file, `os.walk(package)` ∖ `manifest.files[]` for orphan files, inline manifest parser). `kata-skill-package` orchestrates build → dist → validation and is invoked by `warrior-claudionor` (or directly via `cry-skill --mode package`). Human reviewer verifies the result on the PR while `kata-quality-gate` does not integrate.
 - **When:** PR review (human today; future Gate 2 via `kata-quality-gate` once the validator is integrated); CI when enabled.
 - **Metric:** 0 PRs merged with a `.skill` package violating any of the 5 criteria; 0 entries with empty `framework.ahrena_commit` or `source_commit`; 0 orphan files.
