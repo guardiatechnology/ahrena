@@ -349,15 +349,28 @@ Intermediate toggles, scratch edits (`<!-- not-flushed -->` blocks), and working
 
 ## 10. Pending review loop (state `to review`)
 
-When Athena opens the PR, it schedules 3 cycles of 15 min via `ScheduleWakeup`. On each wake-up:
+After Athena opens the PR (Step 6/6b of `kata-pr-prepare`), the review cycle operates in **two distinct sequential phases** plus a handler for CHANGES_REQUESTED:
 
-1. Query `gh pr view {N} --json reviewDecision,reviews` and `gh pr checks {N}`.
-2. If `reviewDecision == APPROVED` by a human → move to `to release` and exit the loop.
-3. If `reviewDecision == CHANGES_REQUESTED` → update the plan with a note, ping the PR via `gh pr comment`, keep at `to review`, exit the loop.
-4. If Argos published P0/P1 findings → keep at `to review` (waiting for author to fix); exit the loop and reschedule when Argos signals a new round.
-5. Otherwise (`REVIEW_REQUIRED` / `null`, no human approval) → count cycle; if < 3, reschedule 15 min; if == 3, trigger notification via MCP on `notifications.channels.pr_review_timeout` (per `codex-notifications`) and close the loop.
+### Phase A — Argos pre-flight cycles (Step 6c of `kata-pr-prepare`)
 
-Argos operates the `to review ↔ review` sub-cycle in parallel, interleaved with Athena's waiting window. Argos never moves to `to release`; this is exclusive to Athena upon detecting human approval.
+Up to 3 interactive cycles `A1, A2, A3`, gated by `AskUserQuestion` (Athena never invokes Argos without confirmation). Each cycle: Athena asks "Run an Argos review on the current HEAD?" — options (a) yes, (b) skip to human review, (c) stop. If (a) → Argos runs, posts review with an idempotent marker; Athena reads findings; P0 BLOCKER addressing is mandatory; P1 AskUserQuestion (address or defer); P2 note. Commit + push if there were changes → new HEAD. Repeat until A3 or user picks (b)/(c). Full detail in `kata-pr-prepare` Step 6c.
+
+### Phase B — Human nudge loop (Step 6d of `kata-pr-prepare`)
+
+After Phase A ends, Athena asks for the scheduling mode: (a) `/loop` in the session (`ScheduleWakeup`), (b) remote cron, (c) manual. Modes (a)/(b) schedule 3 cycles `H1, H2, H3` with 15 min between each. At every cycle, Athena fires a Slack notification via MCP on `notifications.channels.pr_review_timeout` — message escalates in urgency (H1 "PR ready", H2 "reminder #1", H3 "reminder #2, 2nd nudge"). Queries `gh pr view {N} --json reviewDecision,mergedAt`:
+
+- `mergedAt != null` → transition `status: to review → done`, capture `mergeCommit.oid`, close the loop.
+- `reviewDecision == APPROVED` (no merge) → comment "PR approved, awaiting merge", close the loop.
+- `reviewDecision == CHANGES_REQUESTED` → **trigger Phase C**.
+- Otherwise → if H<3, reschedule; if H==3, close silently.
+
+### Phase C — CHANGES_REQUESTED handler (Step 6e of `kata-pr-prepare`)
+
+If the human requests changes during Phase B: Athena reads the reviewer's comments and asks via AskUserQuestion: (a) address now, (b) defer to a follow-up Issue, (c) stop. If (a) → Athena implements, commits, pushes (new HEAD). After (a) or (b) → **full reset**: Athena restarts the loop from **Phase A** (3 new Argos cycles on the new HEAD) — because new commits invalidate the previous Argos review. Does not jump directly to Phase B. This handler ensures CHANGES_REQUESTED resets the full quality cycle, not only the human nudge loop. Detail in `kata-pr-prepare` Step 6e.
+
+---
+
+Argos operates the `to review ↔ review` sub-cycle in Phase A (with label transitions during execution) and in Phase C when re-invoked. Argos never moves to `done`; the `to review → done` transition is exclusive to Athena upon detecting merge.
 
 ---
 

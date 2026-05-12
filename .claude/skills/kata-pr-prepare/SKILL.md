@@ -199,60 +199,114 @@ Per `lex-issue-status` Rule 3 (intra-artifact mutex), ensure each artifact carri
 
 The label is the single source of truth for the state per ADR-002 — the Issue body (canonical plan) was already updated in Step 5c.
 
-### Step 6c: Ask the user about scheduling the 3×15min loop
+### Step 6c: Argos pre-flight cycles (up to 3, interactive via AskUserQuestion)
 
-Per `codex-agent-planning` §10 (Pending review loop), Athena schedules 3 cycles of 15 min after opening the PR to nudge the human reviewer. However, the concrete scheduling mechanism depends on the Claude Code session context:
+Before nudging a human reviewer, Athena offers up to **3 cycles of automated review by Argos**. Each cycle is gated by AskUserQuestion — Athena never invokes Argos without user confirmation. The goal is to raise the quality of the PR (resolve P0/P1 findings) before taking the reviewer's time.
 
-- **`/loop` dynamic mode** (auto-paced within the current session) — the agent reschedules via `ScheduleWakeup` at each cycle. Appropriate when the human stays in the editor; the session must stay alive.
-- **Remote cron** (3 triggers every 15 min via `CronCreate`) — a remote schedule agent runs `gh pr view {N} --json reviewDecision` and reports back on completion. Appropriate for long-lived PRs where the local session may end.
-- **Manual** — no scheduling; the human notifies when the review happens. Appropriate for meta-PRs in the framework itself, contexts without operational urgency, or when the reviewer is already attentive.
+**Initial state:** PR open, label `status: to review` applied (per Step 6b).
 
-Athena **MUST** explicitly present these 3 options to the user before completing the step:
+**Argos loop (up to 3 cycles `A1, A2, A3`):**
+
+For each cycle `A{n}`:
+
+1. Athena asks via `AskUserQuestion`:
+
+   ```
+   Athena: "Cycle A{n}/3 — run an Argos review on the current HEAD? (PR #{N}, HEAD {short_sha})"
+
+     (a) yes, invoke Argos now
+     (b) no, skip Argos and go straight to human review
+     (c) stop — end the entire flow
+   ```
+
+2. Behavior per choice:
+   - **(a)** Athena transitions `status: to review → review`, invokes the `warrior-argos` subagent (via the Agent tool with `subagent_type=warrior-argos` or via `/cry-pr-review` — see feedback `argos_via_subagent`), waits for Argos to post the review with marker `argos-review-id:...`, transitions `status: review → to review`, and proceeds to step 3.
+   - **(b)** Athena records the refusal in working notes (`<!-- not-flushed -->` block in `.plans/{N}.md`), jumps directly to **Step 6d**.
+   - **(c)** Athena records "Loop ended by the user at Argos cycle A{n}" in the Issue body via `kata-flush-plan-to-issue`, does NOT proceed to Step 6d or Step 7. Flow ends here.
+
+3. Athena reads the review findings:
+   - **P0 BLOCKER** → Athena MUST address (modify code) before continuing; no opt-out.
+   - **P1 WARNING** → Athena presents each finding to the user via `AskUserQuestion` ("Address now or defer to a follow-up Issue?"). Address → modify code; defer → record TODO in the Issue body.
+   - **P2 SUGGESTION** → Athena records as an informational note in the Issue body (no prompt).
+
+4. If Athena modified code in step 3, she **MUST** commit and push before the next cycle. Each commit triggers `kata-flush-plan-to-issue` (per Step 5c — completed Step counts as a flush trigger). The next Argos check will have a new HEAD (non-idempotent — Argos actually runs).
+
+5. If `n < 3`, return to step 1 (next cycle). If `n == 3`, exit the Argos loop and proceed to **Step 6d**.
+
+**Early-exit criteria for the Argos loop:**
+- Argos returns "Argos approves, awaiting human" with no actionable P0/P1 findings → Athena MAY offer "Want another Argos cycle, or go straight to the human review?" and exit if the user chooses to skip.
+- User picks (c) stop at any cycle → flow ends without Step 6d/7.
+
+**Idempotency:** if HEAD has not changed since Argos's last review (same commit_id), Athena MUST warn the user ("HEAD unchanged since last review — a new review will be idempotent; Argos will abort by its own marker"). Suggest addressing at least one finding before re-invoking Argos.
+
+### Step 6d: Human nudge loop (3 cycles via ScheduleWakeup, with a Slack notification per cycle)
+
+After the Argos cycles (Step 6c), Athena schedules the human-reviewer nudge loop. Unlike the Argos cycle (interactive), the human nudge loop uses `ScheduleWakeup` for periodic wake-ups.
+
+**Scheduling mechanism:** Athena asks via `AskUserQuestion`:
 
 ```
-Athena: "PR #{N} opened in status: to review. How should the 3×15min
-nudge loop be scheduled for the human reviewer?
+Athena: "Ready for the human nudge loop (3×15min). How should it be scheduled?
 
-  (a) /loop 15m — I reschedule within this session (session must stay alive)
-  (b) remote cron — a schedule agent runs `gh pr view --json reviewDecision`
-      3× every 15 min and reports on completion
-  (c) manual — no scheduling; notify me when the review happens
+  (a) /loop 15m — I reschedule via ScheduleWakeup within this session
+  (b) remote cron — the `schedule` skill creates a */15 routine that checks and reports
+  (c) manual — no scheduling; the human notifies when the review happens
 
 Which option?"
 ```
 
-Behavior per choice:
+**Behavior per choice:**
 
-- **(a)** The agent calls `ScheduleWakeup` with `delaySeconds=900` and a prompt re-checking `gh pr view {N} --json reviewDecision,reviews`. If `APPROVED` by a human → transition to `done` on merge per Table A. If 3 cycles without approval → fires the MCP notification on `notifications.channels.pr_review_timeout`. **At every cycle, Athena suggests to the user invoking `warrior-argos` for automated review** (see "Argos suggestion per cycle" below).
-- **(b)** The agent invokes the `schedule` skill creating a cron routine `*/15 * * * *` with an agent that executes the check and reports back. Same notification behavior on the 3rd cycle without human approval. **The remote agent suggests invoking Argos at every cycle** (same rules as option (a)).
-- **(c)** Athena records the choice in the Issue body (via `kata-flush-plan-to-issue`) with the note: "Manual loop — human notifies when review happens." No `ScheduleWakeup` and no cron. **Athena still suggests invoking Argos once** at the end of Step 6c (recorded in the body), before proceeding.
+- **(a)** Athena calls `ScheduleWakeup` with `delaySeconds=900` and a prompt re-checking `gh pr view {N} --json reviewDecision,mergedAt`. At every cycle: fires the Slack notification (see "Per-cycle Slack notification" below) + checks state.
+- **(b)** Athena invokes the `schedule` skill creating a cron routine `*/15 * * * *` with an agent that runs the check, fires the Slack notification, and reports back.
+- **(c)** Athena records "Manual loop" in the Issue body. No scheduling; the human notifies.
 
-#### Argos suggestion per cycle
+**Per-cycle Slack notification:**
 
-At every wake-up (or cron execution), before deciding to reschedule, Athena MUST evaluate whether to propose an automated review by `warrior-argos` (the `to review ↔ review` sub-cycle of Table A):
+At every cycle `H1, H2, H3`, Athena fires a message via the notification MCP configured in `.ahrena/.directives` (`notifications.provider`) on the channel `notifications.channels.pr_review_timeout`. The urgency escalates:
 
-1. **Collect two data points via `gh`:**
-   - `gh pr view {N} --json commits --jq '.commits[-1].oid'` → current HEAD SHA of the PR.
-   - `gh pr view {N} --json reviews --jq '[.reviews[] | select(.author.login == "argos[bot]" or (.body | contains("argos-review-id"))) | .submittedAt] | last'` → timestamp of the last review marked with the Argos idempotent marker (`argos-review-id:...`).
-2. **Criterion to suggest:** suggest if (a) Argos has never reviewed OR (b) there were new commits since the last Argos review (HEAD SHA differs from the SHA captured in the last marker).
-3. **Criterion to NOT suggest:** Argos has already reviewed the current HEAD (idempotent — Argos itself would abort by detecting its marker on the same commit).
-4. **When suggesting:** present to the user (in chat or via PR comment depending on context):
+| Cycle | Default message |
+|---|---|
+| H1 (start) | `PR #{N} ready for review — {title}. {url}` |
+| H2 (+15min) | `Reminder #1: PR #{N} awaiting review for ~15min. {url}` |
+| H3 (+30min) | `Reminder #2: PR #{N} awaiting review for ~30min — second nudge. {url}` |
 
+After H3 with no approval → the loop ends silently (3 nudges were enough).
+
+**Detectable states during the loop:**
+
+| `gh pr view` returns | Athena's action |
+|---|---|
+| `mergedAt != null` | Transition `status: to review → done` on PR + Issue; capture `mergeCommit.oid`; end loop. |
+| `reviewDecision == "APPROVED"` and `mergedAt == null` | Comment "PR approved, waiting for merge"; end loop. |
+| `reviewDecision == "CHANGES_REQUESTED"` | → **Step 6e** (CHANGES_REQUESTED handler). |
+| Otherwise (`REVIEW_REQUIRED` or null) | If `H < 3` → reschedule; if `H == 3` → end. |
+
+### Step 6e: CHANGES_REQUESTED handler (loop reset)
+
+If during Step 6d the human reviewer requests changes (`reviewDecision == "CHANGES_REQUESTED"`):
+
+1. Athena reads the human's review comments via `gh pr view {N} --json reviews --jq '.reviews[-1]'`.
+2. Athena presents a summary of the requests to the user via `AskUserQuestion`:
    ```
-   Athena: "Cycle {n}/3 — no human approval yet. Should I invoke
-   /cry-review-pr {N} so Argos runs an automated review before
-   the next wake-up? (yes / no)"
+   Athena: "Reviewer requested changes. Address now?
+
+     (a) yes, I'll implement the changes
+     (b) defer — record as a follow-up Issue and keep the PR open
+     (c) stop — close the loop and the PR
    ```
+3. Behavior per choice:
+   - **(a)** Athena implements the changes (modify code, commit, push). Each commit triggers `kata-flush-plan-to-issue`. The push produces a new HEAD SHA.
+   - **(b)** Athena records a TODO in the Issue body + opens a follow-up Issue referencing the request. Keeps `status: to review`.
+   - **(c)** Athena closes the PR (`gh pr close 97`), transitions the Issue to `status: abandoned` with an explanatory note. Flow ends.
 
-   If **yes** → invoke `cry-review-pr` (which delegates to `warrior-argos`); Argos operates the sub-cycle `to review → review → to review`; once finished, control returns to Athena who continues the normal loop.
+4. After (a) or (b), Athena **restarts the loop from Step 6c** (3 fresh Argos pre-flight cycles on the new HEAD) — because new commits invalidate the previous Argos review. Does not jump directly to Step 6d.
 
-   If **no** → record the refusal in working notes (a `<!-- not-flushed -->` block in `.plans/{N}.md`) to avoid re-proposing within the same cycle; reschedule normally.
+5. If the user chose (b) defer (no new commits), Athena MAY skip Step 6c and go straight to Step 6d (since HEAD has not changed).
 
-5. **Inter-cycle idempotency:** if Argos has already reviewed the current HEAD without P0/P1 findings (the "Argos approves, awaiting human" case), Athena does NOT re-suggest in the next cycle until the PR receives new commits. This avoids polluting history with redundant calls.
+**This handler ensures CHANGES_REQUESTED resets the full quality cycle, not just the human nudge loop.**
 
-The suggestion is **optional** and respects the human's choice. Athena never invokes Argos without explicit confirmation.
-
-Without the human's choice about scheduling (options a/b/c above), Athena **MUST NOT** proceed to Step 7 — the loop is the responsibility declared in Table A; assuming a default option without confirmation would contradict the AI-First principle (which requires explicit approval on actions with side effects, see `lex-ai-first-experience`).
+Without the human's choice about scheduling (options a/b/c of Step 6d), Athena **MUST NOT** proceed to Step 7 — the loop is the responsibility declared in Table A; assuming a default option without confirmation would contradict the AI-First principle (which requires explicit approval on actions with side effects, see `lex-ai-first-experience`).
 
 ### Step 7: Update ADR status (proposed → accepted)
 
