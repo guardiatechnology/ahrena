@@ -212,6 +212,36 @@ Per `lex-issue-status` Regra 3 (mutex intra-artefato), garantir que cada artefat
 
 A label é a única fonte de truth do estado per ADR-002 — o body da Issue (canonical do plano) já foi atualizado no Passo 5c.
 
+### Passo 6c: Pergunta ao usuário sobre o agendamento do loop 3×15min
+
+Per `codex-agent-planning` §10 (Loop de revisão pendente), Athena agenda 3 ciclos de 15 min após abrir o PR para cobrar reviewer humano. Entretanto, o mecanismo concreto de agendamento depende do contexto da sessão Claude Code:
+
+- **`/loop` dynamic mode** (auto-paced dentro da sessão atual) — o agente reagenda via `ScheduleWakeup` a cada ciclo. Adequado quando o humano vai ficar no editor; a sessão precisa estar viva.
+- **Cron remoto** (3 disparos a cada 15 min via `CronCreate`) — agente de schedule remoto executa `gh pr view {N} --json reviewDecision`; reporta de volta na conclusão. Adequado para PRs longos onde a sessão local pode encerrar.
+- **Manual** — sem agendamento; humano avisa quando o review acontecer. Adequado para meta-PRs do próprio framework, contexto sem urgência operacional, ou quando o reviewer já está atento.
+
+Athena **DEVE** apresentar essas 3 opções ao usuário explicitamente antes de concluir o passo:
+
+```
+Athena: "PR #{N} aberto em status: to review. Como agendar o loop
+de cobrança 3×15min ao reviewer humano?
+
+  (a) /loop 15m — eu reagendo dentro desta sessão (sessão precisa ficar viva)
+  (b) cron remoto — agente de schedule executa `gh pr view --json
+      reviewDecision` 3× a cada 15 min e reporta na conclusão
+  (c) manual — sem agendamento; me avisa quando o review acontecer
+
+Qual opção?"
+```
+
+Comportamento por escolha:
+
+- **(a)** Agente chama `ScheduleWakeup` com `delaySeconds=900` e prompt re-checando `gh pr view {N} --json reviewDecision,reviews`. Se `APPROVED` por humano → transição para `done` no merge per Tabela A. Se 3 ciclos sem aprovação → dispara notificação MCP em `notifications.channels.pr_review_timeout`.
+- **(b)** Agente invoca a skill `schedule` criando rotina cron `*/15 * * * *` com agente que executa o check e reporta. Mesmo comportamento de notificação no 3º ciclo sem aprovação humana.
+- **(c)** Athena registra a opção no body da Issue (via `kata-flush-plan-to-issue`) com a nota: "Loop manual — humano avisa quando review acontecer." Sem `ScheduleWakeup` nem cron.
+
+Sem essa escolha do humano, Athena **NÃO DEVE** prosseguir para Passo 7 — o loop é responsabilidade declarada na Tabela A; assumir uma opção default sem confirmação seria contrário ao princípio AI-First (que exige aprovação explícita em ações com efeito colateral, ver `lex-ai-first-experience`).
+
 ### Passo 7: Atualizar status dos ADRs (proposed → accepted)
 
 Para cada ADR criado na Fase 3 (listados no checkpoint):
