@@ -6,6 +6,8 @@
 
 Atalho para o ciclo de skill após o scaffold inicial (`cry-new-skill`). Invoca `warrior-claudionor`, que orquestra um dos três katas (ou todos em sequência), com Hephaestus/Apollo delegados conforme o gap.
 
+> **Quando preferir `cry-pov`:** se o objetivo é **PoV de agent** (provar valor para o cliente via stack Anthropic — Skills, Subagents, Plugins — com observabilidade nativa e value-proof), use `cry-pov` como entry point preferencial. `cry-pov --kind skill` dispara o ciclo POV completo (7 katas POV + `kata-skill-implement`) e produz `docs/{context}/agents-pov/` consumível por Mêtis via `--from-pov`. `cry-skill` permanece como entry point quando o objetivo é **empacotar uma skill como artefato distribuível** isolado do ciclo POV.
+
 ## Invocação
 
 ```

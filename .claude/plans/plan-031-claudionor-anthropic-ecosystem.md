@@ -1,11 +1,11 @@
 ---
 plan_id: "031"
 title: "claudionor-preoperational-pov-factory"
-status: pending
+status: in-progress
 agent: claude
-issue: "TBD (a abrir antes da branch — lex-issue-first)"
+issue: "guardiatechnology/ahrena#123"
 created_at: "2026-05-08T00:00:00Z"
-updated_at: "2026-05-09T13:30:00Z"
+updated_at: "2026-05-12T17:30:00Z"
 ---
 
 # Plano: warrior-claudionor v2 — Pré-operacional Agent Factory (PoV via stack Anthropic)

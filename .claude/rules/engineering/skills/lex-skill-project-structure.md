@@ -70,8 +70,11 @@ The project content **inherits** the quality Lexis already codified in the frame
 | `tools/` MCP | `lex-mcp`, `codex-mcp-common`, plus the language Lexis of the handler |
 | Logging in any language | `lex-logging-decorator` |
 | Text in `SKILL.md` and `references/` | `lex-tone` |
+| Skill used as tooling for an agent PoV | `lex-agent-construction-directives` (Directive 03 — Concrete Tools at pre-operational rigor; `stage: pre-operational` declared in the consuming PoV's system prompt) |
 
 Violating a quality Lexis inside a skill project is a direct violation — there is no "skill mode" that loosens an existing rule.
+
+**Note on skills consumed by an agent PoV:** when the skill is the implementation artifact of a `warrior-claudionor` PoV (`cry-pov --kind skill`), the consumer — not the skill itself — declares `stage: pre-operational` in the PoV's system prompt (`docs/{context}/agents-pov/system-prompt.md`), per `lex-agent-construction-directives`. The skill as a distributable artifact remains governed solely by this Lexis.
 
 ### 6. Minimum `.gitignore`
 
