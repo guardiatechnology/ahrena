@@ -171,18 +171,18 @@ I am the Guardia assistant for customers...
 
 ## Definition of Operational Concrete (DoOC) — detail
 
-Each DoOC item declared in the Lex has an expected evidence format:
+Each DoOC item declared in the Lex has an expected evidence format. **All 9 items are mandatory for any agent in promotion, regardless of the criticality tier.** The tier (item h) modulates what the SLO demands after promotion — it does **not** waive items (b) and (c): even tier-3 and tier-4 agents MUST have a proven leading metric and a declared lagging metric; without those, the DoOC fails.
 
 | # | Item | Evidence format |
 |---|------|-----------------|
 | (a) | Declared PoV origin | Absolute link to `docs/{context}/agents-pov/{agent}/pov.md` |
-| (b) | Proven leading metric | Number + threshold + window (e.g., `accuracy >= 0.92 over a 7-day window with n≥500 classifications`) |
-| (c) | Declared lagging metric | Business metric + baseline (e.g., `monthly close time: baseline 14d, target 9d`) |
+| (b) | Proven leading metric | Number + threshold + window (e.g., `accuracy >= 0.92 over a 7-day window with n≥500 classifications`). **Mandatory across all tiers.** |
+| (c) | Declared lagging metric | Business metric + baseline (e.g., `monthly close time: baseline 14d, target 9d`). **Mandatory across all tiers.** |
 | (d) | Stabilized scope | SHA of the commit under `docs/{context}/agents-pov/{agent}/scope.md` + date ≥ 2 weeks ago |
 | (e) | Observability data ≥ 7 days | Dashboard link (CloudWatch, Grafana) + a 7-day window covered |
 | (f) | Identified stakeholder owner | Name, role, escalation channel (Slack handle + email) |
 | (g) | Implementation capacity | Scheduled `warrior-apollo-agents` sprint OR ADR justifying the alternative path |
-| (h) | Criticality tier | `tier-1` \| `tier-2` \| `tier-3` \| `tier-4`; tier-1/2 references the SLO under `docs/{context}/metrics/slo-{agent}.yaml` |
+| (h) | Criticality tier | `tier-1` \| `tier-2` \| `tier-3` \| `tier-4`. Tier-1/2 triggers a mandatory SLO under `docs/{context}/metrics/slo-{agent}.yaml` per `lex-slo-required`. Tier-3/4 does NOT waive metrics (b) and (c) — it only waives the formal SLO |
 | (i) | Explicit stage in the prompt | SHA of the commit that added `stage: pre-operational` to the PoV prompt |
 
 ## Observed anti-patterns

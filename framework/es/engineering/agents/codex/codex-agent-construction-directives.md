@@ -178,18 +178,18 @@ Soy el asistente Guardia para clientes...
 
 ## Definition of Operational Concrete (DoOC) — detalle
 
-Cada ítem de la DoOC declarado en la Lex tiene un formato de evidencia esperado:
+Cada ítem de la DoOC declarado en la Lex tiene un formato de evidencia esperado. **Los 9 ítems son obligatorios para todo agente en promoción, independientemente del tier de criticidad.** El tier (ítem h) modula lo que el SLO exige después de la promoción — **no dispensa** los ítems (b) y (c): incluso los agentes tier-3 y tier-4 DEBEN tener una métrica leading probada y una métrica lagging declarada; sin eso, la DoOC se rechaza.
 
 | # | Ítem | Formato de evidencia |
 |---|------|----------------------|
 | (a) | Origen del PoV declarado | Link absoluto a `docs/{context}/agents-pov/{agent}/pov.md` |
-| (b) | Métrica leading probada | Número + threshold + ventana (p. ej., `accuracy >= 0.92 en ventana de 7 días con n≥500 clasificaciones`) |
-| (c) | Métrica lagging declarada | Métrica de negocio + baseline (p. ej., `tiempo de cierre mensual: baseline 14d, objetivo 9d`) |
+| (b) | Métrica leading probada | Número + threshold + ventana (p. ej., `accuracy >= 0.92 en ventana de 7 días con n≥500 clasificaciones`). **Obligatoria en todos los tiers.** |
+| (c) | Métrica lagging declarada | Métrica de negocio + baseline (p. ej., `tiempo de cierre mensual: baseline 14d, objetivo 9d`). **Obligatoria en todos los tiers.** |
 | (d) | Alcance estabilizado | SHA del commit en `docs/{context}/agents-pov/{agent}/scope.md` + fecha ≥ 2 semanas atrás |
 | (e) | Observability data ≥ 7 días | Link al dashboard (CloudWatch, Grafana) + ventana de 7 días cubierta |
 | (f) | Stakeholder owner identificado | Nombre, rol, canal de escalado (Slack handle + email) |
 | (g) | Capacidad de implementación | Sprint del `warrior-apollo-agents` agendado O ADR justificando el camino alternativo |
-| (h) | Tier de criticidad | `tier-1` \| `tier-2` \| `tier-3` \| `tier-4`; tier-1/2 referencia el SLO en `docs/{context}/metrics/slo-{agent}.yaml` |
+| (h) | Tier de criticidad | `tier-1` \| `tier-2` \| `tier-3` \| `tier-4`. Tier-1/2 dispara SLO obligatorio en `docs/{context}/metrics/slo-{agent}.yaml` per `lex-slo-required`. Tier-3/4 NO dispensa las métricas (b) y (c) — solo dispensa el SLO formal |
 | (i) | Stage explícito en el prompt | SHA del commit que añadió `stage: pre-operational` al prompt del PoV |
 
 ## Anti-patrones observados
