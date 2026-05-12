@@ -105,6 +105,9 @@ Cada Diretriz é detalhada com (a) o que é, (b) por que importa, (c) versão m�
 
 ## Stage tags em system prompt (exemplos canônicos)
 
+> A declaração da stage tag DEVE aparecer no arquivo `docs/{context}/agents/{agent}/system-prompt.md` per `codex-agent-design-docs` § 9. O snapshot da DoOC que valida promoção para `operational-concrete` vive em `docs/{context}/dooc/{agent}.md` (sibling de `agents/`) per `codex-agent-design-docs` § 14.
+
+
 ### Exemplo 1 — `stage: pre-operational`
 
 ```
@@ -177,6 +180,8 @@ Sou o assistente Guardia para clientes...
 ```
 
 ## Definition of Operational Concrete (DoOC) — detalhamento
+
+> **Template canônico do snapshot:** `docs/{context}/dooc/{agent}.md` (sibling de `agents/`, não filho), especificado em `codex-agent-design-docs` § 14. O snapshot suporta 3 entry modes (`with-pov`, `direct-entry`, `user-override`) e é preenchido por `warrior-metis` durante o design citando evidências fornecidas pelo usuário.
 
 Cada item da DoOC declarado na Lex tem formato de evidência esperado. **Os 9 itens são obrigatórios para qualquer agente em promoção, independente do tier de criticidade.** O tier (item h) modula o que o SLO exige depois da promoção — ele **não dispensa** os itens (b) e (c): mesmo agentes tier-3 e tier-4 DEVEM ter métrica leading provada e métrica lagging declarada; sem isso, a DoOC reprova.
 

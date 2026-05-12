@@ -243,7 +243,7 @@ cursor:
       description: "When publishing or consuming events, use CloudEvents format with idempotencykey and type catalog."
     engineering/platform/lexis/lex-feature-design-docs:
       alwaysApply: false
-      description: "When persisting feature design artifacts (entities, OpenAPI, events), use docs/{context}/{category}/ structure with category in entities/oas/events/agents/metrics."
+      description: "When persisting feature design artifacts (entities, OpenAPI, events, features, metrics), use docs/{context}/{category}/ structure plus feature-agent-map.md at the capability root. Agent design (agents/, dooc/) is governed by the parallel lex-agent-design-docs."
     engineering/platform/codex/codex-auth:
       alwaysApply: false
       description: "When implementing API authentication, use OAuth 2.0, FAPI 2.0, JWT, RBAC from this codex."
@@ -411,6 +411,12 @@ cursor:
     engineering/agents/codex/codex-agent-construction-directives:
       alwaysApply: false
       description: "When architecting an AI agent on the Guardia platform, consult the Piaget analogy, the 6 Construction Directives (Identity, Layered Memory, Concrete Tools, Feedback Loop, Restricted Scope, Rich Context), the cross-tab of differential rigor by stage, and the DoOC evidence formats. Notion is the live source."
+    engineering/agents/lexis/lex-agent-design-docs:
+      alwaysApply: false
+      description: "When promoting an agent to operational-concrete, enforce the 5-precondition HARD-GATE: 13 files in docs/{context}/agents/{agent}/, dooc/{agent}.md, serves_features populated, reciprocity in feature-agent-map.md, and warrior-metis declared as author."
+    engineering/agents/codex/codex-agent-design-docs:
+      alwaysApply: false
+      description: "When producing agent design documents on the Guardia platform, follow the 15 templates: 13 Hub & Spoke files for agents/{agent}/, dooc/{agent}.md snapshot, and the feature-agent-map.md m:n correlation with the parallel Feature Design axis."
     engineering/quality/lexis/lex-test-pyramid:
       alwaysApply: false
       description: "When authoring test suites, enforce 70/20/10 distribution (unit/integration/E2E); E2E only for critical journeys."
@@ -671,7 +677,10 @@ claude-code:
       description: "When designing HTTP endpoints, follow RESTful spec: status codes, payload, headers, pagination."
     engineering/platform/lexis/lex-feature-design-docs:
       paths: ["docs/**"]
-      description: "When persisting feature design artifacts (entities, OpenAPI, events), use docs/{context}/{category}/ structure with category in entities/oas/events/agents/metrics."
+      description: "When persisting feature design artifacts (entities, OpenAPI, events, features, metrics), use docs/{context}/{category}/ structure plus feature-agent-map.md at the capability root. Agent design (agents/, dooc/) is governed by the parallel lex-agent-design-docs."
+    engineering/agents/lexis/lex-agent-design-docs:
+      paths: ["docs/**/agents/**", "docs/**/dooc/**", "docs/**/feature-agent-map.md"]
+      description: "When promoting an agent to operational-concrete, enforce the 5-precondition HARD-GATE: 13 files in docs/{context}/agents/{agent}/, dooc/{agent}.md, serves_features populated, reciprocity in feature-agent-map.md, and warrior-metis declared as author."
     _foundation/process/lexis/lex-agent-planning:
       paths: [".claude/plans/**", ".cursor/plans/**", "**/plan-*.md"]
       description: "Before starting any multi-step task, create a plan at ./{agent}/plans/plan-{NNN}-{slug}.md (or paths.plans override). Show it to the user and wait for confirmation before executing."
@@ -745,6 +754,8 @@ claude-code:
       description: "When defining tools/ (MCP) or widgets/ (React) inside a skill project, follow the Ahrena convention for mcp.config.json, manifest.json, and widget↔script bindings."
     engineering/agents/codex/codex-agent-construction-directives:
       description: "When architecting an AI agent on the Guardia platform, consult the Piaget analogy, the 6 Construction Directives, the cross-tab of differential rigor by stage, and the DoOC evidence formats. Notion is the live source."
+    engineering/agents/codex/codex-agent-design-docs:
+      description: "When producing agent design documents on the Guardia platform, follow the 15 templates: 13 Hub & Spoke files for agents/{agent}/, dooc/{agent}.md snapshot, and the feature-agent-map.md m:n correlation with the parallel Feature Design axis."
     engineering/workflow/codex/codex-issue-workflow:
       description: "Reference for the 7-phase Issue-Driven flow, the 2 gates, MADR format, and delegation."
     engineering/frontend/codex/codex-frontend-architecture:
