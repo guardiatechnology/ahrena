@@ -9,7 +9,7 @@ alwaysApply: false
 
 ## Law
 
-> **Every PR in a Guardia repository MUST: (1) mirror all labels from the associated issue; (2) carry exactly one size label (`size/XS` to `size/XXL`), applied automatically by GitHub Actions or manually when automation is not yet configured; (3) apply PR-specific labels when applicable (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) be assigned to the author with `--assignee @me`; (5) have reviewers requested from the repository's `.github/CODEOWNERS` — automatically by GitHub when auto-request is enabled, or manually via `gh pr edit --add-reviewer` before merge. The repository MUST have a `.github/CODEOWNERS` file with at least one default owner (`* @{team}`). PRs that do not satisfy these requirements MUST NOT be merged.**
+> **Every PR in a Guardia repository MUST: (1) mirror all labels from the associated issue; (2) carry exactly one size label (`size/XS` to `size/XXL`), applied automatically by GitHub Actions or manually when automation is not yet configured; (3) apply PR-specific labels when applicable (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) be assigned to the author with `--assignee @me`; (5) have reviewers requested from the repository's `.github/CODEOWNERS` — automatically by GitHub when auto-request is enabled, or manually via `gh pr edit --add-reviewer` before merge; (6) when the PR receives review comments (human or bot — Gemini, Argos, claude[bot], CodeRabbit, etc.) and fixes are applied, EACH addressed comment MUST receive an individual reply on its original thread containing the SHA of the fix commit + a one-line rationale, before re-requesting review or marking the PR as ready to merge. The repository MUST have a `.github/CODEOWNERS` file with at least one default owner (`* @{team}`). PRs that do not satisfy these requirements MUST NOT be merged.**
 
 ## Coverage
 
@@ -113,6 +113,42 @@ And verify, **immediately after** `gh pr create`:
 8. `status: <name>` label applied (`status: to review` by default when opening the PR; per `lex-issue-status`).
 9. **"Session Trace"** section present in the PR body when `session_tracking.enabled == true` in `.ahrena/.directives` and the branch has associated heartbeat files (per `codex-session-tracking` §7). Built by `kata-pr-prepare` by aggregating `.ahrena/workflow/sessions/*.json` filtered by the current branch. In PRs driven exclusively by a human (no Claude Code agent), the section may be `_(human-driven; no session trace)_`.
 
+### 7. Per-thread reply to addressed review comments
+
+When the PR receives review comments (human or bot — `gemini-code-assist`, `warrior-argos`, `claude[bot]`, `coderabbitai`, etc.) and the author (or an agent acting on their behalf) applies fixes, EACH comment addressed by the commit MUST receive an individual reply on its original thread. A single top-level comment summarizing "applied N fixes" is NOT enough — auto-resolve bots rely on the in-thread reply to mark a thread as resolved, and human reviewers need per-thread closure on PRs with more than 5 comments.
+
+**Canonical reply format:**
+
+```
+Addressed in {short-SHA}: {one-line rationale explaining what changed and why}
+```
+
+**Mechanism (GitHub CLI):**
+
+```bash
+# List review comments (top-level and per-line) on the PR
+gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" --jq '.[] | {id, user: .user.login, body: .body, path, line}'
+
+# Post a reply on the original thread
+gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments/$COMMENT_ID/replies" \
+  -f body="Addressed in ${SHA}: ${RATIONALE}"
+```
+
+**When to add a top-level comment (allowed alongside, not as a substitute):**
+
+- A top-level comment summarizing the batch (commit + list of fixes) is allowed to give the reviewer aggregate context.
+- But every addressed thread STILL needs its individual reply. Top-level does not replace per-thread.
+
+**Comments not addressed (rejected, deferred):** also receive a reply, stating the reason:
+
+- `Deferred to #{issue-number} — out of scope for this PR.`
+- `Disagreed — keeping as is because {rationale}. Happy to discuss.`
+- `Not applicable — {explanation}.`
+
+The rule is "every thread has closure," not "I agree with every comment."
+
+**When the rule kicks in:** any time the agent (or human author) pushes fix commits in response to a review round. A PR that has not yet received review comments is NOT subject to Rule 7 — it becomes mandatory from the first addressed comment onward.
+
 ## HARD-GATE
 
 Per [`lex-hard-gate-pattern`](framework/en/_foundation/quality/lexis/lex-hard-gate-pattern.md), the textual block of this Lex is canonically expressed as:
@@ -137,6 +173,12 @@ agent MUST NOT merge PR without it satisfying ALL criteria:
       session_tracking.enabled == true and the branch has associated
       heartbeat files, per codex-session-tracking §7 (human-driven PRs
       may use the canonical exception phrase)
+  (k) Each review comment addressed by a fix commit has an individual
+      reply on its original thread with the SHA + a one-line
+      rationale, per Rule 7 (comments not addressed — rejected,
+      deferred — also receive a reply explaining why). A top-level
+      summary comment is allowed alongside but does NOT replace the
+      per-thread reply.
 
 This rule applies to EVERY PR, regardless of:
   - perceived size ("it's a trivial change")
@@ -195,4 +237,4 @@ gh pr create --title "docs: add site" --body "Closes #42"
 
 - **Tool:** GitHub Actions PR size labeler (auto-applies `size/*`); GitHub Branch Protection with `required_pull_request_reviews` requiring code-owner approval; review checklist verifies mirrored labels, assignee, and reviewers; `kata-contributing-pr` applies every rule from this Lexis when creating PRs.
 - **When:** on PR creation and update; during the review checklist; monthly audit of repository CODEOWNERS files.
-- **Metric:** 0 PRs merged without a size label; 0 PRs merged without mirrored issue labels; 0 PRs without an assignee; 0 PRs merged without any requested reviewer; 100% of Guardia repositories with `.github/CODEOWNERS` configured.
+- **Metric:** 0 PRs merged without a size label; 0 PRs merged without mirrored issue labels; 0 PRs without an assignee; 0 PRs merged without any requested reviewer; 0 PRs merged with review comments addressed by commits but missing per-thread replies; 100% of Guardia repositories with `.github/CODEOWNERS` configured.
