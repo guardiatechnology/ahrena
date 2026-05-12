@@ -51,6 +51,16 @@
 .build/
 
 
+# ─── Local environment files (recommended) ─────────────────────
+# Credentials & secrets — NEVER commit. `.env.*` covers `.env.local`,
+# `.env.*.local`, `.env.development.local`, etc. Use `.env.sample`
+# as a committed template documenting the required variables.
+.env
+.env.*
+!.env.sample
+!.env.example
+
+
 # ─── Stack-specific (opt-in) ───────────────────────────────────
 # Add Python / Node / Java / etc. entries below as needed.
 # __pycache__/
