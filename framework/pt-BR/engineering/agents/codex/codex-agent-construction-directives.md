@@ -40,7 +40,7 @@ Cada Diretriz é detalhada com (a) o que é, (b) por que importa, (c) versão m�
 
 **Pré-operacional.** System prompt curto (~10 linhas) cobrindo papel, domínio, 1-2 recusas explícitas. Aceitável omitir tom detalhado.
 
-**Operação Concreta.** Identidade encodada no `docs/{context}/agents/{agent}/system-prompt.md` canônico per `codex-agent-design-docs` — papel, domínio, recusas enumeradas, tom, escalation matrix, voz Guardia. O system prompt é o artefato canônico da Diretriz 01 (não há `identity.md` separado no template de 13 arquivos).
+**Operação Concreta.** Identidade codificada no `docs/{context}/agents/{agent}/system-prompt.md` canônico per `codex-agent-design-docs` — papel, domínio, recusas enumeradas, tom, escalation matrix, voz Guardia. O system prompt é o artefato canônico da Diretriz 01 (não há `identity.md` separado no template de 13 arquivos).
 
 ### Diretriz 02 — Memória em Camadas
 
@@ -96,7 +96,7 @@ Cada Diretriz é detalhada com (a) o que é, (b) por que importa, (c) versão m�
 
 | # | Diretriz | `pre-operational` (Claudionor) | `operational-concrete` (Mêtis) |
 |---|----------|--------------------------------|--------------------------------|
-| 01 | Identidade | System prompt mínimo viável (~10 linhas) + `stage:` declarado + 1-2 recusas | Identidade encodada em `docs/{context}/agents/{agent}/system-prompt.md` (canônico per `codex-agent-design-docs`); tom, voz Guardia, escalation declarados |
+| 01 | Identidade | System prompt mínimo viável (~10 linhas) + `stage:` declarado + 1-2 recusas | Identidade codificada em `docs/{context}/agents/{agent}/system-prompt.md` (canônico per `codex-agent-design-docs`); tom, voz Guardia, escalation declarados |
 | 02 | Memória | Curto-prazo apenas | 3 camadas mandatórias (curto + médio + longo) com retenção declarada per `lex-data-retention` |
 | 03 | Ferramentas | 1-3 ferramentas, busca + execução simples, log estruturado | Catálogo tripartido (deterministic + ML + MCP) com schema, idempotência, observability per `lex-observability-required` |
 | 04 | Feedback | HITL leve OU 1 métrica objetiva | HITL para irreversíveis + critic LLM + ≥3 métricas objetivas; SLO quando tier-1/2 |
@@ -141,7 +141,7 @@ Feedback: cada classificação é revisada por analista Guardia.
 # tier: tier-2
 # Métricas + SLO: docs/reconciliation/agents/rec-classifier/metrics.md
 # Owner: warrior-metis; product owner: @ana.santos
-# System prompt canônico: docs/reconciliation/agents/rec-classifier/system-prompt.md (encoda papel, tom, voz, escalation)
+# System prompt canônico: docs/reconciliation/agents/rec-classifier/system-prompt.md (codifica papel, tom, voz, escalation)
 
 Papel, domínio, recusas, tom, voz Guardia: ver system-prompt.md canônico (linkado no header).
 
