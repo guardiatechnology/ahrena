@@ -1,11 +1,15 @@
 ---
 plan_id: "033"
 title: "lex-codex-agent-construction-directives"
-status: in-progress
+status: done
 agent: claude
 issue: "guardiatechnology/ahrena#91"
+branch: "feat/91-lex-codex-agent-construction-directives"
+worktree: ".worktrees/91-lex-codex-agent-construction-directives"
 created_at: "2026-05-09T13:35:00Z"
-updated_at: "2026-05-11T22:30:00Z"
+updated_at: "2026-05-12T11:36:00Z"
+merge_commit: "132bca6d555ece782d4dc8a64b052241bd1ed0d4"
+closed_at: "2026-05-12T02:07:19Z"
 ---
 
 # Plano: Lex e Codex de Diretrizes para Construção de Agentes (pre-req-D)
