@@ -16,5 +16,29 @@
   "enabledMcpjsonServers": [
     "ahrena",
     "slack"
-  ]
+  ],
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pr-cost-attribution.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pr-cost-attribution.sh"
+          }
+        ]
+      }
+    ]
+  }
 }
