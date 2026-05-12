@@ -1,5 +1,5 @@
 ---
-description: "When persisting feature design artifacts (entities, OpenAPI, events), use docs/{context}/{category}/ structure with category in entities/oas/events/agents/metrics."
+description: "When persisting feature design artifacts (entities, OpenAPI, events, features, metrics), use docs/{context}/{category}/ structure plus feature-agent-map.md at the capability root. Agent design (agents/, dooc/) is governed by the parallel lex-agent-design-docs."
 alwaysApply: false
 ---
 
