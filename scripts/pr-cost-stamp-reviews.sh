@@ -39,7 +39,8 @@ Optional:
   --known-ai-reviewers <csv>     Extra login allow-list (comma-separated).
                                  Built-ins always recognized as AI:
                                    gemini-code-assist[bot], claude[bot],
-                                   coderabbitai[bot], qodo-merge-pro[bot]
+                                   coderabbitai[bot], qodo-merge-pro[bot],
+                                   ahrena-warrior-argos[bot]
   --include-comments             Also tally comment authors. Default: reviews only.
   --version                      Print version and exit
   -h, --help                     Print this help and exit
@@ -107,7 +108,8 @@ BUILTIN_AI='[
   "gemini-code-assist[bot]",
   "claude[bot]",
   "coderabbitai[bot]",
-  "qodo-merge-pro[bot]"
+  "qodo-merge-pro[bot]",
+  "ahrena-warrior-argos[bot]"
 ]'
 
 # Convert --known-ai-reviewers CSV to JSON array.
