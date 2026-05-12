@@ -16,7 +16,7 @@
 - **Agentes vinculados:** `warrior-eunomia` (modo top-level y subtask), `warrior-athena` (cuando delega creación de child Issue), `warrior-calliope` (decomposición de Epic), y cualquier agente que invoque `kata-plan-task`, `kata-create-subtasks` o `kata-contributing-issue`.
 - **Excepciones:** Issues generadas por Dependabot o scanners de seguridad siguen flujo propio y quedan exentas.
 
-## Rules
+## Reglas
 
 ### 1. Verificación post-creación obligatoria
 
