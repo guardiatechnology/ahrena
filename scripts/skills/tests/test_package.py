@@ -173,6 +173,85 @@ def test_sha_mismatch_in_package_is_caught(tmp_path: Path) -> None:
     assert "lex-skill-package-structure#files-sha256" in rules
 
 
+def test_absolute_path_in_manifest_files_is_caught(tmp_path: Path) -> None:
+    repo = _init_repo(tmp_path)
+    _write_valid_skill(repo)
+    report = package(
+        slug="valid-skill",
+        repo_root=repo,
+        skills_root="skills",
+        skills_build=".build",
+        skills_dist=".dist",
+    )
+    assert report.ok
+
+    package_dir = repo / ".dist" / "valid-skill.skill"
+    manifest_path = package_dir / ".skill-manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["files"].append({"path": "/etc/passwd", "sha256": "deadbeef"})
+    manifest["files"].sort(key=lambda e: e["path"])
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    violations = validate_package(package_dir)
+    rules = {v.rule for v in violations if v.severity == "error"}
+    assert "lex-skill-package-structure#manifest-files-entry" in rules
+
+
+def test_parent_dir_traversal_in_manifest_files_is_caught(tmp_path: Path) -> None:
+    repo = _init_repo(tmp_path)
+    _write_valid_skill(repo)
+    report = package(
+        slug="valid-skill",
+        repo_root=repo,
+        skills_root="skills",
+        skills_build=".build",
+        skills_dist=".dist",
+    )
+    assert report.ok
+
+    package_dir = repo / ".dist" / "valid-skill.skill"
+    manifest_path = package_dir / ".skill-manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["files"].append({"path": "../../etc/passwd", "sha256": "deadbeef"})
+    manifest["files"].sort(key=lambda e: e["path"])
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    violations = validate_package(package_dir)
+    rules = {v.rule for v in violations if v.severity == "error"}
+    assert "lex-skill-package-structure#manifest-files-entry" in rules
+
+
+def test_unsafe_snapshot_path_in_reference_is_caught(tmp_path: Path) -> None:
+    repo = _init_repo(tmp_path)
+    _write_valid_skill(repo)
+    report = package(
+        slug="valid-skill",
+        repo_root=repo,
+        skills_root="skills",
+        skills_build=".build",
+        skills_dist=".dist",
+    )
+    assert report.ok
+
+    package_dir = repo / ".dist" / "valid-skill.skill"
+    manifest_path = package_dir / ".skill-manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["references"].append(
+        {
+            "kind": "reference",
+            "id": "evil",
+            "source_commit": "a" * 40,
+            "snapshot_path": "../../etc/passwd",
+            "snapshot_sha256": "deadbeef",
+        }
+    )
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    violations = validate_package(package_dir)
+    rules = {v.rule for v in violations if v.severity == "error"}
+    assert "lex-skill-package-structure#manifest-references-entry" in rules
+
+
 def test_empty_ahrena_commit_in_manifest_is_caught(tmp_path: Path) -> None:
     repo = _init_repo(tmp_path)
     _write_valid_skill(repo)

@@ -118,6 +118,21 @@ def _iter_files(root: Path) -> list[Path]:
     return sorted(result, key=lambda p: p.relative_to(root).as_posix())
 
 
+def _is_unsafe_relative_path(value: object) -> bool:
+    """Return True when `value` is not a safe project-relative path.
+
+    A path is unsafe when it is absolute or contains `..` segments — both can
+    escape the package root and turn the validator into a path-traversal vector
+    (it would hash an attacker-controlled file outside the package).
+    """
+    if not isinstance(value, str) or not value:
+        return True
+    parts = Path(value).parts
+    if Path(value).is_absolute() or ".." in parts:
+        return True
+    return False
+
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Manifest
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -345,6 +360,19 @@ def validate_package(package_path: Path) -> list[Violation]:
                 )
             )
             continue
+        if _is_unsafe_relative_path(entry["path"]):
+            violations.append(
+                Violation(
+                    rule="lex-skill-package-structure#manifest-files-entry",
+                    severity="error",
+                    file=str(manifest_path),
+                    message=(
+                        f"manifest.files entry has unsafe path "
+                        f"(absolute or '..'-escaping): {entry['path']!r}"
+                    ),
+                )
+            )
+            continue
         declared_paths.add(entry["path"])
         target = package_path / entry["path"]
         if not target.is_file():
@@ -442,6 +470,19 @@ def validate_package(package_path: Path) -> list[Violation]:
                         )
                     )
             if ref.get("snapshot_path"):
+                if _is_unsafe_relative_path(ref["snapshot_path"]):
+                    violations.append(
+                        Violation(
+                            rule="lex-skill-package-structure#manifest-references-entry",
+                            severity="error",
+                            file=str(manifest_path),
+                            message=(
+                                f"reference entry has unsafe snapshot_path "
+                                f"(absolute or '..'-escaping): {ref['snapshot_path']!r}"
+                            ),
+                        )
+                    )
+                    continue
                 snap = package_path / ref["snapshot_path"]
                 if not snap.is_file():
                     violations.append(
@@ -475,7 +516,13 @@ def validate_package(package_path: Path) -> list[Violation]:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _copy_tree(source: Path, target: Path) -> None:
-    if target.exists():
+    # `rmtree` only handles real directories: on a stale file or symlink it
+    # raises NotADirectoryError, and on some platforms a directory symlink
+    # could be followed into the link target. `lstat` (via `is_symlink`)
+    # never resolves the link, so we can branch safely.
+    if target.is_symlink() or (target.exists() and not target.is_dir()):
+        target.unlink()
+    elif target.is_dir():
         shutil.rmtree(target)
     shutil.copytree(
         source,
@@ -555,7 +602,8 @@ def package(
 
     # 6. Package validation
     package_violations = validate_package(package_path)
-    files_count = len(manifest["files"])  # type: ignore[index]
+    files_list = manifest.get("files")
+    files_count = len(files_list) if isinstance(files_list, list) else 0
 
     return PackageReport(
         slug=slug,
