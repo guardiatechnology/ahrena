@@ -14,6 +14,7 @@
     ]
   },
   "enabledMcpjsonServers": [
-    "ahrena"
+    "ahrena",
+    "slack"
   ]
 }

@@ -252,6 +252,45 @@ Para cada ciclo `A{n}`:
 
 **Idempotencia:** si HEAD no cambió desde la última review de Argos (mismo commit_id), Athena DEBE alertar al usuario ("HEAD inalterado desde la última review — la nueva review será idempotente; Argos abortará por su propio marker"). Sugerir address de al menos un finding antes de re-invocar Argos.
 
+#### Sub-paso: AI reviewers paralelos a Argos
+
+Tras el usuario elegir (a) en el paso 1 del ciclo A{n}, Athena DEBE evaluar si tiene sentido invocar **AI reviewers paralelos** (GitHub Apps integradas al repo), basado en el contenido del diff:
+
+| Reviewer | Cuándo tiene sentido | Cómo invocar | Detección idempotente |
+|---|---|---|---|
+| **Gemini** (`gemini-code-assist[bot]`) | PR toca código nuevo de cualquier lenguaje; bueno en sugerencias idiomáticas y seguridad | `gh pr comment {N} --body "/gemini review"` | `gh pr view {N} --json reviews --jq '[.reviews[] | select(.author.login == "gemini-code-assist[bot]") | .commit_id] | last'` |
+| **Coderabbit** (`coderabbitai[bot]`) | PR multi-archivo; bueno en consistency checks y best practices | `gh pr comment {N} --body "@coderabbitai review"` | similar (`.author.login == "coderabbitai[bot]"`) |
+| **Qodo-Merge** (`qodo-merge-pro[bot]`) | PR backend (Python, Node) — fuerte en test coverage y edge cases | `gh pr comment {N} --body "/review"` | similar |
+
+**Criterio de propuesta:** Athena inspecciona `gh pr view {N} --json files --jq '[.files[].path]'` y decide qué reviewers tienen sentido:
+
+- PR solo-docs (`docs/**`, `README*`, `*.md`) → ningún AI reviewer adicional (Argos basta).
+- PR con código de producción (`src/**`, `framework/**` en el caso del propio Ahrena) → proponer 1-2 reviewers según stack.
+- PR mixto → proponer el subset que cubre el stack predominante.
+
+**Presentación:** Athena reúne los reviewers candidatos en una única `AskUserQuestion`:
+
+```
+Athena: "AI reviewers paralelos a Argos para A{n}/3? (multi-select)
+
+  [ ] Gemini (/gemini review)
+  [ ] Coderabbit (@coderabbitai review)
+  [ ] Qodo-Merge (/review)
+  [ ] ninguno — solo Argos
+```
+
+**Comportamiento:**
+
+1. Para cada reviewer marcado, Athena postea el comentario de invocación en secuencia (no en paralelo — reduce ruido en el timeline).
+2. Athena **NO bloquea** esperando esos reviewers — son asíncronos (GitHub App webhook); resultados aparecen como reviews/comments en el PR en el tiempo de la app (~30s a algunos min).
+3. Athena prosigue al paso 2 del ciclo A{n} (transición `to review → review` e invocación del Argos subagente). Argos corre su review en paralelo con los AI reviewers externos.
+4. En el paso 3 (Athena lee findings), Athena recolecta findings de **todos los reviewers** con nuevos `submittedAt > HEAD push time` (Argos + Gemini + Coderabbit + Qodo). Trata cada finding vía el mismo schema P0/P1/P2:
+   - Argos publica P0/P1/P2 explícitamente con marker.
+   - Gemini/Coderabbit/Qodo publican sugerencias libre-formato — Athena clasifica heurísticamente (palabras: "must", "blocker", "critical" → P0; "should", "consider" → P1; "nit", "optional" → P2).
+5. Idempotencia: si un AI reviewer ya revisó el HEAD actual (vía commit_id capturado), Athena NO re-invoca ese reviewer en el próximo ciclo hasta que haya nuevos commits.
+
+**Criterio de NO proponer:** si A{n} es ciclo de re-validación tras fix de findings de A{n-1} (HEAD nuevo tras address), y Argos fue confirmado, AI reviewers extras pueden saltarse — la re-validación es primariamente sobre cerrar findings, no levantar nuevos. Athena propone `ninguno` como default en esos casos.
+
 ### Paso 6d: Human nudge loop (3 ciclos vía ScheduleWakeup, con notificación Slack por ciclo)
 
 Tras los Argos cycles (Paso 6c), Athena agenda el loop de cobranza al reviewer humano. Diferente del Argos cycle (interactivo), el human nudge loop usa `ScheduleWakeup` para wake-ups periódicos.
