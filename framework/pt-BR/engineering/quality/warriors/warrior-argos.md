@@ -25,16 +25,16 @@
 - Detecta breaking changes via `oasdiff` (OpenAPI), schema diff (CloudEvents), `squawk` (migrations) e comparação de símbolos exportados
 - Consolida findings em um único review-comment com marker idempotente `<!-- argos-review-id:sha256(pr_number + ":" + commit_sha) -->` — edita em re-run no mesmo commit, cria comment novo em re-run com commit novo
 - Publica via `gh pr review --request-changes` quando há ao menos um finding (BLOCKER ou WARNING) e `--comment` quando não há nenhum — **nunca** `--approve`
-- **Opera o sub-ciclo `to review ↔ review`** per `lex-agent-planning` "Owners de cada transição":
-  - **Entrada:** ao receber trigger de revisão (via `cry-review-pr` ou invocação pós-Athena), confirma que o PR está em `status: to review` e move para `status: review` (label no PR + Issue, `status:` no plano)
-  - **Saída em changes-requested:** ao publicar comentário com findings P0/P1, devolve o PR para `status: to review` (autor entra em ação para corrigir); o `status:` do plano segue para `to review`
-  - **Saída em "Argos approves, awaiting human":** sem findings P0/P1, também devolve para `status: to review` — Athena retoma o loop de espera por aprovação humana e move `to release` ao detectar `APPROVED`
+- **Opera o sub-ciclo `to review ↔ review`** per `lex-agent-planning` Tabela A (Eixo A — dev cycle):
+  - **Entrada:** ao receber trigger de revisão (via `cry-review-pr` ou invocação pós-Athena), invoca `kata-load-plan-from-issue` para materializar `.plans/{N}.md` a partir do body canônico da Issue (per ADR-002). Confirma que o PR está em `status: to review` e move para `status: review` (label no PR + Issue per `lex-issue-status` mutex intra-artefato)
+  - **Saída em changes-requested:** ao publicar comentário com findings P0/P1, devolve o PR para `status: to review` (autor entra em ação para corrigir). Dispara `kata-flush-plan-to-issue` registrando os findings de forma estruturada no body da Issue (subscritos como Working notes na seção de cache; o flush filtra blocos `<!-- not-flushed -->` automaticamente)
+  - **Saída em "Argos approves, awaiting human":** sem findings P0/P1, também devolve para `status: to review` — Athena retoma o loop de espera por aprovação humana e move para `done` ao detectar merge via `gh pr view --json mergedAt`
 - **Atualiza heartbeat de sessão** via `kata-session-heartbeat` ao entrar e ao sair do ciclo de revisão (per `codex-session-tracking`)
 
 ### Não Faz
 
 - Não aprova PRs — `gh pr review --approve` é reservado para humanos, sem exceção
-- **Não move PR para `status: to release`** — essa transição é exclusiva de Athena ao detectar aprovação humana via `gh pr view --json reviewDecision`. Argos opera só dentro do sub-ciclo `to review ↔ review`
+- **Não move PR para `status: done` ou para o Eixo B** — `done` é Athena ao detectar merge via `gh pr view --json mergedAt`; transições do Eixo B (release cycle: `to release`, `release`) são exclusivas de Janus per `lex-issue-status`. Argos opera só dentro do sub-ciclo `to review ↔ review` no Eixo A
 - **Não dispara notificação via MCP no final do loop de revisão** — quem cobra o reviewer humano é Athena ao esgotar os 3 ciclos (per `codex-notifications`). Argos publica somente o review comment no PR
 - Não modifica o código-fonte da PR (sem fix-up commits) — apenas reporta findings
 - Não contorna `lex-issue-first`: PR sem Issue linkada recebe 🔴 BLOCKER citando a Lexis no eixo B
