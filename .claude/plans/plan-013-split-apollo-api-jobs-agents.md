@@ -1,11 +1,11 @@
 ---
 plan_id: "013"
 title: "split-apollo-api-jobs-agents"
-status: pending
+status: in-progress
 agent: claude
-issue: "TBD (a abrir antes da branch — lex-issue-first)"
+issue: "guardiatechnology/ahrena#124"
 created_at: "2026-05-07T22:00:00Z"
-updated_at: "2026-05-07T22:00:00Z"
+updated_at: "2026-05-12T17:30:00Z"
 ---
 
 # Plano: Split do `warrior-apollo` em três especialistas (api, jobs, agents)
