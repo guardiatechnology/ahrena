@@ -67,8 +67,11 @@ if [[ -f "${CACHE_FILE}" ]]; then
   CACHED_EXPIRES_AT=$(jq -r '.expires_at_epoch // 0' "${CACHE_FILE}" 2>/dev/null || echo 0)
   CACHED_APP_ID=$(jq -r '.app_id // empty' "${CACHE_FILE}" 2>/dev/null || true)
 
+  CACHED_INSTALLATION_ID=$(jq -r '.installation_id // empty' "${CACHE_FILE}" 2>/dev/null || true)
+
   if [[ -n "${CACHED_TOKEN}" && \
         "${CACHED_APP_ID}" == "${AHRENA_WARRIOR_ARGOS_GH_APP_ID}" && \
+        "${CACHED_INSTALLATION_ID}" == "${AHRENA_WARRIOR_ARGOS_GH_INSTALLATION_ID}" && \
         $((CACHED_EXPIRES_AT - NOW_EPOCH)) -gt "${REFRESH_THRESHOLD}" ]]; then
     printf '%s' "${CACHED_TOKEN}"
     exit 0
@@ -94,18 +97,30 @@ SIGNATURE=$(printf '%s.%s' "${HEADER}" "${PAYLOAD}" | \
 JWT="${HEADER}.${PAYLOAD}.${SIGNATURE}"
 
 # ─── Exchange JWT for installation token ───────────────────────────────────
-RESPONSE=$(curl -sS \
+# Capture body + HTTP status so transport errors (4xx/5xx) are distinguished
+# from a malformed-but-200 response.
+HTTP_RESPONSE=$(curl -sS \
   -X POST \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer ${JWT}" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
+  -w '\n%{http_code}' \
   "https://api.github.com/app/installations/${AHRENA_WARRIOR_ARGOS_GH_INSTALLATION_ID}/access_tokens")
+
+HTTP_CODE=$(printf '%s' "${HTTP_RESPONSE}" | tail -n1)
+RESPONSE=$(printf '%s' "${HTTP_RESPONSE}" | sed '$d')
+
+if [[ "${HTTP_CODE}" != "201" ]]; then
+  echo "ERROR: GitHub returned HTTP ${HTTP_CODE} when minting installation token:" >&2
+  echo "${RESPONSE}" | jq . >&2 2>/dev/null || echo "${RESPONSE}" >&2
+  exit 1
+fi
 
 TOKEN=$(echo "${RESPONSE}" | jq -r '.token // empty')
 EXPIRES_AT=$(echo "${RESPONSE}" | jq -r '.expires_at // empty')
 
 if [[ -z "${TOKEN}" || -z "${EXPIRES_AT}" ]]; then
-  echo "ERROR: failed to mint installation token. GitHub response:" >&2
+  echo "ERROR: GitHub returned HTTP 201 but response missing token/expires_at:" >&2
   echo "${RESPONSE}" | jq . >&2 2>/dev/null || echo "${RESPONSE}" >&2
   exit 1
 fi
@@ -118,8 +133,14 @@ else
   EXPIRES_AT_EPOCH=$(date -u -j -f "%Y-%m-%dT%H:%M:%SZ" "${EXPIRES_AT}" +%s)
 fi
 
-# ─── Cache the token ───────────────────────────────────────────────────────
+# ─── Cache the token (atomic: write to tempfile with 0600, then rename) ────
+# Avoids a window where the cache file briefly has default mode before chmod;
+# also serializes concurrent invocations cleanly (mv is atomic on POSIX).
 mkdir -p "${CACHE_DIR}"
+TMP_CACHE=$(mktemp "${CACHE_DIR}/.installation-token.XXXXXX")
+chmod 600 "${TMP_CACHE}"
+trap 'rm -f "${TMP_CACHE}"' EXIT
+
 jq -n \
   --arg token "${TOKEN}" \
   --arg expires_at "${EXPIRES_AT}" \
@@ -130,7 +151,9 @@ jq -n \
   '{token: $token, expires_at: $expires_at, expires_at_epoch: $expires_at_epoch,
     app_id: $app_id, installation_id: $installation_id,
     minted_at_epoch: $minted_at_epoch}' \
-  > "${CACHE_FILE}"
-chmod 600 "${CACHE_FILE}"
+  > "${TMP_CACHE}"
+
+mv -f "${TMP_CACHE}" "${CACHE_FILE}"
+trap - EXIT
 
 printf '%s' "${TOKEN}"

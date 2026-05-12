@@ -150,7 +150,7 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
    - Busca a PR via GitHub MCP (`get_pull_request`, `get_pull_request_diff`, `list_pull_request_commits`, `list_pull_request_reviews`, `get_pull_request_status`)
    - Extrai o número da Issue linkada do body da PR (`Closes #N` / `Refs #N`); busca a Issue
    - Procura URLs Notion no body da PR/Issue (PRD, Capability Spec); busca via Notion MCP
-   - Lê `.issues/{N}/*` local quando presente e o `.claude/plans/plan-NNN-*.md` referenciado
+   - Lê `.issues/{N}/*` local quando presente e o cache `.plans/{N}.md` referenciado (per ADR-002 — corpo canônico do plano vive na Issue)
    - Registra o SHA do commit de head — usado no marker idempotente
 3. **Fase 1 — Worktree:** invoca `kata-git-worktree` para criar `.worktrees/review-pr-<N>/`, faz checkout da branch da PR
 4. **Fase 2 — Revisão multi-eixo** (paralela onde independente):
@@ -206,7 +206,7 @@ Escala ao reviewer humano quando:
 - PRD no Notion: página `scheduled-payments-prd-v3` ✅ buscada
 - Capability Spec: página `scheduled-payments-capspec-v2` ✅ buscada
 - `.issues/138/` local existe com 5 ACs em `02-requirements.md`
-- Plan referenciado: `.claude/plans/plan-031-scheduled-transfer-approval.md` (12/12 steps marcados)
+- Plan referenciado: cache `.plans/138.md` materializado a partir do body da Issue #138 (12/12 steps marcados)
 - Head SHA: `a1b2c3d4...`
 
 **Fase 1 — Worktree:** `.worktrees/review-pr-142/` criado na branch `feat/138-scheduled-transfer-approval`
