@@ -2,9 +2,8 @@
 paths:
   - 'docs/**/agents/**'
   - 'docs/**/agents-pov/**'
-  - '**/system_prompt*.md'
-  - '**/system-prompt*.md'
-  - '**/SYSTEM_PROMPT*'
+  - 'docs/**/system_prompt*.md'
+  - 'docs/**/system-prompt*.md'
 ---
 
 # Lexis: Agent Construction Directives
@@ -86,6 +85,12 @@ agents in `legacy-pov` beyond that deadline are considered
 non-compliant.
 </HARD-GATE>
 ```
+
+## Violation Consequences
+
+1. **Automatic block:** `kata-dooc-validate` (delivered in plan-032) fails the checklist whenever any DoOC item is missing; `warrior-athena` at Gate 2 of the Issue-Driven Flow blocks the PR when the feature touches `docs/{context}/agents/` without a declared `stage:` or without a DoOC attached to the promotion. A commit that changes `stage:` from `pre-operational` to `operational-concrete` without a promotion ADR referencing the DoOC is rejected.
+2. **Alert:** notifies the agent owner (declared in DoOC item (f)) and the `#agents-governance` channel; agents in `legacy-pov` beyond the deadline declared in the HARD-GATE enter an automatic weekly report until they are regularized or decommissioned.
+3. **Remediation:** (a) revert the promotion (back to `pre-operational`) and open an issue to complete the missing DoOC items; OR (b) open an ADR recording the alternative path per DoOC item (g); OR (c) decommission the agent when the PoV does not justify production.
 
 ## Examples
 

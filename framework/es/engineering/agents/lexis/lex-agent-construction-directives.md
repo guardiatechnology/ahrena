@@ -2,6 +2,10 @@
 
 > **Prefijo:** `lex-` | **Tipo:** Ley Inquebrantable | **Alcance:** Construcción de agentes de IA sobre la plataforma Guardia — system prompt, memoria, herramientas, feedback, alcance, contexto y ciclo de promoción de etapa cognitiva
 
+## Propósito
+
+Guardia construye agentes de IA como productos (Isac, conciliación, clasificación fiscal, cierre). Sin una fundación compartida, los PoV se convierten en producto sin madurar, la producción se tolera como PoV y Claudionor y Mêtis hablan de "agente" con expectativas distintas. Esta Ley codifica el criterio objetivo de promoción (DoOC) y el vocabulario compartido (etapas cognitivas) que hacen verificable, y no subjetiva, la decisión de "¿este PoV está listo para escala?".
+
 ## Ley
 
 > **Todo agente de IA construido sobre la plataforma Guardia DEBE declarar explícitamente su etapa cognitiva (`stage: pre-operational | operational-concrete | legacy-pov`) en el system prompt. Los agentes en `operational-concrete` DEBEN satisfacer todas las 6 Directrices de Construcción (Identidad Clara, Memoria en Capas, Herramientas Concretas, Bucle de Feedback Explícito, Alcance Restringido, Contexto Rico) en rigor de producción, conforme a `codex-agent-construction-directives` y al manual canónico "Diretrizes para Construção de Agentes" mantenido en Notion. Los agentes en `pre-operational` PUEDEN operar con una versión mínima viable de cada Directriz, siempre que la etapa esté declarada y los gaps registrados en el PoV. Promover un agente de `pre-operational` a `operational-concrete` sin Definition of Operational Concrete (DoOC) validada en los 9 ítems canónicos está PROHIBIDO.**
@@ -76,6 +80,12 @@ en hasta 90 días tras el merge de esta Lex; los agentes en
 `legacy-pov` más allá de ese plazo se consideran no conformes.
 </HARD-GATE>
 ```
+
+## Consecuencias de Violación
+
+1. **Bloqueo automático:** `kata-dooc-validate` (entregado en plan-032) rechaza el checklist cuando cualquier ítem de la DoOC está ausente; `warrior-athena` en el Gate 2 del Issue-Driven Flow bloquea el PR cuando la feature toca `docs/{context}/agents/` sin `stage:` declarado o sin DoOC adjunta a la promoción. El commit que cambia `stage:` de `pre-operational` a `operational-concrete` sin un ADR de promoción que referencie la DoOC se rechaza.
+2. **Alerta:** notifica al owner del agente (declarado en el ítem (f) de la DoOC) y al canal `#agents-governance`; los agentes en `legacy-pov` más allá del plazo declarado en el HARD-GATE entran a un reporte semanal automático hasta su regularización o desactivación.
+3. **Remediación:** (a) revertir la promoción (vuelve a `pre-operational`) y abrir issue para completar los ítems faltantes de la DoOC; O (b) abrir un ADR registrando el camino alternativo per ítem (g) de la DoOC; O (c) decomisar el agente cuando el PoV no justifique producción.
 
 ## Ejemplos
 

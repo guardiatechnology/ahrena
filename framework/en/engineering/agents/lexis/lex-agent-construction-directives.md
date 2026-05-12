@@ -2,6 +2,10 @@
 
 > **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Construction of AI agents on the Guardia platform — system prompt, memory, tools, feedback, scope, context, and cognitive-stage promotion cycle
 
+## Purpose
+
+Guardia builds AI agents as products (Isac, reconciliation, fiscal classification, closing). Without a shared foundation, PoVs become product without maturing, production is tolerated as PoV, and Claudionor and Mêtis talk about "agent" with different expectations. This Law codifies the objective promotion criterion (DoOC) and the shared vocabulary (cognitive stages) that make the question "is this PoV ready for scale?" verifiable rather than subjective.
+
 ## Law
 
 > **Every AI agent built on the Guardia platform MUST explicitly declare its cognitive stage (`stage: pre-operational | operational-concrete | legacy-pov`) in the system prompt. Agents in `operational-concrete` MUST satisfy all 6 Construction Directives (Clear Identity, Layered Memory, Concrete Tools, Explicit Feedback Loop, Restricted Scope, Rich Context) at production rigor, per `codex-agent-construction-directives` and the canonical manual "Diretrizes para Construção de Agentes" maintained in Notion. Agents in `pre-operational` MAY operate with a minimum viable version of each Directive, provided the stage is declared and the gaps are recorded in the PoV. Promoting an agent from `pre-operational` to `operational-concrete` without a Definition of Operational Concrete (DoOC) validated on the 9 canonical items is FORBIDDEN.**
@@ -77,6 +81,12 @@ agents in `legacy-pov` beyond that deadline are considered
 non-compliant.
 </HARD-GATE>
 ```
+
+## Violation Consequences
+
+1. **Automatic block:** `kata-dooc-validate` (delivered in plan-032) fails the checklist whenever any DoOC item is missing; `warrior-athena` at Gate 2 of the Issue-Driven Flow blocks the PR when the feature touches `docs/{context}/agents/` without a declared `stage:` or without a DoOC attached to the promotion. A commit that changes `stage:` from `pre-operational` to `operational-concrete` without a promotion ADR referencing the DoOC is rejected.
+2. **Alert:** notifies the agent owner (declared in DoOC item (f)) and the `#agents-governance` channel; agents in `legacy-pov` beyond the deadline declared in the HARD-GATE enter an automatic weekly report until they are regularized or decommissioned.
+3. **Remediation:** (a) revert the promotion (back to `pre-operational`) and open an issue to complete the missing DoOC items; OR (b) open an ADR recording the alternative path per DoOC item (g); OR (c) decommission the agent when the PoV does not justify production.
 
 ## Examples
 
