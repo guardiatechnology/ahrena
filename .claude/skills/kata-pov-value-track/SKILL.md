@@ -54,7 +54,7 @@ Canonical schema (mandatory fields):
 
 ## Current decision
 
-- status: active | pivoting | closed | ready-for-DoOC
+- status: active | pivoting | closed | ready_for_dooc
 - updated on: {ISO date}
 - next cycle scheduled for: {ISO date}
 ```
@@ -81,15 +81,15 @@ No PII. If a case depends on sensitive detail, anonymize or refer by opaque ID.
 
 1. **Discontinuation criterion** (from `pov.md`): if reached, status → `closed`.
 2. **Pivot trigger** (from `feedback.md`): if reached, status → `pivoting` and recommend re-running `kata-pov-scope-define`.
-3. **Sustained success** (metric ≥ threshold for ≥ 7 days and scope stable for 2 weeks): status can advance to `ready-for-DoOC` — Mêtis can run `cry-agent-design --from-pov`.
+3. **Sustained success** (metric ≥ threshold for ≥ 7 days and scope stable for 2 weeks): status can advance to `ready_for_dooc` — Mêtis can run `cry-agent-design --from-pov`.
 
-#### Mandatory precondition — PII boundary before `ready-for-DoOC`
+#### Mandatory precondition — PII boundary before `ready_for_dooc`
 
-Before transitioning status to `ready-for-DoOC` (and therefore before enabling the `cry-agent-design --from-pov` handoff to Mêtis), the kata **MUST** run a PII boundary check against the `docs/{context}/agents-pov/{agent}/` directory:
+Before transitioning status to `ready_for_dooc` (and therefore before enabling the `cry-agent-design --from-pov` handoff to Mêtis), the kata **MUST** run a PII boundary check against the `docs/{context}/agents-pov/{agent}/` directory:
 
 1. For each `.md` file (and files under `observability/`) of the PoV, grep against the patterns declared in `lex-data-retention` (CPF, CNPJ, email, phone, bank account, token, secret, etc.).
 2. If there is **any** match, the kata **REFUSES** the transition and returns to the user the list of hit files and lines, recommending re-running `kata-pov-context-curate` for re-anonymization (`pov.md::Anonymization notes`).
-3. Only when the grep returns zero matches may the status flip to `ready-for-DoOC`.
+3. Only when the grep returns zero matches may the status flip to `ready_for_dooc`.
 
 Rationale: the `pov.md` document (and the context-pack) is delivered as direct input to `warrior-mêtis` via `--from-pov` for the `operational-concrete` cycle. PII leaked in the PoV package would propagate to the production design without a new review. The gate executes in this kata because it is the only point at which the handoff transition is decided.
 
@@ -97,7 +97,7 @@ Rationale: the `pov.md` document (and the context-pack) is delivered as direct i
 
 Update the "Current decision" block with:
 
-- status (closed vocabulary: `active`, `pivoting`, `closed`, `ready-for-DoOC`)
+- status (closed vocabulary: `active`, `pivoting`, `closed`, `ready_for_dooc`)
 - timestamp
 - next cycle scheduled (cadence: weekly for tier-1/2, fortnightly for tier-3/4)
 
@@ -105,7 +105,7 @@ Update the "Current decision" block with:
 
 1. Write `docs/{context}/agents-pov/{agent}/value-proof.md` with the current cycle added.
 2. Record the commit in the PoV history (responsible + cycle number).
-3. If status = `ready-for-DoOC`, emit a log saying "Ready for Mêtis to consume via `cry-agent-design --from-pov docs/{context}/agents-pov/{agent}/`".
+3. If status = `ready_for_dooc`, emit a log saying "Ready for Mêtis to consume via `cry-agent-design --from-pov docs/{context}/agents-pov/{agent}/`".
 
 ### Final Validation
 
