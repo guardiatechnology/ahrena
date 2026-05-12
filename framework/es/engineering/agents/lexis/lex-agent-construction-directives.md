@@ -95,12 +95,12 @@ Excepciones declaradas (3):
 (3) `user-override` — el usuario (CEO o Brand owner designado) promueve
     un agente con evidencia parcial de la DoOC. Permitido solo con un
     ADR o PDR que declare:
-      (i) qué ítems de la DoOC están siendo overrided y por qué;
+      (i) qué ítems de la DoOC están siendo sobrescritos y por qué;
       (ii) responsabilidad explícita del usuario (`Promoted by`
            completado en `dooc/{agent}.md`);
       (iii) compensación retroactiva en una ventana declarada
             (sugerido: 30 días).
-    Los ítems overrided aparecen como `N/A — user-override` en
+    Los ítems sobrescritos aparecen como `N/A — user-override` en
     `dooc/{agent}.md`.
 
 En todas las excepciones, la Lex permanece inviolada — las excepciones
