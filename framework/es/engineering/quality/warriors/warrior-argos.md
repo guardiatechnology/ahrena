@@ -128,14 +128,36 @@ Argos se autentica como **GitHub App `ahrena-warrior-argos`** (identidad de bot 
 
 **Requisitos previos** (una vez por instalación):
 1. App `ahrena-warrior-argos` instalada en el repo objetivo con permisos `Pull requests` R/W, `Contents` R, `Issues` R/W, `Metadata` R
-2. Llave privada almacenada fuera del repo (sugerencia: `~/.guardia/{org}/{repo}/warrior-argos.{YYYY-MM-DD}.private-key.pem`, `chmod 600`)
-3. `.env.local` (en la raíz del repo, gitignored — ver `.env.sample`) con:
+2. Llave privada almacenada en uno de los dos modos (a) o (b) abajo
+3. `.env.local` (en la raíz del repo, gitignored — ver `.env.sample`) con los IDs:
 
 ```
 AHRENA_WARRIOR_ARGOS_GH_APP_ID=<numérico>
 AHRENA_WARRIOR_ARGOS_GH_INSTALLATION_ID=<numérico>
+# AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH — solo necesario en el modo (b) abajo
+```
+
+**Llave privada — dos modos** (precedencia en `auth.sh`: Keychain gana cuando está disponible, file path como fallback):
+
+**(a) Keychain de macOS (recomendado)** — llave cifrada en reposo por macOS, atada al login del usuario; sin `.pem` en disco en `find ~/.guardia/`. Setup una vez:
+
+```bash
+security add-generic-password \
+  -a "warrior-argos" \
+  -s "ahrena.warrior-argos.github-app" \
+  -w "$(cat ~/.guardia/{org}/{repo}/warrior-argos.<YYYY-MM-DD>.private-key.pem)"
+# luego: rm o mueva el .pem a cold storage
+```
+
+En tiempo de ejecución, `auth.sh` lee el PEM desde Keychain, lo materializa en un tempfile efímero (`mktemp` con `umask 077` → 0600), firma el JWT y elimina el tempfile inmediatamente después del `openssl dgst -sign` (~1s de exposición en disco por mint; ≈ 1× cada 50min dado el cache TTL).
+
+**(b) File path (fallback — necesario en Linux/CI)** — llave en `~/.guardia/{org}/{repo}/warrior-argos.<YYYY-MM-DD>.private-key.pem` con `chmod 600`, y en `.env.local`:
+
+```
 AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH=~/.guardia/.../warrior-argos.<YYYY-MM-DD>.private-key.pem
 ```
+
+`auth.sh` detecta automáticamente: si `(uname -s) == Darwin` Y existe una entrada Keychain en el service `ahrena.warrior-argos.github-app`, usa el modo (a); en caso contrario cae al modo (b).
 
 **En tiempo de ejecución,** al ejecutar cualquier operación `gh` que **escribe** (publicar review, comentar, editar comment, responder en thread), Argos antepone `GH_TOKEN=$(scripts/argos/auth.sh)`:
 

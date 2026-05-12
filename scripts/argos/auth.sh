@@ -33,6 +33,20 @@ set -euo pipefail
 # otherwise inherit the parent shell's umask before chmod is reached.
 umask 077
 
+# ─── Unified tempfile cleanup ──────────────────────────────────────────────
+# Single EXIT trap that removes any temp files created downstream. Callers
+# populate KEYCHAIN_TMP_KEY (Keychain-sourced PEM) and TMP_CACHE (token
+# cache write); the cleanup is idempotent so happy-path code that already
+# consumed/moved the file just leaves the var empty.
+KEYCHAIN_TMP_KEY=""
+TMP_CACHE=""
+cleanup() {
+  [[ -n "${KEYCHAIN_TMP_KEY}" ]] && rm -f "${KEYCHAIN_TMP_KEY}"
+  [[ -n "${TMP_CACHE}" ]] && rm -f "${TMP_CACHE}"
+  return 0  # absorb the [[ -n "" ]] false return when vars are empty
+}
+trap cleanup EXIT
+
 # ─── Paths ─────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "${SCRIPT_DIR}/../.." && pwd )"
@@ -53,14 +67,60 @@ fi
 # ─── Validate required credentials ─────────────────────────────────────────
 : "${AHRENA_WARRIOR_ARGOS_GH_APP_ID:?missing AHRENA_WARRIOR_ARGOS_GH_APP_ID (set in .env.local or env)}"
 : "${AHRENA_WARRIOR_ARGOS_GH_INSTALLATION_ID:?missing AHRENA_WARRIOR_ARGOS_GH_INSTALLATION_ID}"
-: "${AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH:?missing AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH}"
 
-# Expand ~/ in private key path
-PRIVATE_KEY_PATH="${AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH/#\~/$HOME}"
+# ─── Resolve private key source (Keychain wins on macOS, else file path) ───
+#
+# Precedence:
+#   1. macOS Keychain entry at service `ahrena.warrior-argos.github-app`
+#      (preferred — PEM never at rest on disk; materialized to ephemeral
+#      mktemp only during the openssl call below).
+#   2. Fallback: AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH env var (file path).
+#      Required when not on macOS or no Keychain entry exists.
+#
+# Setup (one-shot on macOS):
+#   security add-generic-password \
+#     -a "warrior-argos" \
+#     -s "ahrena.warrior-argos.github-app" \
+#     -w "$(cat /path/to/warrior-argos.<date>.private-key.pem)"
+#
+KEYCHAIN_SERVICE="ahrena.warrior-argos.github-app"
+PRIVATE_KEY_PATH=""
+# KEYCHAIN_TMP_KEY initialized at script top; cleanup handled by EXIT trap
+
+if [[ "$(uname -s)" == "Darwin" ]] && \
+   security find-generic-password -s "${KEYCHAIN_SERVICE}" -w >/dev/null 2>&1; then
+  # Keychain mode — materialize PEM to ephemeral tempfile (umask 077 → 0600)
+  KEYCHAIN_TMP_KEY=$(mktemp -t "argos-key.XXXXXXXX")
+  PEM_RAW=$(security find-generic-password -s "${KEYCHAIN_SERVICE}" -w 2>/dev/null) || {
+    rm -f "${KEYCHAIN_TMP_KEY}"
+    echo "ERROR: Keychain returned an entry at service '${KEYCHAIN_SERVICE}' but read failed." >&2
+    exit 1
+  }
+  # `security` returns hex-encoded data when the password contains
+  # non-printable bytes (PEM newlines trigger this). A valid PEM starts
+  # with `-----BEGIN`; otherwise assume hex and decode via xxd.
+  if [[ "${PEM_RAW}" == "-----BEGIN"* ]]; then
+    printf '%s' "${PEM_RAW}" > "${KEYCHAIN_TMP_KEY}"
+  else
+    printf '%s' "${PEM_RAW}" | xxd -r -p > "${KEYCHAIN_TMP_KEY}"
+  fi
+  unset PEM_RAW
+  PRIVATE_KEY_PATH="${KEYCHAIN_TMP_KEY}"
+elif [[ -n "${AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH:-}" ]]; then
+  # File mode (fallback) — expand ~/ in the path
+  PRIVATE_KEY_PATH="${AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH/#\~/$HOME}"
+else
+  echo "ERROR: no private key source available." >&2
+  echo "  Either populate the Keychain (macOS):" >&2
+  echo "    security add-generic-password -a warrior-argos -s ${KEYCHAIN_SERVICE} -w \"\$(cat /path/to/key.pem)\"" >&2
+  echo "  Or set AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH in .env.local / env." >&2
+  exit 1
+fi
 
 if [[ ! -r "${PRIVATE_KEY_PATH}" ]]; then
   echo "ERROR: private key not readable at ${PRIVATE_KEY_PATH}" >&2
-  echo "  Check AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH and chmod 600 the file." >&2
+  [[ -z "${KEYCHAIN_TMP_KEY}" ]] && \
+    echo "  Check AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH and chmod 600 the file." >&2
   exit 1
 fi
 
@@ -101,6 +161,14 @@ PAYLOAD=$(printf '{"iat":%d,"exp":%d,"iss":"%s"}' \
 
 SIGNATURE=$(printf '%s.%s' "${HEADER}" "${PAYLOAD}" | \
   openssl dgst -sha256 -sign "${PRIVATE_KEY_PATH}" | b64url)
+
+# Erase the Keychain-sourced PEM tempfile immediately after signing. The
+# JWT exchange below uses the resulting signature; the key material is no
+# longer needed in this run.
+if [[ -n "${KEYCHAIN_TMP_KEY}" ]]; then
+  rm -f "${KEYCHAIN_TMP_KEY}"
+  KEYCHAIN_TMP_KEY=""
+fi
 
 JWT="${HEADER}.${PAYLOAD}.${SIGNATURE}"
 
@@ -147,7 +215,9 @@ fi
 mkdir -p "${CACHE_DIR}"
 TMP_CACHE=$(mktemp "${CACHE_DIR}/.installation-token.XXXXXX")
 chmod 600 "${TMP_CACHE}"
-trap 'rm -f "${TMP_CACHE}"' EXIT
+# Cleanup of TMP_CACHE on abnormal exit is handled by the unified EXIT trap
+# set at script top. On the happy path, mv -f below consumes the tempfile
+# and TMP_CACHE is cleared so the trap becomes a no-op for it.
 
 jq -n \
   --arg token "${TOKEN}" \
@@ -162,6 +232,6 @@ jq -n \
   > "${TMP_CACHE}"
 
 mv -f "${TMP_CACHE}" "${CACHE_FILE}"
-trap - EXIT
+TMP_CACHE=""  # consumed; EXIT trap becomes a no-op for this var
 
 printf '%s' "${TOKEN}"

@@ -128,14 +128,36 @@ Argos authenticates as the **GitHub App `ahrena-warrior-argos`** (bot identity `
 
 **Prerequisites** (once per installation):
 1. App `ahrena-warrior-argos` installed on the target repo with permissions `Pull requests` R/W, `Contents` R, `Issues` R/W, `Metadata` R
-2. Private key stored outside the repo (suggested: `~/.guardia/{org}/{repo}/warrior-argos.{YYYY-MM-DD}.private-key.pem`, `chmod 600`)
-3. `.env.local` (at repo root, gitignored — see `.env.sample`) with:
+2. Private key stored in one of two modes — (a) or (b) below
+3. `.env.local` (at repo root, gitignored — see `.env.sample`) with IDs:
 
 ```
 AHRENA_WARRIOR_ARGOS_GH_APP_ID=<numeric>
 AHRENA_WARRIOR_ARGOS_GH_INSTALLATION_ID=<numeric>
+# AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH — only needed in mode (b) below
+```
+
+**Private key — two modes** (precedence in `auth.sh`: Keychain wins when available, file path is fallback):
+
+**(a) macOS Keychain (recommended)** — key encrypted at rest by macOS, tied to the user's login; no `.pem` on disk under `find ~/.guardia/`. One-time setup:
+
+```bash
+security add-generic-password \
+  -a "warrior-argos" \
+  -s "ahrena.warrior-argos.github-app" \
+  -w "$(cat ~/.guardia/{org}/{repo}/warrior-argos.<YYYY-MM-DD>.private-key.pem)"
+# then: rm or move the .pem to cold storage
+```
+
+At runtime, `auth.sh` reads the PEM from Keychain, materializes it to an ephemeral tempfile (`mktemp` with `umask 077` → 0600), signs the JWT, and removes the tempfile right after `openssl dgst -sign` (~1s on-disk exposure per mint; ≈ 1× per 50min given the cache TTL).
+
+**(b) File path (fallback — required on Linux/CI)** — key at `~/.guardia/{org}/{repo}/warrior-argos.<YYYY-MM-DD>.private-key.pem` with `chmod 600`, and in `.env.local`:
+
+```
 AHRENA_WARRIOR_ARGOS_GH_PRIVATE_KEY_PATH=~/.guardia/.../warrior-argos.<YYYY-MM-DD>.private-key.pem
 ```
+
+`auth.sh` auto-detects: if `(uname -s) == Darwin` AND a Keychain entry exists at service `ahrena.warrior-argos.github-app`, mode (a) is used; otherwise it falls back to mode (b).
 
 **At runtime,** when executing any `gh` operation that **writes** (publish review, comment, edit comment, reply in thread), Argos prefixes with `GH_TOKEN=$(scripts/argos/auth.sh)`:
 
