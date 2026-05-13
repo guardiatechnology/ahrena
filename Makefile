@@ -96,14 +96,15 @@ endif
 # Used by install-to so --self resolves correctly regardless of CWD.
 MAKEFILE_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
-.PHONY: bootstrap install dev-install install-to update sync-cursor sync-claude-code uninstall clean validate help mcp-list mcp-enable mcp-disable preflight
+.PHONY: bootstrap bootstrap-labels install dev-install install-to update sync-cursor sync-claude-code uninstall clean validate help mcp-list mcp-enable mcp-disable preflight
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
 	@echo ""
 	@echo "Targets:"
-	@echo "  bootstrap     First install (downloads installer from GitHub Release)"
-	@echo "  install       Reinstall from .ahrena/install.py (default: remote)"
+	@echo "  bootstrap        First install (downloads installer from GitHub Release)"
+	@echo "  bootstrap-labels Seed the framework label catalog into the current repo (gh CLI)"
+	@echo "  install          Reinstall from .ahrena/install.py (default: remote)"
 	@echo "  dev-install   Install from local source (run from Ahrena repo root)"
 	@echo "  install-to    Offline install FROM this repo TO any target (no network)"
 	@echo "                  make install-to TARGET=/path/to/project PLATFORM=cursor"
@@ -137,6 +138,15 @@ bootstrap:
 	$(DOWNLOAD_INSTALLER)
 	$(BOOTSTRAP_CMD)
 	$(RM_BOOTSTRAP)
+
+bootstrap-labels:
+	@if [ -x .ahrena/bootstrap_labels.sh ]; then \
+		bash .ahrena/bootstrap_labels.sh; \
+	elif [ -x scripts/bootstrap_labels.sh ]; then \
+		bash scripts/bootstrap_labels.sh; \
+	else \
+		echo "ERROR: bootstrap_labels.sh not found (.ahrena/ or scripts/)"; exit 2; \
+	fi
 
 install:
 	$(INSTALL_CMD_RUN)
