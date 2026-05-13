@@ -21,7 +21,7 @@ Per `lex-agent-planning` HARD-GATE, the `status: todo` label may only be applied
 |-------|:--------:|-------------|
 | Task description | Yes | What the agent needs to do (can be vague — the kata clarifies) |
 | Repo (`owner/repo`) | No | Default: current repo of the worktree |
-| Issue template | No | `feature-request` (default), `simple-task`, `user-story-for-api`, `user-story-for-frontend` |
+| Issue template | No | `feature-request` (default), `tech-task`, `user-story-for-api`, `user-story-for-frontend` |
 
 ## Workflow
 

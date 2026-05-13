@@ -4,6 +4,7 @@ title: "{{ brief feature summary }}"
 labels:
   - "frontend"
   - "user story 🎯"
+  - "status: todo"
 type: Feature
 assignees:
   - commitybyguardia

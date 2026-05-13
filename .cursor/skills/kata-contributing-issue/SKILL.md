@@ -40,7 +40,7 @@ Progress:
 
 ### Step 4: Create issue via GitHub MCP (or gh)
 
-1. Determine the required labels from the table above. For `simple-task`, ask the user which label applies if not clear from context.
+1. Determine the required labels from the table above. For `tech-task`, ask the user which label applies if not clear from context.
 2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`; `assignees`: `["@me"]`.
 3. **Fallback:** If MCP is unavailable, use:
    ```bash

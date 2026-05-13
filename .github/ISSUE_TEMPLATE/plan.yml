@@ -1,0 +1,96 @@
+name: "Plan 📋"
+description: "Sub-issue representing an executable unit of work inside a parent Issue (User Story / Bug / Tech Task)"
+title: "{{ brief plan summary }}"
+type: Task
+labels:
+  - "plan 📋"
+  - "status: todo"
+projects:
+  - "guardiafinance/3"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to file an executable unit of work as a sub-issue of a parent Issue (User Story, Bug, or Tech Task).
+        A Plan is the atomic chunk that produces one or more PRs and closes when its scope is delivered. The parent Issue closes when all its Plans close.
+
+        Per `lex-issue-quality`, every issue must answer **Why**, **What**, and **How**.
+
+  - type: input
+    id: parent_issue
+    attributes:
+      label: "Parent Issue"
+      description: "Issue number of the parent (User Story / Bug / Tech Task). The agent links this Plan as a sub-issue of that parent."
+      placeholder: "e.g. #140"
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: "Why"
+      description: "What problem does this Plan close inside the parent's scope? Tie it to the parent's Definition of Done."
+      placeholder: "e.g. Without renaming simple-task → tech-task, every subsequent Plan that depends on the new template name is blocked."
+      value: |
+        Why is this Plan needed within the parent Issue?
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: "What"
+      description: "Concrete deliverable. What files change? What stays out (handled by sibling Plans)?"
+      placeholder: |
+        e.g.
+        - Rename .github/ISSUE_TEMPLATE/simple-task.yml → tech-task.yml
+        - Rename framework/templates/contributing_templates/simple-task.md → tech-task.md
+        - Add bug.yml and plan.yml templates
+        - Out of scope (sibling Plans): governance lexis rewrite, kata updates
+      value: |
+        What changes? What stays out?
+    validations:
+      required: true
+
+  - type: textarea
+    id: how
+    attributes:
+      label: "How"
+      description: "Implementation approach + Definition of Done. Concrete steps, files involved, success criteria."
+      placeholder: |
+        e.g.
+        - Branch tech/{N}-rename-templates-add-bug-plan
+        - git mv preserves history
+        - Add status: todo to labels: array of every non-Epic template
+        - DoD: gh issue create against tech-task template carries status: todo automatically; bug + plan templates render in GitHub UI
+      value: |
+        Steps + Definition of Done:
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estimated_prs
+    attributes:
+      label: "Estimated PRs"
+      description: "How many PRs do you expect to close this Plan? Used by Eunomia/Athena to assess decomposition health."
+      options:
+        - "1 — single atomic PR"
+        - "2–3 — small chain, possibly stacked"
+        - "4–6 — medium chain; consider further decomposition"
+        - "7+ — too large; re-decompose into more Plans"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Dependencies on sibling Plans, blocking external work, links to designs/docs, or any other relevant context."
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        > After creation, link this Plan as a sub-issue of the Parent Issue (`gh api -X POST repos/{owner}/{repo}/issues/{parent}/sub_issues -F sub_issue_id={this_id}`).

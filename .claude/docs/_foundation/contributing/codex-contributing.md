@@ -37,12 +37,12 @@ Contribution templates (issue and PR) live in **`.ahrena/contributing_templates/
 | Epic                  | kata-contributing-issue       | cry-new-epic                | `epic.md`                                         | `epic` |
 | User Story (API)      | kata-contributing-issue       | cry-new-user-story-api      | `user-story-for-api.md`                           | `api`, `user story 🎯` |
 | User Story (Frontend) | kata-contributing-issue       | cry-new-user-story-frontend | `user-story-for-frontend.md`                      | `frontend`, `user story 🎯` |
-| Simple Task           | kata-contributing-issue       | cry-new-simple-task         | `simple-task.md`                                  | one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
+| Tech Task           | kata-contributing-issue       | cry-new-tech-task         | `tech-task.md`                                  | one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
 | Pull Request          | kata-contributing-pr          | cry-new-pr                  | `pull_request_template.md`                        | — |
 | Discussion            | kata-contributing-discuss     | cry-new-discuss             | (Golden Circle; no .md)                           | — |
 
 - **Generic cry:** `cry-contribute` — for generic contributions; MAY delegate to the per-type cries or ask which type.
-- **References:** the 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) and the 7 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-simple-task`, `cry-new-pr`, `cry-new-discuss`).
+- **References:** the 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) and the 7 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-tech-task`, `cry-new-pr`, `cry-new-discuss`).
 
 ### Standards and Conventions
 

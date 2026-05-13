@@ -74,7 +74,7 @@ Se o usuário rejeitar ou pedir PR único, encerrar este kata e recomendar ao us
 
 1. Ler a issue: `gh issue view $N --repo $OWNER/$REPO --json number,title,labels,assignees,body`
 2. Confirmar que atende `lex-issue-quality`:
-   - Template usado (feature-request / user-story-* / epic / simple-task)
+   - Template usado (feature-request / user-story-* / epic / tech-task)
    - Labels mínimas presentes
    - Issue Type definido (Feature / Task / Epic)
    - Pelo menos um assignee

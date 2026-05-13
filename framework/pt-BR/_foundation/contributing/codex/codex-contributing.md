@@ -47,12 +47,12 @@ Os templates de contribuição (issue e PR) ficam em **`.ahrena/contributing_tem
 | Epic                  | kata-contributing-issue       | cry-new-epic                | `epic.md`                                         | `epic` |
 | User Story (API)      | kata-contributing-issue       | cry-new-user-story-api      | `user-story-for-api.md`                           | `api`, `user story 🎯` |
 | User Story (Frontend) | kata-contributing-issue       | cry-new-user-story-frontend | `user-story-for-frontend.md`                      | `frontend`, `user story 🎯` |
-| Tarefa Simples        | kata-contributing-issue       | cry-new-simple-task         | `simple-task.md`                                  | uma de: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
+| Tarefa Simples        | kata-contributing-issue       | cry-new-tech-task         | `tech-task.md`                                  | uma de: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
 | Pull Request          | kata-contributing-pr          | cry-new-pr                  | `pull_request_template.md`                        | — |
 | Discussão             | kata-contributing-discuss     | cry-new-discuss             | (Golden Circle; sem .md)                          | — |
 
 - **Cry genérico:** `cry-contribute` — para contribuições genéricas; pode delegar aos cries por tipo ou perguntar qual tipo.
-- **Referências:** os 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) e os 7 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-simple-task`, `cry-new-pr`, `cry-new-discuss`).
+- **Referências:** os 3 katas (`kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss`) e os 7 cries (`cry-new-feature-request`, `cry-new-epic`, `cry-new-user-story-api`, `cry-new-user-story-frontend`, `cry-new-tech-task`, `cry-new-pr`, `cry-new-discuss`).
 
 ### Padrões e Convenções
 
@@ -109,4 +109,4 @@ Os templates de contribuição (issue e PR) ficam em **`.ahrena/contributing_tem
 - `codex-git-workflow` — Fluxo completo Issue → Branch → Commits → PR → Merge
 - `kata-contribute` — Procedimento para contribuir via PR
 - `kata-contributing-issue`, `kata-contributing-pr`, `kata-contributing-discuss` — Katas por tipo de contribuição
-- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-simple-task, cry-new-pr, cry-new-discuss
+- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-tech-task, cry-new-pr, cry-new-discuss

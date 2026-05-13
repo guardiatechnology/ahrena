@@ -74,7 +74,7 @@ If the user rejects or asks for a single PR, end this kata and recommend the use
 
 1. Read the issue: `gh issue view $N --repo $OWNER/$REPO --json number,title,labels,assignees,body`
 2. Confirm it satisfies `lex-issue-quality`:
-   - Template used (feature-request / user-story-* / epic / simple-task)
+   - Template used (feature-request / user-story-* / epic / tech-task)
    - Required labels present
    - Issue Type set (Feature / Task / Epic)
    - At least one assignee

@@ -5,6 +5,7 @@ type: Feature
 labels:
   - "api"
   - "user story 🎯"
+  - "status: todo"
 projects:
   - "guardiafinance/13"
 

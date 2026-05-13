@@ -33,7 +33,7 @@ Path de `.plans/` é configurável via `paths.plans` em `.ahrena/.directives` (d
 ```markdown
 ## Summary
 
-{2-4 frases descrevendo o objetivo. Tipicamente herda do template (feature-request "Objective" / simple-task "Why").}
+{2-4 frases descrevendo o objetivo. Tipicamente herda do template (feature-request "Objective" / tech-task "Why").}
 
 ## Plan
 
