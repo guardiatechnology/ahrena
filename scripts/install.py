@@ -1226,6 +1226,27 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
         shutil.copytree(ct_src, ct_dst)
         print(f"  Synced contributing_templates to .ahrena/contributing_templates/")
 
+    # 2.5b. Sync GitHub Issue Templates to target/.github/ISSUE_TEMPLATE/
+    # The .yml forms under source_dir/.github/ISSUE_TEMPLATE/ are the canonical
+    # GitHub-rendered counterparts of the .md sources in contributing_templates.
+    # Copy each file individually so user-authored templates (file names not in
+    # the framework set) are preserved in the consumer repo.
+    gh_tpl_src = source_dir / ".github" / "ISSUE_TEMPLATE"
+    gh_tpl_dst = target / ".github" / "ISSUE_TEMPLATE"
+    if gh_tpl_src.exists():
+        gh_tpl_dst.mkdir(parents=True, exist_ok=True)
+        synced = 0
+        for yml in sorted(gh_tpl_src.glob("*.yml")):
+            dst = gh_tpl_dst / yml.name
+            # Skip self-copy when source and target are the same path
+            # (ahrena dev-install with target = repo root).
+            if yml.resolve() == dst.resolve():
+                continue
+            shutil.copy2(yml, dst)
+            synced += 1
+        if synced:
+            print(f"  Synced {synced} GitHub Issue Template(s) to .github/ISSUE_TEMPLATE/")
+
     # 2.6. Copy mcp/ templates to .ahrena/mcp/ (never overwrite user overrides)
     mcp_src = ahrena_framework / "mcp"
     mcp_dst = ahrena_dir / "mcp"
