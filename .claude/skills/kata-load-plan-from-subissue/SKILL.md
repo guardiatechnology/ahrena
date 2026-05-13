@@ -31,9 +31,9 @@ Progress:
    - Otherwise, final path: `<provider-dir>/plan-{M}.md`.
 4. Ensure the destination directory exists (`mkdir -p`).
 
-### Step 2: Confirm the Plan sub-issue exists (plan-first guardrail)
+### Step 2: Confirm the Plan sub-issue exists
 
-Per the plan-first guardrail of `lex-agent-planning`, the kata MUST **refuse** if the Plan sub-issue `{M}` does not exist on GitHub:
+This kata assumes that the Plan sub-issue `{M}` already exists on GitHub. Verify:
 
 ```bash
 # Preferred — via MCP
@@ -43,9 +43,11 @@ mcp.github.get_issue(owner=owner, repo=repo, issue_number=M)
 gh issue view {M} --repo {owner}/{repo} --json number,state,labels
 ```
 
-If the sub-issue does not exist (HTTP 404), abort with the message:
+If the sub-issue does NOT exist (HTTP 404), **do not fail as a fatal error**. The scenario is valid (orphan plan-file, plan-first path). The kata MUST return status `PROMOTION_REQUIRED` with the message:
 
-> "Plan sub-issue #{M} not found in {owner}/{repo}. Materializing `.claude/plans/plan-{M}.md` without a corresponding sub-issue violates the `lex-agent-planning` plan-first guardrail. Invoke `kata-contributing-issue` to open the parent Issue and `kata-decompose-issue-into-plans` (or `kata-plan-task`) to create the Plan sub-issue before attempting the load."
+> "Plan sub-issue #{M} not found in {owner}/{repo}, or the plan-file carries `status: draft`/`issue: TBD`. Valid plan-first scenario. Trigger the promotion per `lex-agent-planning`: `kata-contributing-issue` to create the parent Issue (if it does not yet exist), then `kata-decompose-issue-into-plans` or `kata-plan-task` to create the Plan sub-issue. After promotion, return to this kata with the sub-issue number to materialize the cache."
+
+The invoking agent MUST treat `PROMOTION_REQUIRED` as a flow signal (trigger plan-first promotion), not a fatal failure.
 
 If the sub-issue exists, proceed.
 
@@ -174,7 +176,7 @@ considering discriminated union instead of class hierarchy.
 - **Idempotent:** multiple runs produce the same local cache for the same sub-issue body state.
 - **Does not flush:** this kata is one-way (sub-issue → cache). To write back, use `kata-flush-plan-to-subissue`.
 - **Preserves local blocks:** existing `<!-- not-flushed -->` ... `<!-- /not-flushed -->` blocks in the local cache are preserved; only canonical content is re-synchronized.
-- **Plan-first guardrail:** if the Plan sub-issue `{M}` does not exist, the kata refuses with a message directing the user to create the sub-issue first via `kata-plan-task` or `kata-decompose-issue-into-plans`.
+- **Plan-first promotion:** if the Plan sub-issue `{M}` does not exist, the kata returns `PROMOTION_REQUIRED` (not a fatal error), directing the invoking agent to trigger `kata-contributing-issue` + `kata-decompose-issue-into-plans` (or `kata-plan-task`) before returning.
 - **MCP > CLI:** prefer MCP `get_issue` when the server is listed and active; CLI `gh issue view` is the documented fallback per `lex-mcp` rule 4.
 - **Does not create the sub-issue:** if sub-issue `{M}` does not exist, the kata fails; creation is the responsibility of `kata-plan-task` or `kata-decompose-issue-into-plans`.
 - **Provider-specific:** Claude Code → `.claude/plans/`; Cursor → `.cursor/plans/`. There is no shared cache across providers.
