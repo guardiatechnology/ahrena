@@ -58,8 +58,8 @@
 ```
 docs/
 ├── adr/
-│   ├── -use-event-sourcing-for-ledger.md
-│   ├── -migrate-to-fastapi.md
+│   ├── ADR-001-use-event-sourcing-for-ledger.md
+│   ├── ADR-002-migrate-to-fastapi.md
 │   └── ...
 └── issues/
     └── issue-{n}/

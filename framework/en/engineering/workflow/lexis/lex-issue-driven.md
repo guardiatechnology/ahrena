@@ -80,7 +80,7 @@ artifacts:
   requirements: .ahrena/issues/42/02-requirements.md
   architecture: .ahrena/issues/42/03-architecture.md
 adrs:
-  - -use-event-sourcing-for-refund-audit-trail.md
+  - ADR-008-use-event-sourcing-for-refund-audit-trail.md
 gate_1:
   status: approved | pending | rejected
   approved_at: "2026-04-16T14:30:00Z"
@@ -256,7 +256,7 @@ Direct delegation does not change any other flow rule (Gates 1 and 2, AC ↔ tes
 # .ahrena/issues/42/01-brief.md
 # .ahrena/issues/42/02-requirements.md   (AC-1, AC-2, AC-3)
 # .ahrena/issues/42/03-architecture.md
-# docs/adr/-use-fastapi-routers.md   (relevant decision)
+# docs/adr/ADR-007-use-fastapi-routers.md   (relevant decision)
 
 # Awaits Gate 1 → human approves
 # Apollo implements: each test references AC-N

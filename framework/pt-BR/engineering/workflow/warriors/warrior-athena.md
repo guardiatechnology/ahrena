@@ -182,7 +182,7 @@ Produzi `.ahrena/issues/42/01-brief.md` com:
 - Título: "Adicionar endpoint de refund"
 - Autor: @carla
 - Tipo: Feature
-- Contexto Notion: 2 páginas relevantes identificadas ("Refund Spec v2", " — Payment idempotency")
+- Contexto Notion: 2 páginas relevantes identificadas ("Refund Spec v2", "ADR-003 — Payment idempotency")
 - Desconhecidos: regra de reembolso parcial, limite de tempo para refund
 
 Avançando para Fase 2.
@@ -217,7 +217,7 @@ Fases 1-3 concluídas. Apresento para sua aprovação:
 - **Arquitetura:** `.ahrena/issues/42/03-architecture.md`
 - **Componentes afetados:** `src/refunds/service.py`, `src/refunds/repository.py`, `openapi/refunds.yaml`, `events/refund.created.md`
 - **ADRs propostos:**
-  - [: Use event sourcing for refund audit trail](docs/adr/-use-event-sourcing-for-refund-audit-trail.md) — status `proposed`
+  - [ADR-008: Use event sourcing for refund audit trail](docs/adr/ADR-008-use-event-sourcing-for-refund-audit-trail.md) — status `proposed`
 
 **Aprovar para prosseguir à Fase 4 (implementação por Apollo)?** (sim/não ou ajustes)
 
