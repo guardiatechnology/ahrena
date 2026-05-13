@@ -3,6 +3,7 @@ description: "Sub-issue representing an executable unit of work inside a parent 
 title: "{{ brief plan summary }}"
 type: Task
 labels:
+  - "plan 📋"
   - "status: todo"
 projects:
   - "guardiafinance/3"
