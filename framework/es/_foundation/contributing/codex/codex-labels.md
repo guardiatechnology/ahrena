@@ -21,7 +21,7 @@ La organización Guardia configura tres Issue Types a nivel de repositorio. Todo
 
 | Issue Type | ID | Templates que lo mapean |
 |------------|----|--------------------------|
-| **Task** | `IT_kwDOED9Qy84B7pBh` | `simple-task` |
+| **Task** | `IT_kwDOED9Qy84B7pBh` | `tech-task` |
 | **Bug** | `IT_kwDOED9Qy84B7pBi` | `bug-report` *(futuro)* |
 | **Feature** | `IT_kwDOED9Qy84B7pBj` | `feature-request`, `epic`, `user-story-for-api`, `user-story-for-frontend` |
 
@@ -54,10 +54,10 @@ Obligatorios según `lex-issue-quality`. Aplicados manualmente en la creación d
 | `api` | `user-story-for-api` | Alcance de diseño o implementación de API |
 | `user story 🎯` | `user-story-for-api`, `user-story-for-frontend` | Historia acotada orientada al usuario |
 | `frontend` | `user-story-for-frontend` | Alcance de implementación de frontend (UI/UX) |
-| `documentation 📃` | `simple-task` | Mejoras o adiciones de documentación |
-| `ci 🏗️` | `simple-task` | Cambios en CI/CD o pipeline |
-| `enhancement 🔝` | `simple-task` | Mejora a una funcionalidad existente |
-| `evolvability ♻️` | `simple-task` | Refactorización, código limpio, mantenimiento |
+| `documentation 📃` | `tech-task` | Mejoras o adiciones de documentación |
+| `ci 🏗️` | `tech-task` | Cambios en CI/CD o pipeline |
+| `enhancement 🔝` | `tech-task` | Mejora a una funcionalidad existente |
+| `evolvability ♻️` | `tech-task` | Refactorización, código limpio, mantenimiento |
 
 #### 2. Labels de Contenido y Naturaleza
 

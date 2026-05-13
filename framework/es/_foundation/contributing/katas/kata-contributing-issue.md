@@ -4,19 +4,19 @@
 
 ## Objetivo
 
-Esta Kata define el procedimiento estandarizado para abrir un issue en el repositorio de origen del proyecto usando uno de los 5 templates de issue (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task). El agente resuelve el template en `.ahrena/contributing_templates/`, completa las secciones con el usuario, aplica los labels obligatorios según `lex-issue-quality`, define el GitHub Issue Type, se auto-asigna el issue y lo crea **mediante GitHub MCP** (fallback al CLI `gh` cuando no está disponible). Sigue el flujo definido en `codex-contributing`.
+Esta Kata define el procedimiento estandarizado para abrir un issue en el repositorio de origen del proyecto usando uno de los 5 templates de issue (feature-request, epic, user-story-for-api, user-story-for-frontend, tech-task). El agente resuelve el template en `.ahrena/contributing_templates/`, completa las secciones con el usuario, aplica los labels obligatorios según `lex-issue-quality`, define el GitHub Issue Type, se auto-asigna el issue y lo crea **mediante GitHub MCP** (fallback al CLI `gh` cuando no está disponible). Sigue el flujo definido en `codex-contributing`.
 
 ## Cuándo Usar
 
 - Cuando el usuario solicita abrir un feature request, epic, user story (API o frontend) o simple task
-- Cuando es invocada por uno de los cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-simple-task
+- Cuando es invocada por uno de los cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-tech-task
 - Cuando es invocada por cry-contribute con acción de issue (y tipo indicado o inferido)
 
 ## Entradas
 
 | Entrada | Obligatorio | Descripción |
 |---------|:-----------:|-------------|
-| Tipo | Sí* | `feature-request` \| `epic` \| `user-story-for-api` \| `user-story-for-frontend` \| `simple-task`. *Inferido del cry invocante si no se proporciona.* |
+| Tipo | Sí* | `feature-request` \| `epic` \| `user-story-for-api` \| `user-story-for-frontend` \| `tech-task`. *Inferido del cry invocante si no se proporciona.* |
 | Título (resumen) | No | Resumen breve del issue. Si se omite, el agente lo compone a partir del contexto. |
 | Contexto del usuario | No | Información adicional para completar los placeholders del template. |
 
@@ -28,7 +28,7 @@ Esta Kata define el procedimiento estandarizado para abrir un issue en el reposi
 | epic | `epic.md` | `epic` | Feature |
 | user-story-for-api | `user-story-for-api.md` | `api`, `user story 🎯` | Feature |
 | user-story-for-frontend | `user-story-for-frontend.md` | `frontend`, `user story 🎯` | Feature |
-| simple-task | `simple-task.md` | Al menos uno de: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` | Task |
+| tech-task | `tech-task.md` | Al menos uno de: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` | Task |
 
 ## Flujo de Trabajo
 
@@ -63,7 +63,7 @@ Progreso:
 
 ### Paso 4: Crear issue mediante GitHub MCP (o gh)
 
-1. Determinar los labels obligatorios según la tabla anterior. Para `simple-task`, preguntar al usuario qué label aplica si no queda claro por el contexto.
+1. Determinar los labels obligatorios según la tabla anterior. Para `tech-task`, preguntar al usuario qué label aplica si no queda claro por el contexto.
 2. **Preferido:** Usar GitHub MCP (servidor que expone la creación de issues). Por ejemplo, servidor `project-0-ahrena-github`, herramienta `issue_write` con: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **obligatorio**, según `lex-issue-quality`; `assignees`: `["@me"]`.
 3. **Fallback:** Si el MCP no está disponible, usar:
    ```bash
@@ -130,6 +130,6 @@ gh api graphql -f query="
 - `lex-issue-quality` — Ley que rige templates, labels y contenido Why/What/How
 - `codex-labels` — Taxonomía completa de labels y definiciones de GitHub Issue Type
 - `codex-contributing` — Flujo de contribución Guardia
-- `.ahrena/contributing_templates/` — Templates de issue (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md, simple-task.md)
+- `.ahrena/contributing_templates/` — Templates de issue (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md, tech-task.md)
 - GitHub MCP (por ejemplo, issue_write para la creación de issues)
-- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-simple-task
+- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-tech-task

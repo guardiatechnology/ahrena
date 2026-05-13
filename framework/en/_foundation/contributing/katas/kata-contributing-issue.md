@@ -4,19 +4,19 @@
 
 ## Objective
 
-This Kata defines the standardized procedure for opening an issue in the project's origin repository using one of the 5 issue templates (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task). The agent resolves the template in `.ahrena/contributing_templates/`, fills the sections with the user, applies required labels per `lex-issue-quality`, sets the GitHub Issue Type, self-assigns the issue, and creates it **via GitHub MCP** (fallback to `gh` CLI when unavailable). It follows the flow in `codex-contributing`.
+This Kata defines the standardized procedure for opening an issue in the project's origin repository using one of the 5 issue templates (feature-request, epic, user-story-for-api, user-story-for-frontend, tech-task). The agent resolves the template in `.ahrena/contributing_templates/`, fills the sections with the user, applies required labels per `lex-issue-quality`, sets the GitHub Issue Type, self-assigns the issue, and creates it **via GitHub MCP** (fallback to `gh` CLI when unavailable). It follows the flow in `codex-contributing`.
 
 ## When to Use
 
 - When the user requests to open a feature request, epic, user story (API or frontend), or simple task
-- When invoked by one of the cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-simple-task
+- When invoked by one of the cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-tech-task
 - When invoked by cry-contribute with issue action (and type indicated or inferred)
 
 ## Inputs
 
 | Input | Required | Description |
 |-------|:--------:|-------------|
-| Type | Yes* | `feature-request` \| `epic` \| `user-story-for-api` \| `user-story-for-frontend` \| `simple-task`. *Inferred from the invoking cry if not provided.* |
+| Type | Yes* | `feature-request` \| `epic` \| `user-story-for-api` \| `user-story-for-frontend` \| `tech-task`. *Inferred from the invoking cry if not provided.* |
 | Title (summary) | No | Brief issue summary. If omitted, the agent composes it from context. |
 | User context | No | Additional information to fill template placeholders. |
 
@@ -28,7 +28,7 @@ This Kata defines the standardized procedure for opening an issue in the project
 | epic | `epic.md` | `epic` | Feature |
 | user-story-for-api | `user-story-for-api.md` | `api`, `user story 🎯` | Feature |
 | user-story-for-frontend | `user-story-for-frontend.md` | `frontend`, `user story 🎯` | Feature |
-| simple-task | `simple-task.md` | At least one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` | Task |
+| tech-task | `tech-task.md` | At least one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` | Task |
 
 ## Workflow
 
@@ -63,7 +63,7 @@ Progress:
 
 ### Step 4: Create issue via GitHub MCP (or gh)
 
-1. Determine the required labels from the table above. For `simple-task`, ask the user which label applies if not clear from context.
+1. Determine the required labels from the table above. For `tech-task`, ask the user which label applies if not clear from context.
 2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`; `assignees`: `["@me"]`.
 3. **Fallback:** If MCP is unavailable, use:
    ```bash
@@ -130,6 +130,6 @@ gh api graphql -f query="
 - `lex-issue-quality` — Law governing templates, labels, and Why/What/How content
 - `codex-labels` — Full label taxonomy and GitHub Issue Type definitions
 - `codex-contributing` — Guardia contribution flow
-- `.ahrena/contributing_templates/` — Issue templates (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md, simple-task.md)
+- `.ahrena/contributing_templates/` — Issue templates (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md, tech-task.md)
 - GitHub MCP (e.g., issue_write for issue creation)
-- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-simple-task
+- Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-tech-task

@@ -1,9 +1,10 @@
-name: "Simple Task ♻️"
+name: "Tech Task ♻️"
 description: "Well-defined small task: chore, refactoring, maintenance, documentation fix, CI change"
 title: "{{ brief task summary }}"
 type: Task
 labels:
   - "evolvability ♻️"
+  - "status: todo"
 projects:
   - "guardiafinance/3"
 
@@ -19,7 +20,7 @@ body:
     attributes:
       label: "Why"
       description: "State the motivation. What problem does this solve, what gap does it close, what risk does it remove?"
-      placeholder: "e.g. The simple-task template is referenced by lex-issue-quality but does not exist, blocking contributors from following the Lex."
+      placeholder: "e.g. The tech-task template is referenced by lex-issue-quality but does not exist, blocking contributors from following the Lex."
       value: |
         Why is this task needed?
     validations:
@@ -30,7 +31,7 @@ body:
     attributes:
       label: "What"
       description: "State the objective and scope. What changes? What stays out? Be specific enough that a reviewer can tell when the task is done."
-      placeholder: "e.g. Add simple-task.yml under .github/ISSUE_TEMPLATE/ with Why/What/How sections; do not change existing templates."
+      placeholder: "e.g. Add tech-task.yml under .github/ISSUE_TEMPLATE/ with Why/What/How sections; do not change existing templates."
       value: |
         What needs to change?
     validations:

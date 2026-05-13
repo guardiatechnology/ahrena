@@ -8,7 +8,7 @@
 
 ## Lei
 
-> **Todo agente que cria uma Issue (humano ou IA, via UI/CLI/MCP) DEVE verificar programaticamente, imediatamente após a criação, que o campo nativo `type` da Issue está populado com um valor compatível com o template usado (`Feature` para `feature-request` / `user-story-for-api` / `user-story-for-frontend`; `Task` para `simple-task` / `subtask`; `Epic` para `epic`; `Bug` quando aplicável). Se vazio, o agente DEVE aplicar o type via `gh api -X PATCH repos/{owner}/{repo}/issues/{N} -f type={Feature|Task|Bug|Epic}` antes de qualquer transição subsequente da Issue. Aplicar label `status: todo` (per `lex-issue-status` Eixo A) em uma Issue sem `type` populado é PROIBIDO.**
+> **Todo agente que cria uma Issue (humano ou IA, via UI/CLI/MCP) DEVE verificar programaticamente, imediatamente após a criação, que o campo nativo `type` da Issue está populado com um valor compatível com o template usado (`Feature` para `feature-request` / `user-story-for-api` / `user-story-for-frontend`; `Task` para `tech-task` / `subtask`; `Epic` para `epic`; `Bug` quando aplicável). Se vazio, o agente DEVE aplicar o type via `gh api -X PATCH repos/{owner}/{repo}/issues/{N} -f type={Feature|Task|Bug|Epic}` antes de qualquer transição subsequente da Issue. Aplicar label `status: todo` (per `lex-issue-status` Eixo A) em uma Issue sem `type` populado é PROIBIDO.**
 
 ## Abrangência
 
@@ -37,7 +37,7 @@ gh api repos/{owner}/{repo}/issues/{N} --jq '.type.name // empty'
 | `epic` | `Epic` |
 | `user-story-for-api` | `Feature` |
 | `user-story-for-frontend` | `Feature` |
-| `simple-task` | `Task` |
+| `tech-task` | `Task` |
 | `subtask` | `Task` |
 
 Se o type retornado for incompatível com o template, **abortar e alertar o usuário** — não tentar reescrever silenciosamente (pode mascarar erro de criação).

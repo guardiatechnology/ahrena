@@ -3,6 +3,7 @@ description: Suggest a new feature for the project
 title: "feat/{{ brief feature summary }}"
 labels: 
   - "feature request ➕"
+  - "status: todo"
 type: Feature
 assignees:
   - commitybyguardia

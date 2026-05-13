@@ -4,7 +4,7 @@
 
 ## Ley
 
-> **Todo issue en un repositorio Guardia DEBE usar una de las plantillas aprobadas (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task), DEBE tener al menos una etiqueta de la lista aprobada que corresponda a su tipo, DEBE tener un GitHub Issue Type definido (Feature, Task, Bug, Epic) compatible con la plantilla usada, DEBE tener al menos un assignee — por defecto el autor del issue —, y DEBE responder explícitamente: por qué (motivación e impacto), qué (objetivo y alcance) y cómo (enfoque de implementación o definición de listo). No se PUEDE crear ninguna rama ni abrir ningún PR para un issue que no cumpla estos requisitos.**
+> **Todo issue en un repositorio Guardia DEBE usar una de las plantillas aprobadas (feature-request, epic, user-story-for-api, user-story-for-frontend, tech-task), DEBE tener al menos una etiqueta de la lista aprobada que corresponda a su tipo, DEBE tener un GitHub Issue Type definido (Feature, Task, Bug, Epic) compatible con la plantilla usada, DEBE tener al menos un assignee — por defecto el autor del issue —, y DEBE responder explícitamente: por qué (motivación e impacto), qué (objetivo y alcance) y cómo (enfoque de implementación o definición de listo). No se PUEDE crear ninguna rama ni abrir ningún PR para un issue que no cumpla estos requisitos.**
 
 ## Cobertura
 
@@ -24,7 +24,7 @@ Todo issue DEBE usar una de las siguientes plantillas (ubicadas en `.ahrena/cont
 | `epic` | Iniciativa grande que agrupa múltiples historias o funcionalidades |
 | `user-story-for-api` | Funcionalidad de backend orientada a API, con criterios de aceptación y especificación |
 | `user-story-for-frontend` | Funcionalidad de UI/UX para la plataforma o app |
-| `simple-task` | Tarea pequeña y bien definida: chore, refactorización, mantenimiento, corrección de documentación, cambio de CI |
+| `tech-task` | Tarea pequeña y bien definida: chore, refactorización, mantenimiento, corrección de documentación, cambio de CI |
 
 Los issues sin plantilla son incompletos y DEBEN actualizarse antes de que cualquier rama o PR pueda referenciarlos.
 
@@ -38,7 +38,7 @@ Todo issue DEBE tener al menos una etiqueta aplicada. La etiqueta DEBE correspon
 | `epic` | `epic` |
 | `user-story-for-api` | `api`, `user story 🎯` |
 | `user-story-for-frontend` | `frontend`, `user story 🎯` |
-| `simple-task` | Al menos una de: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
+| `tech-task` | Al menos una de: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
 
 ### 3. GitHub Issue Type obligatorio
 
@@ -50,7 +50,7 @@ Todo issue DEBE tener un **GitHub Issue Type** definido (campo nativo de GitHub,
 | `epic` | `Epic` |
 | `user-story-for-api` | `Feature` |
 | `user-story-for-frontend` | `Feature` |
-| `simple-task` | `Task` |
+| `tech-task` | `Task` |
 
 Cuando el issue se crea via formulario de plantilla (`.github/ISSUE_TEMPLATE/*.yml`), el tipo se aplica automáticamente por el campo `type:` de la plantilla. Cuando el issue se crea via CLI (`gh issue create`), el agente DEBE aplicar el tipo después de la creación:
 
@@ -85,7 +85,7 @@ Todo issue DEBE responder tres preguntas, de forma explícita o a través de las
 | **Qué** | Objetivo, alcance, qué cambia | "Objective" / sección "What" |
 | **Cómo** | Enfoque de implementación, resultado esperado, definición de listo | "How should it work?" / sección "How" |
 
-Para `simple-task`: las tres preguntas son las secciones directas de la plantilla.
+Para `tech-task`: las tres preguntas son las secciones directas de la plantilla.
 
 Para las demás plantillas: las secciones se mapean a estas preguntas — el **Objective** (user story) responde Qué, **Why is this important** responde Por qué, y **How can it be implemented** / criterios de aceptación responden Cómo.
 
@@ -120,7 +120,7 @@ agente NO DEBE crear branch o abrir PR para una issue sin que ella
 satisfaga TODOS los 5 criterios canónicos:
 
   (a) Usa una de las plantillas aprobadas (feature-request, epic,
-      user-story-for-api, user-story-for-frontend, simple-task)
+      user-story-for-api, user-story-for-frontend, tech-task)
   (b) Tiene al menos una etiqueta obligatoria correspondiente a la plantilla
   (c) Tiene Issue Type definido (Feature, Task, Bug, Epic)
       compatible con la plantilla
@@ -146,7 +146,7 @@ explícita registrada en la propia issue.
 
 ```
 Issue: "Añadir kata-setup-gpg-signing al framework de contribución"
-Plantilla: simple-task
+Plantilla: tech-task
 Etiquetas: documentation 📃
 Por qué: Los contribuidores necesitan configurar la firma GPG para cumplir lex-signed-commits; aún no existe una guía paso a paso.
 Qué: Crear kata-setup-gpg-signing que cubra instalación de GPG, generación de clave, configuración de git y exportación a GitHub.

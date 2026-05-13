@@ -9,7 +9,7 @@ paths:
 
 ## Law
 
-> **Every issue in a Guardia repository MUST use one of the approved templates (feature-request, epic, user-story-for-api, user-story-for-frontend, simple-task), MUST have at least one label from the approved list that corresponds to its type, MUST have a defined GitHub Issue Type (Feature, Task, Bug, Epic) matching its template, MUST have at least one assignee — by default the issue's author —, and MUST explicitly answer: why (motivation and impact), what (objective and scope), and how (implementation approach or definition of done). No branch MAY be created and no PR MAY be opened for an issue that does not comply with these requirements.**
+> **Every issue in a Guardia repository MUST use one of the approved templates (feature-request, epic, user-story-for-api, user-story-for-frontend, tech-task), MUST have at least one label from the approved list that corresponds to its type, MUST have a defined GitHub Issue Type (Feature, Task, Bug, Epic) matching its template, MUST have at least one assignee — by default the issue's author —, and MUST explicitly answer: why (motivation and impact), what (objective and scope), and how (implementation approach or definition of done). No branch MAY be created and no PR MAY be opened for an issue that does not comply with these requirements.**
 
 ## Coverage
 
@@ -29,7 +29,7 @@ Every issue MUST use one of the following templates (located in `.ahrena/contrib
 | `epic` | Large initiative grouping multiple stories or features |
 | `user-story-for-api` | API-focused backend feature with acceptance criteria and API spec |
 | `user-story-for-frontend` | UI/UX feature for the platform or app |
-| `simple-task` | Well-defined small task: chore, refactoring, maintenance, documentation fix, CI change |
+| `tech-task` | Well-defined small task: chore, refactoring, maintenance, documentation fix, CI change |
 
 Issues without a template are incomplete and MUST be updated before any branch or PR can reference them.
 
@@ -43,7 +43,7 @@ Every issue MUST have at least one label applied. The label MUST correspond to t
 | `epic` | `epic` |
 | `user-story-for-api` | `api`, `user story 🎯` |
 | `user-story-for-frontend` | `frontend`, `user story 🎯` |
-| `simple-task` | At least one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
+| `tech-task` | At least one of: `documentation 📃`, `ci 🏗️`, `enhancement 🔝`, `evolvability ♻️` |
 
 ### 3. Mandatory GitHub Issue Type
 
@@ -55,7 +55,7 @@ Every issue MUST have a defined **GitHub Issue Type** (a native GitHub field, di
 | `epic` | `Epic` |
 | `user-story-for-api` | `Feature` |
 | `user-story-for-frontend` | `Feature` |
-| `simple-task` | `Task` |
+| `tech-task` | `Task` |
 
 When the issue is created via a template form (`.github/ISSUE_TEMPLATE/*.yml`), the type is auto-applied by the template's `type:` field. When the issue is created via CLI (`gh issue create`), the agent MUST apply the type after creation:
 
@@ -90,7 +90,7 @@ Every issue MUST answer three questions, explicitly or through the template sect
 | **What** | Objective, scope, what changes | "Objective" / "What" section |
 | **How** | Implementation approach, expected outcome, definition of done | "How should it work?" / "How" section |
 
-For `simple-task`: the three questions are the direct sections of the template.
+For `tech-task`: the three questions are the direct sections of the template.
 
 For other templates: the sections map to these questions — the **Objective** (user story) answers What, **Why is this important** answers Why, and **How can it be implemented** / acceptance criteria answers How.
 
@@ -125,7 +125,7 @@ agent MUST NOT create branch or open PR for an issue without it
 satisfying ALL 5 canonical criteria:
 
   (a) Uses one of the approved templates (feature-request, epic,
-      user-story-for-api, user-story-for-frontend, simple-task)
+      user-story-for-api, user-story-for-frontend, tech-task)
   (b) Has at least one required label matching the template
   (c) Has a defined GitHub Issue Type (Feature, Task, Bug, Epic)
       compatible with the template
@@ -151,7 +151,7 @@ justification recorded in the issue itself.
 
 ```
 Issue: "Add kata-setup-gpg-signing to the contributing framework"
-Template: simple-task
+Template: tech-task
 Labels: documentation 📃
 Why: Contributors need to configure GPG signing to satisfy lex-signed-commits; no step-by-step guide exists yet.
 What: Create kata-setup-gpg-signing covering GPG installation, key generation, git configuration, and GitHub export.

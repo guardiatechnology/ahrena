@@ -12,7 +12,7 @@ El body de la Issue (canonical per ADR-002), la Issue y el PR llevan el mismo tr
 
 ## Alcance
 
-- **Se aplica a:** todas las Issues abiertas vía templates aprobados (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `simple-task`, `subtask`, **release** — nuevo template introducido por ADR-002 / plan-046 Step 3.5), y todos los PRs en repositorios Guardia.
+- **Se aplica a:** todas las Issues abiertas vía templates aprobados (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `subtask`, **release** — nuevo template introducido por ADR-002 / plan-046 Step 3.5), y todos los PRs en repositorios Guardia.
 - **Agentes vinculados:**
   - Eje A — `warrior-eunomia` (`— → todo`), `warrior-athena` (`todo → development`, `development → to review`, `to review → done`), `warrior-argos` (`to review ↔ review`).
   - Eje B — `warrior-janus` (`— → to release`, `to release → release`, `release → done`).
