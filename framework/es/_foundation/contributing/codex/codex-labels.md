@@ -151,6 +151,108 @@ LABELS=$(gh issue view $ISSUE_NUMBER --repo $OWNER/$REPO --json labels --jq '[.l
 gh pr edit $PR_NUMBER --repo $OWNER/$REPO --add-label "$LABELS"
 ```
 
+### Catálogo Completo de Labels
+
+Catálogo completo sembrado por `scripts/bootstrap_labels.sh` y por `make bootstrap-labels`. El script es idempotente (usa `gh label create --force`) y se salta de forma elegante cuando el CLI `gh` está ausente o no autenticado. Los colores son hexadecimales sin el `#` inicial.
+
+#### Workflow status (7 labels)
+
+Rastrean el ciclo de vida de Issue y PR. Véase `lex-issue-status`.
+
+| Label | Color | Descripción | Artefacto dependiente |
+|-------|-------|-------------|------------------------|
+| `status: todo` | `cccccc` | Plan creado, Issue abierto, branch enlazada, worktree lista | `lex-issue-status`, `lex-agent-planning` |
+| `status: development` | `83d2ff` | Implementación en curso — Athena Fase 4 | `lex-issue-status`, `warrior-athena` |
+| `status: to review` | `fff3a3` | PR abierto, esperando que el reviewer lo tome | `lex-issue-status`, `warrior-athena` |
+| `status: review` | `fbca04` | Argos o humano revisando activamente | `lex-issue-status`, `warrior-argos` |
+| `status: to release` | `ffb178` | Revisión aprobada, esperando que comience el release | `lex-issue-status`, `warrior-janus` |
+| `status: release` | `e07400` | Release en ejecución — Janus corriendo tag/build/deploy | `lex-issue-status`, `warrior-janus` |
+| `status: done` | `0e8a16` | Release completado, PR fusionado, ciclo cerrado | `lex-issue-status` |
+
+#### Tipos de Issue (10 labels)
+
+Obligatorios según `lex-issue-quality` Regla 2. Mapean a templates en `.github/ISSUE_TEMPLATE/`.
+
+| Label | Color | Descripción | Artefacto dependiente |
+|-------|-------|-------------|------------------------|
+| `feature request ➕` | `5319E7` | Nueva solicitud de funcionalidad | `feature-request.yml` |
+| `feature ➕` | `7828E5` | Nueva funcionalidad añadida. Usar solo después de aprobar una feature request | Alcance de PR |
+| `epic` | `5319E7` | Gran iniciativa que agrupa múltiples historias o features | `epic.yml` |
+| `user story 🎯` | `6A42EB` | Una nueva user story | `user-story-for-api.yml`, `user-story-for-frontend.yml` |
+| `bug report 🐞` | `fc2803` | Reportar un nuevo bug | `bug.yml` |
+| `plan 📋` | `7c4dff` | Sub-issue: unidad ejecutable bajo una Issue padre (User Story / Bug / Tech Task) | `plan.yml`, `kata-plan-task` |
+| `evolvability ♻️` | `008672` | Issue o PR lanzado para asegurar la evolvability del proyecto (refactorización, código limpio) | `tech-task.yml` |
+| `documentation 📃` | `0075ca` | Issue o PR relacionado con mejoras o adiciones en documentación | `tech-task.yml` |
+| `ci 🏗️` | `ff7a0e` | Issue o PR relacionado con mejoras en el pipeline de CI/CD | `tech-task.yml` |
+| `enhancement 🔝` | `D5BBED` | Issue o PR relacionado con una mejora a una funcionalidad existente | `tech-task.yml` |
+
+#### Transversales y ciclo de vida (14 labels)
+
+Describen la naturaleza del trabajo o estado fuera del flujo de desarrollo.
+
+| Label | Color | Descripción | Artefacto dependiente |
+|-------|-------|-------------|------------------------|
+| `bugfix 🔧` | `fc4e03` | Issue o PR relacionado con algo que no funciona | Alcance de PR |
+| `compliance 📜` | `ae6b09` | Issue o PR relacionado con una mejora para cumplir con algún estándar | Alcance de PR |
+| `security 🛡️` | `D93F0B` | Este PR resuelve algún problema de seguridad | `lex-pr-quality` |
+| `vulnerability 🚨` | `B60205` | Vulnerabilidad detectada | Workflow de seguridad |
+| `breaking change 💥` | `925845` | Issue o PR introduciendo un breaking change. Incremento de versión major requerido | `lex-pr-quality`, `lex-semantic-version` |
+| `release ↗️` | `81A5DC` | Definir solo en PR de release | `lex-pr-quality`, `warrior-janus` |
+| `deprecate 🪦` | `5f6a70` | Issue para deprecar alguna funcionalidad existente | Workflow de deprecación |
+| `blocked 🚧` | `e99695` | Issue o PR con algún bloqueo para avanzar | Triaje manual |
+| `hold` | `fbca04` | Pausado / no perseguido activamente | Triaje manual |
+| `question ✋` | `d876e3` | Se solicita información adicional | Triaje manual |
+| `rejected ❌` | `b52816` | Issue o pull request rechazado | Triaje manual |
+| `wontfix 🤷‍♀️` | `ffffff` | Este issue no se trabajará | Triaje manual |
+| `duplicate !!` | `cfd3d7` | Este issue o pull request ya existe | Triaje manual |
+| `good first issue 🧠` | `CA3AC2` | Issue adecuado para newcomers | Onboarding de open source |
+
+#### Plataforma / alcance (2 labels)
+
+Indican la superficie técnica afectada.
+
+| Label | Color | Descripción | Artefacto dependiente |
+|-------|-------|-------------|------------------------|
+| `api` | `0075ca` | Issue o PR relacionado con diseño o implementación de API | `user-story-for-api.yml` |
+| `frontend` | `D5BBED` | Issue o PR relacionado con implementación de frontend (UI/UX) | `user-story-for-frontend.yml` |
+
+#### Asignados por herramienta (3 labels)
+
+Auto-aplicados por integraciones cuando un PR es abierto por una herramienta de IA.
+
+| Label | Color | Descripción | Artefacto dependiente |
+|-------|-------|-------------|------------------------|
+| `codex ✨` | `111112` | PR abierto por Codex | Integración |
+| `copilot ✨` | `111112` | PR abierto por Copilot | Integración |
+| `cursor ✨` | `111112` | PR abierto por Cursor | Integración |
+
+#### Tamaño de PR (6 labels)
+
+Auto-aplicados por el labeler de GitHub Actions. Obligatorios según `lex-pr-quality` Regla 2.
+
+| Label | Color | Descripción | Artefacto dependiente |
+|-------|-------|-------------|------------------------|
+| `size/XS` | `9b770a` | PR altera 0-9 líneas, ignorando archivos generados. Definido automáticamente | `lex-pr-quality` |
+| `size/S` | `e1b207` | PR altera 10-29 líneas, ignorando archivos generados. Definido automáticamente | `lex-pr-quality` |
+| `size/M` | `f3c511` | PR altera 30-99 líneas, ignorando archivos generados. Definido automáticamente | `lex-pr-quality` |
+| `size/L` | `ffdb4d` | PR altera 100-499 líneas, ignorando archivos generados. Definido automáticamente | `lex-pr-quality` |
+| `size/XL` | `cb9e0a` | PR altera 500-999 líneas, ignorando archivos generados. Definido automáticamente | `lex-pr-quality` |
+| `size/XXL` | `7a6600` | PR altera más de 1.000 líneas, ignorando archivos generados. Definido automáticamente | `lex-pr-quality` |
+
+#### Procedimiento de bootstrap
+
+Ejecutar una vez por repositorio consumidor. El catálogo también se siembra automáticamente por `make install` y `make update` cuando el destino tiene remote en GitHub.
+
+```bash
+# Ejecución manual en el repositorio actual
+make bootstrap-labels
+
+# Ejecución manual en un repositorio explícito
+bash scripts/bootstrap_labels.sh owner/repo
+```
+
+El script requiere el CLI `gh` autenticado con acceso de escritura al repositorio destino. Es idempotente — las reejecuciones actualizan color y descripción sin errores.
+
 ## Glosario
 
 | Término | Definición |
@@ -163,7 +265,9 @@ gh pr edit $PR_NUMBER --repo $OWNER/$REPO --add-label "$LABELS"
 ## Referencias
 
 - `lex-issue-quality` — Ley que exige templates, labels y contenido Why/What/How para todos los issues
+- `lex-pr-quality` — Ley que exige reflejo de labels, label de tamaño, assignee y reviewers en PRs
+- `lex-issue-status` — Ley que define las labels canónicas de workflow status
 - `kata-contributing-issue` — Procedimiento para crear issues (aplica labels obligatorios e Issue Type)
 - `kata-contributing-pr` — Procedimiento para crear PRs (refleja los labels del issue)
 - `codex-contributing` — Referencia completa del flujo de contribución
-- `labels.yml` — Definiciones canónicas de labels (`guardiatechnology/project-automations-experiments`)
+- `scripts/bootstrap_labels.sh` — Script idempotente que siembra el catálogo anterior
