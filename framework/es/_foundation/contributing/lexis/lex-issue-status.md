@@ -89,7 +89,7 @@ Epic es descompuesto por Calliope (plan-038) y nunca pasa por Athena directament
 
 ### 8. Creación inicial de las labels en el repositorio
 
-Cada repositorio que adopta el flujo DEBE crear las labels vía `gh label create` (script idempotente en `scripts/bootstrap_status_labels.sh`). Todas las labels ya existen desde plan-043 (PR #93); plan-046 no introduce labels nuevas — solo reorganiza la semántica en dos ejes.
+Cada repositorio que adopta el flujo DEBE crear las labels vía `gh label create` (script idempotente en `scripts/bootstrap_labels.sh`). Todas las labels ya existen desde plan-043 (PR #93); plan-046 no introduce labels nuevas — solo reorganiza la semántica en dos ejes.
 
 ## HARD-GATE
 
@@ -197,7 +197,7 @@ gh issue edit 88 --add-label "status: development"
 ## Validación Automatizada
 
 - **Herramienta:**
-  - Script `scripts/bootstrap_status_labels.sh` crea las labels idempotentemente en cualquier repositorio.
+  - Script `scripts/bootstrap_labels.sh` crea las labels idempotentemente en cualquier repositorio.
   - PR review (humano o Argos) verifica:
     - Alineación entre label de la Issue y label del PR (mismo eje, mismo estado).
     - Body de la Issue refleja el último flush (`kata-flush-plan-to-issue` fue ejecutado en la transición).

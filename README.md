@@ -291,7 +291,7 @@ Owners das transições (`lex-agent-planning`):
 | `to review → done` | `warrior-athena` (no merge) | A |
 | `— → to release → release → done` | `warrior-janus` (release Issue dedicada com `Tracks: #N1, ...`) | B |
 
-Crie as labels canônicas com `scripts/bootstrap_status_labels.sh [owner/repo]`.
+Crie as labels do framework com `scripts/bootstrap_labels.sh [owner/repo]` ou `make bootstrap-labels`.
 
 **Cadência de load/flush:** sincronização entre `.plans/{N}.md` e o body da Issue ocorre em 3 gatilhos canônicos: (a) cada transição de label `status:`, (b) cada Step marcado como concluído, (c) fim de sessão (heartbeat encerra). Toggles intermediários e edições de scratch (`<!-- not-flushed -->`) são livres. Documentação operacional em `codex-agent-planning`.
 

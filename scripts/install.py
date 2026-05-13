@@ -20,6 +20,7 @@ import argparse
 import io
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import urllib.error
@@ -1288,12 +1289,47 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
             shutil.copy2(src, ahrena_dir / script_name)
             print(f"  Installed {script_name} to .ahrena/")
 
+    # 3.1. Copy bootstrap_labels.sh and ensure it is executable
+    bootstrap_src = scripts_src / "bootstrap_labels.sh"
+    if bootstrap_src.exists():
+        bootstrap_dst = ahrena_dir / "bootstrap_labels.sh"
+        shutil.copy2(bootstrap_src, bootstrap_dst)
+        bootstrap_dst.chmod(bootstrap_dst.stat().st_mode | 0o111)
+        print(f"  Installed bootstrap_labels.sh to .ahrena/")
+
     # 4. Copy Makefile for future use
     makefile_src = source_dir / "Makefile"
     if makefile_src.exists():
         makefile_dst = ahrena_dir / "Makefile"
         shutil.copy2(makefile_src, makefile_dst)
         print(f"  Installed Makefile to .ahrena/")
+
+    # 5. Bootstrap framework labels when a GitHub remote is detected.
+    #    Runs scripts/bootstrap_labels.sh from .ahrena/ against the target repo.
+    #    Skipped silently when target is not a git repo, has no GitHub remote,
+    #    or gh CLI is missing/unauthenticated (the script handles those cases).
+    bootstrap_script = ahrena_dir / "bootstrap_labels.sh"
+    if bootstrap_script.exists() and not getattr(args, "dry_run", False):
+        try:
+            remote_result = subprocess.run(
+                ["git", "-C", str(target_dir), "remote", "get-url", "origin"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            remote_url = (remote_result.stdout or "").strip()
+            if remote_result.returncode == 0 and "github.com" in remote_url:
+                print("")
+                print("--- Phase 4: Bootstrap framework labels ---")
+                subprocess.run(
+                    ["bash", str(bootstrap_script)],
+                    cwd=str(target_dir),
+                    check=False,
+                )
+            else:
+                print("  Skipping label bootstrap (no GitHub remote detected).")
+        except Exception as exc:  # noqa: BLE001 — best-effort; never abort install
+            print(f"  Warning: label bootstrap step failed: {exc}")
 
     return ahrena_dir
 

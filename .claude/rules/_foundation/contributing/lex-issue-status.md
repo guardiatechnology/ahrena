@@ -3,7 +3,7 @@ paths:
   - '.github/ISSUE_TEMPLATE/**'
   - '.github/PULL_REQUEST_TEMPLATE.md'
   - '.github/PULL_REQUEST_TEMPLATE/**'
-  - 'scripts/bootstrap_status_labels.sh'
+  - 'scripts/bootstrap_labels.sh'
 ---
 
 # Lexis: Canonical Status Labels on Issue and PR
@@ -93,7 +93,7 @@ An Epic is decomposed by Calliope (plan-038) and never passes through Athena dir
 
 ### 8. Initial label creation in the repository
 
-Each repository that adopts the flow MUST create the labels via `gh label create` (idempotent script in `scripts/bootstrap_status_labels.sh`). All labels have existed since plan-043 (PR #93); plan-046 introduces no new labels — it only reorganizes the semantics into two axes.
+Each repository that adopts the flow MUST create the labels via `gh label create` (idempotent script in `scripts/bootstrap_labels.sh`). All labels have existed since plan-043 (PR #93); plan-046 introduces no new labels — it only reorganizes the semantics into two axes.
 
 ## HARD-GATE
 
@@ -201,7 +201,7 @@ gh issue edit 88 --add-label "status: development"
 ## Automated Validation
 
 - **Tool:**
-  - Script `scripts/bootstrap_status_labels.sh` creates the labels idempotently in any repository.
+  - Script `scripts/bootstrap_labels.sh` creates the labels idempotently in any repository.
   - PR review (human or Argos) verifies:
     - Alignment between the Issue label and the PR label (same axis, same state).
     - Issue body reflects the latest flush (`kata-flush-plan-to-issue` was executed on the transition).

@@ -277,7 +277,7 @@ Transition owners (`lex-agent-planning`):
 | `to review → done` | `warrior-athena` (on merge) | A |
 | `— → to release → release → done` | `warrior-janus` (dedicated release Issue with `Tracks: #N1, ...`) | B |
 
-Create the canonical labels with `scripts/bootstrap_status_labels.sh [owner/repo]`.
+Create the framework labels with `scripts/bootstrap_labels.sh [owner/repo]` or `make bootstrap-labels`.
 
 **Load/flush cadence:** synchronization between `.plans/{N}.md` and the Issue body runs on 3 canonical triggers: (a) each `status:` label transition, (b) each Step marked as completed, (c) end of session (heartbeat finishes). Intermediate toggles and scratch edits (`<!-- not-flushed -->`) are free. Operational documentation in `codex-agent-planning`.
 
