@@ -71,10 +71,10 @@ El agente **DEBE** aplicar cada sección de la directiva al comportamiento corre
 | `pr_cost_tracking.known_ai_reviewers` | Lista de logins GitHub adicionales reconocidos como revisores AI en la subsección Review. Built-ins (gemini-code-assist[bot], claude[bot], coderabbitai[bot], qodo-merge-pro[bot], ahrena-warrior-argos[bot]) siempre se reconocen; los logins aquí extienden el conjunto. Las subclaves `currency`, `include_cache_breakdown`, `window_override_days`, `mask_absolute_cost` permanecen declaradas en `.directives.sample` como reservadas para iteraciones futuras. |
 | `notifications.provider` | Nombre del servidor MCP responsable del envío de notificaciones. Valores aceptados: `slack`, `discord`, `teams`, `none`. El servidor MCP correspondiente DEBE estar listado en `mcp.servers` y activo. Consumido por Athena (PR review timeout), Janus (release publicada) y Eunomia (digest de planes). Ver `codex-notifications`. |
 | `notifications.channels.pr_review_timeout` | Canal lógico para alerta del loop de revisión de Athena (per `lex-agent-planning`). Disparado una vez al agotar los 3 ciclos de espera sin aprobación humana. |
-| `notifications.channels.release_notify` | Canal lógico para anuncio de release concluida (Janus, per plan-045 → plan-027). |
-| `notifications.channels.plans_status` | Canal lógico para el digest periódico de planes activos (Eunomia, per plan-044). |
+| `notifications.channels.release_notify` | Canal lógico para anuncio de release concluida (Janus). |
+| `notifications.channels.plans_status` | Canal lógico para el digest periódico de planes activos (Eunomia). |
 | `notifications.working_hours.*` | Ventana útil (`start`, `end`, `timezone`) para publicación de digests no críticos por Eunomia. Stalled crítico (`pm.critical_stalled_hours`) bypassa la ventana. |
-| `pm.loop_interval_minutes` | Cadencia del loop PM de Eunomia (default 15). Consumido por `kata-plans-status-digest` *(aún no publicado — entregado en plan-044)*. |
+| `pm.loop_interval_minutes` | Cadencia del loop PM de Eunomia (default 15). Consumido por `kata-plans-status-digest`. |
 | `pm.stalled_threshold_hours` | Umbral en horas tras el cual Eunomia marca un plan como `stalled` en el digest. |
 | `pm.critical_stalled_hours` | Umbral en horas para `stalled` crítico — bypassa `notifications.working_hours` y alerta inmediatamente. |
 | `session_tracking.enabled` | Master switch para tracking de sesión Claude Code per `codex-session-tracking`. Default `true` cuando la sección existe. |

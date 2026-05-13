@@ -26,8 +26,8 @@ Referência às decisões arquiteturais ativas:
 
 | ADR | Decisão | Status |
 |-----|---------|--------|
-| ADR-001 | [Descrição da decisão] | Ativa |
-| ADR-002 | [Descrição da decisão] | Ativa |
+| ADR-{N} | [Descrição da decisão] | Ativa |
+| ADR-{N} | [Descrição da decisão] | Ativa |
 
 ### Restrições Técnicas
 

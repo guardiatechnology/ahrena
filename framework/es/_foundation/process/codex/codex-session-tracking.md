@@ -4,7 +4,7 @@
 
 ## Visión General
 
-Este Codex define el sistema de heartbeat que permite al framework rastrear qué sesión Claude Code está operando en cada plan y qué secuencia de sesiones produjo cada PR. Sin esto, el digest de planes de Eunomia (plan-044) no logra distinguir "plan en movimiento ahora" de "plan olvidado"; el body del PR pierde la auditoría del tiempo de implementación; y los handoffs entre sesiones se vuelven huecos inexplicables en el historial.
+Este Codex define el sistema de heartbeat que permite al framework rastrear qué sesión Claude Code está operando en cada plan y qué secuencia de sesiones produjo cada PR. Sin esto, el digest de planes de Eunomia no logra distinguir "plan en movimiento ahora" de "plan olvidado"; el body del PR pierde la auditoría del tiempo de implementación; y los handoffs entre sesiones se vuelven huecos inexplicables en el historial.
 
 El contrato es simple: cada agente que toca un plan ejecuta `kata-session-heartbeat` en puntos significativos, escribiendo/actualizando `.ahrena/workflow/sessions/<session-id>.json`. La persistencia canónica va al body del PR (sección "Session Trace") vía `kata-pr-prepare`; el directorio local es runtime-only y gitignored.
 
@@ -84,7 +84,7 @@ Cuando una sesión cede el trabajo a otra (ej.: sesión A empezó, sesión B con
 
 1. La sesión B escribe un nuevo heartbeat con `previous_session: <UUID de la sesión A>`.
 2. El heartbeat antiguo de A permanece hasta que se limpie al final del ciclo.
-3. El digest de Eunomia muestra la cadena: "plan-043: sesión B (actual, heredó de A)".
+3. El digest de Eunomia muestra la cadena: "sesión B (actual, heredó de A)".
 
 ### 6. Directorio gitignored
 
@@ -109,7 +109,6 @@ El historial canónico de las sesiones que tocaron un trabajo persiste en el bod
 | `85846253` | claude-vscode | creator + executor | 2026-05-11T12:30Z | 2026-05-11T14:00Z |
 | `abc12345` | claude-cli | reviewer (Argos) | 2026-05-11T13:45Z | 2026-05-11T13:55Z |
 
-- Plan(s): plan-043
 - Worktree: `.worktrees/90-workflow-status-review-loop`
 - Cumulative active time: ~1h30min
 ```
@@ -139,7 +138,7 @@ Aceptado en Gate 2.
 ## Referencias
 
 - `lex-agent-planning` — front-matter del plan referencia `claude_session` + `session_entrypoint`
-- `lex-pr-quality` — exige sección "Session Trace" en el body del PR (regla introducida por plan-043)
+- `lex-pr-quality` — exige sección "Session Trace" en el body del PR
 - `kata-session-heartbeat` — procedimiento operacional canónico
 - `kata-pr-prepare` — construye la sección "Session Trace" antes de abrir el PR
 - `lex-directives` — claves `session_tracking.*` en `.ahrena/.directives`

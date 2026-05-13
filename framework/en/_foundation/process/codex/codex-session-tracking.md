@@ -4,7 +4,7 @@
 
 ## Overview
 
-This Codex defines the heartbeat system that lets the framework track which Claude Code session is operating on each plan and which sequence of sessions produced each PR. Without it, Eunomia's plans digest (plan-044) cannot distinguish "plan in motion now" from "plan forgotten"; the PR body loses implementation-time audit; and handoffs between sessions become unexplained gaps in the history.
+This Codex defines the heartbeat system that lets the framework track which Claude Code session is operating on each plan and which sequence of sessions produced each PR. Without it, Eunomia's plans digest cannot distinguish "plan in motion now" from "plan forgotten"; the PR body loses implementation-time audit; and handoffs between sessions become unexplained gaps in the history.
 
 The contract is simple: every agent touching a plan executes `kata-session-heartbeat` at significant points, writing/updating `.ahrena/workflow/sessions/<session-id>.json`. The canonical persistence goes into the PR body ("Session Trace" section) via `kata-pr-prepare`; the local directory is runtime-only and gitignored.
 
@@ -84,7 +84,7 @@ When a session hands off to another (e.g.: session A started, session B continue
 
 1. Session B writes a new heartbeat with `previous_session: <session A UUID>`.
 2. Session A's old heartbeat remains until cleaned up at the end of the cycle.
-3. Eunomia's digest shows the chain: "plan-043: session B (current, inherited from A)".
+3. Eunomia's digest shows the chain: "session B (current, inherited from A)".
 
 ### 6. Gitignored directory
 
@@ -109,7 +109,6 @@ The canonical history of sessions that touched a piece of work persists in the P
 | `85846253` | claude-vscode | creator + executor | 2026-05-11T12:30Z | 2026-05-11T14:00Z |
 | `abc12345` | claude-cli | reviewer (Argos) | 2026-05-11T13:45Z | 2026-05-11T13:55Z |
 
-- Plan(s): plan-043
 - Worktree: `.worktrees/90-workflow-status-review-loop`
 - Cumulative active time: ~1h30min
 ```
@@ -139,7 +138,7 @@ Accepted at Gate 2.
 ## References
 
 - `lex-agent-planning` — plan front-matter references `claude_session` + `session_entrypoint`
-- `lex-pr-quality` — requires "Session Trace" section in the PR body (rule introduced by plan-043)
+- `lex-pr-quality` — requires "Session Trace" section in the PR body
 - `kata-session-heartbeat` — canonical operational procedure
 - `kata-pr-prepare` — builds the "Session Trace" section before opening the PR
 - `lex-directives` — `session_tracking.*` keys in `.ahrena/.directives`

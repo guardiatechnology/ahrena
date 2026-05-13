@@ -5,7 +5,6 @@
 # configurations consulted by all agents.
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-
 # ─── Paths ───────────────────────────────────────────────────────
 # Canonical framework paths. All paths are relative to the
 # repository root. The .ahrena/ directory is the canonical entry
@@ -35,7 +34,6 @@ paths:
     warriors: "templates/warrior-sample.md"
     cries: "templates/cry-sample.md"
 
-
 # ─── References ─────────────────────────────────────────────────
 # External references consulted by framework artifacts. Each
 # reference is a URL or repo slug that lives outside the Ahrena
@@ -54,7 +52,6 @@ paths:
 references:
   component_template_repo:
     url: "https://github.com/guardiatechnology/bounded-context-template"
-
 
 # ─── MCP Servers ────────────────────────────────────────────────
 # List of MCP servers to activate. The installer merges each
@@ -76,7 +73,6 @@ mcp:
     # - notion
     # - figma
 
-
 # ─── Quality (Issue-Driven Workflow) ────────────────────────────
 # Settings used by kata-quality-gate (Gate 2 of the Issue-Driven
 # Development flow orchestrated by warrior-athena).
@@ -96,7 +92,6 @@ mcp:
                                       # whose diff touches docs/**/agents/**/system-prompt*.md.
                                       # See lex-system-prompt and codex-system-prompt § Seção 7.
 
-
 # ─── Knowledge (Issue-Driven Workflow) ──────────────────────────
 # Optional: Notion root page/database that kata-issue-analysis
 # prioritizes when enriching issue context. If omitted, full
@@ -105,7 +100,6 @@ mcp:
 # knowledge:
 #   notion:
 #     root_page: "page-id-or-url"
-
 
 # ─── Language ────────────────────────────────────────────────────
 # Defines the default language, the mandatory languages for the
@@ -121,7 +115,6 @@ language:
   cursor: en
   claude-code: en
 
-
 # ─── Terminal ───────────────────────────────────────────────────
 # Shell used for commands. Values: bash | powershell
 # Agents use this when executing or proposing shell commands (see lex-terminal-type).
@@ -129,7 +122,6 @@ language:
 
 # terminal: powershell   # Native Windows
 # terminal: bash         # Linux, macOS, WSL
-
 
 # ─── Stacked PRs ────────────────────────────────────────────────
 # Tool used to operate Stacked Pull Requests when a feature is
@@ -143,7 +135,6 @@ language:
 
 # stacked_prs:
 #   tool: vanilla   # vanilla | gs
-
 
 # ─── PR Cost Tracking ───────────────────────────────────────────
 # Computes Claude Code token consumption, estimated USD cost, and
@@ -190,7 +181,6 @@ language:
 #   window_override_days: 14       # future: override [branch_creation_date, now]
 #   mask_absolute_cost: false      # future: replace USD value with qualitative band
 
-
 # ─── Notifications ──────────────────────────────────────────────
 # Provider-agnostic notification configuration consumed by Athena
 # (PR review timeout), Janus (release published), and Eunomia
@@ -213,11 +203,10 @@ language:
 #     end:   "22:00"
 #     timezone: "America/Sao_Paulo"
 
-# pm:                              # consumed by Eunomia (plan-044)
+# pm:                              # consumed by Eunomia
 #   loop_interval_minutes: 15      # cadence of the PM digest loop
 #   stalled_threshold_hours: 4     # mark plan as stalled in the digest
 #   critical_stalled_hours: 24     # bypass working hours and alert immediately
-
 
 # ─── Session Tracking ───────────────────────────────────────────
 # Per codex-session-tracking. Records heartbeat files in
@@ -230,7 +219,6 @@ language:
 #   heartbeat_dir: ".ahrena/workflow/sessions"
 #   stale_threshold_minutes: 30            # PM considers offline after this
 #   pr_trace_required: true                # Gate 2 rejects PR without "Session Trace"
-
 
 # ─── Naming ─────────────────────────────────────────────────────
 # Canonical naming conventions for files, directories, and

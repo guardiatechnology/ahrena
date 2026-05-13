@@ -12,7 +12,7 @@ Write or update the heartbeat file `.ahrena/workflow/sessions/<session-id>.json`
 - On completion of a plan Step or an invoked kata.
 - On `status:` change of the plan.
 - Periodically (every 5–10 min) during prolonged activity.
-- By Eunomia (plan-044) on every PM loop tick before processing the digest.
+- By Eunomia on every PM loop tick before processing the digest.
 
 ## Inputs
 
