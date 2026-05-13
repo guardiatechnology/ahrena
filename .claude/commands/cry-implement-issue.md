@@ -81,7 +81,7 @@ Strictly respect lex-issue-driven: no skipping gates, with AC↔test traceabilit
 - Athena reads issue #42, produces `.ahrena/issues/42/01-brief.md`
 - Athena asks the user clarifying questions (if needed)
 - Athena produces `02-requirements.md` with 5 ACs
-- Athena produces `03-architecture.md` + creates `docs/adr/ADR-008-*.md`
+- Athena produces `03-architecture.md` + creates `docs/adr/-*.md`
 - **Gate 1:** Athena presents a summary; user approves
 - Apollo implements; each test marks the corresponding AC
 - `kata-security-review` approves (0 critical findings)

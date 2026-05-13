@@ -6,7 +6,7 @@
 
 Los agentes que ejecutan sin planificación previa producen resultados parciales, dejan archivos en estados inconsistentes y obligan al usuario a reconstruir el contexto manualmente. Esta Lexis elimina ese patrón al exigir que todo agente registre su plan antes de ejecutar, haciendo que la intención, el alcance y la secuencia sean auditables por humanos y por otros agentes. Además, define un ciclo de vida unificado entre el plan, la Issue de GitHub y el PR — con owner explícito para cada transición — para eliminar drift y dar visibilidad a la "sala de espera" de la revisión.
 
-Esta versión (per ADR-002) cambia el **medio de almacenamiento** del plan: el contenido canónico vive en el **body de la Issue** de GitHub; `.plans/{N}.md` es caché local de la IA (gitignored); `.ahrena/issues/{N}/` guarda los Phase artifacts del flujo Issue-Driven (committed). El archivo de plan dedicado en `.claude/plans/*.md` deja de ser el canónico.
+Esta versión cambia el **medio de almacenamiento** del plan: el contenido canónico vive en el **body de la Issue** de GitHub; `.plans/{N}.md` es caché local de la IA (gitignored); `.ahrena/issues/{N}/` guarda los Phase artifacts del flujo Issue-Driven (committed). El archivo de plan dedicado en `.claude/plans/*.md` deja de ser el canónico.
 
 ## Ley
 
@@ -18,7 +18,7 @@ Esta versión (per ADR-002) cambia el **medio de almacenamiento** del plan: el c
 - **Agentes vinculados:** todos, sin excepción de rol
 - **Excepciones permitidas:** operaciones triviales de etapa única (editar un único archivo con instrucción directa, consulta de lectura pura, comando aislado sin efecto colateral permanente)
 
-## Modelo de almacenamiento en tres capas (per ADR-002)
+## Modelo de almacenamiento en tres capas
 
 | Capa | Ubicación | Rol | Versionado |
 |---|---|---|---|
@@ -55,7 +55,7 @@ El path de `.plans/` es configurable vía `paths.plans` en `.ahrena/.directives`
 {Preguntas abiertas que requieren decisión antes/durante la ejecución; "None" si no hay.}
 ```
 
-Schema del `.plans/{N}.md` (per Open Question #4 de plan-046): **superset** del body de la Issue. Lleva el body completo espejado + secciones locales marcadas:
+Schema del `.plans/{N}.md` (per Open Question #4 de ): **superset** del body de la Issue. Lleva el body completo espejado + secciones locales marcadas:
 
 ```markdown
 <!-- not-flushed -->
@@ -75,7 +75,7 @@ cualquier texto libre que la IA quiera mantener como contexto local
 
 ## Ciclo de vida del plan
 
-El ciclo opera sobre **dos ejes disjuntos** (per ADR-002 / plan-045 absorbido):
+El ciclo opera sobre **dos ejes disjuntos**:
 
 ### Eje A — Dev cycle (Issue de feature/fix/chore/refactor)
 
@@ -107,7 +107,7 @@ to release → release → done
 
 La mutex de labels es **intra-artefacto** (dentro de cada Issue/PR), no cross-artifact: una Issue lleva exactamente una label `status: <name>` a la vez. El HARD-GATE en `lex-issue-status` prohíbe aplicar labels del Eje B en Issue/PR de feature, y viceversa.
 
-La carpeta `.ahrena/issues/_legacy/` (histórico anterior a ADR-002) preserva planes en formato antiguo — **ya no es un estado** del enum.
+La carpeta `.ahrena/issues/_legacy/` (legacy) preserva planes en formato antiguo — **ya no es un estado** del enum.
 
 ## Owner de `— → todo`: warrior-eunomia
 
@@ -129,7 +129,7 @@ sin satisfacer TODOS los 5 pasos canónicos:
   (a) Issue abierta per lex-issue-first y lex-issue-quality
       (template, label, Issue Type, assignee, Why/What/How)
   (b) Issue Type verificado per lex-issue-type-verified (entregado
-      en plan-044; absorbido por plan-046). Mientras no se shipea,
+      en ; absorbido por ). Mientras no se shipea,
       se satisface vía `gh api repos/{owner}/{repo}/issues/{N}` retornando
       `type` populado y compatible con el template — mismo contrato
   (c) Branch remota creada y vinculada a la Issue vía
@@ -178,7 +178,7 @@ Issue↔branch↔worktree↔body.
 Cada owner DEBE:
 
 - Aplicar la label `status: <name>` correspondiente en la Issue de GitHub (per `lex-issue-status`).
-- Aplicar la label `status: <name>` correspondiente en el PR (a partir de `to review`).
+- Aplicar la label `status: <name>` correspondiente (a partir de `to review`).
 - Disparar `kata-flush-plan-to-issue` si el caché local `.plans/{N}.md` está por delante del body de la Issue.
 
 ## Auditoría de cierre
@@ -190,9 +190,9 @@ Para audit post-merge, dos campos se derivan de APIs nativas de GitHub (sin fron
 | `closed_at` | `Issue.closedAt` | `gh issue view {N} --json closedAt --jq .closedAt` |
 | `merge_commit` | `PullRequest.mergeCommit.oid` | `gh pr view {PR} --json mergeCommit --jq .mergeCommit.oid` |
 
-Para planes legados en `.ahrena/issues/_legacy/` que mantienen YAML front-matter histórico (planes 043-045 y anteriores), `merge_commit:` y `closed_at:` son reconocidos como front-matter opcional aceptado — preserva el audit sin retrofit.
+Para planes legados en `.ahrena/issues/_legacy/` que mantienen YAML front-matter histórico (históricos), `merge_commit:` y `closed_at:` son reconocidos como front-matter opcional aceptado — preserva el audit sin retrofit.
 
-## Cadencia de load/flush (per ADR-002 §3)
+## Cadencia de load/flush
 
 La sincronización entre `.plans/{N}.md` y el body de la Issue ocurre en **3 disparadores canónicos** (no en cada toggle):
 
@@ -269,7 +269,7 @@ Tarea: implementar feature X
    Summary + Plan section antes de status: todo definitivo
 
 → Agente crea `.claude/plans/plan-NNN-*.md` como canónico
-→ ❌ Modelo legado pre-ADR-002. El plan canónico vive en el body de la Issue;
+→ ❌ Modelo legado pre-. El plan canónico vive en el body de la Issue;
    `.plans/{N}.md` es caché local regenerable, no fuente de verdad
 
 → Agente aplica `status: to release` en Issue de feature
@@ -285,7 +285,6 @@ Tarea: implementar feature X
 
 ## Referencias
 
-- ADR-002 — modelo de almacenamiento en tres capas
 - `lex-issue-status` — labels canónicas de status; split Tabla A (dev) / Tabla B (release)
 - `lex-issue-type-verified` — verificación programática del Issue Type post-creación
 - `lex-issue-first`, `lex-issue-quality`, `lex-git-branches`, `lex-git-worktrees` — preconditions del paso `— → todo`

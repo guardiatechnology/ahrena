@@ -4,9 +4,9 @@
 
 ## Overview
 
-This Codex is the operational reference for the **Issue-Driven Development** flow of Ahrena. It defines the 7 phases of the process, the 2 quality gates, the format of intermediate artifacts, the convention of traceability between acceptance criteria and tests, the format of ADRs (Architecture Decision Records), and the structure of **Phase artifacts in `.ahrena/issues/{n}/`** (per ADR-002). Consulted by `warrior-athena` and by all katas of the `engineering/workflow/` clade.
+This Codex is the operational reference for the **Issue-Driven Development** flow of Ahrena. It defines the 7 phases of the process, the 2 quality gates, the format of intermediate artifacts, the convention of traceability between acceptance criteria and tests, the format of ADRs (Architecture Decision Records), and the structure of **Phase artifacts in `.ahrena/issues/{n}/`**. Consulted by `warrior-athena` and by all katas of the `engineering/workflow/` clade.
 
-> **Transition window (per plan-046 OQ#7):** during 1 release after plan-046 merges, **both** paths are accepted as valid — `.ahrena/issues/{n}/` (new, canonical) and `.ahrena/issues/issue-{n}/` (legacy). After the following release, Gate 2 (`kata-quality-gate`) fails finding files in `.ahrena/issues/issue-{n}/` — forcing migration via `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}` in each consumer repo. ADRs remain in `docs/adr/` (they are product documentation).
+> **Transition window:** during 1 release after  merges, **both** paths are accepted as valid — `.ahrena/issues/{n}/` (new, canonical) and `.ahrena/issues/issue-{n}/` (legacy). After the following release, Gate 2 (`kata-quality-gate`) fails finding files in `.ahrena/issues/issue-{n}/` — forcing migration via `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}` in each consumer repo. ADRs remain in `docs/adr/` (they are product documentation).
 
 ## Context
 
@@ -70,8 +70,8 @@ This Codex is the operational reference for the **Issue-Driven Development** flo
 ```
 docs/
 ├── adr/
-│   ├── ADR-001-use-event-sourcing-for-ledger.md
-│   ├── ADR-002-migrate-to-fastapi.md
+│   ├── -use-event-sourcing-for-ledger.md
+│   ├── -migrate-to-fastapi.md
 │   └── ...
 └── issues/
     └── issue-{n}/

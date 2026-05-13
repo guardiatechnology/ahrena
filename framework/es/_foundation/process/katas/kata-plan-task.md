@@ -1,10 +1,10 @@
 # Kata: Planificar una Tarea
 
-> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Creación y mantenimiento de planes de tarea por agentes, conforme a `lex-agent-planning` (modelo de 3 capas — ADR-002)
+> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Creación y mantenimiento de planes de tarea por agentes, conforme a `lex-agent-planning` (modelo de 3 capas)
 
 ## Objetivo
 
-Crear el plan canónico de una tarea antes de la ejecución, garantizando que el objetivo, alcance, etapas y dependencias estén en el **body de la Issue de GitHub** (canonical per ADR-002) y confirmados por el usuario antes de que comience cualquier acción irreversible. Este es el procedimiento que **`warrior-eunomia` ejecuta en modo top-level** (per plan-046 / absorción de plan-044) y que el agente de la sesión sigue como fallback mientras Eunomia no esté disponible.
+Crear el plan canónico de una tarea antes de la ejecución, garantizando que el objetivo, alcance, etapas y dependencias estén en el **body de la Issue de GitHub** (canonical) y confirmados por el usuario antes de que comience cualquier acción irreversible. Este es el procedimiento que **`warrior-eunomia` ejecuta en modo top-level** (per  / absorción de ) y que el agente de la sesión sigue como fallback mientras Eunomia no esté disponible.
 
 Per `lex-agent-planning` HARD-GATE, la label `status: todo` solo puede aplicarse a la Issue cuando los 5 pasos canónicos se hayan completado: (1) Issue abierta per `lex-issue-quality`; (2) Issue Type verificado per `lex-issue-type-verified`; (3) branch remota creada vía `gh issue develop` y vinculada a la Issue; (4) worktree creado per `lex-git-worktrees`; (5) **body de la Issue rellenado con el plan canónico** (Summary + Plan section).
 
@@ -189,13 +189,13 @@ artifacts).
 
 ### Steps
 - [ ] Step 1 — Open Issue + branch + worktree (HARD-GATE)
-- [ ] Step 2 — ADR-002
+- [ ] Step 2
 - [ ] Step 3 — Rewrite lex-agent-planning (3 langs)
 - [ ] Step 3.5 — Split lex-issue-status (3 langs)
 ...
 
 ### Dependencies
-plan-043 (PR #93) merged.
+ merged.
 
 ### Risks
 - .plans/ perdida en fresh clone — mitigado por kata-load-plan-from-issue.
@@ -226,7 +226,7 @@ Agente: "Plan registrado en #96 (body canónico).
 ## Restricciones
 
 - **Nunca aplicar `status: todo` antes del Paso 7** — HARD-GATE de `lex-agent-planning` exige los 5 pasos canónicos completados.
-- **Nunca crear archivo `.claude/plans/*.md` como canónico** — modelo legado pre-ADR-002. El body de la Issue es canonical; `.plans/{N}.md` es caché regenerable.
+- **Nunca crear archivo `.claude/plans/*.md` como canónico** — modelo legado pre-. El body de la Issue es canonical; `.plans/{N}.md` es caché regenerable.
 - **Nunca saltar el user OK en el Paso 7** — la ejecución irreversible posterior exige confirmación explícita.
 - **Nunca omitir Summary o secciones del Plan** — body sin Summary, Steps, Risks, Dependencies, Open Questions no satisface HARD-GATE precondition (e).
 - **Preferir MCP > CLI** — per `lex-mcp` regla 1.
@@ -240,7 +240,6 @@ Agente: "Plan registrado en #96 (body canónico).
 - `lex-issue-first`, `lex-git-branches`, `lex-git-worktrees` — preconditions
 - `lex-mcp` — preferencia MCP + fallback CLI
 - `codex-agent-planning` — manual operacional
-- ADR-002 — modelo de almacenamiento en 3 capas
 - `kata-load-plan-from-issue` — Paso 6 (materializa caché local)
 - `kata-flush-plan-to-issue` — usado en transiciones posteriores (no en este kata)
 - `kata-create-subtasks` — modo subtask de Eunomia (descomposición de child Issue)

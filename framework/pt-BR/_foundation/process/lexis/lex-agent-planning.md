@@ -6,7 +6,7 @@
 
 Agentes que executam sem planejamento prévio produzem resultados parciais, deixam arquivos em estados inconsistentes e forçam o usuário a reconstruir contexto manualmente. Esta Lexis elimina esse padrão exigindo que todo agente registre seu plano antes de executar, tornando intenção, escopo e sequência auditáveis por humanos e por outros agentes. Além disso, define um ciclo de vida unificado entre plano, Issue do GitHub e PR — com owner explícito para cada transição — para eliminar drift e dar visibilidade à "sala de espera" da revisão.
 
-Esta versão (per ADR-002) muda o **meio de armazenamento** do plano: o conteúdo canônico vive no **body da Issue** do GitHub; `.plans/{N}.md` é cache local da IA (gitignored); `.ahrena/issues/{N}/` guarda os Phase artifacts do fluxo Issue-Driven (committed). Arquivo de plano dedicado em `.claude/plans/*.md` deixa de ser o canônico.
+Esta versão muda o **meio de armazenamento** do plano: o conteúdo canônico vive no **body da Issue** do GitHub; `.plans/{N}.md` é cache local da IA (gitignored); `.ahrena/issues/{N}/` guarda os Phase artifacts do fluxo Issue-Driven (committed). Arquivo de plano dedicado em `.claude/plans/*.md` deixa de ser o canônico.
 
 ## Lei
 
@@ -18,7 +18,7 @@ Esta versão (per ADR-002) muda o **meio de armazenamento** do plano: o conteúd
 - **Agentes vinculados:** todos, sem exceção de papel
 - **Exceções permitidas:** operações triviais de etapa única (editar um único arquivo com instrução direta, consulta de leitura pura, comando isolado sem efeito colateral permanente)
 
-## Modelo de armazenamento em três camadas (per ADR-002)
+## Modelo de armazenamento em três camadas
 
 | Camada | Localização | Papel | Versionamento |
 |---|---|---|---|
@@ -55,7 +55,7 @@ Path de `.plans/` é configurável via `paths.plans` em `.ahrena/.directives` (d
 {Perguntas em aberto que precisam de decisão antes/durante execução; "None" se não houver.}
 ```
 
-Schema do `.plans/{N}.md` (per Open Question #4 de plan-046): **superset** do body da Issue. Carrega o body completo espelhado + seções locais marcadas:
+Schema do `.plans/{N}.md` (per Open Question #4 de ): **superset** do body da Issue. Carrega o body completo espelhado + seções locais marcadas:
 
 ```markdown
 <!-- not-flushed -->
@@ -75,7 +75,7 @@ qualquer texto livre que a IA queira manter como contexto local
 
 ## Ciclo de vida do plano
 
-O ciclo opera sobre **dois eixos disjuntos** (per ADR-002 / plan-045 absorvido):
+O ciclo opera sobre **dois eixos disjuntos**:
 
 ### Eixo A — Dev cycle (Issue de feature/fix/chore/refactor)
 
@@ -107,7 +107,7 @@ to release → release → done
 
 A mutex de labels é **intra-artefato** (dentro de cada Issue/PR), não cross-artifact: uma Issue carrega exatamente uma label `status: <name>` por vez. HARD-GATE em `lex-issue-status` proíbe aplicar labels do Eixo B em Issue/PR de feature, e vice-versa.
 
-A pasta `.ahrena/issues/_legacy/` (histórico anterior a ADR-002) preserva planos em formato antigo — **não é mais um estado** do enum.
+A pasta `.ahrena/issues/_legacy/` (legacy) preserva planos em formato antigo — **não é mais um estado** do enum.
 
 ## Owner do `— → todo`: warrior-eunomia
 
@@ -129,7 +129,7 @@ sem satisfazer TODOS os 5 passos canônicos:
   (a) Issue aberta per lex-issue-first e lex-issue-quality
       (template, label, Issue Type, assignee, Why/What/How)
   (b) Issue Type verificado per lex-issue-type-verified (entregue
-      em plan-044; absorvido por plan-046). Enquanto não shipa,
+      em ; absorvido por ). Enquanto não shipa,
       satisfazer via `gh api repos/{owner}/{repo}/issues/{N}` retornando
       `type` populado e compatível com o template — mesmo contrato
   (c) Branch remota criada e vinculada à Issue via
@@ -178,7 +178,7 @@ Issue↔branch↔worktree↔body.
 Cada owner DEVE:
 
 - Aplicar a label `status: <name>` correspondente na Issue do GitHub (per `lex-issue-status`).
-- Aplicar a label `status: <name>` correspondente no PR (a partir de `to review`).
+- Aplicar a label `status: <name>` correspondente (a partir de `to review`).
 - Disparar `kata-flush-plan-to-issue` se o cache local `.plans/{N}.md` estiver à frente do body da Issue.
 
 ## Auditoria de fechamento
@@ -190,9 +190,9 @@ Para audit pós-merge, dois campos são derivados de APIs nativas do GitHub (sem
 | `closed_at` | `Issue.closedAt` | `gh issue view {N} --json closedAt --jq .closedAt` |
 | `merge_commit` | `PullRequest.mergeCommit.oid` | `gh pr view {PR} --json mergeCommit --jq .mergeCommit.oid` |
 
-Para planos legados em `.ahrena/issues/_legacy/` que mantêm YAML front-matter histórico (planos 043-045 e anteriores), `merge_commit:` e `closed_at:` são reconhecidos como front-matter opcional aceito — preserva o audit sem retrofit.
+Para planos legados em `.ahrena/issues/_legacy/` que mantêm YAML front-matter histórico (históricos), `merge_commit:` e `closed_at:` são reconhecidos como front-matter opcional aceito — preserva o audit sem retrofit.
 
-## Cadência de load/flush (per ADR-002 §3)
+## Cadência de load/flush
 
 Sincronização entre `.plans/{N}.md` e o body da Issue ocorre em **3 gatilhos canônicos** (não em cada toggle):
 
@@ -269,7 +269,7 @@ Tarefa: implementar feature X
    Summary + Plan section antes de status: todo definitivo
 
 → Agente cria `.claude/plans/plan-NNN-*.md` como canônico
-→ ❌ Modelo legado pré-ADR-002. Plano canônico vive no body da Issue;
+→ ❌ Modelo legado pré-. Plano canônico vive no body da Issue;
    `.plans/{N}.md` é cache local regenerável, não fonte de truth
 
 → Agente aplica `status: to release` em Issue de feature
@@ -285,7 +285,6 @@ Tarefa: implementar feature X
 
 ## Referências
 
-- ADR-002 — modelo de armazenamento em três camadas
 - `lex-issue-status` — labels canônicas de status; split Tabela A (dev) / Tabela B (release)
 - `lex-issue-type-verified` — verificação programática do Issue Type pós-criação
 - `lex-issue-first`, `lex-issue-quality`, `lex-git-branches`, `lex-git-worktrees` — preconditions do passo `— → todo`

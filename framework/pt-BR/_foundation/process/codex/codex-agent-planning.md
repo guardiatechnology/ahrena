@@ -4,7 +4,7 @@
 
 ## Visão Geral
 
-Este Codex é o manual canônico de planejamento de tarefas por agentes per ADR-002 (modelo Issue-as-plan em três camadas). Complementa `lex-agent-planning` (a Lei) com templates, exemplos de preenchimento, cadência de load/flush, owners de cada transição e diretrizes para casos-limite. Todo agente que cria ou mantém planos DEVE consultar este Codex.
+Este Codex é o manual canônico de planejamento de tarefas por agentes (modelo Issue-as-plan em três camadas). Complementa `lex-agent-planning` (a Lei) com templates, exemplos de preenchimento, cadência de load/flush, owners de cada transição e diretrizes para casos-limite. Todo agente que cria ou mantém planos DEVE consultar este Codex.
 
 ## Contexto
 
@@ -14,7 +14,7 @@ Este Codex é o manual canônico de planejamento de tarefas por agentes per ADR-
 
 ---
 
-## 1. Modelo de armazenamento em três camadas (per ADR-002)
+## 1. Modelo de armazenamento em três camadas
 
 | Camada | Localização | Papel | Versionamento |
 |---|---|---|---|
@@ -37,7 +37,7 @@ paths:
   plans: ".cache/ai-plans/"
 ```
 
-> **Modelo legado (pré-ADR-002, deprecated):** arquivos `plan-{NNN}-{slug}.md` em `.claude/plans/` foram migrados para `.ahrena/issues/_legacy/` no PR de plan-046. Não criar arquivos novos nesse formato — o body da Issue é canonical agora; `.plans/{N}.md` é cache local nomeado pelo número da Issue.
+> **Modelo legado (deprecated):** arquivos `plan-{NNN}-{slug}.md` em `.claude/plans/` foram migrados para `.ahrena/issues/_legacy/`. Não criar arquivos novos nesse formato — o body da Issue é canonical agora; `.plans/{N}.md` é cache local nomeado pelo número da Issue.
 
 ---
 
@@ -49,7 +49,7 @@ paths:
 
 | Campo | Regra |
 |---|---|
-| `{N}` | Número da Issue do GitHub correspondente. Sem padding, sem prefix — `.plans/96.md`, não `.plans/plan-096.md` ou `.plans/96-slug.md` |
+| `{N}` | Número da Issue do GitHub correspondente. Sem padding, sem prefix — `.plans/96.md`, não `.plans/.md` ou `.plans/96-slug.md` |
 
 Exemplos:
 - `.plans/42.md` — cache do plano da Issue #42
@@ -68,7 +68,7 @@ Para sincronizar localmente: `kata-load-plan-from-issue {N}`.
 
 ## 3. Template do body da Issue (canonical) e do cache local
 
-### 3a. Body da Issue (canonical per ADR-002)
+### 3a. Body da Issue (canonical)
 
 ```markdown
 ## Summary
@@ -89,16 +89,12 @@ cada transição e notificações provider-agnósticas via MCP.
 
 ### Steps
 - [x] 1. Issue + branch + worktree (Eunomia ou fallback)
-- [x] 2. ADR-002 (MADR simplificado)
 - [x] 3. lex-agent-planning (pt-BR)
 - [ ] 4. codex-agent-planning (pt-BR)
 - [ ] 5. lex-issue-status split (pt-BR)
 - ...
 
 ### Dependencies
-- plan-043 (PR #93) — merged
-- plan-044 (Eunomia) — absorvido por plan-046 Step 10
-- plan-045 (Janus pointer) — absorvido por plan-046 Step 3.5
 
 ### Risks
 - .plans/ perdida em fresh clone — mitigado por kata-load-plan-from-issue
@@ -134,13 +130,13 @@ O body da Issue é gravado por:
 
 ## Scratch
 gh issue develop registra branch como "Development" na sidebar.
-Limite do body da Issue: ~65KB (testado com plan-046).
+Limite do body da Issue: ~65KB.
 <!-- /not-flushed -->
 ```
 
 O cache **não tem front-matter YAML** — o GitHub Issue já carrega toda a metadata (assignees, labels `status:*`, milestones, dates). Blocos `<!-- not-flushed -->` são filtrados antes do flush para a Issue.
 
-> **Front-matter legacy:** planos em `.ahrena/issues/_legacy/` (pré-ADR-002) mantêm YAML front-matter histórico (`plan_id`, `status`, `claude_session`, `merge_commit`, `closed_at`). Esse formato é reconhecido para audit, mas NÃO replicar em novos planos.
+> **Front-matter legacy:** planos em `.ahrena/issues/_legacy/` (deprecated) mantêm YAML front-matter histórico (`plan_id`, `status`, `claude_session`, `merge_commit`, `closed_at`). Esse formato é reconhecido para audit, mas NÃO replicar em novos planos.
 
 ---
 
@@ -163,9 +159,9 @@ todo → development → to review → review → to release → release → don
 | `done` | Release concluído, PR mergeado, ciclo encerrado | `warrior-janus` |
 | `abandoned` | Plano descartado (qualquer estágio) | Criador ou owner atual |
 
-**Estado canônico per ADR-002:** o `status:` vive como **label** na Issue do GitHub (e no PR, a partir de `to review`). Não há mais "front-matter do plano" — o body da Issue é canonical; `.plans/{N}.md` é cache regenerável. Planos legados em `.ahrena/issues/_legacy/` mantêm front-matter histórico para audit, sem retrofit.
+**Estado canônico:** o `status:` vive como **label** na Issue do GitHub (e no PR, a partir de `to review`). Não há mais "front-matter do plano" — o body da Issue é canonical; `.plans/{N}.md` é cache regenerável. Planos legados em `.ahrena/issues/_legacy/` mantêm front-matter histórico para audit, sem retrofit.
 
-### Split em dois eixos (per ADR-002 / plan-045 absorvido)
+### Split em dois eixos
 
 - **Eixo A — Dev cycle** (feature/fix/chore Issues/PRs): `todo → development → to review → review → done` + `abandoned`. Owners: Eunomia/Athena/Argos.
 - **Eixo B — Release cycle** (release Issue exclusivamente): `to release → release → done` + `abandoned`. Owner: Janus.
@@ -202,9 +198,9 @@ Janus:   — ──→ to release ──→ release ──→ done              
 
 Cada owner atualiza simultaneamente:
 
-1. Body da Issue via `kata-flush-plan-to-issue` (canonical per ADR-002 — apenas se houve edição no cache local).
+1. Body da Issue via `kata-flush-plan-to-issue` (canonical — apenas se houve edição no cache local).
 2. Label `status: <name>` na Issue do GitHub (per `lex-issue-status` mutex intra-artefato).
-3. Label `status: <name>` no PR (a partir de `to review`, apenas no Eixo A).
+3. Label `status: <name>` (a partir de `to review`, apenas no Eixo A).
 
 ---
 
@@ -250,7 +246,7 @@ A falha em qualquer passo deixa o plano em rascunho (não pode ser apresentado c
 ## 8. Relação entre planos e outros artefatos
 
 ```
-Issue GitHub                                    canonical (per ADR-002)
+Issue GitHub                                    canonical
     ├── body: plano canônico (Summary + Plan)
     ├── label: status: <name> (Eixo A ou Eixo B)
     │
@@ -299,9 +295,9 @@ Se o conteúdo se repete em ambos, há sobreposição — plano vence (committed
 
 ---
 
-## 9. Cadência de load/flush (per ADR-002)
+## 9. Cadência de load/flush
 
-Sincronização entre o body da Issue (canonical) e o cache local `.plans/{N}.md` ocorre em **3 gatilhos canônicos** (per Open Question #3 de plan-046):
+Sincronização entre o body da Issue (canonical) e o cache local `.plans/{N}.md` ocorre em **3 gatilhos canônicos** (per Open Question #3 de ):
 
 | Gatilho | Operação | Quem dispara |
 |---|---|---|
@@ -381,14 +377,13 @@ Argos opera o sub-ciclo `to review ↔ review` em Fase A (com mudança de label 
 3. **Atualizar em tempo real.** Marcar `[x]` à medida que cada etapa conclui, não ao final de tudo — e disparar `kata-flush-plan-to-issue` para persistir.
 4. **Sincronizar label `status:` em Issue + PR.** Toda transição de owner toca a Issue e o PR. Skipping qualquer um produz drift que aparece em auditoria.
 5. **Não criar planos fantasmas.** Se a tarefa for cancelada antes de começar, aplicar `status: abandoned` na Issue com comentário explicando — não deletar a Issue.
-6. **Plano canônico vive no GitHub.** Não criar arquivos `.claude/plans/*.md` como canônicos (modelo legado pré-ADR-002). O body da Issue é canonical; `.plans/{N}.md` é cache regenerável; `.ahrena/issues/{N}/` carrega Phase artifacts.
+6. **Plano canônico vive no GitHub.** Não criar arquivos `.claude/plans/*.md` como canônicos (modelo legado pré-). O body da Issue é canonical; `.plans/{N}.md` é cache regenerável; `.ahrena/issues/{N}/` carrega Phase artifacts.
 7. **Working notes livres em `.plans/{N}.md`.** Usar blocos `<!-- not-flushed -->` para registrar decisões em rascunho, debugging notes e próximos passos voláteis — esses blocos são filtrados no flush, então não poluem o body canônico.
 
 ---
 
 ## Referências
 
-- ADR-002 — modelo de armazenamento em três camadas (Issue body + `.plans/` + `.ahrena/issues/`)
 - `lex-agent-planning` — Lei correspondente (HARD-GATE de `— → todo` + Tabelas A e B)
 - `lex-issue-status` — labels canônicos; split Eixo A (dev) + Eixo B (release)
 - `lex-issue-type-verified` — verificação programática do Issue Type

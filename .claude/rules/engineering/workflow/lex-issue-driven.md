@@ -49,7 +49,7 @@ The agent **MUST** invoke `kata-adr-write` when Phase 3 identifies:
 
 The ADR **MUST** be saved at `docs/adr/ADR-{n}-{kebab-title}.md` in the simplified MADR format.
 
-### 5. Phase artifacts in `.ahrena/issues/` (per ADR-002)
+### 5. Phase artifacts in `.ahrena/issues/`
 
 The agent **MUST** structure the Issue-Driven flow Phase artifacts in `.ahrena/issues/{n}/`:
 
@@ -60,7 +60,7 @@ The agent **MUST** structure the Issue-Driven flow Phase artifacts in `.ahrena/i
 5. `.ahrena/issues/{n}/06-quality-report.md` — Gate 2 report (Phase 6)
 6. `docs/adr/ADR-{n}-*.md` — ADRs when applicable (ADRs remain in `docs/` because they are product documentation, not operational)
 
-**Transition window (per plan-046 OQ#7):** during 1 release after plan-046 merges, the agent MUST accept **both** paths as valid — `.ahrena/issues/{n}/` (new, canonical) and `.ahrena/issues/issue-{n}/` (legacy). After the following release, Gate 2 (`kata-quality-gate`) fails finding files in `.ahrena/issues/issue-{n}/` — forcing migration via `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}`.
+**Transition window:** during 1 release after  merges, the agent MUST accept **both** paths as valid — `.ahrena/issues/{n}/` (new, canonical) and `.ahrena/issues/issue-{n}/` (legacy). After the following release, Gate 2 (`kata-quality-gate`) fails finding files in `.ahrena/issues/issue-{n}/` — forcing migration via `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}`.
 
 Ephemeral orchestration state (checkpoint between phases) may go to `.ahrena/workflow/issue-{n}/checkpoint.md`, **never** under `.ahrena/issues/` nor `docs/`. The checkpoint **MUST** use versioned YAML front-matter (see Rule 7).
 
@@ -80,7 +80,7 @@ artifacts:
   requirements: .ahrena/issues/42/02-requirements.md
   architecture: .ahrena/issues/42/03-architecture.md
 adrs:
-  - ADR-008-use-event-sourcing-for-refund-audit-trail.md
+  - -use-event-sourcing-for-refund-audit-trail.md
 gate_1:
   status: approved | pending | rejected
   approved_at: "2026-04-16T14:30:00Z"
@@ -256,7 +256,7 @@ Direct delegation does not change any other flow rule (Gates 1 and 2, AC ↔ tes
 # .ahrena/issues/42/01-brief.md
 # .ahrena/issues/42/02-requirements.md   (AC-1, AC-2, AC-3)
 # .ahrena/issues/42/03-architecture.md
-# docs/adr/ADR-007-use-fastapi-routers.md   (relevant decision)
+# docs/adr/-use-fastapi-routers.md   (relevant decision)
 
 # Awaits Gate 1 → human approves
 # Apollo implements: each test references AC-N

@@ -1,6 +1,6 @@
 # Kata: Cargar Plan desde la Issue
 
-> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Materialización del caché local `.plans/{N}.md` a partir del body canónico de la Issue de GitHub, conforme al modelo de almacenamiento en 3 capas del ADR-002
+> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Materialización del caché local `.plans/{N}.md` a partir del body canónico de la Issue de GitHub, conforme al modelo de almacenamiento en 3 capas del
 
 ## Objetivo
 
@@ -124,7 +124,7 @@ tres capas con roles claros: Issue body (canonical) + .plans/ (caché IA)
 
 ### Steps
 - [x] Step 1 — Open Issue + branch + worktree
-- [x] Step 2 — ADR-002
+- [x] Step 2
 - [ ] Step 3 — Rewrite lex-agent-planning (3 langs)
 ...
 
@@ -167,6 +167,5 @@ gh issue develop registra branch como "Development" en la sidebar — no olvidar
 - `lex-agent-planning` — modelo de 3 capas y cadencia de load/flush
 - `lex-mcp` — preferencia MCP + fallback CLI
 - `codex-agent-planning` — manual operacional
-- ADR-002 — decisión de arquitectura
 - `kata-flush-plan-to-issue` — operación inversa (caché → Issue)
 - `kata-plan-task` — creación inicial del plan (rellena body de la Issue)

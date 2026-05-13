@@ -49,7 +49,7 @@ El agente **DEBE** invocar `kata-adr-write` cuando la Fase 3 identifique:
 
 El ADR **DEBE** ser guardado en `docs/adr/ADR-{n}-{título-en-kebab}.md` en el formato MADR simplificado.
 
-### 5. Phase artifacts en `.ahrena/issues/` (per ADR-002)
+### 5. Phase artifacts en `.ahrena/issues/`
 
 El agente **DEBE** estructurar los Phase artifacts del flujo Issue-Driven en `.ahrena/issues/{n}/`:
 
@@ -60,7 +60,7 @@ El agente **DEBE** estructurar los Phase artifacts del flujo Issue-Driven en `.a
 5. `.ahrena/issues/{n}/06-quality-report.md` — reporte del Gate 2 (Fase 6)
 6. `docs/adr/ADR-{n}-*.md` — ADRs cuando son aplicables (los ADRs permanecen en `docs/` porque son documentación de producto, no operacional)
 
-**Ventana de transición (per plan-046 OQ#7):** durante 1 release tras el merge de plan-046, el agente DEBE aceptar **ambos** caminos como válidos — `.ahrena/issues/{n}/` (nuevo, canónico) y `.ahrena/issues/issue-{n}/` (legado). Tras el release siguiente, Gate 2 (`kata-quality-gate`) falla encontrando archivos en `.ahrena/issues/issue-{n}/` — fuerza migración vía `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}`.
+**Ventana de transición:** durante 1 release tras el merge de , el agente DEBE aceptar **ambos** caminos como válidos — `.ahrena/issues/{n}/` (nuevo, canónico) y `.ahrena/issues/issue-{n}/` (legado). Tras el release siguiente, Gate 2 (`kata-quality-gate`) falla encontrando archivos en `.ahrena/issues/issue-{n}/` — fuerza migración vía `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}`.
 
 El estado efímero de orquestación (checkpoint entre fases) puede ir en `.ahrena/workflow/issue-{n}/checkpoint.md`, **nunca** en `.ahrena/issues/` ni en `docs/`. El checkpoint **DEBE** usar front-matter YAML versionado (ver Regla 7).
 
@@ -80,7 +80,7 @@ artifacts:
   requirements: .ahrena/issues/42/02-requirements.md
   architecture: .ahrena/issues/42/03-architecture.md
 adrs:
-  - ADR-008-use-event-sourcing-for-refund-audit-trail.md
+  - -use-event-sourcing-for-refund-audit-trail.md
 gate_1:
   status: approved | pending | rejected
   approved_at: "2026-04-16T14:30:00Z"
@@ -256,7 +256,7 @@ La delegación directa no cambia ninguna otra regla del flujo (Gates 1 y 2, traz
 # .ahrena/issues/42/01-brief.md
 # .ahrena/issues/42/02-requirements.md   (AC-1, AC-2, AC-3)
 # .ahrena/issues/42/03-architecture.md
-# docs/adr/ADR-007-use-fastapi-routers.md   (decisión relevante)
+# docs/adr/-use-fastapi-routers.md   (decisión relevante)
 
 # Espera Gate 1 → humano aprueba
 # Apollo implementa: cada test referencia AC-N

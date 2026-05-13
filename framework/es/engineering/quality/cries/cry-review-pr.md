@@ -23,7 +23,7 @@ Este comando invoca a `warrior-argos` para ejecutar una revisión multi-eje estr
 
 1. Invoca a `warrior-argos` con el número del PR y el repositorio opcional
 2. Argos ejecuta las Fases 0 → 4 (Recolección → Worktree → Revisión Multi-Eje → Consolidación → Limpieza)
-3. El reviewer recibe un único review-comment consolidado en el PR con findings clasificados como 🔴 BLOCKER o 🟡 WARNING
+3. El reviewer recibe un único review-comment consolidado con findings clasificados como 🔴 BLOCKER o 🟡 WARNING
 4. Re-ejecutar en el mismo commit edita el review-comment existente (idempotente); re-ejecutar en un commit nuevo crea una review nueva (audit trail preservado)
 
 ## Prompt Template
@@ -57,7 +57,7 @@ Formato de salida:
 **Output esperado:**
 
 ```
-Argos aquí. Revisando PR #142 en guardiatechnology/ahrena.
+Argos aquí. Revisando PR #{N} en guardiatechnology/ahrena.
 
 Fase 0 — Recolección: Issue #138 ✅ | PRD en Notion ✅ | .ahrena/issues/138/ ✅
 Fase 1 — Worktree: .worktrees/review-pr-142/ creado

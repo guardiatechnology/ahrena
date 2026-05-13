@@ -19,7 +19,7 @@ paths:
 - **Bound agents:** all, without role exceptions
 - **Allowed exceptions:** trivial single-step operations (editing a single file with a direct instruction, pure read queries, isolated commands with no permanent side effects)
 
-## Three-layer storage model (per ADR-002)
+## Three-layer storage model
 
 | Layer | Location | Role | Versioning |
 |---|---|---|---|
@@ -56,7 +56,7 @@ The `.plans/` path is configurable via `paths.plans` in `.ahrena/.directives` (d
 {Open questions requiring a decision before/during execution; "None" if there are none.}
 ```
 
-`.plans/{N}.md` schema (per plan-046 Open Question #4): **superset** of the Issue body. Carries the full mirrored body + locally marked sections:
+`.plans/{N}.md` schema (per  Open Question #4): **superset** of the Issue body. Carries the full mirrored body + locally marked sections:
 
 ```markdown
 <!-- not-flushed -->
@@ -76,7 +76,7 @@ any free text the AI wants to keep as local context
 
 ## Plan lifecycle
 
-The lifecycle operates on **two disjoint axes** (per ADR-002 / absorbed plan-045):
+The lifecycle operates on **two disjoint axes**:
 
 ### Axis A — Dev cycle (feature/fix/chore/refactor Issue)
 
@@ -108,7 +108,7 @@ to release → release → done
 
 Label mutex is **intra-artifact** (within each Issue/PR), not cross-artifact: an Issue carries exactly one `status: <name>` label at a time. A HARD-GATE in `lex-issue-status` forbids applying Axis B labels to a feature Issue/PR, and vice versa.
 
-The `.ahrena/issues/_legacy/` folder (history prior to ADR-002) preserves plans in the old format — **it is no longer a state** of the enum.
+The `.ahrena/issues/_legacy/` folder (legacy) preserves plans in the old format — **it is no longer a state** of the enum.
 
 ## Owner of `— → todo`: warrior-eunomia
 
@@ -130,7 +130,7 @@ without satisfying ALL 5 canonical steps:
   (a) Issue opened per lex-issue-first and lex-issue-quality
       (template, label, Issue Type, assignee, Why/What/How)
   (b) Issue Type verified per lex-issue-type-verified (delivered
-      in plan-044; absorbed by plan-046). Until it ships,
+      in ; absorbed by ). Until it ships,
       satisfy via `gh api repos/{owner}/{repo}/issues/{N}` returning
       `type` populated and compatible with the template — same contract
   (c) Remote branch created and linked to the Issue via
@@ -191,9 +191,9 @@ For post-merge audit, two fields are derived from native GitHub APIs (with no de
 | `closed_at` | `Issue.closedAt` | `gh issue view {N} --json closedAt --jq .closedAt` |
 | `merge_commit` | `PullRequest.mergeCommit.oid` | `gh pr view {PR} --json mergeCommit --jq .mergeCommit.oid` |
 
-For legacy plans in `.ahrena/issues/_legacy/` that keep historical YAML front-matter (plans 043-045 and earlier), `merge_commit:` and `closed_at:` are recognized as accepted optional front-matter — this preserves the audit trail with no retrofit.
+For legacy plans in `.ahrena/issues/_legacy/` that keep historical YAML front-matter (historical), `merge_commit:` and `closed_at:` are recognized as accepted optional front-matter — this preserves the audit trail with no retrofit.
 
-## Load/flush cadence (per ADR-002 §3)
+## Load/flush cadence
 
 Synchronization between `.plans/{N}.md` and the Issue body happens at **3 canonical triggers** (not on every toggle):
 
@@ -270,7 +270,7 @@ Task: implement feature X
    Summary + Plan section before definitive status: todo
 
 → Agent creates `.claude/plans/plan-NNN-*.md` as canonical
-→ ❌ Legacy pre-ADR-002 model. The canonical plan lives in the Issue body;
+→ ❌ Legacy pre- model. The canonical plan lives in the Issue body;
    `.plans/{N}.md` is the regenerable local cache, not the source of truth
 
 → Agent applies `status: to release` to a feature Issue

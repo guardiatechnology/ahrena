@@ -57,7 +57,7 @@ Formato de saída:
 **Output esperado:**
 
 ```
-Argos aqui. Revisando PR #142 em guardiatechnology/ahrena.
+Argos aqui. Revisando PR #{N} em guardiatechnology/ahrena.
 
 Fase 0 — Coleta: Issue #138 ✅ | PRD no Notion ✅ | .ahrena/issues/138/ ✅
 Fase 1 — Worktree: .worktrees/review-pr-142/ criado

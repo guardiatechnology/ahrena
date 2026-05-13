@@ -26,7 +26,7 @@
 - Consolidates findings into a single review comment with the idempotent marker `<!-- argos-review-id:sha256(pr_number + ":" + commit_sha) -->` — edits on re-run on the same commit, creates a new comment on re-run with a new commit
 - Publishes per `Publication policy` (subsection below): `gh pr review --request-changes` when ≥1 BLOCKER; `--comment` when there are WARNINGs without BLOCKER OR clean first-touch; `--approve` only on clean re-review after a prior CR of his own (mandatory paper trail)
 - **Operates the `to review ↔ review` sub-cycle** per `lex-agent-planning` Table A (Axis A — dev cycle):
-  - **Entry:** upon receiving a review trigger (via `cry-review-pr` or post-Athena invocation), invokes `kata-load-plan-from-issue` to materialize `.plans/{N}.md` from the canonical Issue body (per ADR-002). Confirms that the PR is in `status: to review` and moves it to `status: review` (label on PR + Issue per `lex-issue-status` intra-artifact mutex)
+  - **Entry:** upon receiving a review trigger (via `cry-review-pr` or post-Athena invocation), invokes `kata-load-plan-from-issue` to materialize `.plans/{N}.md` from the canonical Issue body. Confirms that the PR is in `status: to review` and moves it to `status: review` (label on PR + Issue per `lex-issue-status` intra-artifact mutex)
   - **Exit on changes-requested:** when publishing a comment with P0/P1 findings, returns the PR to `status: to review` (the author takes action to correct). Triggers `kata-flush-plan-to-issue` recording the findings in a structured way in the Issue body (written as Working notes in the cache section; the flush filters `<!-- not-flushed -->` blocks automatically)
   - **Exit on clean re-review (resolution of a prior CR):** without P0/P1 findings and a prior `CHANGES_REQUESTED` of his own already exists on the PR, publishes `--approve` and returns to `status: to review` — Athena resumes the human-approval wait loop and moves to `done` upon detecting merge via `gh pr view --json mergedAt`
   - **Exit on clean first-touch (no prior CR):** without P0/P1 findings, publishes `--comment` recording the clean review (paper trail) and returns to `status: to review` — cold-start approval is forbidden
@@ -188,7 +188,7 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
    - Fetches the PR via GitHub MCP (`get_pull_request`, `get_pull_request_diff`, `list_pull_request_commits`, `list_pull_request_reviews`, `get_pull_request_status`)
    - Extracts the linked Issue number from the PR body (`Closes #N` / `Refs #N`); fetches the Issue
    - Looks for Notion URLs in the PR/Issue body (PRD, Capability Spec); fetches via Notion MCP
-   - Reads local `.ahrena/issues/{N}/*` when present and the referenced `.plans/{N}.md` cache (per ADR-002 — canonical plan body lives in the Issue)
+   - Reads local `.ahrena/issues/{N}/*` when present and the referenced `.plans/{N}.md` cache (per  — canonical plan body lives in the Issue)
    - Records the head commit SHA — used in the idempotent marker
 3. **Phase 1 — Worktree:** invokes `kata-git-worktree` to create `.worktrees/review-pr-<N>/`, checks out the PR branch
 4. **Phase 2 — Multi-axis review** (parallel where independent):
@@ -240,7 +240,7 @@ Escalates to the human reviewer when:
 
 **User:** `cry-review-pr 142`
 
-**Argos:** Assuming Argos. Reading PR #142 from `guardiatechnology/ahrena`.
+**Argos:** Assuming Argos. Reading PR #{N} from `guardiatechnology/ahrena`.
 
 **Phase 0 — Collection:**
 - PR title: `feat(scheduled-payments): add transfer approval flow`

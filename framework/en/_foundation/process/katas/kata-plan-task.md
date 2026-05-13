@@ -1,10 +1,10 @@
 # Kata: Plan a Task
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Creating and maintaining task plans by agents, per `lex-agent-planning` (3-layer model — ADR-002)
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Creating and maintaining task plans by agents, per `lex-agent-planning` (3-layer model)
 
 ## Objective
 
-Create the canonical plan of a task before execution, ensuring that objective, scope, steps, and dependencies live in the **GitHub Issue body** (canonical per ADR-002) and are confirmed by the user before any irreversible action starts. This is the procedure that **`warrior-eunomia` executes in top-level mode** (per plan-046 / absorption of plan-044) and that the session agent follows as fallback while Eunomia is not available.
+Create the canonical plan of a task before execution, ensuring that objective, scope, steps, and dependencies live in the **GitHub Issue body** (canonical) and are confirmed by the user before any irreversible action starts. This is the procedure that **`warrior-eunomia` executes in top-level mode** (per  / absorption of ) and that the session agent follows as fallback while Eunomia is not available.
 
 Per `lex-agent-planning` HARD-GATE, the `status: todo` label may only be applied to the Issue when the 5 canonical steps are complete: (1) Issue opened per `lex-issue-quality`; (2) Issue Type verified per `lex-issue-type-verified`; (3) remote branch created via `gh issue develop` and linked to the Issue; (4) worktree created per `lex-git-worktrees`; (5) **Issue body populated with the canonical plan** (Summary + Plan section).
 
@@ -189,13 +189,13 @@ artifacts).
 
 ### Steps
 - [ ] Step 1 — Open Issue + branch + worktree (HARD-GATE)
-- [ ] Step 2 — ADR-002
+- [ ] Step 2
 - [ ] Step 3 — Rewrite lex-agent-planning (3 langs)
 - [ ] Step 3.5 — Split lex-issue-status (3 langs)
 ...
 
 ### Dependencies
-plan-043 (PR #93) merged.
+ merged.
 
 ### Risks
 - .plans/ lost on fresh clone — mitigated by kata-load-plan-from-issue.
@@ -226,7 +226,7 @@ Agent: "Plan registered in #96 (canonical body).
 ## Restrictions
 
 - **Never apply `status: todo` before Step 7** — `lex-agent-planning` HARD-GATE requires all 5 canonical steps completed.
-- **Never create a `.claude/plans/*.md` file as canonical** — legacy pre-ADR-002 model. The Issue body is canonical; `.plans/{N}.md` is the regenerable cache.
+- **Never create a `.claude/plans/*.md` file as canonical** — legacy pre- model. The Issue body is canonical; `.plans/{N}.md` is the regenerable cache.
 - **Never skip the user OK in Step 7** — subsequent irreversible execution requires explicit confirmation.
 - **Never omit Summary or Plan sections** — a body without Summary, Steps, Risks, Dependencies, Open Questions does not satisfy HARD-GATE precondition (e).
 - **Prefer MCP > CLI** — per `lex-mcp` rule 1.
@@ -240,7 +240,6 @@ Agent: "Plan registered in #96 (canonical body).
 - `lex-issue-first`, `lex-git-branches`, `lex-git-worktrees` — preconditions
 - `lex-mcp` — MCP preference + CLI fallback
 - `codex-agent-planning` — operational manual
-- ADR-002 — 3-layer storage model
 - `kata-load-plan-from-issue` — Step 6 (materializes local cache)
 - `kata-flush-plan-to-issue` — used in subsequent transitions (not in this kata)
 - `kata-create-subtasks` — Eunomia subtask mode (child Issue decomposition)

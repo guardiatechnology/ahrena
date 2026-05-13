@@ -4,9 +4,9 @@
 
 ## Visión General
 
-Este Codex es la referencia operacional del flujo **Issue-Driven Development** de Ahrena. Define las 7 fases del proceso, los 2 gates de calidad, el formato de los artefactos intermedios, la convención de trazabilidad entre criterios de aceptación y tests, el formato de los ADRs (Architecture Decision Records) y la estructura de **Phase artifacts en `.ahrena/issues/{n}/`** (per ADR-002). Consultado por `warrior-athena` y por todos los katas del clade `engineering/workflow/`.
+Este Codex es la referencia operacional del flujo **Issue-Driven Development** de Ahrena. Define las 7 fases del proceso, los 2 gates de calidad, el formato de los artefactos intermedios, la convención de trazabilidad entre criterios de aceptación y tests, el formato de los ADRs (Architecture Decision Records) y la estructura de **Phase artifacts en `.ahrena/issues/{n}/`**. Consultado por `warrior-athena` y por todos los katas del clade `engineering/workflow/`.
 
-> **Ventana de transición (per plan-046 OQ#7):** durante 1 release tras el merge de plan-046, **ambos** caminos son aceptados como válidos — `.ahrena/issues/{n}/` (nuevo, canónico) y `.ahrena/issues/issue-{n}/` (legado). Tras el release siguiente, Gate 2 (`kata-quality-gate`) falla encontrando archivos en `.ahrena/issues/issue-{n}/` — fuerza migración vía `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}` en cada repo consumidor. Los ADRs permanecen en `docs/adr/` (son documentación de producto).
+> **Ventana de transición:** durante 1 release tras el merge de , **ambos** caminos son aceptados como válidos — `.ahrena/issues/{n}/` (nuevo, canónico) y `.ahrena/issues/issue-{n}/` (legado). Tras el release siguiente, Gate 2 (`kata-quality-gate`) falla encontrando archivos en `.ahrena/issues/issue-{n}/` — fuerza migración vía `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}` en cada repo consumidor. Los ADRs permanecen en `docs/adr/` (son documentación de producto).
 
 ## Contexto
 
@@ -70,8 +70,8 @@ Este Codex es la referencia operacional del flujo **Issue-Driven Development** d
 ```
 docs/
 ├── adr/
-│   ├── ADR-001-use-event-sourcing-for-ledger.md
-│   ├── ADR-002-migrate-to-fastapi.md
+│   ├── -use-event-sourcing-for-ledger.md
+│   ├── -migrate-to-fastapi.md
 │   └── ...
 └── issues/
     └── issue-{n}/

@@ -1,11 +1,11 @@
 ---
 name: kata-plan-task
-description: "Plan a Task. Creating and maintaining task plans by agents, per lex-agent-planning (3-layer model — ADR-002)"
+description: "Plan a Task. Creating and maintaining task plans by agents, per lex-agent-planning (3-layer model)"
 ---
 
 # Kata: Plan a Task
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Creating and maintaining task plans by agents, per `lex-agent-planning` (3-layer model — ADR-002)
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Creating and maintaining task plans by agents, per `lex-agent-planning` (3-layer model)
 
 ## Workflow
 
@@ -173,13 +173,13 @@ artifacts).
 
 ### Steps
 - [ ] Step 1 — Open Issue + branch + worktree (HARD-GATE)
-- [ ] Step 2 — ADR-002
+- [ ] Step 2
 - [ ] Step 3 — Rewrite lex-agent-planning (3 langs)
 - [ ] Step 3.5 — Split lex-issue-status (3 langs)
 ...
 
 ### Dependencies
-plan-043 (PR #93) merged.
+ merged.
 
 ### Risks
 - .plans/ lost on fresh clone — mitigated by kata-load-plan-from-issue.
@@ -210,7 +210,7 @@ Agent: "Plan registered in #96 (canonical body).
 ## Restrictions
 
 - **Never apply `status: todo` before Step 7** — `lex-agent-planning` HARD-GATE requires all 5 canonical steps completed.
-- **Never create a `.claude/plans/*.md` file as canonical** — legacy pre-ADR-002 model. The Issue body is canonical; `.plans/{N}.md` is the regenerable cache.
+- **Never create a `.claude/plans/*.md` file as canonical** — legacy pre- model. The Issue body is canonical; `.plans/{N}.md` is the regenerable cache.
 - **Never skip the user OK in Step 7** — subsequent irreversible execution requires explicit confirmation.
 - **Never omit Summary or Plan sections** — a body without Summary, Steps, Risks, Dependencies, Open Questions does not satisfy HARD-GATE precondition (e).
 - **Prefer MCP > CLI** — per `lex-mcp` rule 1.

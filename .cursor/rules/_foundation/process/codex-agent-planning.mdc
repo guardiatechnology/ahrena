@@ -7,7 +7,7 @@ alwaysApply: false
 
 > **Prefix:** `codex-` | **Type:** Reference Manual | **Scope:** Creating, maintaining, and managing the lifecycle of agent task plans in the Ahrena context
 
-## 1. Three-layer storage model (per ADR-002)
+## 1. Three-layer storage model
 
 | Layer | Location | Role | Versioning |
 |---|---|---|---|
@@ -30,7 +30,7 @@ paths:
   plans: ".cache/ai-plans/"
 ```
 
-> **Legacy model (pre-ADR-002, deprecated):** files `plan-{NNN}-{slug}.md` in `.claude/plans/` were migrated to `.ahrena/issues/_legacy/` in the plan-046 PR. Do not create new files in this format — the Issue body is now canonical; `.plans/{N}.md` is the local cache named by the Issue number.
+> **Legacy model (deprecated):** files `plan-{NNN}-{slug}.md` in `.claude/plans/` were migrated to `.ahrena/issues/_legacy/` in the  PR. Do not create new files in this format — the Issue body is now canonical; `.plans/{N}.md` is the local cache named by the Issue number.
 
 ---
 
@@ -42,7 +42,7 @@ paths:
 
 | Field | Rule |
 |---|---|
-| `{N}` | Number of the corresponding GitHub Issue. No padding, no prefix — `.plans/96.md`, not `.plans/plan-096.md` or `.plans/96-slug.md` |
+| `{N}` | Number of the corresponding GitHub Issue. No padding, no prefix — `.plans/96.md`, not `.plans/.md` or `.plans/96-slug.md` |
 
 Examples:
 - `.plans/42.md` — cache of the plan for Issue #42
@@ -61,7 +61,7 @@ To sync locally: `kata-load-plan-from-issue {N}`.
 
 ## 3. Issue body template (canonical) and local cache
 
-### 3a. Issue body (canonical per ADR-002)
+### 3a. Issue body (canonical)
 
 ```markdown
 ## Summary
@@ -82,16 +82,12 @@ each transition and provider-agnostic notifications via MCP.
 
 ### Steps
 - [x] 1. Issue + branch + worktree (Eunomia or fallback)
-- [x] 2. ADR-002 (simplified MADR)
 - [x] 3. lex-agent-planning (pt-BR)
 - [ ] 4. codex-agent-planning (pt-BR)
 - [ ] 5. lex-issue-status split (pt-BR)
 - ...
 
 ### Dependencies
-- plan-043 (PR #93) — merged
-- plan-044 (Eunomia) — absorbed by plan-046 Step 10
-- plan-045 (Janus pointer) — absorbed by plan-046 Step 3.5
 
 ### Risks
 - .plans/ lost on fresh clone — mitigated by kata-load-plan-from-issue
@@ -127,13 +123,13 @@ The Issue body is written by:
 
 ## Scratch
 gh issue develop registers branch as "Development" in the sidebar.
-Issue body limit: ~65KB (tested with plan-046).
+Issue body limit: ~65KB.
 <!-- /not-flushed -->
 ```
 
 The cache **has no YAML front-matter** — the GitHub Issue already carries all metadata (assignees, `status:*` labels, milestones, dates). `<!-- not-flushed -->` blocks are filtered before flushing to the Issue.
 
-> **Legacy front-matter:** plans in `.ahrena/issues/_legacy/` (pre-ADR-002) keep historical YAML front-matter (`plan_id`, `status`, `claude_session`, `merge_commit`, `closed_at`). This format is recognized for audit, but do NOT replicate it in new plans.
+> **Legacy front-matter:** plans in `.ahrena/issues/_legacy/` (deprecated) keep historical YAML front-matter (`plan_id`, `status`, `claude_session`, `merge_commit`, `closed_at`). This format is recognized for audit, but do NOT replicate it in new plans.
 
 ---
 
@@ -156,9 +152,9 @@ todo → development → to review → review → to release → release → don
 | `done` | Release completed, PR merged, cycle closed | `warrior-janus` |
 | `abandoned` | Plan discarded (any stage) | Creator or current owner |
 
-**Canonical state per ADR-002:** the `status:` lives as a **label** on the GitHub Issue (and on the PR, starting at `to review`). There is no more "plan front-matter" — the Issue body is canonical; `.plans/{N}.md` is the regenerable cache. Legacy plans in `.ahrena/issues/_legacy/` keep historical front-matter for audit, without retrofit.
+**Canonical state:** the `status:` lives as a **label** on the GitHub Issue (and on the PR, starting at `to review`). There is no more "plan front-matter" — the Issue body is canonical; `.plans/{N}.md` is the regenerable cache. Legacy plans in `.ahrena/issues/_legacy/` keep historical front-matter for audit, without retrofit.
 
-### Split into two axes (per ADR-002 / absorbed plan-045)
+### Split into two axes
 
 - **Axis A — Dev cycle** (feature/fix/chore Issues/PRs): `todo → development → to review → review → done` + `abandoned`. Owners: Eunomia/Athena/Argos.
 - **Axis B — Release cycle** (release Issue exclusively): `to release → release → done` + `abandoned`. Owner: Janus.
@@ -195,7 +191,7 @@ Janus:   — ──→ to release ──→ release ──→ done              
 
 Each owner simultaneously updates:
 
-1. Issue body via `kata-flush-plan-to-issue` (canonical per ADR-002 — only if the local cache was edited).
+1. Issue body via `kata-flush-plan-to-issue` (canonical — only if the local cache was edited).
 2. `status: <name>` label on the GitHub Issue (per `lex-issue-status` intra-artifact mutex).
 3. `status: <name>` label on the PR (starting at `to review`, only on Axis A).
 
@@ -243,7 +239,7 @@ Failure in any step leaves the plan as a draft (it cannot be presented as `todo`
 ## 8. Relationship between plans and other artifacts
 
 ```
-GitHub Issue                                    canonical (per ADR-002)
+GitHub Issue                                    canonical
     ├── body: canonical plan (Summary + Plan)
     ├── label: status: <name> (Axis A or Axis B)
     │
@@ -292,9 +288,9 @@ If content repeats in both, there is overlap — plan wins (committed). Overlap 
 
 ---
 
-## 9. Load/flush cadence (per ADR-002)
+## 9. Load/flush cadence
 
-Synchronization between the Issue body (canonical) and the local cache `.plans/{N}.md` happens at **3 canonical triggers** (per plan-046 Open Question #3):
+Synchronization between the Issue body (canonical) and the local cache `.plans/{N}.md` happens at **3 canonical triggers** (per  Open Question #3):
 
 | Trigger | Operation | Who triggers |
 |---|---|---|
@@ -374,7 +370,7 @@ Argos operates the `to review ↔ review` sub-cycle in Phase A (with label trans
 3. **Update in real time.** Mark `[x]` as each step completes, not at the end of everything — and trigger `kata-flush-plan-to-issue` to persist it.
 4. **Sync `status:` label on Issue + PR.** Every owner transition touches the Issue and the PR. Skipping either produces drift that surfaces in audit.
 5. **Do not create phantom plans.** If the task is cancelled before starting, apply `status: abandoned` on the Issue with a comment explaining — do not delete the Issue.
-6. **Canonical plan lives on GitHub.** Do not create `.claude/plans/*.md` files as canonical (legacy pre-ADR-002 model). The Issue body is canonical; `.plans/{N}.md` is the regenerable cache; `.ahrena/issues/{N}/` carries the Phase artifacts.
+6. **Canonical plan lives on GitHub.** Do not create `.claude/plans/*.md` files as canonical (legacy pre- model). The Issue body is canonical; `.plans/{N}.md` is the regenerable cache; `.ahrena/issues/{N}/` carries the Phase artifacts.
 7. **Free working notes in `.plans/{N}.md`.** Use `<!-- not-flushed -->` blocks to record draft decisions, debugging notes, and volatile next steps — these blocks are filtered on flush, so they do not pollute the canonical body.
 
 ---

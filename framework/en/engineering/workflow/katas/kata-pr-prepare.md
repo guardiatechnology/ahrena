@@ -85,7 +85,7 @@ Where:
    - `message` — commit message in Conventional Commits format:
      ```
      {type}({scope}): {description}
-     
+
      Refs: #{n}
      ```
    - `files` — array of `{path, content}`
@@ -173,7 +173,7 @@ Per `lex-pr-quality` (rules 9, j) and `codex-session-tracking` §7, before invok
 
 This section is a complementary metric to `cry-pr-cost-stamp` (which measures tokens/USD). Here it measures real session time.
 
-### Step 5c: Plan flush (per ADR-002)
+### Step 5c: Plan flush
 
 Before invoking `create_pull_request`, ensure that the Issue body reflects the current state of the work:
 
@@ -181,7 +181,7 @@ Before invoking `create_pull_request`, ensure that the Issue body reflects the c
 2. The kata reads `.plans/{N}.md`, filters `<!-- not-flushed -->` blocks, runs the remote drift preflight, and writes the filtered content to the Issue body via MCP `update_issue` (preferred) or `gh issue edit --body-file` (fallback).
 3. On remote drift detected (default `force=false`), the kata pauses and offers manual merge — do not proceed until resolved.
 
-This step replaces the old mechanic of "update `status:` in the plan front-matter" (legacy pre-ADR-002 model): in the Issue-as-plan model, the Issue body is canonical; the local cache `.plans/{N}.md` is regenerable.
+This step replaces the old mechanic of "update `status:` in the plan front-matter" (legacy pre- model): in the Issue-as-plan model, the Issue body is canonical; the local cache `.plans/{N}.md` is regenerable.
 
 ### Step 6: Create PR linked to the issue
 
@@ -211,7 +211,7 @@ gh issue edit {issue_number} \
 
 Per `lex-issue-status` Rule 3 (intra-artifact mutex), ensure each artifact carries exactly one `status:*`. Per Rule 5 (Issue↔PR sync), update simultaneously.
 
-The label is the single source of truth for the state per ADR-002 — the Issue body (canonical plan) was already updated in Step 5c.
+The label is the single source of truth for the state — the Issue body (canonical plan) was already updated in Step 5c.
 
 ### Step 6c: Argos pre-flight cycles (up to 3, interactive via AskUserQuestion)
 

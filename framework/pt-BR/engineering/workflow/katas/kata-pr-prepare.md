@@ -85,7 +85,7 @@ Onde:
    - `message` — mensagem de commit no formato Conventional Commits:
      ```
      {tipo}({escopo}): {descrição}
-     
+
      Refs: #{n}
      ```
    - `files` — array de `{path, content}`
@@ -172,7 +172,7 @@ Per `lex-pr-quality` (regras 9, j) e `codex-session-tracking` §7, antes de invo
 
 Esta seção é métrica complementar ao `cry-pr-cost-stamp` (que mede tokens/USD). Aqui mede tempo de sessão real.
 
-### Passo 5c: Flush do plano (per ADR-002)
+### Passo 5c: Flush do plano
 
 Antes de invocar `create_pull_request`, garantir que o body da Issue reflete o estado atual do trabalho:
 
@@ -180,7 +180,7 @@ Antes de invocar `create_pull_request`, garantir que o body da Issue reflete o e
 2. O kata lê `.plans/{N}.md`, filtra blocos `<!-- not-flushed -->`, executa preflight de drift remoto, e grava o conteúdo filtrado no body da Issue via MCP `update_issue` (preferido) ou `gh issue edit --body-file` (fallback).
 3. Em caso de drift remoto detectado (default `force=false`), o kata pausa e oferece merge manual — não prosseguir até resolução.
 
-Esse passo substitui a mecânica antiga de "atualizar `status:` no front-matter do plano" (modelo legado pré-ADR-002): no Issue-as-plan model, o body da Issue é o canonical; o cache local `.plans/{N}.md` é regenerável.
+Esse passo substitui a mecânica antiga de "atualizar `status:` no front-matter do plano" (modelo legado pré-): no Issue-as-plan model, o body da Issue é o canonical; o cache local `.plans/{N}.md` é regenerável.
 
 ### Passo 6: Criar PR linkado à issue
 
@@ -210,7 +210,7 @@ gh issue edit {issue_number} \
 
 Per `lex-issue-status` Regra 3 (mutex intra-artefato), garantir que cada artefato fica com exatamente um `status:*`. Per Regra 5 (sync Issue↔PR), atualizar simultaneamente.
 
-A label é a única fonte de truth do estado per ADR-002 — o body da Issue (canonical do plano) já foi atualizado no Passo 5c.
+A label é a única fonte de truth do estado — o body da Issue (canonical do plano) já foi atualizado no Passo 5c.
 
 ### Passo 6c: Argos pre-flight cycles (até 3, interativos via AskUserQuestion)
 
@@ -281,8 +281,8 @@ Athena: "AI reviewers paralelos a Argos para A{n}/3? (multi-select)
 
 **Comportamento:**
 
-1. Para cada reviewer marcado, Athena posta o comentário de invocação em sequência (não em paralelo — para reduzir ruído no PR timeline).
-2. Athena **NÃO bloqueia** esperando esses reviewers — eles são assíncronos (GitHub App webhook); resultados aparecem como reviews/comments no PR no tempo do app (~30s a alguns min).
+1. Para cada reviewer marcado, Athena posta o comentário de invocação em sequência (não em paralelo — para reduzir ruído timeline).
+2. Athena **NÃO bloqueia** esperando esses reviewers — eles são assíncronos (GitHub App webhook); resultados aparecem como reviews/comments no tempo do app (~30s a alguns min).
 3. Athena prossegue para o passo 2 do ciclo A{n} (transição `to review → review` e invocação do Argos subagente). Argos roda sua review em paralelo aos AI reviewers externos.
 4. No passo 3 (Athena lê findings), Athena coleta findings de **todos os reviewers** com novos `submittedAt > HEAD push time` (Argos + Gemini + Coderabbit + Qodo). Trata cada finding via o mesmo schema P0/P1/P2:
    - Argos publica explicitamente P0/P1/P2 com marker.
@@ -329,7 +329,7 @@ Após H3, sem aprovação → loop encerra silenciosamente (3 cobranças foi suf
 
 | `gh pr view` retorna | Ação de Athena |
 |---|---|
-| `mergedAt != null` | Transição `status: to review → done` no PR + Issue; captura `mergeCommit.oid`; encerra loop. |
+| `mergedAt != null` | Transição `status: to review → done` + Issue; captura `mergeCommit.oid`; encerra loop. |
 | `reviewDecision == "APPROVED"` e `mergedAt == null` | Comenta "PR aprovado, aguardando merge"; encerra loop. |
 | `reviewDecision == "CHANGES_REQUESTED"` | → **Passo 6e** (CHANGES_REQUESTED handler). |
 | Caso contrário (`REVIEW_REQUIRED` ou null) | Se `H < 3` → reagenda; se `H == 3` → encerra. |

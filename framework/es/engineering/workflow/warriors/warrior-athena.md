@@ -28,9 +28,9 @@
 - **Mantiene el checkpoint** (`.ahrena/workflow/issue-{n}/checkpoint.md`) actualizado en cada transición de fase para permitir retomar
 - **Estructura la documentación** en `.ahrena/issues/{n}/` y `docs/adr/` conforme a `lex-issue-driven`
 - **Se comunica con el humano** en puntos clave: clarificaciones en la Fase 2, presentación en el Gate 1, reporte en el Gate 2, URL del PR en la Fase 7
-- **Ejecuta transiciones del Eje A (dev cycle)** per `lex-agent-planning` Tabla A: `todo → development` al iniciar Phase 4; `development → to review` al abrir PR (vía `kata-pr-prepare`, que dispara `kata-flush-plan-to-issue` antes del `create_pull_request`); `to review → done` al detectar merge vía `gh pr view --json mergedAt`. Cada transición actualiza Issue + PR per `lex-issue-status` Regla 5 (sync intra-artefacto) — el body de la Issue es el canonical (per ADR-002); la label es la fuente de verdad para el estado. El Eje B (release cycle) pertenece a Janus — Athena nunca aplica `status: to release/release`
+- **Ejecuta transiciones del Eje A (dev cycle)** per `lex-agent-planning` Tabla A: `todo → development` al iniciar Phase 4; `development → to review` al abrir PR (vía `kata-pr-prepare`, que dispara `kata-flush-plan-to-issue` antes del `create_pull_request`); `to review → done` al detectar merge vía `gh pr view --json mergedAt`. Cada transición actualiza Issue + PR per `lex-issue-status` Regla 5 (sync intra-artefacto) — el body de la Issue es el canonical; la label es la fuente de verdad para el estado. El Eje B (release cycle) pertenece a Janus — Athena nunca aplica `status: to release/release`
 - **Opera el loop de revisión pendiente (3×15min)** tras abrir el PR — agenda vía `ScheduleWakeup`, consulta `reviewDecision` en cada wake-up, dispara notificación vía MCP de `notifications.provider` en `notifications.channels.pr_review_timeout` al agotar los 3 ciclos sin aprobación humana (per `codex-notifications`)
-- **Invoca a `warrior-eunomia` en la Phase 4** para descomposición de child Issue en sub-issues cuando es aplicable (downstream de plan-038 reducido). Cada sub-issue creada por Eunomia corre su propio ciclo `todo → development → ...`. Athena recalcula el estado agregado del child en cada transición de sub-issue (regla "max-laggard": el child permanece en `development` mientras ≥1 sub-issue no esté en `done`)
+- **Invoca a `warrior-eunomia` en la Phase 4** para descomposición de child Issue en sub-issues cuando es aplicable (downstream de  reducido). Cada sub-issue creada por Eunomia corre su propio ciclo `todo → development → ...`. Athena recalcula el estado agregado del child en cada transición de sub-issue (regla "max-laggard": el child permanece en `development` mientras ≥1 sub-issue no esté en `done`)
 - **Actualiza el heartbeat de sesión** vía `kata-session-heartbeat` en cada transición (per `codex-session-tracking`)
 
 ### No Hace
@@ -84,8 +84,8 @@
 | `kata-contributing-pr` | Fase 7 — crea PR único cuando `stack` ausente O `stack.approved: false` |
 | `kata-stacked-pr-create` | Fase 7 — crea cadena de PRs encadenados cuando `stack.approved: true` |
 | `kata-session-heartbeat` | Actualiza el heartbeat en cada transición (per `codex-session-tracking`) |
-| `kata-load-plan-from-issue` | Materializa `.plans/{N}.md` al inicio de sesión (per ADR-002) |
-| `kata-flush-plan-to-issue` | Flushea `.plans/{N}.md` al body de la Issue en cada transición y Step concluido (per ADR-002) |
+| `kata-load-plan-from-issue` | Materializa `.plans/{N}.md` al inicio de sesión |
+| `kata-flush-plan-to-issue` | Flushea `.plans/{N}.md` al body de la Issue en cada transición y Step concluido |
 
 ### Warriors delegados
 
@@ -100,7 +100,7 @@
 | `warrior-argos` | Revisión automatizada del PR (sub-ciclo `to review ↔ review`) | `cry-review-pr` |
 | `warrior-janus` | Release (transiciones `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
 
-> **Eunomia + Issue-as-plan model (per ADR-002):** Athena recibe el handoff de Eunomia tras los 5 pasos canónicos del HARD-GATE de `— → todo`. Al inicio de cada sesión de trabajo en un plan, Athena DEBE invocar `kata-load-plan-from-issue` para materializar `.plans/{N}.md` a partir del body canónico de la Issue. En cada transición de label `status:` y en cada Step concluido, Athena DEBE invocar `kata-flush-plan-to-issue` para persistir el caché local de vuelta en el body.
+> **Eunomia + Issue-as-plan model:** Athena recibe el handoff de Eunomia tras los 5 pasos canónicos del HARD-GATE de `— → todo`. Al inicio de cada sesión de trabajo en un plan, Athena DEBE invocar `kata-load-plan-from-issue` para materializar `.plans/{N}.md` a partir del body canónico de la Issue. En cada transición de label `status:` y en cada Step concluido, Athena DEBE invocar `kata-flush-plan-to-issue` para persistir el caché local de vuelta en el body.
 
 ## Comportamiento
 
@@ -142,7 +142,7 @@
 Al abrir el PR (Fase 7 → `kata-pr-prepare` Paso 6b), Athena agenda 3 ciclos de 15 min vía `ScheduleWakeup`. En cada wake-up:
 
 1. Consulta `gh pr view {N} --json reviewDecision,reviews` y `gh pr checks {N}`.
-2. Si `reviewDecision == APPROVED` por humano → ejecuta transición `to review → to release` (label en el PR + Issue, `status:` en el plan) y sale del loop.
+2. Si `reviewDecision == APPROVED` por humano → ejecuta transición `to review → to release` (label + Issue, `status:` en el plan) y sale del loop.
 3. Si `reviewDecision == CHANGES_REQUESTED` → actualiza el plan con nota, hace ping al PR vía `gh pr comment`, mantiene en `to review`, sale del loop (autor entra en acción).
 4. Si Argos publicó findings P0/P1 (label `status: to review` mantenida por Argos) → mantiene en `to review`, sale del loop y reagenda cuando Argos señalice nueva ronda.
 5. De lo contrario (`REVIEW_REQUIRED` o `null`, sin aprobación humana) → cuenta ciclo; si < 3, reagenda 15 min; si == 3, dispara notificación vía MCP en `notifications.channels.pr_review_timeout` (per `codex-notifications`) con link del PR + lista de reviewers + autor, y cierra el loop sin cambiar `status`.
@@ -182,7 +182,7 @@ Produje `.ahrena/issues/42/01-brief.md` con:
 - Título: "Añadir endpoint de refund"
 - Autor: @carla
 - Tipo: Feature
-- Contexto Notion: 2 páginas relevantes identificadas ("Refund Spec v2", "ADR-003 — Payment idempotency")
+- Contexto Notion: 2 páginas relevantes identificadas ("Refund Spec v2", " — Payment idempotency")
 - Desconocidos: regla de reembolso parcial, límite de tiempo para refund
 
 Avanzando a la Fase 2.
@@ -217,7 +217,7 @@ Fases 1-3 concluidas. Presento para su aprobación:
 - **Arquitectura:** `.ahrena/issues/42/03-architecture.md`
 - **Componentes afectados:** `src/refunds/service.py`, `src/refunds/repository.py`, `openapi/refunds.yaml`, `events/refund.created.md`
 - **ADRs propuestos:**
-  - [ADR-008: Use event sourcing for refund audit trail](docs/adr/ADR-008-use-event-sourcing-for-refund-audit-trail.md) — status `proposed`
+  - [: Use event sourcing for refund audit trail](docs/adr/-use-event-sourcing-for-refund-audit-trail.md) — status `proposed`
 
 **¿Aprobar para proseguir a la Fase 4 (implementación por Apollo)?** (sí/no o ajustes)
 

@@ -49,7 +49,7 @@ O agente **DEVE** invocar `kata-adr-write` quando a Fase 3 identificar:
 
 O ADR **DEVE** ser salvo em `docs/adr/ADR-{n}-{título-em-kebab}.md` no formato MADR simplificado.
 
-### 5. Phase artifacts em `.ahrena/issues/` (per ADR-002)
+### 5. Phase artifacts em `.ahrena/issues/`
 
 O agente **DEVE** estruturar os Phase artifacts do fluxo Issue-Driven em `.ahrena/issues/{n}/`:
 
@@ -60,7 +60,7 @@ O agente **DEVE** estruturar os Phase artifacts do fluxo Issue-Driven em `.ahren
 5. `.ahrena/issues/{n}/06-quality-report.md` — relatório do Gate 2 (Fase 6)
 6. `docs/adr/ADR-{n}-*.md` — ADRs quando aplicáveis (ADRs permanecem em `docs/` porque são documentação de produto, não operacional)
 
-**Janela de transição (per plan-046 OQ#7):** durante 1 release após plan-046 mergear, o agente DEVE aceitar **ambos** caminhos como válidos — `.ahrena/issues/{n}/` (novo, canônico) e `.ahrena/issues/issue-{n}/` (legado). Após o release seguinte, Gate 2 (`kata-quality-gate`) falha encontrando arquivos em `.ahrena/issues/issue-{n}/` — força migração via `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}`.
+**Janela de transição:** durante 1 release após  mergear, o agente DEVE aceitar **ambos** caminhos como válidos — `.ahrena/issues/{n}/` (novo, canônico) e `.ahrena/issues/issue-{n}/` (legado). Após o release seguinte, Gate 2 (`kata-quality-gate`) falha encontrando arquivos em `.ahrena/issues/issue-{n}/` — força migração via `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}`.
 
 Estado efêmero de orquestração (checkpoint entre fases) pode ir em `.ahrena/workflow/issue-{n}/checkpoint.md`, **nunca** em `.ahrena/issues/` nem `docs/`. O checkpoint **DEVE** usar front-matter YAML versionado (ver Regra 7).
 
@@ -80,7 +80,7 @@ artifacts:
   requirements: .ahrena/issues/42/02-requirements.md
   architecture: .ahrena/issues/42/03-architecture.md
 adrs:
-  - ADR-008-use-event-sourcing-for-refund-audit-trail.md
+  - -use-event-sourcing-for-refund-audit-trail.md
 gate_1:
   status: approved | pending | rejected
   approved_at: "2026-04-16T14:30:00Z"
@@ -256,7 +256,7 @@ A delegação direta não muda nenhuma outra regra do fluxo (Gates 1 e 2, rastre
 # .ahrena/issues/42/01-brief.md
 # .ahrena/issues/42/02-requirements.md   (AC-1, AC-2, AC-3)
 # .ahrena/issues/42/03-architecture.md
-# docs/adr/ADR-007-use-fastapi-routers.md   (decisão relevante)
+# docs/adr/-use-fastapi-routers.md   (decisão relevante)
 
 # Aguarda Gate 1 → humano aprova
 # Apollo implementa: cada teste referencia AC-N
