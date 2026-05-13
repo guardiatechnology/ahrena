@@ -13,7 +13,7 @@ alwaysApply: false
 
 ## Coverage
 
-- **Applies to:** every Issue opened via approved templates (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `simple-task`, `subtask`, **release** — new template introduced by ADR-002 / plan-046 Step 3.5), and every PR in Guardia repositories.
+- **Applies to:** every Issue opened via approved templates (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `subtask`, **release** — new template introduced by ADR-002 / plan-046 Step 3.5), and every PR in Guardia repositories.
 - **Bound agents:**
   - Axis A — `warrior-eunomia` (`— → todo`), `warrior-athena` (`todo → development`, `development → to review`, `to review → done`), `warrior-argos` (`to review ↔ review`).
   - Axis B — `warrior-janus` (`— → to release`, `to release → release`, `release → done`).

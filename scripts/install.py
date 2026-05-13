@@ -1232,7 +1232,7 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     # Copy each file individually so user-authored templates (file names not in
     # the framework set) are preserved in the consumer repo.
     gh_tpl_src = source_dir / ".github" / "ISSUE_TEMPLATE"
-    gh_tpl_dst = target / ".github" / "ISSUE_TEMPLATE"
+    gh_tpl_dst = target_dir / ".github" / "ISSUE_TEMPLATE"
     if gh_tpl_src.exists():
         gh_tpl_dst.mkdir(parents=True, exist_ok=True)
         synced = 0

@@ -15,7 +15,7 @@ The Guardia organization configures three Issue Types at the repository level. E
 
 | Issue Type | ID | Templates that map to it |
 |------------|----|--------------------------|
-| **Task** | `IT_kwDOED9Qy84B7pBh` | `simple-task` |
+| **Task** | `IT_kwDOED9Qy84B7pBh` | `tech-task` |
 | **Bug** | `IT_kwDOED9Qy84B7pBi` | `bug-report` *(future)* |
 | **Feature** | `IT_kwDOED9Qy84B7pBj` | `feature-request`, `epic`, `user-story-for-api`, `user-story-for-frontend` |
 
@@ -48,10 +48,10 @@ Required per `lex-issue-quality`. Applied manually at issue creation by the cont
 | `api` | `user-story-for-api` | API design or implementation scope |
 | `user story 🎯` | `user-story-for-api`, `user-story-for-frontend` | Scoped user-facing story |
 | `frontend` | `user-story-for-frontend` | Frontend (UI/UX) implementation scope |
-| `documentation 📃` | `simple-task` | Documentation improvements or additions |
-| `ci 🏗️` | `simple-task` | CI/CD or pipeline changes |
-| `enhancement 🔝` | `simple-task` | Enhancement to an existing feature |
-| `evolvability ♻️` | `simple-task` | Refactoring, clean code, maintenance |
+| `documentation 📃` | `tech-task` | Documentation improvements or additions |
+| `ci 🏗️` | `tech-task` | CI/CD or pipeline changes |
+| `enhancement 🔝` | `tech-task` | Enhancement to an existing feature |
+| `evolvability ♻️` | `tech-task` | Refactoring, clean code, maintenance |
 
 #### 2. Content and Nature Labels
 
