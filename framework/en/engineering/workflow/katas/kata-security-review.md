@@ -4,7 +4,7 @@
 
 ## Objective
 
-Perform a security review on the code implemented in Phase 4, identifying known vulnerabilities (OWASP Top 10), authentication/authorization issues, sensitive data exposure, credentials in code, and dependencies with known CVEs. Produces a report under `.issues/{n}/05-security-review.md` with classified severity; critical findings block Gate 2.
+Perform a security review on the code implemented in Phase 4, identifying known vulnerabilities (OWASP Top 10), authentication/authorization issues, sensitive data exposure, credentials in code, and dependencies with known CVEs. Produces a report under `.ahrena/issues/{n}/05-security-review.md` with classified severity; critical findings block Gate 2.
 
 ## When to Use
 
@@ -16,8 +16,8 @@ Perform a security review on the code implemented in Phase 4, identifying known 
 | Input | Required | Description |
 |-------|:--------:|-------------|
 | Implementation diff | Yes | `git diff` between the working branch and the base branch |
-| Phase 2 requirements | Yes | `.issues/{n}/02-requirements.md` |
-| Phase 3 architecture | Yes | `.issues/{n}/03-architecture.md` (includes external integrations) |
+| Phase 2 requirements | Yes | `.ahrena/issues/{n}/02-requirements.md` |
+| Phase 3 architecture | Yes | `.ahrena/issues/{n}/03-architecture.md` (includes external integrations) |
 
 ## Workflow
 
@@ -29,7 +29,7 @@ Progress:
 - [ ] 4. Sensitive data and credentials
 - [ ] 5. Dependencies (CVE scan)
 - [ ] 6. Consolidate report with severity
-- [ ] 7. Persist to .issues/{n}/05-security-review.md
+- [ ] 7. Persist to .ahrena/issues/{n}/05-security-review.md
 - [ ] 8. Update checkpoint
 ```
 
@@ -100,7 +100,7 @@ Consolidate all findings into a prioritized list:
 
 If **zero critical or high findings**, report `approved` to proceed to Gate 2.
 
-### Step 7: Persist to `.issues/{n}/05-security-review.md`
+### Step 7: Persist to `.ahrena/issues/{n}/05-security-review.md`
 
 Structure:
 
@@ -164,7 +164,7 @@ Structure:
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Security report | Markdown | `.issues/{n}/05-security-review.md` |
+| Security report | Markdown | `.ahrena/issues/{n}/05-security-review.md` |
 | Result | `approved` / `changes-required` / `blocked` | Return to orchestrator |
 | Updated checkpoint | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 
@@ -174,7 +174,7 @@ Structure:
 - **Severity is blocking:** critical findings always block Gate 2; there is no automatic override.
 - **Scope limited to the diff:** do not review pre-existing code not touched by the diff (that would be a separate audit task).
 - **No silent false positives:** if a finding is a false positive after analysis, record it explicitly in the report with justification, do not omit.
-- **Fixed destination:** `.issues/{n}/05-security-review.md` (per `lex-issue-driven`).
+- **Fixed destination:** `.ahrena/issues/{n}/05-security-review.md` (per `lex-issue-driven`).
 
 ## References
 

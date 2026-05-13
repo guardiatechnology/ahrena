@@ -587,7 +587,7 @@ claude-code:
       paths: ["docs/**/agents/**/system-prompt*.md", "docs/**/agents-pov/**/system-prompt*.md", "docs/**/system_prompt*.md", "docs/**/system-prompt*.md"]
       description: "When authoring or reviewing a Guardia agent system prompt, enforce the 4 mandatory blocks, the 5 critical OWASP controls, the org_id/client_id guardrail, and the 9-precondition HARD-GATE backed by the executable adversarial suite."
     engineering/workflow/lexis/lex-issue-driven:
-      paths: ["docs/issues/**", ".ahrena/workflow/**"]
+      paths: [".ahrena/issues/**", ".ahrena/workflow/**"]
       description: "When running Issue-Driven flow, enforce Gates, AC↔test traceability, ADRs, and docs/ structure."
     _foundation/contributing/lexis/lex-protected-trunk:
       paths: [".github/CODEOWNERS", ".github/workflows/**.yml", ".github/workflows/**.yaml"]

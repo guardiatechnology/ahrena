@@ -166,7 +166,7 @@ Wait for user OK before any subsequent irreversible execution.
 
 ```
 Task: migrate plan storage to the Issue-as-plan model
-(3-layer: Issue body + .plans/ cache + .issues/ artifacts)
+(3-layer: Issue body + .plans/ cache + .ahrena/issues/ artifacts)
 ```
 
 ### Step 2 — Body written on Issue #96
@@ -177,14 +177,14 @@ Task: migrate plan storage to the Issue-as-plan model
 **As** an Ahrena framework contributor,
 **I want** to migrate plan storage to a 3-layer model,
 **So that** plans live where they belong (audit in GitHub Issue,
-scratch in .plans/ cache, Phase artifacts in .issues/).
+scratch in .plans/ cache, Phase artifacts in .ahrena/issues/).
 
 ## Plan
 
 ### Objective
 Refactor the plan storage layer so that it lives in three
 layers with clear roles: Issue body (canonical) + .plans/{N}.md
-(AI working memory, gitignored) + .issues/{N}/ (committed Phase
+(AI working memory, gitignored) + .ahrena/issues/{N}/ (committed Phase
 artifacts).
 
 ### Steps

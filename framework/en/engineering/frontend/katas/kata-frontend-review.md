@@ -17,7 +17,7 @@ Perform a review of frontend code (typically on a PR or diff), verifying adheren
 | Input | Required | Description |
 |-------|:--------:|-------------|
 | Diff to review | Yes | `git diff {base}..HEAD` or specific PR |
-| Context | No | Issue, ACs, expected architecture (coming from `.issues/{n}/` if applicable) |
+| Context | No | Issue, ACs, expected architecture (coming from `.ahrena/issues/{n}/` if applicable) |
 | Scope | No | Specific components or complete diff review |
 
 ## Workflow
@@ -38,7 +38,7 @@ Progress:
 
 1. Get the diff: `git diff {base}..HEAD`.
 2. List touched files by type (`.tsx`, `.ts`, `.css`, tests, config).
-3. If there are ACs (Issue-Driven flow), read `.issues/{n}/02-requirements.md`.
+3. If there are ACs (Issue-Driven flow), read `.ahrena/issues/{n}/02-requirements.md`.
 
 ### Step 2: Review typing
 

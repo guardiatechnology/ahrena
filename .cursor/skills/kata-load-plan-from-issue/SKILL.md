@@ -106,7 +106,7 @@ dest_path: (default) .plans/96.md
 ### Objective
 Refactor the plan storage layer so that content lives in
 three layers with clear roles: Issue body (canonical) + .plans/ (AI cache)
-+ .issues/ (Phase artifacts).
++ .ahrena/issues/ (Phase artifacts).
 
 ### Steps
 - [x] Step 1 — Open Issue + branch + worktree

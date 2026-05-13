@@ -20,7 +20,7 @@ Este Codex é o manual canônico de planejamento de tarefas por agentes per ADR-
 |---|---|---|---|
 | **Issue body** | `https://github.com/{owner}/{repo}/issues/{N}` | Canonical. Summary + Plan section (Objective, Steps, Risks, Dependencies, Open Questions) | Audit log nativo do GitHub (timestamp + autor por edição) |
 | **`.plans/{N}.md`** | Raiz do repo, gitignored | AI working memory + scratch. Superset do body da Issue + blocos `<!-- not-flushed -->` | Cache local regenerável |
-| **`.issues/{N}/`** | Raiz do repo, committed | Phase artifacts (`01-brief.md` … `06-quality-report.md`) | Git |
+| **`.ahrena/issues/{N}/`** | Raiz do repo, committed | Phase artifacts (`01-brief.md` … `06-quality-report.md`) | Git |
 
 ### Resolução do path do cache local
 
@@ -37,7 +37,7 @@ paths:
   plans: ".cache/ai-plans/"
 ```
 
-> **Modelo legado (pré-ADR-002, deprecated):** arquivos `plan-{NNN}-{slug}.md` em `.claude/plans/` foram migrados para `.issues/_legacy/` no PR de plan-046. Não criar arquivos novos nesse formato — o body da Issue é canonical agora; `.plans/{N}.md` é cache local nomeado pelo número da Issue.
+> **Modelo legado (pré-ADR-002, deprecated):** arquivos `plan-{NNN}-{slug}.md` em `.claude/plans/` foram migrados para `.ahrena/issues/_legacy/` no PR de plan-046. Não criar arquivos novos nesse formato — o body da Issue é canonical agora; `.plans/{N}.md` é cache local nomeado pelo número da Issue.
 
 ---
 
@@ -140,7 +140,7 @@ Limite do body da Issue: ~65KB (testado com plan-046).
 
 O cache **não tem front-matter YAML** — o GitHub Issue já carrega toda a metadata (assignees, labels `status:*`, milestones, dates). Blocos `<!-- not-flushed -->` são filtrados antes do flush para a Issue.
 
-> **Front-matter legacy:** planos em `.issues/_legacy/` (pré-ADR-002) mantêm YAML front-matter histórico (`plan_id`, `status`, `claude_session`, `merge_commit`, `closed_at`). Esse formato é reconhecido para audit, mas NÃO replicar em novos planos.
+> **Front-matter legacy:** planos em `.ahrena/issues/_legacy/` (pré-ADR-002) mantêm YAML front-matter histórico (`plan_id`, `status`, `claude_session`, `merge_commit`, `closed_at`). Esse formato é reconhecido para audit, mas NÃO replicar em novos planos.
 
 ---
 
@@ -163,7 +163,7 @@ todo → development → to review → review → to release → release → don
 | `done` | Release concluído, PR mergeado, ciclo encerrado | `warrior-janus` |
 | `abandoned` | Plano descartado (qualquer estágio) | Criador ou owner atual |
 
-**Estado canônico per ADR-002:** o `status:` vive como **label** na Issue do GitHub (e no PR, a partir de `to review`). Não há mais "front-matter do plano" — o body da Issue é canonical; `.plans/{N}.md` é cache regenerável. Planos legados em `.issues/_legacy/` mantêm front-matter histórico para audit, sem retrofit.
+**Estado canônico per ADR-002:** o `status:` vive como **label** na Issue do GitHub (e no PR, a partir de `to review`). Não há mais "front-matter do plano" — o body da Issue é canonical; `.plans/{N}.md` é cache regenerável. Planos legados em `.ahrena/issues/_legacy/` mantêm front-matter histórico para audit, sem retrofit.
 
 ### Split em dois eixos (per ADR-002 / plan-045 absorvido)
 
@@ -259,7 +259,7 @@ Issue GitHub                                    canonical (per ADR-002)
     ├── .plans/{N}.md (gitignored)                                  cache local da IA
     │   └── superset do body + blocos <!-- not-flushed -->
     │
-    ├── .issues/{N}/ (committed)                                    Phase artifacts
+    ├── .ahrena/issues/{N}/ (committed)                                    Phase artifacts
     │   ├── 01-brief.md
     │   ├── 02-requirements.md
     │   ├── 03-architecture.md
@@ -275,7 +275,7 @@ Issue GitHub                                    canonical (per ADR-002)
 ```
 
 - Body da Issue, label da Issue e label do PR são sincronizados pelo owner em cada transição.
-- ADR é aberto quando o plano identifica uma decisão arquitetural relevante (mora em `docs/adr/`, não `.issues/`).
+- ADR é aberto quando o plano identifica uma decisão arquitetural relevante (mora em `docs/adr/`, não `.ahrena/issues/`).
 - Heartbeat de sessão (`codex-session-tracking`) registra qual sessão Claude Code opera no plano agora.
 - Checkpoint NÃO é subordinado ao plano; é artefato paralelo de **sessão**, não de **task**.
 
@@ -381,14 +381,14 @@ Argos opera o sub-ciclo `to review ↔ review` em Fase A (com mudança de label 
 3. **Atualizar em tempo real.** Marcar `[x]` à medida que cada etapa conclui, não ao final de tudo — e disparar `kata-flush-plan-to-issue` para persistir.
 4. **Sincronizar label `status:` em Issue + PR.** Toda transição de owner toca a Issue e o PR. Skipping qualquer um produz drift que aparece em auditoria.
 5. **Não criar planos fantasmas.** Se a tarefa for cancelada antes de começar, aplicar `status: abandoned` na Issue com comentário explicando — não deletar a Issue.
-6. **Plano canônico vive no GitHub.** Não criar arquivos `.claude/plans/*.md` como canônicos (modelo legado pré-ADR-002). O body da Issue é canonical; `.plans/{N}.md` é cache regenerável; `.issues/{N}/` carrega Phase artifacts.
+6. **Plano canônico vive no GitHub.** Não criar arquivos `.claude/plans/*.md` como canônicos (modelo legado pré-ADR-002). O body da Issue é canonical; `.plans/{N}.md` é cache regenerável; `.ahrena/issues/{N}/` carrega Phase artifacts.
 7. **Working notes livres em `.plans/{N}.md`.** Usar blocos `<!-- not-flushed -->` para registrar decisões em rascunho, debugging notes e próximos passos voláteis — esses blocos são filtrados no flush, então não poluem o body canônico.
 
 ---
 
 ## Referências
 
-- ADR-002 — modelo de armazenamento em três camadas (Issue body + `.plans/` + `.issues/`)
+- ADR-002 — modelo de armazenamento em três camadas (Issue body + `.plans/` + `.ahrena/issues/`)
 - `lex-agent-planning` — Lei correspondente (HARD-GATE de `— → todo` + Tabelas A e B)
 - `lex-issue-status` — labels canônicos; split Eixo A (dev) + Eixo B (release)
 - `lex-issue-type-verified` — verificação programática do Issue Type

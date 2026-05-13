@@ -166,7 +166,7 @@ Esperar OK del usuario antes de cualquier ejecución irreversible posterior.
 
 ```
 Tarea: migrar almacenamiento del plan al modelo Issue-as-plan
-(3-layer: Issue body + .plans/ caché + .issues/ artifacts)
+(3-layer: Issue body + .plans/ caché + .ahrena/issues/ artifacts)
 ```
 
 ### Paso 2 — Body grabado en la Issue #96
@@ -177,14 +177,14 @@ Tarea: migrar almacenamiento del plan al modelo Issue-as-plan
 **As** an Ahrena framework contributor,
 **I want** to migrate plan storage to a 3-layer model,
 **So that** plans live where they belong (audit in GitHub Issue,
-scratch in .plans/ cache, Phase artifacts in .issues/).
+scratch in .plans/ cache, Phase artifacts in .ahrena/issues/).
 
 ## Plan
 
 ### Objective
 Refactorizar la capa de almacenamiento del plan para que viva en tres
 capas con roles claros: Issue body (canonical) + .plans/{N}.md
-(working memory de la IA, gitignored) + .issues/{N}/ (committed Phase
+(working memory de la IA, gitignored) + .ahrena/issues/{N}/ (committed Phase
 artifacts).
 
 ### Steps

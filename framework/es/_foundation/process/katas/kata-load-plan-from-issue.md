@@ -120,7 +120,7 @@ dest_path: (default) .plans/96.md
 ### Objective
 Refactorizar la capa de almacenamiento del plan para que el contenido viva en
 tres capas con roles claros: Issue body (canonical) + .plans/ (caché IA)
-+ .issues/ (Phase artifacts).
++ .ahrena/issues/ (Phase artifacts).
 
 ### Steps
 - [x] Step 1 — Open Issue + branch + worktree

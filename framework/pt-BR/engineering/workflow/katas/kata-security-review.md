@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Executar revisão de segurança sobre o código implementado na Fase 4, identificando vulnerabilidades conhecidas (OWASP Top 10), problemas de autenticação/autorização, exposição de dados sensíveis, credenciais em código e dependências com CVEs conhecidos. Produz relatório em `.issues/{n}/05-security-review.md` com severidade classificada; falhas críticas bloqueiam o Gate 2.
+Executar revisão de segurança sobre o código implementado na Fase 4, identificando vulnerabilidades conhecidas (OWASP Top 10), problemas de autenticação/autorização, exposição de dados sensíveis, credenciais em código e dependências com CVEs conhecidos. Produz relatório em `.ahrena/issues/{n}/05-security-review.md` com severidade classificada; falhas críticas bloqueiam o Gate 2.
 
 ## Quando Usar
 
@@ -16,8 +16,8 @@ Executar revisão de segurança sobre o código implementado na Fase 4, identifi
 | Input | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
 | Diff da implementação | Sim | `git diff` entre branch de trabalho e branch base |
-| Requisitos Fase 2 | Sim | `.issues/{n}/02-requirements.md` |
-| Arquitetura Fase 3 | Sim | `.issues/{n}/03-architecture.md` (inclui integrações externas) |
+| Requisitos Fase 2 | Sim | `.ahrena/issues/{n}/02-requirements.md` |
+| Arquitetura Fase 3 | Sim | `.ahrena/issues/{n}/03-architecture.md` (inclui integrações externas) |
 
 ## Workflow
 
@@ -29,7 +29,7 @@ Progresso:
 - [ ] 4. Dados sensíveis e credenciais
 - [ ] 5. Dependências (CVE scan)
 - [ ] 6. Consolidar relatório com severidade
-- [ ] 7. Persistir em .issues/{n}/05-security-review.md
+- [ ] 7. Persistir em .ahrena/issues/{n}/05-security-review.md
 - [ ] 8. Atualizar checkpoint
 ```
 
@@ -100,7 +100,7 @@ Consolidar todos os achados em uma lista priorizada:
 
 Se **zero achados críticos ou altos**, reportar `approved` para seguir ao Gate 2.
 
-### Passo 7: Persistir em `.issues/{n}/05-security-review.md`
+### Passo 7: Persistir em `.ahrena/issues/{n}/05-security-review.md`
 
 Estrutura:
 
@@ -164,7 +164,7 @@ Estrutura:
 
 | Saída | Formato | Destino |
 |-------|---------|---------|
-| Relatório de segurança | Markdown | `.issues/{n}/05-security-review.md` |
+| Relatório de segurança | Markdown | `.ahrena/issues/{n}/05-security-review.md` |
 | Resultado | `approved` / `changes-required` / `blocked` | Retorno ao orquestrador |
 | Checkpoint atualizado | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 
@@ -174,7 +174,7 @@ Estrutura:
 - **Severidade é bloqueante:** achados críticos sempre bloqueiam o Gate 2; não há override automático.
 - **Escopo limitado ao diff:** não revisar código pré-existente não tocado pelo diff (seria tarefa de auditoria separada).
 - **Sem falsos positivos silenciosos:** se um achado é falso positivo após análise, registrar explicitamente no relatório com justificativa, não omitir.
-- **Destino fixo:** `.issues/{n}/05-security-review.md` (conforme `lex-issue-driven`).
+- **Destino fixo:** `.ahrena/issues/{n}/05-security-review.md` (conforme `lex-issue-driven`).
 
 ## Referências
 

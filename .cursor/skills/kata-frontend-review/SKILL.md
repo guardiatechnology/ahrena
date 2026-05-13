@@ -25,7 +25,7 @@ Progress:
 
 1. Get the diff: `git diff {base}..HEAD`.
 2. List touched files by type (`.tsx`, `.ts`, `.css`, tests, config).
-3. If there are ACs (Issue-Driven flow), read `.issues/{n}/02-requirements.md`.
+3. If there are ACs (Issue-Driven flow), read `.ahrena/issues/{n}/02-requirements.md`.
 
 ### Step 2: Review typing
 

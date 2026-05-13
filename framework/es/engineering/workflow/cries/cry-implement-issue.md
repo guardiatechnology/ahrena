@@ -30,13 +30,13 @@ Este comando dispara el flujo completo de desarrollo orientado por issue: desde 
 
 Invoca a **warrior-athena** para conducir las 7 fases del flujo:
 
-1. **Fase 1 — Análisis de la Issue** (`kata-issue-analysis`): lee la issue en GitHub y busca contexto en Notion → `.issues/{n}/01-brief.md`
-2. **Fase 2 — Requisitos** (`kata-requirements-brief`): elicita ACs numerados con perspectiva PO → `.issues/{n}/02-requirements.md`
-3. **Fase 3 — Arquitectura** (`kata-architecture-brief`): mapea componentes, delega diseño de API/eventos a Daedalus/Kronos si aplica, invoca `kata-adr-write` para decisiones relevantes → `.issues/{n}/03-architecture.md` + ADRs en `docs/adr/`
+1. **Fase 1 — Análisis de la Issue** (`kata-issue-analysis`): lee la issue en GitHub y busca contexto en Notion → `.ahrena/issues/{n}/01-brief.md`
+2. **Fase 2 — Requisitos** (`kata-requirements-brief`): elicita ACs numerados con perspectiva PO → `.ahrena/issues/{n}/02-requirements.md`
+3. **Fase 3 — Arquitectura** (`kata-architecture-brief`): mapea componentes, delega diseño de API/eventos a Daedalus/Kronos si aplica, invoca `kata-adr-write` para decisiones relevantes → `.ahrena/issues/{n}/03-architecture.md` + ADRs en `docs/adr/`
 4. **Gate 1 — Aprobación de Alcance:** Athena presenta los artefactos al humano y espera aprobación explícita
 5. **Fase 4 — Implementación:** Athena delega a `warrior-apollo` (o warrior del stack) vía `kata-python-implement`; las pruebas marcan `AC-N` para trazabilidad
-6. **Fase 5 — Revisión de Seguridad** (`kata-security-review`): OWASP + CVE scan → `.issues/{n}/05-security-review.md`
-7. **Fase 6 — Gate 2 Calidad** (`kata-quality-gate`): 6 checks (trazabilidad AC↔prueba, scope creep, best practices, pruebas, cobertura, tipos) → `.issues/{n}/06-quality-report.md`; `no-go` regresa a la Fase 4
+6. **Fase 5 — Revisión de Seguridad** (`kata-security-review`): OWASP + CVE scan → `.ahrena/issues/{n}/05-security-review.md`
+7. **Fase 6 — Gate 2 Calidad** (`kata-quality-gate`): 6 checks (trazabilidad AC↔prueba, scope creep, best practices, pruebas, cobertura, tipos) → `.ahrena/issues/{n}/06-quality-report.md`; `no-go` regresa a la Fase 4
 8. **Fase 7 — Preparar PR** (`kata-pr-prepare`): crea branch + push + PR vía GitHub MCP; transiciona ADRs `proposed → accepted`
 
 ## Prompt Template
@@ -51,7 +51,7 @@ Actúa como **warrior-athena** y conduce el flujo Issue-Driven Development compl
 
 Ejecuta las 7 fases en orden estricto según `codex-issue-workflow`:
 
-1. **Fase 1:** kata-issue-analysis — lee la issue vía GitHub MCP y busca contexto vía Notion MCP; produce el brief en .issues/{n}/01-brief.md.
+1. **Fase 1:** kata-issue-analysis — lee la issue vía GitHub MCP y busca contexto vía Notion MCP; produce el brief en .ahrena/issues/{n}/01-brief.md.
 
 2. **Fase 2:** kata-requirements-brief — elicita criterios de aceptación numerados (AC-1, AC-2, ...); haz preguntas de aclaración al usuario si es necesario; produce 02-requirements.md.
 
@@ -80,7 +80,7 @@ Respeta rigurosamente lex-issue-driven: sin saltar gates, con trazabilidad AC↔
 
 **Output esperado (flujo secuencial con pausas para humano):**
 
-- Athena lee la issue #42, produce `.issues/42/01-brief.md`
+- Athena lee la issue #42, produce `.ahrena/issues/42/01-brief.md`
 - Athena hace preguntas de aclaración al usuario (si es necesario)
 - Athena produce `02-requirements.md` con 5 ACs
 - Athena produce `03-architecture.md` + crea `docs/adr/ADR-008-*.md`
@@ -95,7 +95,7 @@ Respeta rigurosamente lex-issue-driven: sin saltar gates, con trazabilidad AC↔
 - **El Gate 1 es inviolable:** el comando no avanza a la implementación sin aprobación humana explícita
 - **El Gate 2 es inviolable:** el comando no crea PR si el Gate 2 resultó en `no-go`
 - **Solo issues existentes:** el comando rehúsa si la issue no existe o está vacía (según `lex-issue-driven`)
-- **Documentación en `docs/`:** todos los artefactos públicos del flujo quedan en `.issues/{n}/` y `docs/adr/`
+- **Documentación en `docs/`:** todos los artefactos públicos del flujo quedan en `.ahrena/issues/{n}/` y `docs/adr/`
 - **El comando orquesta, no implementa:** el propio comando no escribe código ni contratos — delega a Katas y warriors especialistas
 
 ## Cries y Warriors Asociados

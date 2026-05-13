@@ -10,7 +10,7 @@ Esta Lexis existe para garantizar que **toda implementación tenga trazabilidad 
 
 ## Ley
 
-> **Toda implementación conducida por `warrior-athena` DEBE partir de una issue existente, pasar por ambos Gates (Alcance y Calidad), respetar la trazabilidad bidireccional entre criterios de aceptación y pruebas, registrar decisiones arquitecturales relevantes como ADRs en `docs/adr/`, y producir toda la documentación pública del flujo en `.issues/{n}/`.**
+> **Toda implementación conducida por `warrior-athena` DEBE partir de una issue existente, pasar por ambos Gates (Alcance y Calidad), respetar la trazabilidad bidireccional entre criterios de aceptación y pruebas, registrar decisiones arquitecturales relevantes como ADRs en `docs/adr/`, y producir toda la documentación pública del flujo en `.ahrena/issues/{n}/`.**
 
 ## Reglas
 
@@ -49,20 +49,20 @@ El agente **DEBE** invocar `kata-adr-write` cuando la Fase 3 identifique:
 
 El ADR **DEBE** ser guardado en `docs/adr/ADR-{n}-{título-en-kebab}.md` en el formato MADR simplificado.
 
-### 5. Phase artifacts en `.issues/` (per ADR-002)
+### 5. Phase artifacts en `.ahrena/issues/` (per ADR-002)
 
-El agente **DEBE** estructurar los Phase artifacts del flujo Issue-Driven en `.issues/{n}/`:
+El agente **DEBE** estructurar los Phase artifacts del flujo Issue-Driven en `.ahrena/issues/{n}/`:
 
-1. `.issues/{n}/01-brief.md` — análisis de la issue (Fase 1)
-2. `.issues/{n}/02-requirements.md` — ACs numerados (Fase 2)
-3. `.issues/{n}/03-architecture.md` — design (Fase 3)
-4. `.issues/{n}/05-security-review.md` — revisión de seguridad (Fase 5)
-5. `.issues/{n}/06-quality-report.md` — reporte del Gate 2 (Fase 6)
+1. `.ahrena/issues/{n}/01-brief.md` — análisis de la issue (Fase 1)
+2. `.ahrena/issues/{n}/02-requirements.md` — ACs numerados (Fase 2)
+3. `.ahrena/issues/{n}/03-architecture.md` — design (Fase 3)
+4. `.ahrena/issues/{n}/05-security-review.md` — revisión de seguridad (Fase 5)
+5. `.ahrena/issues/{n}/06-quality-report.md` — reporte del Gate 2 (Fase 6)
 6. `docs/adr/ADR-{n}-*.md` — ADRs cuando son aplicables (los ADRs permanecen en `docs/` porque son documentación de producto, no operacional)
 
-**Ventana de transición (per plan-046 OQ#7):** durante 1 release tras el merge de plan-046, el agente DEBE aceptar **ambos** caminos como válidos — `.issues/{n}/` (nuevo, canónico) y `docs/issues/issue-{n}/` (legado). Tras el release siguiente, Gate 2 (`kata-quality-gate`) falla encontrando archivos en `docs/issues/issue-{n}/` — fuerza migración vía `git mv docs/issues/issue-{n} .issues/{n}`.
+**Ventana de transición (per plan-046 OQ#7):** durante 1 release tras el merge de plan-046, el agente DEBE aceptar **ambos** caminos como válidos — `.ahrena/issues/{n}/` (nuevo, canónico) y `.ahrena/issues/issue-{n}/` (legado). Tras el release siguiente, Gate 2 (`kata-quality-gate`) falla encontrando archivos en `.ahrena/issues/issue-{n}/` — fuerza migración vía `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}`.
 
-El estado efímero de orquestación (checkpoint entre fases) puede ir en `.ahrena/workflow/issue-{n}/checkpoint.md`, **nunca** en `.issues/` ni en `docs/`. El checkpoint **DEBE** usar front-matter YAML versionado (ver Regla 7).
+El estado efímero de orquestación (checkpoint entre fases) puede ir en `.ahrena/workflow/issue-{n}/checkpoint.md`, **nunca** en `.ahrena/issues/` ni en `docs/`. El checkpoint **DEBE** usar front-matter YAML versionado (ver Regla 7).
 
 ### 7. Schema versionado del checkpoint
 
@@ -76,9 +76,9 @@ repo: guardiafinance/ahrena
 phase_completed: 3
 phase_next: 4
 artifacts:
-  brief: .issues/42/01-brief.md
-  requirements: .issues/42/02-requirements.md
-  architecture: .issues/42/03-architecture.md
+  brief: .ahrena/issues/42/01-brief.md
+  requirements: .ahrena/issues/42/02-requirements.md
+  architecture: .ahrena/issues/42/03-architecture.md
 adrs:
   - ADR-008-use-event-sourcing-for-refund-audit-trail.md
 gate_1:
@@ -148,10 +148,10 @@ El formato de la entrada de delegación está definido en la Regla 7 (lista `del
 El archivo checkpoint es re-leído en cada transición de fase. Para mantener el consumo de tokens previsible, el checkpoint **DEBE**:
 
 - Contener solo **estado operacional activo** (fase actual, última delegación, outcomes de los gates, punteros a artefactos).
-- **No duplicar contenido** de `.issues/{n}/*.md` — esos son la narrativa duradera; el checkpoint carga referencias (caminos), no copias.
+- **No duplicar contenido** de `.ahrena/issues/{n}/*.md` — esos son la narrativa duradera; el checkpoint carga referencias (caminos), no copias.
 - **No acumular histórico más allá de la última delegación failed/timed-out mantenida para auditoría** (el histórico más antiguo pertenece a los archivos de narrativa de la issue, no al checkpoint).
 
-Tamaño-objetivo: menos de ~2 KB tras el flujo completo. Si el checkpoint excede 5 KB, el agente **DEBE** podar entradas históricas antes de continuar; el contenido podado va a `history.md` hermano (opcional) o se descarta si ya fue capturado en `.issues/{n}/`.
+Tamaño-objetivo: menos de ~2 KB tras el flujo completo. Si el checkpoint excede 5 KB, el agente **DEBE** podar entradas históricas antes de continuar; el contenido podado va a `history.md` hermano (opcional) o se descarta si ya fue capturado en `.ahrena/issues/{n}/`.
 
 ### 6. Scope creep es bloqueo, no aviso
 
@@ -171,7 +171,7 @@ En flujos con `stack.approved: true`, el alcance de cada chequeo de scope creep 
 Durante la Fase 3 (Architecture), `warrior-athena` **DEBE** consultar la Decision Checklist canónica de [`codex-stacked-prs`](../../../_foundation/contributing/codex/codex-stacked-prs.md) (sección 2) contra el alcance declarado y los ACs numerados en la Fase 2:
 
 1. **Evaluar señales altas y anti-señales** conforme a la checklist (≥ 3 señales altas AND 0 anti-señales → proponer stack; de lo contrario, PR único).
-2. **Si la checklist aprueba:** registrar una sección `## Stacked PR Decomposition` en `.issues/{n}/03-architecture.md` conteniendo:
+2. **Si la checklist aprueba:** registrar una sección `## Stacked PR Decomposition` en `.ahrena/issues/{n}/03-architecture.md` conteniendo:
    - Tabla de capas con columnas `Layer | Slug | ACs cubiertos | Componentes tocados | Justificación de independencia de review`
    - Herramienta seleccionada (lookup en `.directives.stacked_prs.tool`; default `vanilla`)
    - Mapeo explícito AC ↔ capa (cada AC pertenece a exactamente una capa)
@@ -207,7 +207,7 @@ La regla de referencia de la issue paraguas (Regla 5 de `codex-stacked-prs`, sec
 
 ### 13. Delegación directa a especialistas Python por `component` declarado
 
-Cuando `.issues/{n}/03-architecture.md` declara explícitamente el `component` en la tabla de componentes (valores: `api`, `jobs`, `agents`, `ui`, `deployment`), `warrior-athena` **PUEDE** invocar al especialista correspondiente directamente en la Phase 4, saltando el nivel de indirección vía `warrior-apollo` (router).
+Cuando `.ahrena/issues/{n}/03-architecture.md` declara explícitamente el `component` en la tabla de componentes (valores: `api`, `jobs`, `agents`, `ui`, `deployment`), `warrior-athena` **PUEDE** invocar al especialista correspondiente directamente en la Phase 4, saltando el nivel de indirección vía `warrior-apollo` (router).
 
 Tabla de routing:
 
@@ -253,15 +253,15 @@ La delegación directa no cambia ninguna otra regla del flujo (Gates 1 y 2, traz
 /cry-implement-issue 42 guardiafinance/ahrena
 
 # Athena lee la issue #42, produce:
-# .issues/42/01-brief.md
-# .issues/42/02-requirements.md   (AC-1, AC-2, AC-3)
-# .issues/42/03-architecture.md
+# .ahrena/issues/42/01-brief.md
+# .ahrena/issues/42/02-requirements.md   (AC-1, AC-2, AC-3)
+# .ahrena/issues/42/03-architecture.md
 # docs/adr/ADR-007-use-fastapi-routers.md   (decisión relevante)
 
 # Espera Gate 1 → humano aprueba
 # Apollo implementa: cada test referencia AC-N
 # Gate 2 ejecuta 6 checks, todos ✅
-# .issues/42/06-quality-report.md registra el resultado
+# .ahrena/issues/42/06-quality-report.md registra el resultado
 # PR creado con body referenciando los artefactos anteriores
 ```
 
@@ -271,7 +271,7 @@ La delegación directa no cambia ninguna otra regla del flujo (Gates 1 y 2, traz
 
 # Athena lee la issue #64 (5 ACs, ~900 líneas previstas, schema+API+UI):
 #   Decision Checklist: 4 señales altas, 0 anti-señales → propone stack
-# .issues/64/03-architecture.md incluye:
+# .ahrena/issues/64/03-architecture.md incluye:
 #   ## Stacked PR Decomposition
 #     Layer 1 (schema):  AC-1, AC-2  — db/migrations/*, models/*
 #     Layer 2 (api):     AC-3, AC-4  — routers/*, use_cases/*
@@ -311,6 +311,6 @@ La delegación directa no cambia ninguna otra regla del flujo (Gates 1 y 2, traz
 
 ## Validación Automatizada
 
-- **Herramienta:** `kata-quality-gate` (Gate 2) ejecuta la verificación de trazabilidad, scope creep y best practices antes del PR; `scripts/validate.py` verifica la presencia obligatoria de artefactos en `.issues/{n}/` cuando el flujo se concluye. Cuando el checkpoint contiene `stack.approved: true`, `kata-quality-gate` corre por capa y la validación agregada confirma cobertura de ACs y componentes.
+- **Herramienta:** `kata-quality-gate` (Gate 2) ejecuta la verificación de trazabilidad, scope creep y best practices antes del PR; `scripts/validate.py` verifica la presencia obligatoria de artefactos en `.ahrena/issues/{n}/` cuando el flujo se concluye. Cuando el checkpoint contiene `stack.approved: true`, `kata-quality-gate` corre por capa y la validación agregada confirma cobertura de ACs y componentes.
 - **Momento:** Gate 1 (antes de la Fase 4), Gate 2 (antes de cada capa sometida en flujos con stack; antes de la Fase 7 en flujo PR único).
 - **Métrica:** 100% de las issues pasan por ambos gates; 100% de los ACs tienen al menos un test; 0 tests sin AC correspondiente; 100% de las decisiones arquitecturales relevantes tienen ADR en `docs/adr/`; 0 flujos con `stack.approved: true` que avancen de la Fase 3 a la Fase 4 sin aprobación humana en el Gate 1.

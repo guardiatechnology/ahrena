@@ -15,7 +15,7 @@ Adoptando la perspectiva de Product Owner, convertir el brief producido en la Fa
 
 | Input | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
-| Brief de la Fase 1 | Sí | `.issues/{n}/01-brief.md` |
+| Brief de la Fase 1 | Sí | `.ahrena/issues/{n}/01-brief.md` |
 | Confirmaciones del usuario | No | Respuestas a preguntas pendientes identificadas en el brief (vía interacción) |
 
 ## Workflow
@@ -27,13 +27,13 @@ Progreso:
 - [ ] 3. Formular ACs en formato Given/When/Then
 - [ ] 4. Resolver incógnitas con preguntas al usuario
 - [ ] 5. Definir DoD y out-of-scope
-- [ ] 6. Persistir en .issues/{n}/02-requirements.md
+- [ ] 6. Persistir en .ahrena/issues/{n}/02-requirements.md
 - [ ] 7. Actualizar checkpoint
 ```
 
 ### Paso 1: Leer el brief de la Fase 1
 
-1. Leer `.issues/{n}/01-brief.md`.
+1. Leer `.ahrena/issues/{n}/01-brief.md`.
 2. Si no existe, informar que la Fase 1 no fue ejecutada y detener.
 3. Enfocar en las secciones: Problema, Contexto adicional, Tipo de trabajo, Riesgos e incógnitas.
 
@@ -73,7 +73,7 @@ AC-{N}: {título corto}
 1. **Definition of Done** — checklist objetivo:
    - Todos los ACs con prueba correspondiente (trazabilidad `AC-N`)
    - Gate 2 aprobado
-   - Documentación en `.issues/{n}/` completa
+   - Documentación en `.ahrena/issues/{n}/` completa
    - ADR(s) creados si hubo decisión arquitectónica relevante
    - PR aprobado por al menos 1 revisor
 
@@ -81,7 +81,7 @@ AC-{N}: {título corto}
    - Extraer del brief y de la interacción con el usuario
    - Cada item out-of-scope debe tener justificación o link a issue futura
 
-### Paso 6: Persistir en `.issues/{n}/02-requirements.md`
+### Paso 6: Persistir en `.ahrena/issues/{n}/02-requirements.md`
 
 Estructura del documento:
 
@@ -107,7 +107,7 @@ Estructura del documento:
 
 - [ ] Todos los ACs arriba tienen al menos una prueba con marcación `AC-N`
 - [ ] Gate 2 (`kata-quality-gate`) aprobado
-- [ ] Documentación completa en `.issues/{n}/`
+- [ ] Documentación completa en `.ahrena/issues/{n}/`
 - [ ] ADR(s) creados si aplica en `docs/adr/`
 - [ ] PR aprobado por al menos 1 revisor
 
@@ -131,7 +131,7 @@ Fase 3: diseño arquitectónico (`kata-architecture-brief`).
 1. Actualizar `.ahrena/workflow/issue-{n}/checkpoint.md` con:
    - fase completada: 2
    - siguiente fase: 3
-   - referencia: `.issues/{n}/02-requirements.md`
+   - referencia: `.ahrena/issues/{n}/02-requirements.md`
    - número total de ACs
    - preguntas pendientes (si hay)
 2. Informar a `warrior-athena`.
@@ -140,7 +140,7 @@ Fase 3: diseño arquitectónico (`kata-architecture-brief`).
 
 | Salida | Formato | Destino |
 |--------|---------|---------|
-| Documento de requisitos | Markdown con ACs numerados | `.issues/{n}/02-requirements.md` |
+| Documento de requisitos | Markdown con ACs numerados | `.ahrena/issues/{n}/02-requirements.md` |
 | Checkpoint actualizado | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 | Preguntas al usuario (si hay) | Texto estructurado | Respuesta al orquestador |
 
@@ -149,7 +149,7 @@ Fase 3: diseño arquitectónico (`kata-architecture-brief`).
 - **Los ACs deben ser testeables:** no aceptar ACs vagos ("el sistema debe ser rápido"); siempre con métrica observable.
 - **Numeración continua:** `AC-1`, `AC-2`, `AC-3`... sin saltos; ACs removidos quedan como `AC-N: (removido — ver nota)` para preservar numeración en iteraciones.
 - **Sin inferencia de requisitos no documentados:** si no está en el brief ni fue confirmado por el usuario, queda en "Preguntas Pendientes".
-- **Destino fijo:** `.issues/{n}/02-requirements.md` (según `lex-issue-driven`).
+- **Destino fijo:** `.ahrena/issues/{n}/02-requirements.md` (según `lex-issue-driven`).
 
 ## Referencias
 

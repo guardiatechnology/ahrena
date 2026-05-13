@@ -25,7 +25,7 @@ Progress:
 
 1. Confirm that `github` is in `mcp.servers` (per `lex-mcp`). If not, report and end.
 2. Confirm `GITHUB_PAT` is defined.
-3. Read `.issues/{n}/06-quality-report.md` and confirm the result is `go`. If `no-go`, refuse to create the PR and return to the orchestrator.
+3. Read `.ahrena/issues/{n}/06-quality-report.md` and confirm the result is `go`. If `no-go`, refuse to create the PR and return to the orchestrator.
 4. Consult `codex-mcp-github` to identify the correct tools (`create_branch`, `push_files`, `create_pull_request`).
 
 ### Step 2: Determine branch name and PR title
@@ -90,7 +90,7 @@ Resolves #{n}
 
 ## Acceptance Criteria
 
-<!-- Copied from .issues/{n}/02-requirements.md -->
+<!-- Copied from .ahrena/issues/{n}/02-requirements.md -->
 
 - [x] **AC-1:** {description}
 - [x] **AC-2:** {description}
@@ -98,7 +98,7 @@ Resolves #{n}
 
 ## Architecture
 
-See [architecture document](.issues/{n}/03-architecture.md).
+See [architecture document](.ahrena/issues/{n}/03-architecture.md).
 
 ### Created ADRs
 
@@ -108,8 +108,8 @@ See [architecture document](.issues/{n}/03-architecture.md).
 
 ## Quality
 
-- ✅ Gate 2 approved ([report](.issues/{n}/06-quality-report.md))
-- ✅ Security review approved ([report](.issues/{n}/05-security-review.md))
+- ✅ Gate 2 approved ([report](.ahrena/issues/{n}/06-quality-report.md))
+- ✅ Security review approved ([report](.ahrena/issues/{n}/05-security-review.md))
 - Coverage: {current}% (threshold: {threshold}%)
 
 ## How to test
@@ -384,5 +384,5 @@ For each ADR created in Phase 3 (listed in the checkpoint):
 - **Use MCP only:** do not use `git push` directly nor `gh pr create` when the GitHub MCP is active (per `lex-mcp`).
 - **No hardcoded credentials:** authentication exclusively via `GITHUB_PAT`.
 - **Gate 2 `go` is an inviolable prerequisite:** do not open a PR if `06-quality-report.md` resulted in `no-go`.
-- **PR body MUST reference .issues/{n}/:** traceability from issue to PR requires these links.
+- **PR body MUST reference .ahrena/issues/{n}/:** traceability from issue to PR requires these links.
 - **Conventional Commits mandatory:** PR title and commit messages must follow the format (per `lex-conventional-commits`).

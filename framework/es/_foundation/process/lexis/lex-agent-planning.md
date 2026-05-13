@@ -6,7 +6,7 @@
 
 Los agentes que ejecutan sin planificación previa producen resultados parciales, dejan archivos en estados inconsistentes y obligan al usuario a reconstruir el contexto manualmente. Esta Lexis elimina ese patrón al exigir que todo agente registre su plan antes de ejecutar, haciendo que la intención, el alcance y la secuencia sean auditables por humanos y por otros agentes. Además, define un ciclo de vida unificado entre el plan, la Issue de GitHub y el PR — con owner explícito para cada transición — para eliminar drift y dar visibilidad a la "sala de espera" de la revisión.
 
-Esta versión (per ADR-002) cambia el **medio de almacenamiento** del plan: el contenido canónico vive en el **body de la Issue** de GitHub; `.plans/{N}.md` es caché local de la IA (gitignored); `.issues/{N}/` guarda los Phase artifacts del flujo Issue-Driven (committed). El archivo de plan dedicado en `.claude/plans/*.md` deja de ser el canónico.
+Esta versión (per ADR-002) cambia el **medio de almacenamiento** del plan: el contenido canónico vive en el **body de la Issue** de GitHub; `.plans/{N}.md` es caché local de la IA (gitignored); `.ahrena/issues/{N}/` guarda los Phase artifacts del flujo Issue-Driven (committed). El archivo de plan dedicado en `.claude/plans/*.md` deja de ser el canónico.
 
 ## Ley
 
@@ -24,7 +24,7 @@ Esta versión (per ADR-002) cambia el **medio de almacenamiento** del plan: el c
 |---|---|---|---|
 | **Issue body** | `https://github.com/{owner}/{repo}/issues/{N}` | Canonical. Summary + Plan section con Objective, Steps, Risks, Dependencies, Open Questions | Audit log nativo de GitHub (timestamp + autor por edición) |
 | **`.plans/{N}.md`** | Raíz del repo, gitignored | AI working memory + scratch. Superset del body de la Issue + secciones `<!-- not-flushed -->` | Caché local regenerable; `kata-load-plan-from-issue` materializa, `kata-flush-plan-to-issue` flushea |
-| **`.issues/{N}/`** | Raíz del repo, committed | Phase artifacts del flujo Issue-Driven (`01-brief.md` … `06-quality-report.md`) | Git |
+| **`.ahrena/issues/{N}/`** | Raíz del repo, committed | Phase artifacts del flujo Issue-Driven (`01-brief.md` … `06-quality-report.md`) | Git |
 
 El path de `.plans/` es configurable vía `paths.plans` en `.ahrena/.directives` (default: `.plans/`). No confundir con el `paths.plans` legado que apuntaba a `.claude/plans/` — el nuevo default es `.plans/` en la raíz, agente-agnóstico.
 
@@ -107,7 +107,7 @@ to release → release → done
 
 La mutex de labels es **intra-artefacto** (dentro de cada Issue/PR), no cross-artifact: una Issue lleva exactamente una label `status: <name>` a la vez. El HARD-GATE en `lex-issue-status` prohíbe aplicar labels del Eje B en Issue/PR de feature, y viceversa.
 
-La carpeta `.issues/_legacy/` (histórico anterior a ADR-002) preserva planes en formato antiguo — **ya no es un estado** del enum.
+La carpeta `.ahrena/issues/_legacy/` (histórico anterior a ADR-002) preserva planes en formato antiguo — **ya no es un estado** del enum.
 
 ## Owner de `— → todo`: warrior-eunomia
 
@@ -190,7 +190,7 @@ Para audit post-merge, dos campos se derivan de APIs nativas de GitHub (sin fron
 | `closed_at` | `Issue.closedAt` | `gh issue view {N} --json closedAt --jq .closedAt` |
 | `merge_commit` | `PullRequest.mergeCommit.oid` | `gh pr view {PR} --json mergeCommit --jq .mergeCommit.oid` |
 
-Para planes legados en `.issues/_legacy/` que mantienen YAML front-matter histórico (planes 043-045 y anteriores), `merge_commit:` y `closed_at:` son reconocidos como front-matter opcional aceptado — preserva el audit sin retrofit.
+Para planes legados en `.ahrena/issues/_legacy/` que mantienen YAML front-matter histórico (planes 043-045 y anteriores), `merge_commit:` y `closed_at:` son reconocidos como front-matter opcional aceptado — preserva el audit sin retrofit.
 
 ## Cadencia de load/flush (per ADR-002 §3)
 
@@ -210,7 +210,7 @@ Toggles intermedios, ediciones de scratch (`<!-- not-flushed -->`) y working not
 - **Issue GitHub:** lleva el plan canónico en el body; la label `status: <name>` es la única fuente de verdad para el estado.
 - **PR:** a partir de `to review`, el PR lleva la label `status: <name>` correspondiente, actualizada por Athena/Argos/Janus conforme avanza el estado. Sync de la label es responsabilidad del owner de la transición.
 - **`.plans/{N}.md`:** caché local regenerable; nunca commiteado; reconstruido por `kata-load-plan-from-issue` en fresh clone.
-- **`.issues/{N}/`:** committed; recibe Phase artifacts del flujo Issue-Driven (per `lex-issue-driven`).
+- **`.ahrena/issues/{N}/`:** committed; recibe Phase artifacts del flujo Issue-Driven (per `lex-issue-driven`).
 - **Checkpoint (`.checkpoint`):** el plan cubre **task** (Steps, Decisiones, Riesgos en el body de la Issue); el checkpoint cubre **sesión** (foco de la ventana, hand-off entre planes, threads paralelos). La superposición es PROHIBIDA — ver `lex-checkpoint` regla 5.
 - **ADR:** cuando un plan identifica una decisión arquitectural relevante, un ADR DEBE ser abierto conforme `lex-issue-driven`.
 - **Heartbeat de sesión:** la sesión Claude Code que opera en el plan se registra en `.ahrena/workflow/sessions/<session-id>.json` (per `codex-session-tracking`); no vive en el body de la Issue.
@@ -291,7 +291,7 @@ Tarea: implementar feature X
 - `lex-issue-first`, `lex-issue-quality`, `lex-git-branches`, `lex-git-worktrees` — preconditions del paso `— → todo`
 - `lex-mcp` — preferencia MCP + fallback CLI para `gh issue edit`
 - `lex-checkpoint` — rastreo de estado de sesión (complementario)
-- `lex-issue-driven` — flujo Issue-Driven; Phase artifacts en `.issues/{N}/`
+- `lex-issue-driven` — flujo Issue-Driven; Phase artifacts en `.ahrena/issues/{N}/`
 - `codex-agent-planning` — manual operacional del modelo de 3 capas (load → edit → flush)
 - `kata-plan-task` — procedimiento operacional para crear planes (rellena body de la Issue)
 - `kata-load-plan-from-issue` — materializa `.plans/{N}.md` a partir del body de la Issue

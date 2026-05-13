@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Ejecutar el Gate 2 del flujo Issue-Driven: 7 verificaciones stack-aware sobre la implementación completada en la Fase 4 (y revisada por la Fase 5). Produce informe `go`/`no-go`/`unverifiable` en `.issues/{n}/06-quality-report.md`. Cualquier falla regresa a la Fase 4 con contexto detallado; solo `go` permite avanzar a la Fase 7. Los checks que no puedan ejecutarse en el entorno actual (herramienta ausente, sin archivos aplicables) reportan `unverifiable` y se presentan al humano en lugar de pasar silenciosamente.
+Ejecutar el Gate 2 del flujo Issue-Driven: 7 verificaciones stack-aware sobre la implementación completada en la Fase 4 (y revisada por la Fase 5). Produce informe `go`/`no-go`/`unverifiable` en `.ahrena/issues/{n}/06-quality-report.md`. Cualquier falla regresa a la Fase 4 con contexto detallado; solo `go` permite avanzar a la Fase 7. Los checks que no puedan ejecutarse en el entorno actual (herramienta ausente, sin archivos aplicables) reportan `unverifiable` y se presentan al humano en lugar de pasar silenciosamente.
 
 Esta kata es la **guardiana de la calidad** del flujo — garantiza que la implementación cubre todos los ACs, no sobrepasó el alcance, aplicó las best practices definidas en las Lexis y no regresó la performance más allá de los budgets declarados.
 
@@ -17,10 +17,10 @@ Esta kata es la **guardiana de la calidad** del flujo — garantiza que la imple
 
 | Input | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
-| Requisitos Fase 2 | Sí | `.issues/{n}/02-requirements.md` (ACs numerados) |
-| Arquitectura Fase 3 | Sí | `.issues/{n}/03-architecture.md` (tabla de componentes — alcance) |
+| Requisitos Fase 2 | Sí | `.ahrena/issues/{n}/02-requirements.md` (ACs numerados) |
+| Arquitectura Fase 3 | Sí | `.ahrena/issues/{n}/03-architecture.md` (tabla de componentes — alcance) |
 | Implementación Fase 4 | Sí | Código + pruebas en el working tree |
-| Revisión Fase 5 | Sí | `.issues/{n}/05-security-review.md` (debe estar `approved`) |
+| Revisión Fase 5 | Sí | `.ahrena/issues/{n}/05-security-review.md` (debe estar `approved`) |
 | Coverage threshold | No | `quality.coverage_threshold` en `.directives` (por defecto: 80) |
 | Stack | Sí | Lenguaje del código implementado (detectado vía archivos tocados) |
 
@@ -37,7 +37,7 @@ Progreso:
 - [ ] 7. Check 6 — Tipos
 - [ ] 8. Check 7 — Performance budget
 - [ ] 9. Consolidar resultado go/no-go/unverifiable
-- [ ] 10. Persistir en .issues/{n}/06-quality-report.md
+- [ ] 10. Persistir en .ahrena/issues/{n}/06-quality-report.md
 - [ ] 11. Actualizar checkpoint
 ```
 
@@ -100,7 +100,7 @@ Resultado del Check 1: ✅ si ambas direcciones están completas; ❌ caso contr
 3. **Excepciones legítimas** (no flagear):
    - Archivos de prueba correspondientes a componentes declarados (ej.: si `service.py` está en la tabla, `test_service.py` es implícito).
    - Archivos de configuración automática (ej.: `requirements.lock`, `yarn.lock`).
-   - Documentación generada por el propio flujo (ej.: `.issues/{n}/*`).
+   - Documentación generada por el propio flujo (ej.: `.ahrena/issues/{n}/*`).
 4. Funciones/clases públicas nuevas en archivos tocados que no mapean a ningún AC → flagear.
 
 Resultado del Check 2: ✅ si solo archivos declarados + excepciones fueron modificados; ❌ si hay scope creep no justificado.
@@ -161,7 +161,7 @@ Para cada ❌, registrar:
 - Detalles (archivos, líneas, comandos, output)
 - Recomendación de corrección
 
-### Paso 9: Persistir en `.issues/{n}/06-quality-report.md`
+### Paso 9: Persistir en `.ahrena/issues/{n}/06-quality-report.md`
 
 Estructura:
 
@@ -226,7 +226,7 @@ Estructura:
 
 | Salida | Formato | Destino |
 |--------|---------|---------|
-| Informe del Gate | Markdown con 6 checks + matriz de trazabilidad | `.issues/{n}/06-quality-report.md` |
+| Informe del Gate | Markdown con 6 checks + matriz de trazabilidad | `.ahrena/issues/{n}/06-quality-report.md` |
 | Resultado | `go` / `no-go` | Retorno al orquestador |
 | Checkpoint actualizado | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
 
@@ -236,7 +236,7 @@ Estructura:
 - **El orden de los checks es obligatorio:** checks 1-3 (análisis estático) antes de 4-6 (ejecución); si el análisis falla, aún ejecutar los demás para reportar panorama completo.
 - **Threshold configurable pero no opcional:** `quality.coverage_threshold` puede ajustarse en `.directives`, pero el Check 5 siempre se ejecuta.
 - **Sin override para `no-go`:** la única salida legítima de `no-go` es corregir la implementación o renegociar los ACs (vía Gate 1). Ningún humano o agente puede marcar como `go` manualmente.
-- **Destino fijo:** `.issues/{n}/06-quality-report.md` (según `lex-issue-driven`). En modo por capa, el informe acumula una sección por capa más una sección agregada final.
+- **Destino fijo:** `.ahrena/issues/{n}/06-quality-report.md` (según `lex-issue-driven`). En modo por capa, el informe acumula una sección por capa más una sección agregada final.
 - **El subset por capa no relaja criterios:** el filtro de ACs/componentes solo reduce el alcance de la ejecución; los thresholds (cobertura, performance) y la estrictez de los checks permanecen idénticos.
 
 ## Referencias

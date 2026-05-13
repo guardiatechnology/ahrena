@@ -120,7 +120,7 @@ dest_path: (default) .plans/96.md
 ### Objective
 Refatorar a camada de armazenamento do plano para que o conteúdo viva em
 três camadas com papéis claros: Issue body (canonical) + .plans/ (cache IA)
-+ .issues/ (Phase artifacts).
++ .ahrena/issues/ (Phase artifacts).
 
 ### Steps
 - [x] Step 1 — Open Issue + branch + worktree

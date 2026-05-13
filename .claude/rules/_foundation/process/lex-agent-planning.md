@@ -25,7 +25,7 @@ paths:
 |---|---|---|---|
 | **Issue body** | `https://github.com/{owner}/{repo}/issues/{N}` | Canonical. Summary + Plan section with Objective, Steps, Risks, Dependencies, Open Questions | GitHub-native audit log (timestamp + author per edit) |
 | **`.plans/{N}.md`** | Repo root, gitignored | AI working memory + scratch. Superset of the Issue body + `<!-- not-flushed -->` sections | Regenerable local cache; `kata-load-plan-from-issue` materializes, `kata-flush-plan-to-issue` flushes |
-| **`.issues/{N}/`** | Repo root, committed | Phase artifacts of the Issue-Driven flow (`01-brief.md` … `06-quality-report.md`) | Git |
+| **`.ahrena/issues/{N}/`** | Repo root, committed | Phase artifacts of the Issue-Driven flow (`01-brief.md` … `06-quality-report.md`) | Git |
 
 The `.plans/` path is configurable via `paths.plans` in `.ahrena/.directives` (default: `.plans/`). Do not confuse this with the legacy `paths.plans` that pointed to `.claude/plans/` — the new default is `.plans/` at the repo root, agent-agnostic.
 
@@ -108,7 +108,7 @@ to release → release → done
 
 Label mutex is **intra-artifact** (within each Issue/PR), not cross-artifact: an Issue carries exactly one `status: <name>` label at a time. A HARD-GATE in `lex-issue-status` forbids applying Axis B labels to a feature Issue/PR, and vice versa.
 
-The `.issues/_legacy/` folder (history prior to ADR-002) preserves plans in the old format — **it is no longer a state** of the enum.
+The `.ahrena/issues/_legacy/` folder (history prior to ADR-002) preserves plans in the old format — **it is no longer a state** of the enum.
 
 ## Owner of `— → todo`: warrior-eunomia
 
@@ -191,7 +191,7 @@ For post-merge audit, two fields are derived from native GitHub APIs (with no de
 | `closed_at` | `Issue.closedAt` | `gh issue view {N} --json closedAt --jq .closedAt` |
 | `merge_commit` | `PullRequest.mergeCommit.oid` | `gh pr view {PR} --json mergeCommit --jq .mergeCommit.oid` |
 
-For legacy plans in `.issues/_legacy/` that keep historical YAML front-matter (plans 043-045 and earlier), `merge_commit:` and `closed_at:` are recognized as accepted optional front-matter — this preserves the audit trail with no retrofit.
+For legacy plans in `.ahrena/issues/_legacy/` that keep historical YAML front-matter (plans 043-045 and earlier), `merge_commit:` and `closed_at:` are recognized as accepted optional front-matter — this preserves the audit trail with no retrofit.
 
 ## Load/flush cadence (per ADR-002 §3)
 
@@ -211,7 +211,7 @@ Intermediate toggles, scratch edits (`<!-- not-flushed -->`), and working notes 
 - **GitHub Issue:** carries the canonical plan in its body; the `status: <name>` label is the single source of truth for the state.
 - **PR:** starting at `to review`, the PR carries the matching `status: <name>` label, updated by Athena/Argos/Janus as the state advances. Syncing the label is the responsibility of the transition's owner.
 - **`.plans/{N}.md`:** regenerable local cache; never committed; rebuilt by `kata-load-plan-from-issue` on a fresh clone.
-- **`.issues/{N}/`:** committed; receives the Issue-Driven flow's Phase artifacts (per `lex-issue-driven`).
+- **`.ahrena/issues/{N}/`:** committed; receives the Issue-Driven flow's Phase artifacts (per `lex-issue-driven`).
 - **Checkpoint (`.checkpoint`):** the plan covers **task** (Steps, Decisions, Risks in the Issue body); the checkpoint covers **session** (window focus, hand-off between plans, parallel threads). Overlap is FORBIDDEN — see `lex-checkpoint` rule 5.
 - **ADR:** when a plan identifies a relevant architectural decision, an ADR MUST be opened per `lex-issue-driven`.
 - **Session heartbeat:** the Claude Code session operating on the plan is recorded in `.ahrena/workflow/sessions/<session-id>.json` (per `codex-session-tracking`); it does not live in the Issue body.

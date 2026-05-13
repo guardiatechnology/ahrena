@@ -108,7 +108,7 @@ Before modeling, I need:
 
 *(After: 50k/month; yes 7y; refund → payment 1:N; strongly transactional.)*
 
-**Demeter:** Proposal in `.issues/42/03b-schema.md`:
+**Demeter:** Proposal in `.ahrena/issues/42/03b-schema.md`:
 
 **Main entity: `Refund`** (aggregate root, Aurora PostgreSQL)
 
