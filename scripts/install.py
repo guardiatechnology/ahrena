@@ -1215,15 +1215,16 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     else:
         print(f"  .directives already exists — preserved")
 
-    # 2.5. Copy contributing_templates to .ahrena/contributing_templates/ (preserve if exists)
+    # 2.5. Sync contributing_templates to .ahrena/contributing_templates/
+    # (framework-managed: always refresh on install/update so new templates land
+    # and existing ones track the framework version)
     ct_src = ahrena_framework / "templates" / "contributing_templates"
     ct_dst = ahrena_dir / "contributing_templates"
     if ct_src.exists():
-        if not ct_dst.exists():
-            shutil.copytree(ct_src, ct_dst)
-            print(f"  Installed contributing_templates to .ahrena/contributing_templates/")
-        else:
-            print(f"  contributing_templates already exist — preserved")
+        if ct_dst.exists():
+            shutil.rmtree(ct_dst)
+        shutil.copytree(ct_src, ct_dst)
+        print(f"  Synced contributing_templates to .ahrena/contributing_templates/")
 
     # 2.6. Copy mcp/ templates to .ahrena/mcp/ (never overwrite user overrides)
     mcp_src = ahrena_framework / "mcp"
