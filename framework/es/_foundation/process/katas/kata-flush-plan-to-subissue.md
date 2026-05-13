@@ -1,53 +1,60 @@
-# Kata: Flushar Plan a la Issue
+# Kata: Flushar Plan a la Sub-issue
 
-> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Sincronización del caché local `.plans/{N}.md` al body canónico de la Issue de GitHub, conforme al modelo de almacenamiento en 3 capas del ADR-002
+> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Sincronización del caché local provider-specific (`.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`) al body canónico de la sub-issue Plan, conforme al modelo jerárquico de `lex-agent-planning`
 
 ## Objetivo
 
-Persistir el contenido de `.plans/{N}.md` (working memory de la IA) en el body de la Issue de GitHub (canonical), filtrando bloques locales marcados `<!-- not-flushed -->` ... `<!-- /not-flushed -->`. Operación idempotente. Disparada en los 3 disparadores canónicos de `lex-agent-planning`: cada transición de label `status:`, cada Step concluido, y fin de sesión.
+Persistir el contenido del caché local provider-specific (working memory de la IA) en el body de la sub-issue Plan `{M}` de GitHub (canonical), filtrando bloques locales marcados `<!-- not-flushed -->` ... `<!-- /not-flushed -->`. Operación idempotente. Disparada en los 4 disparadores canónicos de `lex-agent-planning`: cada transición de label `status:` en la sub-issue/PR, cada Step completado (`[ ]` → `[x]`), fin de sesión (heartbeat finaliza o el owner sale), y handoff entre agentes.
 
 ## Cuándo Usar
 
-- Transición de label `status:` en la Issue/PR (`todo → development`, `development → to review`, etc.).
-- Step del plan marcado como concluido (`[ ]` → `[x]`).
-- Fin de sesión Claude Code (heartbeat finaliza o agente Athena/Argos/Janus sale).
-- Handoff entre agentes (entrega antes de que entre el siguiente agente).
-- Solicitud explícita del usuario ("flush plan", "actualiza la Issue").
+- Transición de label `status:` en la sub-issue Plan o en el PR vinculado (`todo → development`, `development → to review`, `to review → review`, etc.).
+- Step del plan marcado como completado (`[ ]` → `[x]`) en el caché local.
+- Fin de sesión de Claude Code o Cursor (heartbeat finaliza o el agente Athena/Argos/Janus sale).
+- Handoff entre agentes (entregar antes de que entre el siguiente agente).
+- Solicitud explícita del usuario ("flushea el plan", "actualiza la sub-issue").
 
 ## Inputs
 
-| Input | Obligatorio | Descripción |
-|-------|:-----------:|-----------|
-| `issue_number` | Sí | Número de la Issue (`{N}` en `{owner}/{repo}#{N}`) |
-| `owner/repo` | No | Repo donde vive la Issue. Default: repo actual del worktree |
-| `source_path` | No | Path del archivo de caché local. Default: `<paths.plans>/{N}.md` |
+| Entrada | Obligatorio | Descripción |
+|---------|:-----------:|-------------|
+| `subissue_number` | Sí | Número `{M}` de la sub-issue Plan |
+| `owner/repo` | No | Repo donde vive la sub-issue Plan. Default: repo actual del worktree |
+| `source_path` | No | Path del archivo de caché local. Default: resuelto por la detección de provider (`.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`) |
 | `force` | No | `true` fuerza la grabación incluso si hubo edición remota desconocida. Default: `false` (alerta + ofrece merge manual) |
 
 ## Workflow
 
 ```
 Progreso:
-- [ ] 1. Leer `.plans/{N}.md`
-- [ ] 2. Filtrar bloques `<!-- not-flushed -->`
-- [ ] 3. Detectar drift remoto (preflight)
-- [ ] 4. Grabar vía MCP `update_issue` (preferido)
-- [ ] 5. Fallback `gh issue edit --body-file`
-- [ ] 6. Validar idempotencia
+- [ ] 1. Resolver provider + path de origen
+- [ ] 2. Leer el caché local
+- [ ] 3. Filtrar bloques `<!-- not-flushed -->`
+- [ ] 4. Detectar drift remoto (preflight)
+- [ ] 5. Grabar vía MCP `update_issue` (preferido)
+- [ ] 6. Fallback `gh issue edit --body-file`
+- [ ] 7. Validar idempotencia
 ```
 
-### Paso 1: Leer `.plans/{N}.md`
+### Paso 1: Resolver provider + path de origen
 
-Cargar el contenido del caché local:
+1. Si `source_path` se pasó, usarlo.
+2. Si no, detectar el runtime del agente:
+   - Claude Code → `.claude/plans/plan-{M}.md`
+   - Cursor → `.cursor/plans/plan-{M}.md`
+3. Si el archivo no existe o está vacío, abortar con mensaje orientando a ejecutar `kata-load-plan-from-subissue` primero.
+
+### Paso 2: Leer el caché local
 
 ```bash
-cat .plans/{N}.md
+cat {source_path}
 ```
 
-Si el archivo no existe o está vacío, abortar con mensaje orientando a correr `kata-load-plan-from-issue` primero.
+Validar que el contenido carga el schema canónico mínimo (Summary, Plan section). Si falta estructura, abortar y orientar a sincronizar primero vía `kata-load-plan-from-subissue`.
 
-### Paso 2: Filtrar bloques `<!-- not-flushed -->`
+### Paso 3: Filtrar bloques `<!-- not-flushed -->`
 
-Eliminar del contenido todos los bloques delimitados:
+Remover del contenido todos los bloques delimitados:
 
 ```
 <!-- not-flushed -->
@@ -55,7 +62,7 @@ Eliminar del contenido todos los bloques delimitados:
 <!-- /not-flushed -->
 ```
 
-El resultado es el **body candidato** para grabar en la Issue. Implementación canónica vía Python:
+El resultado es el **body candidato** para grabar en la sub-issue. Implementación canónica vía Python:
 
 ```python
 import re
@@ -65,142 +72,152 @@ filtered = re.sub(
     raw_content,
     flags=re.DOTALL,
 )
-# elimina líneas vacías duplicadas que sobraron post-filtro
-filtered = re.sub(r"\n{3,}", "\n\n", filtered).strip() + "\n"
+# colapsa solo líneas en blanco triples+ a dobles; preserva indentación
+filtered = re.sub(r"\n\n\n+", "\n\n", filtered).strip() + "\n"
 ```
 
-### Paso 3: Detectar drift remoto (preflight)
+El filtrado es silencioso por diseño — el body candidato no se filtra en el log de sesión.
 
-Antes de grabar, **leer el body actual** de la Issue y comparar con el último estado conocido localmente:
+### Paso 4: Detectar drift remoto (preflight)
 
-1. `gh issue view {N} --json body --jq .body` → `remote_body_now`.
-2. Comparar `remote_body_now` con `remote_body_at_last_load` (estado guardado localmente en `.plans/.{N}.remote.last` o similar — opcional; si está ausente, leer al momento).
-3. Si es diferente, hubo **edición remota desconocida** (otra sesión o edición vía UI de GitHub).
+Antes de grabar, **leer el body actual** de la sub-issue y comparar con el último estado conocido localmente:
+
+1. `gh issue view {M} --repo {owner}/{repo} --json body --jq .body` → `remote_body_now`.
+2. Comparar `remote_body_now` con `remote_body_at_last_load` (estado guardado localmente en `.claude/plans/.{M}.remote.last` o similar — opcional; si está ausente, leer en el momento).
+3. Si es diferente, hubo **edición remota desconocida** (otra sesión flushó en paralelo o edición vía la UI de GitHub).
 
 Comportamiento en la detección de drift:
 
-| Escenario | Default | Con `force=true` |
+| Escenario | Default (`force=false`) | Con `force=true` |
 |---|---|---|
-| Sin drift | Graba directamente | Graba directamente |
-| Con drift | **Alerta** (no graba); ofrece: (a) mostrar diff y abortar, (b) merge manual, (c) overwrite | Graba directamente (sobrescribe los cambios remotos) |
+| Sin drift | Graba directo | Graba directo |
+| Con drift | **Alerta** (no graba); ofrece: (a) mostrar diff y abortar, (b) merge manual, (c) overwrite | Graba directo (sobrescribe cambios remotos) |
 
 El default `force=false` es más conservador — protege contra la pérdida de ediciones simultáneas.
 
-### Paso 4: Grabar vía MCP `update_issue` (preferido)
+### Paso 5: Grabar vía MCP `update_issue` (preferido)
 
-Per `lex-mcp` regla 1, si el servidor GitHub MCP está listado en `mcp.servers` y activo:
+Per regla 1 de `lex-mcp`, si el servidor GitHub MCP está listado en `mcp.servers` y activo:
 
 ```python
 mcp.github.update_issue(
     owner=owner,
     repo=repo,
-    issue_number=N,
+    issue_number=M,
     body=filtered_body,
 )
 ```
 
-Si tiene éxito, actualizar `.plans/.{N}.remote.last` con el body recién grabado, y saltar al Paso 6.
+Si tiene éxito, actualizar `.claude/plans/.{M}.remote.last` (o el equivalente en Cursor) con el body recién grabado, y saltar al Paso 7.
 
-### Paso 5: Fallback `gh issue edit --body-file`
+### Paso 6: Fallback `gh issue edit --body-file`
 
-Per `lex-mcp` regla 4 (MCP indisponible):
+Per regla 4 de `lex-mcp` (MCP no disponible):
 
 ```bash
 # Grabar body candidato en archivo temporal
-echo "$filtered_body" > /tmp/issue-{N}-body.md
+echo "$filtered_body" > /tmp/subissue-{M}-body.md
 
-# Grabar en la Issue vía gh
-gh issue edit {N} --repo {owner}/{repo} --body-file /tmp/issue-{N}-body.md
+# Grabar en la sub-issue vía gh
+gh issue edit {M} --repo {owner}/{repo} --body-file /tmp/subissue-{M}-body.md
 
 # Limpiar
-rm /tmp/issue-{N}-body.md
+rm /tmp/subissue-{M}-body.md
 ```
 
 Si `gh` falla:
 
-1. Retry único tras 5 segundos de backoff.
-2. Si persiste, ofrecer al usuario (per `lex-mcp` regla 4 pasos 3-4): (a) intentar de nuevo, (b) pausar, (c) abortar.
+1. Retry único después de 5 segundos de backoff.
+2. Si persiste, ofrecer al usuario (per regla 4 pasos 3-4 de `lex-mcp`): (a) intentar de nuevo, (b) pausar, (c) abortar.
 
-### Paso 6: Validar idempotencia
+### Paso 7: Validar idempotencia
 
-Tras grabar, ejecutar `gh issue view {N} --json body --jq .body` y comparar con `filtered_body`. Resultado esperado: igual.
+Después de grabar, ejecutar `gh issue view {M} --json body --jq .body` y comparar con `filtered_body`. Resultado esperado: igual.
 
-Si hay diferencia, el flush falló silenciosamente — abortar e investigar (normalmente: encoding, escaping de caracteres especiales, o rate-limit silenciado por GitHub).
+Si hay diferencia, el flush falló silenciosamente — abortar e investigar (normalmente: encoding, escape de caracteres especiales, o rate-limit silenciado por GitHub).
 
 ## Outputs
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Body actualizado | Markdown (sin bloques `<!-- not-flushed -->`) | Issue `{N}` en GitHub |
-| `.plans/.{N}.remote.last` (opcional) | Markdown | Caché local del último estado remoto conocido (preflight del siguiente flush) |
+| Body actualizado | Markdown (sin bloques `<!-- not-flushed -->`) | Sub-issue `{M}` en GitHub |
+| `.claude/plans/.{M}.remote.last` (opcional) | Markdown | Caché local del último estado remoto conocido (preflight del próximo flush) |
 
 ## Ejemplo de Ejecución
 
 ### Input de Ejemplo
 
 ```
-issue_number: 96
-owner/repo: guardiatechnology/ahrena
-source_path: (default) .plans/96.md
+subissue_number: 201
+owner/repo: guardiatechnology/example-repo
+source_path: (default; provider Claude Code) .claude/plans/plan-201.md
 force: false
 ```
 
-### `.plans/96.md` antes del flush
+### `.claude/plans/plan-201.md` antes del flush
 
 ```markdown
 ## Summary
-...
+
+Refactorizar el agregado Ledger a event sourcing, separando comandos
+(write-side) de lecturas (read-side projection).
+
+Parent: #200
 
 ## Plan
 ### Steps
-- [x] Step 1
-- [x] Step 2
-- [x] Step 3 — Rewrite lex-agent-planning (Just completed)
-- [ ] Step 4
+- [x] Step 1 — Modelar LedgerEvent base class
+- [x] Step 2 — Reescribir Ledger.apply() como event projection (just completed)
+- [ ] Step 3 — Repository persistiendo events en lugar de state
 ...
 
 <!-- not-flushed -->
 ## Working notes
-- 23:55 — terminó Step 3; el caché aquí está más nuevo que el body de la Issue.
+- 15:10 — terminó Step 2; el caché aquí está más nuevo que el body de la sub-issue.
 
 ## Scratch
-probando si update_issue MCP soporta body de >50KB. Sí, soporta (límite ~65KB).
+discriminated union vs class hierarchy: quedó class hierarchy más legible.
 <!-- /not-flushed -->
 ```
 
-### Body grabado en la Issue tras el flush
+### Body grabado en la sub-issue después del flush
 
 ```markdown
 ## Summary
-...
+
+Refactorizar el agregado Ledger a event sourcing, separando comandos
+(write-side) de lecturas (read-side projection).
+
+Parent: #200
 
 ## Plan
 ### Steps
-- [x] Step 1
-- [x] Step 2
-- [x] Step 3 — Rewrite lex-agent-planning (Just completed)
-- [ ] Step 4
+- [x] Step 1 — Modelar LedgerEvent base class
+- [x] Step 2 — Reescribir Ledger.apply() como event projection (just completed)
+- [ ] Step 3 — Repository persistiendo events en lugar de state
 ...
 ```
 
-Los bloques `<!-- not-flushed -->` quedan solo en el caché local. Cuando otra sesión corra `kata-load-plan-from-issue`, recibe el body sin los bloques — se preserva la propiedad de que canonical = body de la Issue.
+Los bloques `<!-- not-flushed -->` quedan solo en el caché local. Cuando otra sesión ejecute `kata-load-plan-from-subissue`, recibe el body sin los bloques — se preserva la propiedad de que canonical = body de la sub-issue.
 
 ## Restricciones
 
-- **Idempotente:** múltiples ejecuciones producen el mismo body si el `.plans/{N}.md` no cambió.
-- **Preflight obligatorio (default):** sin `force=true`, drift remoto bloquea el flush y exige decisión humana.
-- **MCP > CLI:** preferir MCP `update_issue`; CLI `gh issue edit --body-file` es fallback per `lex-mcp` regla 4.
-- **No crea Issue:** si `{N}` no existe, falla inmediato. Para crear, usar `kata-plan-task`.
-- **No toca labels ni assignees:** el flush opera solo sobre el body. Las labels (incluyendo `status:*`) son responsabilidad del owner de la transición (per `lex-agent-planning` y `lex-issue-status`).
-- **No logea contenido:** el filtrado `<!-- not-flushed -->` es silencioso por diseño — el body candidato no se filtra en log de sesión.
+- **Idempotente:** múltiples ejecuciones producen el mismo body si el caché local no cambió.
+- **Preflight obligatorio (default):** sin `force=true`, el drift remoto bloquea el flush y exige decisión humana.
+- **MCP > CLI:** preferir MCP `update_issue`; CLI `gh issue edit --body-file` es fallback per regla 4 de `lex-mcp`.
+- **No crea sub-issue:** si `{M}` no existe, falla inmediato. Para crear, usar `kata-plan-task` o `kata-decompose-issue-into-plans`.
+- **No toca labels ni assignees:** el flush opera solo en el body. Las labels (incluyendo `status:*`) son responsabilidad del owner de la transición (per `lex-agent-planning` y `lex-issue-status`).
+- **No loguea contenido filtrado:** el body candidato no aparece en los logs de sesión.
+- **Preserva indentación:** la regex de colapso de líneas en blanco actúa solo sobre secuencias `\n\n\n+`; nunca sobre espacios horizontales (que destruirían la indentación Markdown de listas y code blocks).
 
 ## Referencias
 
-- `lex-agent-planning` — modelo de 3 capas y cadencia de flush (3 disparadores canónicos)
+- `lex-agent-planning` — modelo jerárquico Issue → Plan → PR; cadencia de flush (4 disparadores canónicos)
 - `lex-mcp` — preferencia MCP + fallback CLI
-- `lex-issue-status` — labels canónicos; el flush es disparado en cada transición
+- `lex-issue-status` — labels canónicas; flush se dispara en cada transición
 - `codex-agent-planning` — manual operacional
-- ADR-002 — decisión de arquitectura
-- `kata-load-plan-from-issue` — operación inversa (Issue → caché)
-- `kata-pr-prepare` — invoca `kata-flush-plan-to-issue` antes de abrir el PR
-- `warrior-athena`, `warrior-argos`, `warrior-janus` — agentes que disparan flush en las transiciones
+- `kata-load-plan-from-subissue` — operación inversa (sub-issue → caché)
+- `kata-plan-task` — creación de la sub-issue Plan (precondition)
+- `kata-decompose-issue-into-plans` — descomposición de la Issue parent en N sub-issues Plan
+- `kata-pr-prepare` — invoca este kata antes de abrir el PR
+- `warrior-athena`, `warrior-argos`, `warrior-janus` — agentes que disparan flush en transiciones

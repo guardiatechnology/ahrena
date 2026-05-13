@@ -1,139 +1,170 @@
-# Kata: Cargar Plan desde la Issue
+# Kata: Cargar Plan desde la Sub-issue
 
-> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Materialización del caché local `.plans/{N}.md` a partir del body canónico de la Issue de GitHub, conforme al modelo de almacenamiento en 3 capas del
+> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Materialización del caché local provider-specific (`.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`) a partir del body canónico de la sub-issue Plan, conforme al modelo jerárquico de `lex-agent-planning`
 
 ## Objetivo
 
-Sincronizar el contenido del body de una Issue (canonical per `lex-agent-planning`) al caché local `.plans/{N}.md` de la IA. Operación idempotente: puede correr cuantas veces sea necesario y el resultado es determinístico. Corre al inicio de toda sesión que vaya a operar sobre un plan y en cada handoff entre agentes.
+Sincronizar el body de la sub-issue Plan `{M}` (canonical per `lex-agent-planning`) hacia el caché local provider-specific. Operación idempotente: puede ejecutarse cuantas veces sea necesario y el resultado es determinístico. Se ejecuta al inicio de toda sesión que va a operar sobre un Plan, en cada handoff entre agentes y en un fresh clone del repo.
+
+El kata **rechaza** si la sub-issue Plan no existe en GitHub. El guardrail plan-first de `lex-agent-planning` prohíbe materializar caché local sin sub-issue correspondiente — este kata es el único camino canónico para crear un archivo en `.claude/plans/` o `.cursor/plans/`.
 
 ## Cuándo Usar
 
-- Inicio de sesión Claude Code (cualquier agente: Athena, Argos, Janus, etc.) antes de cualquier edición en `.plans/{N}.md`.
-- Handoff entre agentes (ej.: Athena entrega a Argos en el `to review → review`).
-- Fresh clone del repo (caché local no existe).
-- Sospecha de drift entre `.plans/{N}.md` y el body de la Issue (ej.: otra sesión editó el body vía UI de GitHub).
+- Inicio de sesión de Claude Code o Cursor (cualquier agente: Athena, Argos, Janus, etc.) antes de cualquier edición en `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`.
+- Handoff entre agentes (ej.: Athena entrega a Argos en `to review → review`).
+- Fresh clone del repo (el caché local no existe).
+- Sospecha de drift entre el caché local y el body de la sub-issue Plan (ej.: otra sesión editó el body vía la UI de GitHub u otro agente flushó en paralelo).
 
 ## Inputs
 
-| Input | Obligatorio | Descripción |
-|-------|:-----------:|-----------|
-| `issue_number` | Sí | Número de la Issue (`{N}` en `{owner}/{repo}#{N}`) |
-| `owner/repo` | No | Repo donde vive la Issue. Default: repo actual del worktree |
-| `dest_path` | No | Path del archivo de caché. Default: `<paths.plans>/{N}.md` (resolución en `lex-agent-planning`) |
+| Entrada | Obligatorio | Descripción |
+|---------|:-----------:|-------------|
+| `subissue_number` | Sí | Número `{M}` de la sub-issue Plan |
+| `owner/repo` | No | Repo donde vive la sub-issue Plan. Default: repo actual del worktree |
+| `dest_path` | No | Path del archivo de caché. Default: resuelto por la detección de provider (ver Paso 1) |
 
 ## Workflow
 
 ```
 Progreso:
-- [ ] 1. Resolver owner/repo + path de destino
-- [ ] 2. Intentar MCP `get_issue` (preferido)
-- [ ] 3. Fallback `gh issue view --json body`
-- [ ] 4. Grabar body en `.plans/{N}.md`
-- [ ] 5. Validar idempotencia
+- [ ] 1. Resolver owner/repo + provider + path de destino
+- [ ] 2. Confirmar que la sub-issue Plan existe (guardrail plan-first)
+- [ ] 3. Leer el body de la sub-issue vía MCP `get_issue` (preferido)
+- [ ] 4. Fallback `gh issue view --json body`
+- [ ] 5. Grabar el body en `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`
+- [ ] 6. Validar idempotencia
 ```
 
-### Paso 1: Resolver owner/repo + path de destino
+### Paso 1: Resolver owner/repo + provider + path de destino
 
-1. Si `owner/repo` fue pasado, usar. De lo contrario, derivar del worktree vía `gh repo view --json owner,name`.
-2. Resolver path de destino:
-   - Si `dest_path` fue pasado, usar.
-   - De lo contrario, leer `paths.plans` en `.ahrena/.directives` (default `.plans/`).
-   - Path final: `<paths.plans>/{N}.md`.
-3. Garantizar que el directorio de destino existe (`mkdir -p`).
+1. Si `owner/repo` se pasó, usarlo. Si no, derivar del worktree vía `gh repo view --json owner,name`.
+2. Detectar el runtime del agente:
+   - Claude Code (CLI, VSCode, Desktop, claude.ai/code) → `.claude/plans/`
+   - Cursor → `.cursor/plans/`
+   - Otro → consultar `.ahrena/.directives` y preguntar al usuario si es ambiguo.
+3. Resolver el path de destino:
+   - Si `dest_path` se pasó, usarlo.
+   - Si no, path final: `<provider-dir>/plan-{M}.md`.
+4. Asegurar que el directorio de destino existe (`mkdir -p`).
 
-### Paso 2: Intentar MCP `get_issue` (preferido)
+### Paso 2: Confirmar que la sub-issue Plan existe (guardrail plan-first)
 
-Per `lex-mcp` regla 1, si el servidor GitHub MCP está listado en `mcp.servers` y activo:
+Per el guardrail plan-first de `lex-agent-planning`, el kata DEBE **rechazar** si la sub-issue Plan `{M}` no existe en GitHub:
+
+```bash
+# Preferido — vía MCP
+mcp.github.get_issue(owner=owner, repo=repo, issue_number=M)
+
+# Fallback CLI
+gh issue view {M} --repo {owner}/{repo} --json number,state,labels
+```
+
+Si la sub-issue no existe (HTTP 404), abortar con mensaje:
+
+> "Sub-issue Plan #{M} no encontrada en {owner}/{repo}. Materializar `.claude/plans/plan-{M}.md` sin sub-issue correspondiente viola el guardrail plan-first de `lex-agent-planning`. Invoque `kata-contributing-issue` para abrir la Issue parent y `kata-decompose-issue-into-plans` (o `kata-plan-task`) para crear la sub-issue Plan antes de intentar el load."
+
+Si la sub-issue existe, continuar.
+
+### Paso 3: Leer el body de la sub-issue vía MCP `get_issue` (preferido)
+
+Per regla 1 de `lex-mcp`, si el servidor GitHub MCP está listado en `mcp.servers` y activo:
 
 ```python
-issue = mcp.github.get_issue(owner=owner, repo=repo, issue_number=N)
+issue = mcp.github.get_issue(owner=owner, repo=repo, issue_number=M)
 body = issue["body"]
 ```
 
-Si tiene éxito, saltar al Paso 4.
+Si tiene éxito, saltar al Paso 5.
 
-### Paso 3: Fallback `gh issue view --json body`
+### Paso 4: Fallback `gh issue view --json body`
 
-Per `lex-mcp` regla 4 (MCP indisponible), ejecutar el fallback CLI documentado:
+Per regla 4 de `lex-mcp` (MCP no disponible), ejecutar el fallback CLI documentado:
 
 ```bash
-gh issue view {N} --repo {owner}/{repo} --json body --jq .body > .plans/{N}.md
+gh issue view {M} --repo {owner}/{repo} --json body --jq .body > {dest_path}
 ```
 
 Si `gh` también falla:
 
-1. Retry único tras 5 segundos de backoff.
+1. Retry único después de 5 segundos de backoff.
 2. Si persiste, ofrecer al usuario: (a) intentar de nuevo con otro comando, (b) pausar para investigación, (c) abortar.
 
-### Paso 4: Grabar body en `.plans/{N}.md`
+### Paso 5: Grabar el body en `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`
 
-1. Si `.plans/{N}.md` ya existe y tiene contenido, **preservar bloques `<!-- not-flushed -->` ... `<!-- /not-flushed -->`** existentes:
+1. Si el caché local ya existe y tiene contenido, **preservar bloques `<!-- not-flushed -->` ... `<!-- /not-flushed -->`** existentes:
    - Extraer todos los bloques `<!-- not-flushed -->` del archivo actual.
-   - Sustituir el cuerpo principal por el body nuevo de la Issue.
-   - Adjuntar los bloques `<!-- not-flushed -->` al final.
-2. Si `.plans/{N}.md` no existe, grabar el body directamente (sin bloques `<!-- not-flushed -->` aún).
+   - Sustituir el cuerpo principal por el body nuevo de la sub-issue.
+   - Apender los bloques `<!-- not-flushed -->` al final.
+2. Si el caché local no existe, grabar el body directamente (sin bloques `<!-- not-flushed -->` todavía).
 
-La preservación de bloques locales permite re-load sin perder scratch de la IA — re-load es solo re-sincronizar el contenido canónico.
+La preservación de bloques locales permite reload sin perder scratch de la IA — reload solo re-sincroniza el contenido canónico.
 
-### Paso 5: Validar idempotencia
+### Paso 6: Validar idempotencia
 
-Tras grabar, ejecutar una segunda llamada (read-only) y comparar:
+Después de grabar, ejecutar una segunda llamada (read-only) y comparar:
 
 ```bash
-# Comparación canónica (después de filtrar bloques no-flushados de ambos lados)
-diff <(strip-not-flushed .plans/{N}.md) <(gh issue view {N} --json body --jq .body)
+# Comparación canónica (después de filtrar bloques no-flushados en ambos lados)
+diff <(strip-not-flushed {dest_path}) <(gh issue view {M} --json body --jq .body)
 ```
 
 Resultado esperado: ninguna diferencia.
 
-Si hay diferencia que no sea en bloques `<!-- not-flushed -->`, el re-load falló silenciosamente — abortar e investigar.
+Si hay diferencia fuera de bloques `<!-- not-flushed -->`, el reload falló silenciosamente — abortar e investigar.
 
 ## Outputs
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| `{N}.md` | Markdown (superset del body de la Issue + bloques `<!-- not-flushed -->` preservados) | `<paths.plans>/{N}.md` |
+| Caché local | Markdown (superset del body de la sub-issue + bloques `<!-- not-flushed -->` preservados) | `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md` |
 
 ## Ejemplo de Ejecución
 
 ### Input de Ejemplo
 
 ```
-issue_number: 96
-owner/repo: guardiatechnology/ahrena
-dest_path: (default) .plans/96.md
+subissue_number: 201
+owner/repo: guardiatechnology/example-repo
+dest_path: (default; provider detectado: Claude Code) .claude/plans/plan-201.md
 ```
 
 ### Output de Ejemplo
 
-`.plans/96.md` (justo después del primer load, sin bloques no-flushados aún):
+`.claude/plans/plan-201.md` (justo después del primer load, sin bloques no-flushados todavía):
 
 ```markdown
 ## Summary
 
-**As** an Ahrena framework contributor,
-**I want** to migrate plan storage to a 3-layer model,
-**So that** plans live where they belong.
+Refactorizar el agregado Ledger a event sourcing, separando comandos
+(write-side) de lecturas (read-side projection).
+
+Parent: #200
 
 ## Plan
 
 ### Objective
-Refactorizar la capa de almacenamiento del plan para que el contenido viva en
-tres capas con roles claros: Issue body (canonical) + .plans/ (caché IA)
-+ .ahrena/issues/ (Phase artifacts).
+Entregar la primera porción ejecutable de la User Story #200: Ledger
+reescrito como aggregate event-sourced, con factory + repository.
 
 ### Steps
-- [x] Step 1 — Open Issue + branch + worktree
-- [x] Step 2
-- [ ] Step 3 — Rewrite lex-agent-planning (3 langs)
-...
+- [ ] Step 1 — Modelar LedgerEvent base class
+- [ ] Step 2 — Reescribir Ledger.apply() como event projection
+- [ ] Step 3 — Repository persistiendo events en lugar de state
+- [ ] Step 4 — Migration helper para legacy state → events
+- [ ] Step 5 — Tests de aggregate
+
+### Dependencies
+None
 
 ### Risks
-- .plans/ perdida en fresh clone — mitigado por kata-load-plan-from-issue.
-...
+- migration helper puede fallar en datasets con inconsistencia
+  histórica — mitigado por dry-run + checksum.
+
+### Open Questions
+None
 ```
 
-Después de algunas ediciones de la IA en el caché local, el archivo lleva bloques no-flushados:
+Después de algunas ediciones de la IA en el caché local, el archivo carga bloques no-flushados:
 
 ```markdown
 ## Summary
@@ -143,29 +174,32 @@ Después de algunas ediciones de la IA en el caché local, el archivo lleva bloq
 
 <!-- not-flushed -->
 ## Working notes
-- 23:30 — comenzó Step 3; lex-agent-planning rewrite en pt-BR
+- 14:32 — comenzó Step 1; LedgerEvent va a heredar de DomainEvent base.
 
 ## Next actions
-1. Step 3.5 (split lex-issue-status)
-2. Steps 6-8 (katas)
+1. Step 2 — apply() recibe LedgerEvent, retorna nuevo state inmutable.
+2. Step 3 — repository.save() llama event_store.append().
 
 ## Scratch
-gh issue develop registra branch como "Development" en la sidebar — no olvidar.
+considerando usar discriminated union en lugar de class hierarchy.
 <!-- /not-flushed -->
 ```
 
 ## Restricciones
 
-- **Idempotente:** múltiples ejecuciones producen el mismo `.plans/{N}.md` para el mismo estado del body de la Issue.
-- **No flushea:** este kata es one-way (Issue → caché). Para grabar de vuelta, usar `kata-flush-plan-to-issue`.
-- **Preserva bloques locales:** los bloques `<!-- not-flushed -->` ... `<!-- /not-flushed -->` existentes en el `.plans/{N}.md` se preservan; solo el contenido canónico es re-sincronizado.
-- **MCP > CLI:** preferir MCP `get_issue` cuando el servidor esté listado y activo; CLI `gh issue view` es fallback documentado per `lex-mcp` regla 4.
-- **No crea Issue:** si la Issue `{N}` no existe, el kata falla con mensaje claro. Para crear Issue, usar `kata-plan-task` (Eunomia top-level) o `kata-create-subtasks` (Eunomia subtask).
+- **Idempotente:** múltiples ejecuciones producen el mismo caché local para el mismo estado del body de la sub-issue.
+- **No flusha:** este kata es one-way (sub-issue → caché). Para grabar de vuelta, usar `kata-flush-plan-to-subissue`.
+- **Preserva bloques locales:** los bloques `<!-- not-flushed -->` ... `<!-- /not-flushed -->` existentes en el caché local se preservan; solo el contenido canónico se re-sincroniza.
+- **Guardrail plan-first:** si la sub-issue Plan `{M}` no existe, el kata rechaza con mensaje orientando a crear la sub-issue antes vía `kata-plan-task` o `kata-decompose-issue-into-plans`.
+- **MCP > CLI:** preferir MCP `get_issue` cuando el servidor esté listado y activo; CLI `gh issue view` es fallback documentado per regla 4 de `lex-mcp`.
+- **No crea sub-issue:** si la sub-issue `{M}` no existe, el kata falla; la creación es responsabilidad de `kata-plan-task` o `kata-decompose-issue-into-plans`.
+- **Provider-specific:** Claude Code → `.claude/plans/`; Cursor → `.cursor/plans/`. No hay caché compartido entre providers.
 
 ## Referencias
 
-- `lex-agent-planning` — modelo de 3 capas y cadencia de load/flush
+- `lex-agent-planning` — modelo jerárquico Issue → Plan → PR; cadencia de load/flush; guardrail plan-first
 - `lex-mcp` — preferencia MCP + fallback CLI
 - `codex-agent-planning` — manual operacional
-- `kata-flush-plan-to-issue` — operación inversa (caché → Issue)
-- `kata-plan-task` — creación inicial del plan (rellena body de la Issue)
+- `kata-flush-plan-to-subissue` — operación inversa (caché → sub-issue)
+- `kata-plan-task` — creación inicial de la sub-issue Plan (precondition de este kata)
+- `kata-decompose-issue-into-plans` — descomposición de la Issue parent en N sub-issues Plan
