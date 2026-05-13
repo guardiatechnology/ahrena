@@ -360,6 +360,14 @@ cursor:
     engineering/backend/codex/codex-python-tooling:
       alwaysApply: false
       description: "When setting up Python project tooling, use ruff, mypy, pytest, and uv per this codex."
+    engineering/sdk/lexis/lex-sdk-typescript:
+      alwaysApply: false
+      globs: ["**/sdk-*/**", "**/sdks/**", "**/package.json", "**/tsconfig.json", "**/tsup.config.ts"]
+      description: "When authoring or reviewing a Guardia TypeScript/Node.js SDK that consumes the Guardia REST API, enforce strict TS, declared exports, semver, canonical headers (Authorization, Idempotency-Key, X-Grd-Trace-Id), the error envelope, no any in the public surface, justified dependencies, ≥80% coverage, telemetry hooks, and engines.node>=20."
+    engineering/sdk/codex/codex-sdk-typescript:
+      alwaysApply: false
+      globs: ["**/sdk-*/**", "**/sdks/**", "**/package.json", "**/tsconfig.json", "**/tsup.config.ts"]
+      description: "When designing or scaffolding a Guardia TypeScript/Node.js SDK, consult this manual for project layout, tsup/biome/vitest tooling, HTTP transport (auth/retry/idempotency/trace/telemetry), error model, OpenAPI-generated types, changesets release flow, and dual npm-public/npm-internal distribution."
     engineering/workflow/lexis/lex-issue-driven:
       alwaysApply: false
       description: "When using /cry-implement-issue or warrior-athena, enforce Gates 1/2, AC↔test traceability, ADR generation, and docs/ structure."
@@ -610,6 +618,12 @@ claude-code:
     engineering/backend/codex/codex-python-logging:
       paths: ["**/*.py"]
       description: "Python logging uses loguru with centralized setup, JSON sink with redaction, and the @logged decorator."
+    engineering/sdk/lexis/lex-sdk-typescript:
+      paths: ["**/sdk-*/**", "**/sdks/**", "**/package.json", "**/tsconfig.json", "**/tsup.config.ts"]
+      description: "When authoring or reviewing a Guardia TypeScript/Node.js SDK, enforce strict TS, declared exports, semver, canonical headers (Authorization, Idempotency-Key, X-Grd-Trace-Id), error envelope, no any in public surface, justified dependencies, ≥80% coverage, telemetry hooks, engines.node>=20."
+    engineering/sdk/codex/codex-sdk-typescript:
+      paths: ["**/sdk-*/**", "**/sdks/**", "**/package.json", "**/tsconfig.json", "**/tsup.config.ts"]
+      description: "When designing or scaffolding a Guardia TypeScript/Node.js SDK, consult this manual for project layout, tsup/biome/vitest tooling, HTTP transport, error model, OpenAPI-generated types, changesets release flow, and dual distribution."
     engineering/quality/lexis/lex-test-pyramid:
       paths: ["**/tests/**", "**/test_*.py", "**/*_test.py", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/__tests__/**"]
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
