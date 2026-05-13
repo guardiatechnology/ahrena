@@ -4,7 +4,9 @@
 
 ## Objetivo
 
-Esta Kata define o procedimento padronizado para abrir um issue no repositório de origem do projeto usando um dos 5 templates de issue (feature-request, epic, user-story-for-api, user-story-for-frontend, tech-task). O agente resolve o template em `.ahrena/contributing_templates/`, preenche as seções com o usuário, aplica os labels obrigatórios conforme `lex-issue-quality`, define o GitHub Issue Type, auto-atribui o issue e o cria **via GitHub MCP** (fallback para o CLI `gh` quando indisponível). Segue o fluxo definido em `codex-contributing`.
+Esta Kata define o procedimento padronizado para abrir um issue no repositório de origem do projeto usando um dos 5 templates de issue (feature-request, epic, user-story-for-api, user-story-for-frontend, tech-task). O agente resolve o template em `.ahrena/contributing_templates/`, preenche as seções com o usuário, aplica os labels obrigatórios conforme `lex-issue-quality`, define o GitHub Issue Type, cria o issue **via GitHub MCP** (fallback para o CLI `gh` quando indisponível), e aplica a label `status: todo` como passo final per `lex-agent-planning` (Gate 1).
+
+A kata **NÃO** aplica assignee. Assignee é commitment de execução, aplicado em `todo → development` por warrior-athena per Gate 2 de `lex-agent-planning` — quando o agente humano ou de IA se compromete a executar.
 
 ## Quando Usar
 
@@ -39,7 +41,8 @@ Progresso:
 - [ ] 3. Preencher seções/placeholders com o usuário
 - [ ] 4. Criar issue via GitHub MCP (ou gh)
 - [ ] 5. Definir GitHub Issue Type via GraphQL
-- [ ] 6. Verificação final
+- [ ] 6. Aplicar label `status: todo` (Gate 1 de lex-agent-planning)
+- [ ] 7. Verificação final
 ```
 
 ### Passo 1: Resolver o tipo do issue
@@ -64,14 +67,13 @@ Progresso:
 ### Passo 4: Criar issue via GitHub MCP (ou gh)
 
 1. Determinar os labels obrigatórios conforme a tabela acima. Para `tech-task`, perguntar ao usuário qual label se aplica se não estiver claro pelo contexto.
-2. **Preferencial:** Usar GitHub MCP (servidor que expõe a criação de issues). Por exemplo, servidor `project-0-ahrena-github`, ferramenta `issue_write` com: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **obrigatório**, conforme `lex-issue-quality`; `assignees`: `["@me"]`.
+2. **Preferencial:** Usar GitHub MCP (servidor que expõe a criação de issues). Por exemplo, servidor `project-0-ahrena-github`, ferramenta `issue_write` com: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **obrigatório**, conforme `lex-issue-quality`. **Não** definir `assignees` — assignee é aplicado em `todo → development` per Gate 2 de `lex-agent-planning`.
 3. **Fallback:** Se o MCP estiver indisponível, usar:
    ```bash
    gh issue create \
      --title "..." \
      --body "..." \
-     --label "nome-do-label" \
-     --assignee "@me"
+     --label "nome-do-label"
    ```
 4. Registrar o número do issue e o node ID retornados pela API — necessários para o Passo 5.
 
@@ -101,13 +103,30 @@ gh api graphql -f query="
 | Bug | `IT_kwDOED9Qy84B7pBi` |
 | Feature | `IT_kwDOED9Qy84B7pBj` |
 
-### Passo 6: Verificação final
+### Passo 6: Aplicar label `status: todo` (Gate 1 de lex-agent-planning)
+
+Per `lex-agent-planning`, toda Issue recém-criada DEVE receber a label `status: todo` como passo final do gate de criação. Aplicar via `gh`:
+
+```bash
+gh issue edit $ISSUE_NUMBER --repo $OWNER/$REPO --add-label "status: todo"
+```
+
+Confirmar que a label foi aplicada:
+
+```bash
+gh issue view $ISSUE_NUMBER --repo $OWNER/$REPO --json labels --jq '[.labels[].name] | join(", ")'
+```
+
+Este passo é a **trilha procedural** do invariante de auto-aplicação. A kata é o caminho canônico para criar Issue; sem este passo, a Issue nasce sem `status: todo` e fica fora do ciclo de vida unificado de `lex-agent-planning`.
+
+### Passo 7: Verificação final
 
 - [ ] O issue foi criado com sucesso
 - [ ] Título e corpo refletem o template preenchido
 - [ ] Labels obrigatórios foram aplicados conforme `lex-issue-quality`
-- [ ] O issue está atribuído ao usuário atual (`@me`)
 - [ ] O GitHub Issue Type está definido (Task ou Feature conforme o template)
+- [ ] A label `status: todo` foi aplicada per `lex-agent-planning` (Gate 1)
+- [ ] **Nenhum** assignee aplicado (assignee é commitment de `todo → development`, owned por Athena)
 - [ ] O link do issue foi apresentado ao usuário
 
 ## Saídas
@@ -120,16 +139,19 @@ gh api graphql -f query="
 ## Restrições
 
 - Sempre usar um dos 5 tipos e o template correspondente; não criar um issue sem o template ou sem os labels obrigatórios.
-- Sempre auto-atribuir o issue (`--assignee "@me"`), a menos que o usuário especifique explicitamente um assignee diferente.
+- **Nunca aplicar assignee neste kata.** Assignee é commitment de execução, aplicado em `todo → development` por warrior-athena per Gate 2 de `lex-agent-planning`.
 - Sempre definir o GitHub Issue Type no Passo 5 imediatamente após a criação.
+- Sempre aplicar `status: todo` no Passo 6 como trilha procedural do invariante de auto-aplicação per `lex-agent-planning`.
 - Se nem `.ahrena/contributing_templates/` nem o fallback existirem, informar o usuário e sugerir executar o install do Ahrena ou criar o template manualmente.
 - Em caso de falha do MCP, apresentar o erro e sugerir criação manual via `gh issue create` ou pela UI do GitHub.
 
 ## Referências
 
 - `lex-issue-quality` — Lei que rege templates, labels e conteúdo Why/What/How
+- `lex-agent-planning` — Lei que rege o ciclo de vida unificado Issue → Plan → PR; `status: todo` aplicado no Passo 6 (Gate 1)
 - `codex-labels` — Taxonomia completa de labels e definições de GitHub Issue Type
 - `codex-contributing` — Fluxo de contribuição Guardia
 - `.ahrena/contributing_templates/` — Templates de issue (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md, tech-task.md)
 - GitHub MCP (por exemplo, issue_write para criação de issues)
+- `warrior-athena` — owner do gate `todo → development` (aplica assignee)
 - Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-tech-task
