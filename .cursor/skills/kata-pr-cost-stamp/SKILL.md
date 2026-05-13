@@ -157,7 +157,7 @@ Both fields come back as **integer minutes**; the renderer (Step 6) converts the
 
 ### Step 5: Compute external reviewers via pr-cost-stamp-reviews.sh
 
-Detects external AI reviewers (Gemini, Claude bot, CodeRabbit, etc.) from PR reviews and comments. Formal reviews only by default (drive-by comments inflate the count; see plan-041 risk).
+Detects external AI reviewers (Gemini, Claude bot, CodeRabbit, etc.) from PR reviews and comments. Formal reviews only by default (drive-by comments inflate the count).
 
 ```bash
 KNOWN_AI=$(echo "$KNOWN_AI_REVIEWERS_LIST" | paste -sd, -)  # CSV from .directives
@@ -303,7 +303,7 @@ pr-cost-stamp: backend=ccusage version=1.x project=ahrena since=20260507
 pr-cost-stamp: 3 sessions, 245892 input, 18432 output, $4.32 USD
 pr-cost-stamp: time backend=pr-cost-stamp.sh 1.1.0 idle_gap=10min
 pr-cost-stamp: active 167min (2h 47min), calendar 1680min (1d 4h)
-pr-cost-stamp: PR #67 body updated (block upserted)
+pr-cost-stamp: PR #{N} body updated (block upserted)
 ```
 
 ### Resulting block (in the PR body)
