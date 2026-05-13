@@ -16,7 +16,8 @@ Progress:
 - [ ] 3. Fill sections/placeholders with the user
 - [ ] 4. Create issue via GitHub MCP (or gh)
 - [ ] 5. Set GitHub Issue Type via GraphQL
-- [ ] 6. Final verification
+- [ ] 6. Apply `status: todo` label (lex-agent-planning Gate 1)
+- [ ] 7. Final verification
 ```
 
 ### Step 1: Resolve issue type
@@ -41,14 +42,13 @@ Progress:
 ### Step 4: Create issue via GitHub MCP (or gh)
 
 1. Determine the required labels from the table above. For `tech-task`, ask the user which label applies if not clear from context.
-2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`; `assignees`: `["@me"]`.
+2. **Preferred:** Use GitHub MCP (server that exposes issue creation). E.g., server `project-0-ahrena-github`, tool `issue_write` with: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **mandatory**, per `lex-issue-quality`. **Do not** set `assignees` — the assignee is applied at `todo → development` per `lex-agent-planning` Gate 2.
 3. **Fallback:** If MCP is unavailable, use:
    ```bash
    gh issue create \
      --title "..." \
      --body "..." \
-     --label "label-name" \
-     --assignee "@me"
+     --label "label-name"
    ```
 4. Record the issue number and node ID returned by the API — needed for Step 5.
 
@@ -78,13 +78,30 @@ gh api graphql -f query="
 | Bug | `IT_kwDOED9Qy84B7pBi` |
 | Feature | `IT_kwDOED9Qy84B7pBj` |
 
-### Step 6: Final verification
+### Step 6: Apply `status: todo` label (lex-agent-planning Gate 1)
+
+Per `lex-agent-planning`, every newly created Issue MUST receive the `status: todo` label as the final step of the creation gate. Apply via `gh`:
+
+```bash
+gh issue edit $ISSUE_NUMBER --repo $OWNER/$REPO --add-label "status: todo"
+```
+
+Confirm the label was applied:
+
+```bash
+gh issue view $ISSUE_NUMBER --repo $OWNER/$REPO --json labels --jq '[.labels[].name] | join(", ")'
+```
+
+This step is the **procedural path** of the auto-apply invariant. The kata is the canonical path for Issue creation; without this step, the Issue is born without `status: todo` and falls outside the unified lifecycle of `lex-agent-planning`.
+
+### Step 7: Final verification
 
 - [ ] The issue was created successfully
 - [ ] Title and body reflect the filled template
 - [ ] Required labels were applied per `lex-issue-quality`
-- [ ] The issue is assigned to the current user (`@me`)
 - [ ] The GitHub Issue Type is set (Task or Feature per template)
+- [ ] The `status: todo` label was applied per `lex-agent-planning` (Gate 1)
+- [ ] **No** assignee was applied (the assignee is the `todo → development` commitment, owned by Athena)
 - [ ] The issue link was presented to the user
 
 ## Outputs
@@ -97,7 +114,8 @@ gh api graphql -f query="
 ## Constraints
 
 - Always use one of the 5 types and the corresponding template; do not create an issue without the template or without the required labels.
-- Always self-assign the issue (`--assignee "@me"`) unless the user explicitly specifies a different assignee.
+- **Never apply an assignee in this kata.** The assignee is an execution commitment, applied at `todo → development` by warrior-athena per `lex-agent-planning` Gate 2.
 - Always set the GitHub Issue Type in Step 5 immediately after creation.
+- Always apply `status: todo` in Step 6 as the procedural path of the auto-apply invariant per `lex-agent-planning`.
 - If neither `.ahrena/contributing_templates/` nor the fallback exists, inform the user and suggest running the Ahrena install or creating the template manually.
 - On MCP failure, present the error and suggest manual creation via `gh issue create` or the GitHub UI.

@@ -4,7 +4,9 @@
 
 ## Objetivo
 
-Esta Kata define el procedimiento estandarizado para abrir un issue en el repositorio de origen del proyecto usando uno de los 5 templates de issue (feature-request, epic, user-story-for-api, user-story-for-frontend, tech-task). El agente resuelve el template en `.ahrena/contributing_templates/`, completa las secciones con el usuario, aplica los labels obligatorios según `lex-issue-quality`, define el GitHub Issue Type, se auto-asigna el issue y lo crea **mediante GitHub MCP** (fallback al CLI `gh` cuando no está disponible). Sigue el flujo definido en `codex-contributing`.
+Esta Kata define el procedimiento estandarizado para abrir un issue en el repositorio de origen del proyecto usando uno de los 5 templates de issue (feature-request, epic, user-story-for-api, user-story-for-frontend, tech-task). El agente resuelve el template en `.ahrena/contributing_templates/`, completa las secciones con el usuario, aplica los labels obligatorios según `lex-issue-quality`, define el GitHub Issue Type, crea el issue **mediante GitHub MCP** (fallback al CLI `gh` cuando no está disponible), y aplica la label `status: todo` como paso final per `lex-agent-planning` (Gate 1).
+
+El kata **NO** aplica assignee. El assignee es commitment de ejecución, aplicado en `todo → development` por warrior-athena per Gate 2 de `lex-agent-planning` — cuando el agente humano o de IA se compromete a ejecutar.
 
 ## Cuándo Usar
 
@@ -39,7 +41,8 @@ Progreso:
 - [ ] 3. Completar secciones/placeholders con el usuario
 - [ ] 4. Crear issue mediante GitHub MCP (o gh)
 - [ ] 5. Definir GitHub Issue Type mediante GraphQL
-- [ ] 6. Verificación final
+- [ ] 6. Aplicar la label `status: todo` (Gate 1 de lex-agent-planning)
+- [ ] 7. Verificación final
 ```
 
 ### Paso 1: Resolver el tipo del issue
@@ -64,14 +67,13 @@ Progreso:
 ### Paso 4: Crear issue mediante GitHub MCP (o gh)
 
 1. Determinar los labels obligatorios según la tabla anterior. Para `tech-task`, preguntar al usuario qué label aplica si no queda claro por el contexto.
-2. **Preferido:** Usar GitHub MCP (servidor que expone la creación de issues). Por ejemplo, servidor `project-0-ahrena-github`, herramienta `issue_write` con: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **obligatorio**, según `lex-issue-quality`; `assignees`: `["@me"]`.
+2. **Preferido:** Usar GitHub MCP (servidor que expone la creación de issues). Por ejemplo, servidor `project-0-ahrena-github`, herramienta `issue_write` con: `method`: `create`; `owner`; `repo`; `title`; `body`; `labels` — **obligatorio**, según `lex-issue-quality`. **No** definir `assignees` — el assignee se aplica en `todo → development` per Gate 2 de `lex-agent-planning`.
 3. **Fallback:** Si el MCP no está disponible, usar:
    ```bash
    gh issue create \
      --title "..." \
      --body "..." \
-     --label "nombre-del-label" \
-     --assignee "@me"
+     --label "nombre-del-label"
    ```
 4. Registrar el número del issue y el node ID devueltos por la API — necesarios para el Paso 5.
 
@@ -101,13 +103,30 @@ gh api graphql -f query="
 | Bug | `IT_kwDOED9Qy84B7pBi` |
 | Feature | `IT_kwDOED9Qy84B7pBj` |
 
-### Paso 6: Verificación final
+### Paso 6: Aplicar la label `status: todo` (Gate 1 de lex-agent-planning)
+
+Per `lex-agent-planning`, toda Issue recién creada DEBE recibir la label `status: todo` como paso final del gate de creación. Aplicar mediante `gh`:
+
+```bash
+gh issue edit $ISSUE_NUMBER --repo $OWNER/$REPO --add-label "status: todo"
+```
+
+Confirmar que la label fue aplicada:
+
+```bash
+gh issue view $ISSUE_NUMBER --repo $OWNER/$REPO --json labels --jq '[.labels[].name] | join(", ")'
+```
+
+Este paso es la **vía procedural** del invariante de auto-aplicación. El kata es el camino canónico para crear Issues; sin este paso, la Issue nace sin `status: todo` y queda fuera del ciclo de vida unificado de `lex-agent-planning`.
+
+### Paso 7: Verificación final
 
 - [ ] El issue fue creado correctamente
 - [ ] El título y el cuerpo reflejan el template completado
 - [ ] Los labels obligatorios fueron aplicados según `lex-issue-quality`
-- [ ] El issue está asignado al usuario actual (`@me`)
 - [ ] El GitHub Issue Type está definido (Task o Feature según el template)
+- [ ] La label `status: todo` fue aplicada per `lex-agent-planning` (Gate 1)
+- [ ] **Ningún** assignee fue aplicado (el assignee es commitment de `todo → development`, owned por Athena)
 - [ ] El enlace del issue fue presentado al usuario
 
 ## Salidas
@@ -120,16 +139,19 @@ gh api graphql -f query="
 ## Restricciones
 
 - Siempre usar uno de los 5 tipos y el template correspondiente; no crear un issue sin el template o sin los labels obligatorios.
-- Siempre auto-asignarse el issue (`--assignee "@me"`), a menos que el usuario especifique explícitamente un assignee diferente.
+- **Nunca aplicar assignee en este kata.** El assignee es commitment de ejecución, aplicado en `todo → development` por warrior-athena per Gate 2 de `lex-agent-planning`.
 - Siempre definir el GitHub Issue Type en el Paso 5 inmediatamente después de la creación.
+- Siempre aplicar `status: todo` en el Paso 6 como vía procedural del invariante de auto-aplicación per `lex-agent-planning`.
 - Si ni `.ahrena/contributing_templates/` ni el fallback existen, informar al usuario y sugerir ejecutar el install de Ahrena o crear el template manualmente.
 - En caso de fallo del MCP, presentar el error y sugerir la creación manual mediante `gh issue create` o la UI de GitHub.
 
 ## Referencias
 
 - `lex-issue-quality` — Ley que rige templates, labels y contenido Why/What/How
+- `lex-agent-planning` — Ley que rige el ciclo de vida unificado Issue → Plan → PR; `status: todo` aplicado en el Paso 6 (Gate 1)
 - `codex-labels` — Taxonomía completa de labels y definiciones de GitHub Issue Type
 - `codex-contributing` — Flujo de contribución Guardia
 - `.ahrena/contributing_templates/` — Templates de issue (feature-request.md, epic.md, user-story-for-api.md, user-story-for-frontend.md, tech-task.md)
 - GitHub MCP (por ejemplo, issue_write para la creación de issues)
+- `warrior-athena` — owner del gate `todo → development` (aplica el assignee)
 - Cries: cry-new-feature-request, cry-new-epic, cry-new-user-story-api, cry-new-user-story-frontend, cry-new-tech-task

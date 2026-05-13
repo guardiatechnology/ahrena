@@ -1,70 +1,83 @@
 # Kata: Plan a Task
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Creating and maintaining task plans by agents, per `lex-agent-planning` (3-layer model)
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Creation of a Plan sub-issue linked to a parent Issue, per `lex-agent-planning` (hierarchical Issue → Plan → PR model)
 
 ## Objective
 
-Create the canonical plan of a task before execution, ensuring that objective, scope, steps, and dependencies live in the **GitHub Issue body** (canonical) and are confirmed by the user before any irreversible action starts. This is the procedure that **`warrior-eunomia` executes in top-level mode** (per  / absorption of ) and that the session agent follows as fallback while Eunomia is not available.
+Create a Plan sub-issue (Issue Type Task) linked to an existing parent Issue, with a canonical body (Summary + Plan section), the `status: todo` label applied, and the Issue Type verified. This is the procedure that `warrior-eunomia` executes in top-level mode (standalone Plan linked to an existing Issue) and that the session agent follows as a fallback while Eunomia is not shipped.
 
-Per `lex-agent-planning` HARD-GATE, the `status: todo` label may only be applied to the Issue when the 5 canonical steps are complete: (1) Issue opened per `lex-issue-quality`; (2) Issue Type verified per `lex-issue-type-verified`; (3) remote branch created via `gh issue develop` and linked to the Issue; (4) worktree created per `lex-git-worktrees`; (5) **Issue body populated with the canonical plan** (Summary + Plan section).
+Per the `lex-agent-planning` HARD-GATE for Gate 1, the `status: todo` label may only be applied to the Plan sub-issue when the 4 canonical steps are complete: (1) parent Issue open and conformant with `lex-issue-first` and `lex-issue-quality`; (2) Plan sub-issue created via MCP `create_issue` (preferred) or `gh issue create --type Task` (fallback), linked to the parent Issue, with the Plan template and required labels; (3) body filled with the canonical plan (Summary + Plan); (4) Issue Type verified as `Task` per `lex-issue-type-verified`.
+
+Branch, worktree, and assignee are **NOT** preconditions of this kata. They belong to `todo → development` (Athena, codified in `lex-agent-planning` Gate 2).
 
 ## When to Use
 
-- At the start of any multi-step task.
-- Before invoking warriors, katas in sequence, or cries.
-- Before modifying multiple files in a single session.
-- When the user requests "do X" and X has more than one discernible step.
+- When the user asks to register a standalone Plan linked to an existing parent Issue.
+- When `kata-decompose-issue-into-plans` needs to create each Plan sub-issue of the decomposition (one call per Plan).
+- At the start of any multi-step task whose plan is not yet materialized as a sub-issue on GitHub.
+- Before invoking `kata-load-plan-from-subissue` (the load kata refuses if the sub-issue does not exist).
 
 ## Inputs
 
 | Input | Required | Description |
 |-------|:--------:|-------------|
-| Task description | Yes | What the agent needs to do (can be vague — the kata clarifies) |
-| Repo (`owner/repo`) | No | Default: current repo of the worktree |
-| Issue template | No | `feature-request` (default), `tech-task`, `user-story-for-api`, `user-story-for-frontend` |
+| `parent_issue_number` | Yes | Number `{N}` of the parent Issue (User Story, Bug, or Tech Task) the Plan connects to |
+| `plan_summary` | Yes | Executable summary of the Plan (2-4 sentences). Typically a slice of the parent Issue's scope |
+| `plan_objective` | Yes | Why this unit exists and what it delivers at the end (1-3 sentences) |
+| `plan_steps` | Yes | List of atomic, verifiable Steps (minimum 1) |
+| `plan_dependencies` | No | Other Plans, Issues, or PRs this task depends on. Default: `"None"` |
+| `plan_risks` | No | Known risks and mitigations. Default: `"None identified"` |
+| `plan_open_questions` | No | Pending questions that need a decision. Default: `"None"` |
+| `owner/repo` | No | Repo where the parent Issue lives. Default: current repo of the worktree |
 
 ## Workflow
 
 ```
 Progress:
-- [ ] 1. Draft the plan with the user
-- [ ] 2. Open Issue with canonical body (Summary + Plan)
-- [ ] 3. Verify Issue Type
-- [ ] 4. Create branch via `gh issue develop`
-- [ ] 5. Create worktree
-- [ ] 6. Materialize local cache via kata-load-plan-from-issue
-- [ ] 7. Apply `status: todo` label and confirm with the user
+- [ ] 1. Confirm parent Issue exists and is well-formed
+- [ ] 2. Draft the Plan with the user and confirm
+- [ ] 3. Create the Plan sub-issue (Task) linked to the parent Issue
+- [ ] 4. Fill the sub-issue body with the canonical plan
+- [ ] 5. Verify Issue Type post-creation
+- [ ] 6. Apply `status: todo` label and confirm with the user
 ```
 
-### Step 1: Draft the plan with the user
+### Step 1: Confirm parent Issue exists and is well-formed
 
-Based on the task description:
+Before creating the Plan sub-issue, verify that the parent Issue `{N}` exists and satisfies `lex-issue-first` and `lex-issue-quality`:
 
-1. Identify the **Objective** (why this task exists — 1-3 sentences).
-2. Decompose into atomic and verifiable **Steps**.
-3. Identify **Dependencies** (other plans, Issues, pending decisions; "None" if there are none).
-4. List known **Risks** (mitigations; "None identified" if there are none).
-5. List **Open Questions** (pending decisions that affect execution; "None" if there are none).
+```bash
+# Preferred — via MCP
+mcp.github.get_issue(owner=owner, repo=repo, issue_number=N)
 
-Present the draft with:
+# Fallback — via gh
+gh issue view {N} --repo {owner}/{repo} --json number,title,state,labels,body,assignees
+```
 
-> "This is the plan for the task. Do you want to adjust anything before I open the Issue?"
+Verify:
 
-Wait for response. Incorporate adjustments. **Do not open the Issue before confirmation.**
+- Parent Issue exists and is open (state `open`).
+- Body contains Why/What/How (per `lex-issue-quality`).
+- Required template labels are present.
+- Compatible Issue Type (`Feature` for User Story; `Bug` for bug; `Task` for Tech Task).
 
-### Step 2: Open Issue with canonical body (Summary + Plan)
+If any criterion fails, **abort** with a message directing the user to invoke `kata-contributing-issue` to open or fix the parent Issue first.
 
-Build the body following the schema in `lex-agent-planning`:
+### Step 2: Draft the Plan with the user and confirm
+
+Using the inputs (`plan_summary`, `plan_objective`, `plan_steps`, `plan_dependencies`, `plan_risks`, `plan_open_questions`), assemble the candidate body (per the *Plan sub-issue body schema* section in `lex-agent-planning`):
 
 ```markdown
 ## Summary
 
-{2-4 sentences describing the objective. Typically inherited from the template.}
+{plan_summary — 2-4 sentences}
+
+Parent: #{N}
 
 ## Plan
 
 ### Objective
-{Objective from the draft — 1-3 sentences.}
+{plan_objective — 1-3 sentences}
 
 ### Steps
 - [ ] Step 1
@@ -72,175 +85,200 @@ Build the body following the schema in `lex-agent-planning`:
 ...
 
 ### Dependencies
-{List or "None".}
+{plan_dependencies or "None"}
 
 ### Risks
-{List or "None identified".}
+{plan_risks or "None identified"}
 
 ### Open Questions
-{List or "None".}
+{plan_open_questions or "None"}
 ```
 
-Open the Issue (prefer MCP `create_issue` per `lex-mcp` rule 1, fallback `gh issue create`):
+Present the draft to the user:
+
+> "This is the Plan linked to #{N}. Do you want to adjust anything before I open the sub-issue?"
+
+Wait for confirmation. Incorporate adjustments. **Do not create the sub-issue before confirmation.**
+
+### Step 3: Create the Plan sub-issue (Task) linked to the parent Issue
+
+Prefer MCP `create_issue` per `lex-mcp` rule 1:
+
+```python
+# Preferred — via MCP
+result = mcp.github.create_issue(
+    owner=owner,
+    repo=repo,
+    title="plan: {short title derived from plan_summary}",
+    body=body_content,
+    labels=["plan 📋"] + parent_labels_mirror,
+    type="Task",
+)
+M = result["number"]
+M_db_id = result["id"]  # node ID required for the sub-issue link
+```
+
+CLI fallback per `lex-mcp` rule 4:
 
 ```bash
-# Preferred MCP
-mcp.github.create_issue(
-    owner=owner, repo=repo,
-    title="{type}: {summary}",
+# CLI fallback
+gh issue create \
+  --repo {owner}/{repo} \
+  --title "plan: {short title}" \
+  --body-file /tmp/plan-{M}-body.md \
+  --label "plan 📋" \
+  --label "{mirror parent labels}"
+
+# Capture the returned number M and the database ID
+M=$(gh issue list --search "plan: {short title}" --json number --jq '.[0].number')
+M_db_id=$(gh api repos/{owner}/{repo}/issues/{M} --jq '.id')
+```
+
+Link the sub-issue as a child of the parent Issue:
+
+```bash
+gh api -X POST repos/{owner}/{repo}/issues/{N}/sub_issues -F sub_issue_id={M_db_id}
+```
+
+Capture `{M}` (Plan sub-issue number) for the next steps.
+
+### Step 4: Fill the sub-issue body with the canonical plan
+
+If the body was already written in Step 3 via MCP `create_issue` with `body=body_content`, this step is confirmatory. If the default Plan template was applied by GitHub (instead of the candidate body), write via update:
+
+```python
+# Preferred — via MCP
+mcp.github.update_issue(
+    owner=owner, repo=repo, issue_number=M,
     body=body_content,
-    labels=["feature request ➕"],  # or applicable template label
-    assignees=["@me"],
 )
 
 # CLI fallback
-gh issue create \
-  --title "{type}: {summary}" \
-  --body-file /tmp/plan-body.md \
-  --label "feature request ➕" \
-  --assignee "@me"
+gh issue edit {M} --repo {owner}/{repo} --body-file /tmp/plan-{M}-body.md
 ```
 
-Capture the returned `{N}` number.
+Validate that the written body contains the 5 canonical sections: Summary, Plan → Objective, Steps, Risks, Dependencies, Open Questions.
 
-### Step 3: Verify Issue Type
+### Step 5: Verify Issue Type post-creation
 
-Per `lex-issue-type-verified`, confirm that the native type was applied by the template:
+Per `lex-issue-type-verified`, confirm the native type is `Task`:
 
 ```bash
-gh api repos/{owner}/{repo}/issues/{N} --jq '.type.name'
+gh api repos/{owner}/{repo}/issues/{M} --jq '.type.name'
 ```
 
-If empty (creation via CLI without a template), apply manually:
+If empty or different from `Task`, apply manually:
 
 ```bash
-gh api -X PATCH repos/{owner}/{repo}/issues/{N} -f type={Feature|Task|Bug|Epic}
+gh api -X PATCH repos/{owner}/{repo}/issues/{M} -f type=Task
 ```
 
-### Step 4: Create branch via `gh issue develop`
+### Step 6: Apply `status: todo` label and confirm with the user
 
 ```bash
-gh issue develop {N} --base main --name {type}/{N}-{slug}
-```
-
-`{slug}` is the kebab-case version of the summary (max 50 chars). This command registers the branch as "Development" in the GitHub sidebar, satisfying HARD-GATE precondition (c).
-
-### Step 5: Create worktree
-
-Per `lex-git-worktrees`:
-
-```bash
-git fetch origin {type}/{N}-{slug}
-git worktree add .worktrees/{N}-{slug} {type}/{N}-{slug}
-```
-
-### Step 6: Materialize local cache via kata-load-plan-from-issue
-
-Run `kata-load-plan-from-issue` passing `{N}` — materializes `.plans/{N}.md` mirroring the body just written. This ensures that subsequent AI edits have a local reference cache (populates `<!-- not-flushed -->` blocks with working notes during execution).
-
-### Step 7: Apply `status: todo` label and confirm with the user
-
-```bash
-gh issue edit {N} --add-label "status: todo"
+gh issue edit {M} --repo {owner}/{repo} --add-label "status: todo"
 ```
 
 Confirm with the user:
 
-> "Plan registered in #{N} (canonical body). Branch `{type}/{N}-{slug}` and worktree `.worktrees/{N}-{slug}/` ready. Local cache in `.plans/{N}.md`. Status: todo. May I start?"
+> "Plan registered at #{M} (sub-issue of #{N}). Canonical body, `status: todo` label applied, Issue Type `Task` verified. Ready for `todo → development` when you decide to start execution."
 
-Wait for user OK before any subsequent irreversible execution.
+Branch, worktree, and assignee are **not** applied in this kata — they belong to `todo → development`, owned by Athena.
 
 ## Outputs
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Canonical Issue body | Markdown (Summary + Plan section) | GitHub Issue `{N}` |
-| Remote branch | git ref | `origin/{type}/{N}-{slug}` |
-| Worktree | git worktree | `.worktrees/{N}-{slug}/` |
-| Local cache | Markdown | `.plans/{N}.md` (gitignored) |
-| Label | GitHub label | `status: todo` on the Issue |
+| Plan sub-issue | GitHub Issue (Task) | `{owner}/{repo}#{M}`, sub-issue of `#{N}` |
+| Canonical body | Markdown (Summary + Plan section) | Body of sub-issue `{M}` |
+| `status: todo` label | GitHub label | Sub-issue `{M}` |
+| `Task` Issue Type | GitHub Issue Type | Sub-issue `{M}` |
+| Sub-issue URL | Link | Presented to the user |
 
 ## Execution Example
 
 ### Input
 
 ```
-Task: migrate plan storage to the Issue-as-plan model
-(3-layer: Issue body + .plans/ cache + .ahrena/issues/ artifacts)
+parent_issue_number: 200
+plan_summary: "Refactor the Ledger aggregate to event sourcing, separating
+  commands (write-side) from reads (read-side projection)."
+plan_objective: "Deliver the first executable slice of User Story #200:
+  Ledger rewritten as an event-sourced aggregate with factory + repository."
+plan_steps:
+  - "Step 1 — Model LedgerEvent base class"
+  - "Step 2 — Rewrite Ledger.apply() as event projection"
+  - "Step 3 — Repository persisting events instead of state"
+  - "Step 4 — Migration helper for legacy state → events"
+  - "Step 5 — Aggregate tests"
+plan_dependencies: "None"
+plan_risks: "- migration helper may fail on datasets with historical
+  inconsistency — mitigated by dry-run + checksum."
+plan_open_questions: "None"
 ```
 
-### Step 2 — Body written on Issue #96
+### Plan sub-issue #201 created
 
 ```markdown
 ## Summary
 
-**As** an Ahrena framework contributor,
-**I want** to migrate plan storage to a 3-layer model,
-**So that** plans live where they belong (audit in GitHub Issue,
-scratch in .plans/ cache, Phase artifacts in .ahrena/issues/).
+Refactor the Ledger aggregate to event sourcing, separating commands
+(write-side) from reads (read-side projection).
+
+Parent: #200
 
 ## Plan
 
 ### Objective
-Refactor the plan storage layer so that it lives in three
-layers with clear roles: Issue body (canonical) + .plans/{N}.md
-(AI working memory, gitignored) + .ahrena/issues/{N}/ (committed Phase
-artifacts).
+Deliver the first executable slice of User Story #200: Ledger rewritten
+as an event-sourced aggregate with factory + repository.
 
 ### Steps
-- [ ] Step 1 — Open Issue + branch + worktree (HARD-GATE)
-- [ ] Step 2
-- [ ] Step 3 — Rewrite lex-agent-planning (3 langs)
-- [ ] Step 3.5 — Split lex-issue-status (3 langs)
-...
+- [ ] Step 1 — Model LedgerEvent base class
+- [ ] Step 2 — Rewrite Ledger.apply() as event projection
+- [ ] Step 3 — Repository persisting events instead of state
+- [ ] Step 4 — Migration helper for legacy state → events
+- [ ] Step 5 — Aggregate tests
 
 ### Dependencies
- merged.
+None
 
 ### Risks
-- .plans/ lost on fresh clone — mitigated by kata-load-plan-from-issue.
-- Conflicting flush across sessions — preflight detects drift.
-...
+- migration helper may fail on datasets with historical inconsistency
+  — mitigated by dry-run + checksum.
 
 ### Open Questions
-All resolved on 2026-05-11 (see draft).
+None
 ```
 
-### Step 4 — Branch created
+### User confirmation
 
 ```
-$ gh issue develop 96 --base main --name feat/96-issue-as-plan-and-issues-folder
-github.com/guardiatechnology/ahrena/tree/feat/96-issue-as-plan-and-issues-folder
-```
-
-### Step 7 — User confirmation
-
-```
-Agent: "Plan registered in #96 (canonical body).
-  Branch feat/96-issue-as-plan-and-issues-folder and worktree
-  .worktrees/96-issue-as-plan-and-issues-folder/ ready.
-  Local cache in .plans/96.md.
-  Status: todo. May I start?"
+Agent: "Plan registered at #201 (sub-issue of #200).
+  Canonical body, `status: todo` label applied, Issue Type `Task` verified.
+  Ready for `todo → development` when you decide to start execution."
 ```
 
 ## Restrictions
 
-- **Never apply `status: todo` before Step 7** — `lex-agent-planning` HARD-GATE requires all 5 canonical steps completed.
-- **Never create a `.claude/plans/*.md` file as canonical** — legacy pre- model. The Issue body is canonical; `.plans/{N}.md` is the regenerable cache.
-- **Never skip the user OK in Step 7** — subsequent irreversible execution requires explicit confirmation.
-- **Never omit Summary or Plan sections** — a body without Summary, Steps, Risks, Dependencies, Open Questions does not satisfy HARD-GATE precondition (e).
-- **Prefer MCP > CLI** — per `lex-mcp` rule 1.
+- **Never apply `status: todo` before Step 6** — `lex-agent-planning` Gate 1 HARD-GATE requires the 4 canonical steps completed.
+- **Never create the Plan sub-issue without a confirmed parent Issue** — without an open and conformant parent Issue, there is no Plan to create; invoke `kata-contributing-issue` first.
+- **Never create a branch, worktree, or apply an assignee in this kata** — they belong to `todo → development` (Athena, `lex-agent-planning` Gate 2).
+- **Never create a file in `.claude/plans/` or `.cursor/plans/` in this kata** — the local cache is materialized by `kata-load-plan-from-subissue` later, and the load kata refuses if the sub-issue does not exist.
+- **Never omit Summary, Parent, or Plan sections from the body** — a body without Summary, Objective, Steps, Risks, Dependencies, Open Questions does not satisfy Gate 1 precondition (c).
+- **Prefer MCP > CLI** — per `lex-mcp` rule 1; CLI `gh issue create` is the fallback per rule 4.
 
 ## References
 
-- `lex-agent-planning` — Law (3-layer model)
-- `lex-issue-status` — canonical labels (`status: todo` applied in Step 7)
-- `lex-issue-quality` — Issue body requirements
-- `lex-issue-type-verified` — Issue Type verification
-- `lex-issue-first`, `lex-git-branches`, `lex-git-worktrees` — preconditions
+- `lex-agent-planning` — Law (hierarchical Issue → Plan → PR model; Gate 1 owned by Eunomia)
+- `lex-issue-status` — canonical labels; `status: todo` applied in Step 6
+- `lex-issue-quality` — parent Issue body requirements
+- `lex-issue-type-verified` — programmatic Issue Type verification
+- `lex-issue-first` — parent Issue precedes the Plan sub-issue
 - `lex-mcp` — MCP preference + CLI fallback
 - `codex-agent-planning` — operational manual
-- `kata-load-plan-from-issue` — Step 6 (materializes local cache)
-- `kata-flush-plan-to-issue` — used in subsequent transitions (not in this kata)
-- `kata-create-subtasks` — Eunomia subtask mode (child Issue decomposition)
+- `kata-contributing-issue` — parent Issue creation (precondition)
+- `kata-decompose-issue-into-plans` — decomposes the parent Issue into N Plan sub-issues; invokes this kata per Plan
+- `kata-load-plan-from-subissue` — materializes the local cache after the Plan sub-issue exists
+- `kata-flush-plan-to-subissue` — used in later transitions (not in this kata)
 - `warrior-eunomia` — top-level owner of this kata
