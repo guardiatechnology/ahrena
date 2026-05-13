@@ -1,0 +1,180 @@
+---
+name: kata-load-plan-from-subissue
+description: "Load Plan from Sub-issue. Materialization of the provider-specific local cache (.claude/plans/plan-{M}.md or .cursor/plans/plan-{M}.md) from the canonical Plan sub-issue body, per the hierarchical model of lex-agent-planning"
+---
+
+# Kata: Load Plan from Sub-issue
+
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Materialization of the provider-specific local cache (`.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`) from the canonical Plan sub-issue body, per the hierarchical model of `lex-agent-planning`
+
+## Workflow
+
+```
+Progress:
+- [ ] 1. Resolve owner/repo + provider + destination path
+- [ ] 2. Confirm the Plan sub-issue exists (plan-first guardrail)
+- [ ] 3. Read the sub-issue body via MCP `get_issue` (preferred)
+- [ ] 4. Fallback `gh issue view --json body`
+- [ ] 5. Write the body to `.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`
+- [ ] 6. Validate idempotency
+```
+
+### Step 1: Resolve owner/repo + provider + destination path
+
+1. If `owner/repo` was passed, use it. Otherwise, derive from the worktree via `gh repo view --json owner,name`.
+2. Detect the agent runtime:
+   - Claude Code (CLI, VSCode, Desktop, claude.ai/code) → `.claude/plans/`
+   - Cursor → `.cursor/plans/`
+   - Other → consult `.ahrena/.directives` and ask the user if ambiguous.
+3. Resolve the destination path:
+   - If `dest_path` was passed, use it.
+   - Otherwise, final path: `<provider-dir>/plan-{M}.md`.
+4. Ensure the destination directory exists (`mkdir -p`).
+
+### Step 2: Confirm the Plan sub-issue exists (plan-first guardrail)
+
+Per the plan-first guardrail of `lex-agent-planning`, the kata MUST **refuse** if the Plan sub-issue `{M}` does not exist on GitHub:
+
+```bash
+# Preferred — via MCP
+mcp.github.get_issue(owner=owner, repo=repo, issue_number=M)
+
+# CLI fallback
+gh issue view {M} --repo {owner}/{repo} --json number,state,labels
+```
+
+If the sub-issue does not exist (HTTP 404), abort with the message:
+
+> "Plan sub-issue #{M} not found in {owner}/{repo}. Materializing `.claude/plans/plan-{M}.md` without a corresponding sub-issue violates the `lex-agent-planning` plan-first guardrail. Invoke `kata-contributing-issue` to open the parent Issue and `kata-decompose-issue-into-plans` (or `kata-plan-task`) to create the Plan sub-issue before attempting the load."
+
+If the sub-issue exists, proceed.
+
+### Step 3: Read the sub-issue body via MCP `get_issue` (preferred)
+
+Per `lex-mcp` rule 1, if the GitHub MCP server is listed in `mcp.servers` and active:
+
+```python
+issue = mcp.github.get_issue(owner=owner, repo=repo, issue_number=M)
+body = issue["body"]
+```
+
+On success, skip to Step 5.
+
+### Step 4: Fallback `gh issue view --json body`
+
+Per `lex-mcp` rule 4 (MCP unavailable), execute the documented CLI fallback:
+
+```bash
+gh issue view {M} --repo {owner}/{repo} --json body --jq .body > {dest_path}
+```
+
+If `gh` also fails:
+
+1. Single retry after a 5-second backoff.
+2. If it persists, offer the user: (a) retry with another command, (b) pause for investigation, (c) abort.
+
+### Step 5: Write the body to `.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`
+
+1. If the local cache already exists and has content, **preserve existing `<!-- not-flushed -->` ... `<!-- /not-flushed -->` blocks**:
+   - Extract all `<!-- not-flushed -->` blocks from the current file.
+   - Replace the main body with the new sub-issue body.
+   - Append the `<!-- not-flushed -->` blocks at the end.
+2. If the local cache does not exist, write the body directly (no `<!-- not-flushed -->` blocks yet).
+
+Preserving local blocks allows reload without losing AI scratch — reload only re-synchronizes the canonical content.
+
+### Step 6: Validate idempotency
+
+After writing, perform a second (read-only) call and compare:
+
+```bash
+# Canonical comparison (after stripping not-flushed blocks on both sides)
+diff <(strip-not-flushed {dest_path}) <(gh issue view {M} --json body --jq .body)
+```
+
+Expected result: no difference.
+
+If there is any difference outside `<!-- not-flushed -->` blocks, the reload silently failed — abort and investigate.
+
+## Outputs
+
+| Output | Format | Destination |
+|--------|--------|-------------|
+| Local cache | Markdown (superset of the sub-issue body + preserved `<!-- not-flushed -->` blocks) | `.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md` |
+
+## Execution Example
+
+### Input
+
+```
+subissue_number: 201
+owner/repo: guardiatechnology/example-repo
+dest_path: (default; detected provider: Claude Code) .claude/plans/plan-201.md
+```
+
+### Output
+
+`.claude/plans/plan-201.md` (right after the first load, no not-flushed blocks yet):
+
+```markdown
+## Summary
+
+Refactor the Ledger aggregate to event sourcing, separating commands
+(write-side) from reads (read-side projection).
+
+Parent: #200
+
+## Plan
+
+### Objective
+Deliver the first executable slice of User Story #200: Ledger rewritten
+as an event-sourced aggregate with factory + repository.
+
+### Steps
+- [ ] Step 1 — Model LedgerEvent base class
+- [ ] Step 2 — Rewrite Ledger.apply() as event projection
+- [ ] Step 3 — Repository persisting events instead of state
+- [ ] Step 4 — Migration helper for legacy state → events
+- [ ] Step 5 — Aggregate tests
+
+### Dependencies
+None
+
+### Risks
+- migration helper may fail on datasets with historical inconsistency
+  — mitigated by dry-run + checksum.
+
+### Open Questions
+None
+```
+
+After some AI edits to the local cache, the file carries not-flushed blocks:
+
+```markdown
+## Summary
+...
+(body content — mirrored)
+...
+
+<!-- not-flushed -->
+## Working notes
+- 14:32 — started Step 1; LedgerEvent will inherit from DomainEvent base.
+
+## Next actions
+1. Step 2 — apply() takes LedgerEvent, returns a new immutable state.
+2. Step 3 — repository.save() calls event_store.append().
+
+## Scratch
+considering discriminated union instead of class hierarchy.
+<!-- /not-flushed -->
+```
+
+## Restrictions
+
+- **Idempotent:** multiple runs produce the same local cache for the same sub-issue body state.
+- **Does not flush:** this kata is one-way (sub-issue → cache). To write back, use `kata-flush-plan-to-subissue`.
+- **Preserves local blocks:** existing `<!-- not-flushed -->` ... `<!-- /not-flushed -->` blocks in the local cache are preserved; only canonical content is re-synchronized.
+- **Plan-first guardrail:** if the Plan sub-issue `{M}` does not exist, the kata refuses with a message directing the user to create the sub-issue first via `kata-plan-task` or `kata-decompose-issue-into-plans`.
+- **MCP > CLI:** prefer MCP `get_issue` when the server is listed and active; CLI `gh issue view` is the documented fallback per `lex-mcp` rule 4.
+- **Does not create the sub-issue:** if sub-issue `{M}` does not exist, the kata fails; creation is the responsibility of `kata-plan-task` or `kata-decompose-issue-into-plans`.
+- **Provider-specific:** Claude Code → `.claude/plans/`; Cursor → `.cursor/plans/`. There is no shared cache across providers.
