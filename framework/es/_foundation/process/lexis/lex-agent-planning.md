@@ -10,7 +10,7 @@ El modelo canónico es jerárquico: cada **Issue** (User Story, Bug o Tech Task)
 
 ## Ley
 
-> **Todo agente DEBE registrar un plan canónico como sub-issue de GitHub (Issue Type Task) vinculada a la Issue parent ANTES de iniciar cualquier tarea que involucre 2 o más etapas, afecte múltiples archivos o produzca artefactos permanentes. El plan DEBE ser presentado al usuario para confirmación antes de que comience la ejecución. Iniciar ejecución multi-etapa sin sub-issue Plan creada y confirmada está PROHIBIDO. Materializar un archivo de cache local (`.claude/plans/plan-{M}.md`, `.cursor/plans/plan-{M}.md`) sin sub-issue Plan correspondiente abierta en GitHub está PROHIBIDO. El `status:` del plan vive como **label canónica** en la sub-issue (y en el PR, a partir de `to review`); el enum unificado es `todo | development | to review | review | to release | release | done` (más el terminal alternativo `abandoned`); cada transición DEBE ser ejecutada por el propietario declarado en este Lex. La transición `— → todo` aplica el gate de creación (template + labels + Issue Type + Why/What/How); la transición `todo → development` aplica el gate de inicio de ejecución (branch remota + worktree + assignee).**
+> **Todo agente DEBE registrar un plan canónico como sub-issue de GitHub (Issue Type Task) vinculada a la Issue parent ANTES de iniciar la ejecución de cualquier tarea que involucre 2 o más etapas, afecte múltiples archivos o produzca artefactos permanentes. El plan DEBE ser presentado al usuario para confirmación antes de que comience la ejecución. Iniciar ejecución multi-etapa (crear branch, hacer commit, abrir PR) sin sub-issue Plan creada y confirmada está PROHIBIDO. Esbozar un plan localmente en `.claude/plans/plan-{slug}.md` o `.cursor/plans/plan-{slug}.md` con `status: draft` en el front-matter está PERMITIDO como entry point plan-first, siempre que el agente promueva el borrador a sub-issue antes de iniciar la ejecución (transición `draft → todo` vía `kata-contributing-issue` + `kata-decompose-issue-into-plans` o `kata-plan-task`). El `status:` del plan vive como **label canónica** en la sub-issue (y en el PR, a partir de `to review`); el enum canónico es `todo | development | to review | review | to release | release | done` (más el terminal alternativo `abandoned`, y el estado local-only `draft` pre-promoción, que no existe como label de GitHub); cada transición DEBE ser ejecutada por el propietario declarado en este Lex. La transición `— → todo` aplica el gate de creación (template + labels + Issue Type + Why/What/How); la transición `todo → development` aplica el gate de inicio de ejecución (branch remota + worktree + assignee).**
 
 ## Alcance
 
@@ -73,7 +73,29 @@ Parent: #{N}
 {Preguntas abiertas que requieren decisión antes/durante la ejecución; "None" si no hay.}
 ```
 
-Schema del cache local `.claude/plans/plan-{M}.md` (o `.cursor/plans/plan-{M}.md`): **superset** del body de la sub-issue. Lleva el body completo espejado + secciones locales marcadas:
+Schema del cache local `.claude/plans/plan-{M}.md` (o `.cursor/plans/plan-{M}.md`): **superset** del body de la sub-issue. Lleva front-matter YAML para metadatos de sesión + el body completo espejado + secciones locales marcadas.
+
+**Front-matter** (canónico):
+
+```yaml
+---
+plan_id: "{M}"              # número de la sub-issue Plan; "draft" pre-promoción
+title: "{slug}"             # slug usado en la branch (y en el nombre del archivo mientras es draft)
+status: todo | development | to review | review | done | abandoned
+                            # | draft (estado local-only, pre-promoción)
+                            # | to release | release (eje release)
+agent: claude | cursor
+issue: "{owner/repo#M}"     # "TBD" mientras es draft
+parent: "{owner/repo#N}"    # Issue parent (User Story | Bug | Tech Task)
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+updated_at: "YYYY-MM-DDTHH:MM:SSZ"
+promoted_at: "YYYY-MM-DDTHH:MM:SSZ"   # OPCIONAL — completado en la transición draft → todo
+---
+```
+
+Los campos `merge_commit:` y `closed_at:` NO aparecen en el front-matter — son derivados de las APIs de GitHub en el audit post-merge (ver §Auditoría de cierre). El campo `promoted_at:` registra el timestamp UTC de la promoción plan-first (transición `draft → todo`); completar solo para planes que nacieron en `draft`.
+
+**Body**: superset del body de la sub-issue + secciones locales marcadas con bloques `<!-- not-flushed -->`:
 
 ```markdown
 <!-- not-flushed -->
@@ -89,7 +111,7 @@ cualquier texto libre que la IA quiera mantener como contexto local
 <!-- /not-flushed -->
 ```
 
-`kata-flush-plan-to-subissue` filtra los bloques `<!-- not-flushed -->` antes de grabar en el body de la sub-issue.
+`kata-flush-plan-to-subissue` filtra los bloques `<!-- not-flushed -->` antes de grabar en el body de la sub-issue. El front-matter NUNCA se flushea a GitHub — vive solo en el cache local.
 
 ## Ciclo de vida del Plan
 
@@ -98,11 +120,12 @@ El ciclo opera sobre **dos ejes disjuntos**:
 ### Eje A — Dev cycle (Plan derivado de User Story / Bug / Tech Task)
 
 ```
-— → todo → development → to review → review → done
-                                ↘
-                                abandoned (terminal alternativo, cualquier etapa)
+(draft, local-only) ⇢ — → todo → development → to review → review → done
+                                                       ↘
+                                                       abandoned (terminal alternativo, cualquier etapa)
 ```
 
+- `(draft)` — estado **local-only** pre-`todo`. Vive en el front-matter del plan-archivo (`.claude/plans/plan-{slug}.md` o `.cursor/plans/plan-{slug}.md`) con `status: draft, issue: TBD`. No existe como label canónica en GitHub. La transición `draft → todo` es la **promoción plan-first** (ver Guardrail plan-first abajo).
 - `— → todo` — sub-issue Plan creada con template + labels + Issue Type + Why/What/How; sin branch, sin worktree, sin assignee aún.
 - `todo → development` — Plan tomado para ejecución: branch remota creada vía `gh issue develop`; worktree per `lex-git-worktrees`; assignee aplicado (quien se compromete a ejecutar); primer commit inminente.
 - `development → to review` — implementación completada; PR abierto; flush previo del cache local vía `kata-flush-plan-to-subissue`.
@@ -167,13 +190,20 @@ precondiciones de este gate — pertenecen al gate todo → development.
 
 ### Guardrail plan-first
 
-Materializar un archivo de cache local `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md` sin sub-issue Plan correspondiente abierta en GitHub está PROHIBIDO. Cuando el usuario señala intención de plan sin referenciar una Issue (e.g., "vamos a planificar X"), el agente DEBE:
+Plan-first es un camino legítimo: el agente (o humano) PUEDE esbozar un plan localmente en `.claude/plans/plan-{slug}.md` o `.cursor/plans/plan-{slug}.md` llevando `status: draft` en el front-matter (e `issue: TBD` mientras no haya sub-issue correspondiente). Lo que está PROHIBIDO es iniciar la ejecución (branch, commits, PR) sin antes promover el borrador a sub-issue Plan en GitHub.
 
-1. Invocar `kata-contributing-issue` para abrir la Issue parent (User Story, Bug o Tech Task según corresponda).
-2. Invocar `kata-decompose-issue-into-plans` para crear las sub-issues Plan derivadas.
-3. Solo entonces invocar `kata-load-plan-from-subissue` para materializar el cache local.
+Cuando el usuario señala intención de plan sin referenciar una Issue (e.g., "vamos a planificar X"), el agente PUEDE seguir uno de dos caminos:
 
-`kata-load-plan-from-subissue` es el único camino canónico para crear un archivo en `.claude/plans/` o `.cursor/plans/` — y la kata DEBE rehusar si la sub-issue Plan no existe en GitHub.
+- **Camino A (issue-first):** invocar `kata-contributing-issue` para abrir la Issue parent inmediatamente; luego `kata-decompose-issue-into-plans` o `kata-plan-task` para crear la(s) sub-issue(s) Plan; después `kata-load-plan-from-subissue` para materializar el cache local. No hay estado `draft` en este camino.
+
+- **Camino B (plan-first / draft):** esbozar el plan directamente en `.claude/plans/plan-{slug}.md` (o `.cursor/plans/...`) con front-matter `status: draft, issue: TBD`. Cuando el borrador madura, **promover** en un paso atómico:
+  1. `kata-contributing-issue` crea la Issue parent si aún no la hay.
+  2. `kata-decompose-issue-into-plans` o `kata-plan-task` crea la sub-issue Plan canónica.
+  3. Renombrar el archivo de `plan-{slug}.md` a `plan-{M}.md` (donde `{M}` es el número de la sub-issue creada).
+  4. Actualizar el front-matter — `status: draft → todo`, `issue: TBD → {owner/repo#M}`, registrar `promoted_at` con timestamp UTC.
+  5. Aplicar la label canónica `status: todo` en la sub-issue recién creada (Gate 1 de Eunomia).
+
+`status: draft` es estado **puramente local** — vive en el front-matter del plan-archivo, NO existe como label canónica en GitHub. La label `status: todo` solo aparece después de la promoción. `kata-load-plan-from-subissue` retorna `PROMOTION_REQUIRED` (señal de flujo, no error fatal) cuando recibe un plan-archivo orphan con `status: draft` o `issue: TBD`, orientando al agente invocador a accionar la promoción antes de la materialización canónica.
 
 ## Gate 2 — Plan iniciado (`todo → development`)
 
@@ -327,7 +357,7 @@ Release cycle (separado):
 → Janus concluye kata-release-publish: status: done
 ```
 
-### Correcto — flujo Plan-first (intención sin Issue)
+### Correcto — flujo Plan-first, Camino A (issue-first inmediato)
 
 ```
 Usuario: "vamos a planificar la migración del logger a Loguru"
@@ -341,6 +371,24 @@ Usuario: "vamos a planificar la migración del logger a Loguru"
 → Ejecución sigue per Gate 2 (Athena)
 ```
 
+### Correcto — flujo Plan-first, Camino B (draft → promoción)
+
+```
+Usuario: "vamos a esbozar un plan para refactorizar el logger"
+→ Agente crea .claude/plans/plan-logger-refactor.md con front-matter:
+   status: draft, issue: TBD, parent: TBD, plan_id: "draft"
+→ El borrador madura en N ediciones (Objective, Steps, Risks)
+→ Usuario aprueba: "ok, vamos a ejecución"
+→ Agente promueve en paso atómico:
+   1. kata-contributing-issue → Issue parent #220 (tech-task)
+   2. kata-plan-task → sub-issue Plan #221 (Task), body del borrador copiado
+   3. mv .claude/plans/plan-logger-refactor.md .claude/plans/plan-221.md
+   4. front-matter: status: draft → todo, issue: TBD → guardiatechnology/ahrena#221,
+      parent: guardiatechnology/ahrena#220, promoted_at: 2026-05-13T19:00:00Z
+   5. Eunomia aplica label "status: todo" en #221 (Gate 1 OK)
+→ Ejecución sigue per Gate 2 (Athena)
+```
+
 ### Incorrecto
 
 ```
@@ -348,11 +396,13 @@ Tarea: implementar feature X
 → Agente crea branch directamente vía git checkout -b sin abrir Issue parent
 → ❌ Viola lex-issue-first; sin Issue parent, no hay Plan a crear
 
-→ Agente crea archivo .claude/plans/plan-201.md como canónico antes
-  de crear la sub-issue #201 en GitHub
-→ ❌ Viola el guardrail plan-first; cache local sin sub-issue correspondiente
-  está prohibido. Invocar kata-contributing-issue + kata-decompose-issue-into-plans
-  antes de cualquier materialización local
+→ Agente crea archivo .claude/plans/plan-feature-x.md con status: draft
+  y luego crea branch vía git checkout -b feat/x sin promover el borrador
+  a sub-issue Plan en GitHub
+→ ❌ Viola el guardrail plan-first; un borrador local con status: draft está
+  permitido, pero iniciar la ejecución (branch, commits, PR) sin antes
+  promover el borrador vía kata-contributing-issue +
+  kata-decompose-issue-into-plans (Camino B) está prohibido
 
 → Agente aplica label status: todo en la sub-issue Plan sin completar el body
 → ❌ Viola Gate 1 precondición (c): el body necesita llevar Summary +
