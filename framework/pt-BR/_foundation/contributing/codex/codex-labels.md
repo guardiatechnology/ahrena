@@ -21,8 +21,8 @@ A organização Guardia configura três Issue Types no nível do repositório. T
 
 | Issue Type | ID | Templates que o mapeiam |
 |------------|----|--------------------------|
-| **Task** | `IT_kwDOED9Qy84B7pBh` | `tech-task` |
-| **Bug** | `IT_kwDOED9Qy84B7pBi` | `bug-report` *(futuro)* |
+| **Task** | `IT_kwDOED9Qy84B7pBh` | `tech-task`, `plan` |
+| **Bug** | `IT_kwDOED9Qy84B7pBi` | `bug` |
 | **Feature** | `IT_kwDOED9Qy84B7pBj` | `feature-request`, `epic`, `user-story-for-api`, `user-story-for-frontend` |
 
 **Definindo o Issue Type após a criação:**
@@ -54,10 +54,10 @@ Obrigatórios conforme `lex-issue-quality`. Aplicados manualmente na criação d
 | `api` | `user-story-for-api` | Escopo de design ou implementação de API |
 | `user story 🎯` | `user-story-for-api`, `user-story-for-frontend` | História com escopo voltada ao usuário |
 | `frontend` | `user-story-for-frontend` | Escopo de implementação de frontend (UI/UX) |
-| `documentation 📃` | `tech-task` | Melhorias ou adições de documentação |
-| `ci 🏗️` | `tech-task` | Mudanças em CI/CD ou pipeline |
-| `enhancement 🔝` | `tech-task` | Melhoria em uma funcionalidade existente |
-| `evolvability ♻️` | `tech-task` | Refatoração, código limpo, manutenção |
+| `documentation 📃` | `tech-task`, `plan` | Melhorias ou adições de documentação |
+| `ci 🏗️` | `tech-task`, `plan` | Mudanças em CI/CD ou pipeline |
+| `enhancement 🔝` | `tech-task`, `plan` | Melhoria em uma funcionalidade existente |
+| `evolvability ♻️` | `tech-task`, `plan` | Refatoração, código limpo, manutenção |
 
 #### 2. Labels de Conteúdo e Natureza
 
