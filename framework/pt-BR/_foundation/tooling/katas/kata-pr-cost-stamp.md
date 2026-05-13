@@ -171,7 +171,7 @@ Ambos os campos saem em **minutos inteiros**; o renderizador (Passo 6) converte 
 
 ### Passo 5: Computar revisores externos via pr-cost-stamp-reviews.sh
 
-Detecta revisores AI externos (Gemini, Claude bot, CodeRabbit, etc.) a partir dos comentários e reviews da PR. Apenas reviews formais por padrão (drive-by comments inflam a contagem; ver risco em plan-041).
+Detecta revisores AI externos (Gemini, Claude bot, CodeRabbit, etc.) a partir dos comentários e reviews da PR. Apenas reviews formais por padrão (drive-by comments inflam a contagem).
 
 ```bash
 KNOWN_AI=$(echo "$KNOWN_AI_REVIEWERS_LIST" | paste -sd, -)  # CSV vindo de .directives
@@ -317,7 +317,7 @@ pr-cost-stamp: backend=ccusage version=1.x project=ahrena since=20260507
 pr-cost-stamp: 3 sessions, 245892 input, 18432 output, $4.32 USD
 pr-cost-stamp: time backend=pr-cost-stamp.sh 1.1.0 idle_gap=10min
 pr-cost-stamp: active 167min (2h 47min), calendar 1680min (1d 4h)
-pr-cost-stamp: PR #67 body updated (block upserted)
+pr-cost-stamp: PR #{N} body updated (block upserted)
 ```
 
 ### Bloco resultante (no body da PR)

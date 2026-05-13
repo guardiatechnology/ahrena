@@ -37,7 +37,7 @@ notifications:
 |---|---|---|
 | `notifications.channels.pr_review_timeout` | `warrior-athena` | Esgotamento dos 3 ciclos de 15 min sem aprovação humana em PR `to review` |
 | `notifications.channels.release_notify` | `warrior-janus` | Release publicada (tag empurrada, `validate-tag.yml` passou, GitHub Release criada) |
-| `notifications.channels.plans_status` | `warrior-eunomia` (plan-044) | Digest periódico de planos ativos no loop PM |
+| `notifications.channels.plans_status` | `warrior-eunomia` | Digest periódico de planos ativos no loop PM |
 
 ### 2. Mapeamento provider → tool MCP
 
@@ -114,7 +114,7 @@ Mensagens devem ser **diretas**, **acionáveis** e **autocontidas** — per `lex
 Mudança de provider é **3 passos** (zero edição de Lex/Codex/Warrior/Kata):
 
 1. Adicionar `framework/mcp/{novo}.json` per `lex-mcp` §5 (preferir HTTP > binário > npx).
-2. Habilitar via `make mcp-enable SERVER={novo}` (per plan-042).
+2. Habilitar via `make mcp-enable SERVER={novo}`.
 3. Editar `notifications.provider` em `.ahrena/.directives` para o novo valor.
 
 Os canais lógicos (`notifications.channels.*`) podem ser mantidos ou renomeados para corresponder à convenção do novo provider.

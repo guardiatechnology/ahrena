@@ -190,11 +190,10 @@ Escala a humano (aborta sin proseguir) cuando:
 
 ## Referencias
 
-- ADR-002 — release Issue como punto de entrada del release cycle (absorción de plan-045)
 - `lex-annotated-tags`, `lex-semantic-version`, `lex-signed-commits`, `lex-conventional-commits`
 - `lex-issue-status` — Eje B (release cycle): `status: to release` → `release` → `done`
 - `lex-agent-planning` — Tabla B (release cycle owners)
 - `kata-release-prepare`, `kata-release-publish`, `kata-tag`
 - `kata-flush-plan-to-issue` — actualiza el body de la release Issue a lo largo del ciclo
 - `cry-release` — atajo que invoca este Warrior
-- Lección aprendida: v0.11.0 (PR #68) — race condition `gh release create` × workflow `release.yml`
+- Lección aprendida: v0.11.0 — race condition `gh release create` × workflow `release.yml`

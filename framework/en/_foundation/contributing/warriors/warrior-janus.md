@@ -190,11 +190,10 @@ Approve and publish v1.3.0? (yes / edit / cancel)
 
 ## References
 
-- ADR-002 — release Issue as the entry point of the release cycle (absorption of plan-045)
 - `lex-annotated-tags`, `lex-semantic-version`, `lex-signed-commits`, `lex-conventional-commits`
 - `lex-issue-status` — Axis B (release cycle): `status: to release` → `release` → `done`
 - `lex-agent-planning` — Table B (release cycle owners)
 - `kata-release-prepare`, `kata-release-publish`, `kata-tag`
 - `kata-flush-plan-to-issue` — updates the release Issue body throughout the cycle
 - `cry-release` — shortcut that invokes this Warrior
-- Lesson learned: v0.11.0 (PR #68) — race condition `gh release create` × workflow `release.yml`
+- Lesson learned: v0.11.0 — race condition `gh release create` × workflow `release.yml`

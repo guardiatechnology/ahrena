@@ -12,7 +12,7 @@ Escribir o actualizar el archivo de heartbeat `.ahrena/workflow/sessions/<sessio
 - Al completar un Step del plan o una kata invocada.
 - Al cambiar el `status:` del plan.
 - Periódicamente (cada 5–10min) durante actividad prolongada.
-- Por Eunomia (plan-044) en cada tick del loop PM antes de procesar el digest.
+- Por Eunomia en cada tick del loop PM antes de procesar el digest.
 
 ## Inputs
 
