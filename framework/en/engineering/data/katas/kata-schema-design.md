@@ -137,7 +137,7 @@ Estimate duration per phase; if any exceeds 10min in prod, detail strategy (pg_r
 
 ### Step 8: Persist schema document
 
-Structure in `.issues/{n}/03b-schema.md` (complements architecture.md):
+Structure in `.ahrena/issues/{n}/03b-schema.md` (complements architecture.md):
 
 ```markdown
 # Schema — Issue #{n}: {title}
@@ -188,7 +188,7 @@ Referenced ADR: docs/adr/ADR-XXX-aurora-for-refund.md
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Schema document | Markdown | `.issues/{n}/03b-schema.md` |
+| Schema document | Markdown | `.ahrena/issues/{n}/03b-schema.md` |
 | ER diagram | Embedded Mermaid | In the document |
 | Retention update | YAML | `docs/data-retention.yaml` |
 | ADR (if necessary) | MADR Markdown | `docs/adr/ADR-*` |

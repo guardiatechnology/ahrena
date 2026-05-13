@@ -16,7 +16,7 @@ Dada una feature con requisitos (ACs numerados) y arquitectura (componentes afec
 
 | Input | Obligatorio | Descripción |
 |-------|:-----------:|-----------|
-| Requisitos (ACs) | Sí | `.issues/{n}/02-requirements.md` o lista equivalente |
+| Requisitos (ACs) | Sí | `.ahrena/issues/{n}/02-requirements.md` o lista equivalente |
 | Arquitectura | Sí | Lista de componentes afectados (fase 3 del flujo Issue-Driven) |
 | Stack | Sí | Lenguajes, frameworks detectados |
 | Criticidad | No | Tier (1/2/3/4); default 2 |
@@ -30,7 +30,7 @@ Progreso:
 - [ ] 3. Identificar fronteras y riesgos
 - [ ] 4. Definir cobertura objetivo por componente
 - [ ] 5. Listar herramientas y fixtures necesarias
-- [ ] 6. Persistir en .issues/{n}/02b-test-plan.md
+- [ ] 6. Persistir en .ahrena/issues/{n}/02b-test-plan.md
 - [ ] 7. Actualizar checkpoint
 ```
 
@@ -96,7 +96,7 @@ Ajustar `quality.coverage_threshold` en `.ahrena/.directives` si es diferente de
 
 ### Paso 6: Persistir el plan
 
-Estructura en `.issues/{n}/02b-test-plan.md`:
+Estructura en `.ahrena/issues/{n}/02b-test-plan.md`:
 
 ```markdown
 # Plan de Pruebas — Issue #{n}: {título}
@@ -141,7 +141,7 @@ Agregar entrada en `.ahrena/workflow/issue-{n}/checkpoint.md`:
 
 ```yaml
 test_plan:
-  artifact: .issues/{n}/02b-test-plan.md
+  artifact: .ahrena/issues/{n}/02b-test-plan.md
   total_acs_mapped: 5
   coverage_target: 80
   tier: 2
@@ -151,7 +151,7 @@ test_plan:
 
 | Salida | Formato | Destino |
 |-------|---------|---------|
-| Plan de pruebas estructurado | Markdown | `.issues/{n}/02b-test-plan.md` |
+| Plan de pruebas estructurado | Markdown | `.ahrena/issues/{n}/02b-test-plan.md` |
 | Mapeo AC → niveles | Tabla en el plan | — |
 | Lista de fixtures/contenedores | Sección en el plan | — |
 
@@ -160,7 +160,7 @@ test_plan:
 - **No escribe pruebas**: esta kata planea; la escritura real es de Apollo/Hephaestus.
 - **Plan vinculante para Gate 2**: si el plan define Integration para AC-1, el Gate 2 verifica que exista integration test para AC-1.
 - **Tier declarado explícitamente**: si se omite, el Gate 2 asume tier 2 (80% cobertura).
-- **Destino fijo**: `.issues/{n}/02b-test-plan.md` (siguiendo convención de `lex-issue-driven`).
+- **Destino fijo**: `.ahrena/issues/{n}/02b-test-plan.md` (siguiendo convención de `lex-issue-driven`).
 
 ## Referencias
 

@@ -102,7 +102,7 @@ Antes de mapear, duas perguntas:
 
 *(Após respostas: tier-1; Stripe sandbox disponível.)*
 
-**Hera:** Plano produzido em `.issues/42/02b-test-plan.md`:
+**Hera:** Plano produzido em `.ahrena/issues/42/02b-test-plan.md`:
 
 **Mapeamento AC → níveis:**
 

@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Tras el Gate 2 resultar en `go`, crear la branch, hacer push de los archivos modificados y abrir un Pull Request en GitHub vía MCP. El body del PR es estructurado referenciando la issue original, los ACs numerados, los ADRs creados y los artefactos del flujo en `.issues/{n}/`. El resultado es un PR listo para revisión humana, con trazabilidad completa.
+Tras el Gate 2 resultar en `go`, crear la branch, hacer push de los archivos modificados y abrir un Pull Request en GitHub vía MCP. El body del PR es estructurado referenciando la issue original, los ACs numerados, los ADRs creados y los artefactos del flujo en `.ahrena/issues/{n}/`. El resultado es un PR listo para revisión humana, con trazabilidad completa.
 
 ## Cuándo Usar
 
@@ -18,7 +18,7 @@ Tras el Gate 2 resultar en `go`, crear la branch, hacer push de los archivos mod
 | Número de la issue | Sí | Número de la issue original (ej.: `42`) |
 | Repositorio | Sí | `owner/repo` |
 | Base branch | No | Branch objetivo del PR; default: `main` |
-| Artefactos del flujo | Sí | `.issues/{n}/*` y `docs/adr/ADR-*` creados en las fases anteriores |
+| Artefactos del flujo | Sí | `.ahrena/issues/{n}/*` y `docs/adr/ADR-*` creados en las fases anteriores |
 | Estrategia del PR | No | `draft` (default: `false`) |
 
 ## Workflow
@@ -39,7 +39,7 @@ Progreso:
 
 1. Confirmar que `github` está en `mcp.servers` (conforme a `lex-mcp`). Si no, informar y cerrar.
 2. Confirmar `GITHUB_PAT` definida.
-3. Leer `.issues/{n}/06-quality-report.md` y confirmar resultado `go`. Si `no-go`, rechazar crear PR y retornar al orquestador.
+3. Leer `.ahrena/issues/{n}/06-quality-report.md` y confirmar resultado `go`. Si `no-go`, rechazar crear PR y retornar al orquestador.
 4. Consultar `codex-mcp-github` para identificar herramientas correctas (`create_branch`, `push_files`, `create_pull_request`).
 
 ### Paso 2: Determinar nombre de la branch y título del PR
@@ -85,7 +85,7 @@ Donde:
    - `message` — mensaje de commit en el formato Conventional Commits:
      ```
      {tipo}({alcance}): {descripción}
-     
+
      Refs: #{n}
      ```
    - `files` — array de `{path, content}`
@@ -104,7 +104,7 @@ Resolves #{n}
 
 ## Criterios de Aceptación
 
-<!-- Copiados de .issues/{n}/02-requirements.md -->
+<!-- Copiados de .ahrena/issues/{n}/02-requirements.md -->
 
 - [x] **AC-1:** {descripción}
 - [x] **AC-2:** {descripción}
@@ -112,7 +112,7 @@ Resolves #{n}
 
 ## Arquitectura
 
-Ver [documento de arquitectura](.issues/{n}/03-architecture.md).
+Ver [documento de arquitectura](.ahrena/issues/{n}/03-architecture.md).
 
 ### ADRs creados
 
@@ -122,8 +122,8 @@ Ver [documento de arquitectura](.issues/{n}/03-architecture.md).
 
 ## Calidad
 
-- ✅ Gate 2 aprobado ([reporte](.issues/{n}/06-quality-report.md))
-- ✅ Revisión de seguridad aprobada ([reporte](.issues/{n}/05-security-review.md))
+- ✅ Gate 2 aprobado ([reporte](.ahrena/issues/{n}/06-quality-report.md))
+- ✅ Revisión de seguridad aprobada ([reporte](.ahrena/issues/{n}/05-security-review.md))
 - Cobertura: {actual}% (threshold: {threshold}%)
 
 ## Cómo probar
@@ -172,7 +172,7 @@ Per `lex-pr-quality` (reglas 9, j) y `codex-session-tracking` §7, antes de invo
 
 Esta sección es métrica complementaria al `cry-pr-cost-stamp` (que mide tokens/USD). Aquí mide tiempo de sesión real.
 
-### Paso 5c: Flush del plan (per ADR-002)
+### Paso 5c: Flush del plan
 
 Antes de invocar `create_pull_request`, garantizar que el body de la Issue refleja el estado actual del trabajo:
 
@@ -180,7 +180,7 @@ Antes de invocar `create_pull_request`, garantizar que el body de la Issue refle
 2. El kata lee `.plans/{N}.md`, filtra bloques `<!-- not-flushed -->`, ejecuta preflight de drift remoto, y graba el contenido filtrado en el body de la Issue vía MCP `update_issue` (preferido) o `gh issue edit --body-file` (fallback).
 3. En caso de drift remoto detectado (default `force=false`), el kata pausa y ofrece merge manual — no proseguir hasta resolución.
 
-Ese paso sustituye la mecánica antigua de "actualizar `status:` en el front-matter del plan" (modelo legado pre-ADR-002): en el Issue-as-plan model, el body de la Issue es el canonical; el caché local `.plans/{N}.md` es regenerable.
+Ese paso sustituye la mecánica antigua de "actualizar `status:` en el front-matter del plan" (modelo legado pre-): en el Issue-as-plan model, el body de la Issue es el canonical; el caché local `.plans/{N}.md` es regenerable.
 
 ### Paso 6: Crear PR linkado a la issue
 
@@ -210,7 +210,7 @@ gh issue edit {issue_number} \
 
 Per `lex-issue-status` Regla 3 (mutex intra-artefacto), garantizar que cada artefacto queda con exactamente un `status:*`. Per Regla 5 (sync Issue↔PR), actualizar simultáneamente.
 
-La label es la única fuente de verdad del estado per ADR-002 — el body de la Issue (canonical del plan) ya fue actualizado en el Paso 5c.
+La label es la única fuente de verdad del estado — el body de la Issue (canonical del plan) ya fue actualizado en el Paso 5c.
 
 ### Paso 6c: Argos pre-flight cycles (hasta 3, interactivos vía AskUserQuestion)
 
@@ -282,7 +282,7 @@ Athena: "AI reviewers paralelos a Argos para A{n}/3? (multi-select)
 **Comportamiento:**
 
 1. Para cada reviewer marcado, Athena postea el comentario de invocación en secuencia (no en paralelo — reduce ruido en el timeline).
-2. Athena **NO bloquea** esperando esos reviewers — son asíncronos (GitHub App webhook); resultados aparecen como reviews/comments en el PR en el tiempo de la app (~30s a algunos min).
+2. Athena **NO bloquea** esperando esos reviewers — son asíncronos (GitHub App webhook); resultados aparecen como reviews/comments en el tiempo de la app (~30s a algunos min).
 3. Athena prosigue al paso 2 del ciclo A{n} (transición `to review → review` e invocación del Argos subagente). Argos corre su review en paralelo con los AI reviewers externos.
 4. En el paso 3 (Athena lee findings), Athena recolecta findings de **todos los reviewers** con nuevos `submittedAt > HEAD push time` (Argos + Gemini + Coderabbit + Qodo). Trata cada finding vía el mismo schema P0/P1/P2:
    - Argos publica P0/P1/P2 explícitamente con marker.
@@ -397,7 +397,7 @@ Para cada ADR creado en la Fase 3 (listados en el checkpoint):
 - **Usar únicamente MCP:** no usar `git push` directo ni `gh pr create` cuando el MCP GitHub está activo (conforme a `lex-mcp`).
 - **Sin credenciales hardcoded:** autenticación exclusivamente vía `GITHUB_PAT`.
 - **Gate 2 `go` es prerrequisito inviolable:** no abrir PR si `06-quality-report.md` resultó `no-go`.
-- **El body del PR debe referenciar .issues/{n}/:** la trazabilidad desde la issue hasta el PR exige esos links.
+- **El body del PR debe referenciar .ahrena/issues/{n}/:** la trazabilidad desde la issue hasta el PR exige esos links.
 - **Conventional Commits obligatorio:** título del PR y mensajes de commit deben seguir el formato (conforme a `lex-conventional-commits`).
 
 ## Referencias

@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-A partir do brief (Fase 1) e dos requisitos (Fase 2), produzir um documento de design arquitetural contendo: mapa dos componentes afetados, abordagem técnica proposta, decisões que precisam ser tomadas, delegação a warriors especialistas (Daedalus para API, Kronos para eventos), e invocação de `kata-adr-write` quando houver decisão arquitetural relevante. O documento final em `.issues/{n}/03-architecture.md` é a base do Gate 1 e delimita o escopo contra o qual o Gate 2 fará scope creep check.
+A partir do brief (Fase 1) e dos requisitos (Fase 2), produzir um documento de design arquitetural contendo: mapa dos componentes afetados, abordagem técnica proposta, decisões que precisam ser tomadas, delegação a warriors especialistas (Daedalus para API, Kronos para eventos), e invocação de `kata-adr-write` quando houver decisão arquitetural relevante. O documento final em `.ahrena/issues/{n}/03-architecture.md` é a base do Gate 1 e delimita o escopo contra o qual o Gate 2 fará scope creep check.
 
 ## Quando Usar
 
@@ -15,8 +15,8 @@ A partir do brief (Fase 1) e dos requisitos (Fase 2), produzir um documento de d
 
 | Input | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
-| Brief Fase 1 | Sim | `.issues/{n}/01-brief.md` |
-| Requisitos Fase 2 | Sim | `.issues/{n}/02-requirements.md` |
+| Brief Fase 1 | Sim | `.ahrena/issues/{n}/01-brief.md` |
+| Requisitos Fase 2 | Sim | `.ahrena/issues/{n}/02-requirements.md` |
 | Stack do projeto | Sim | Linguagem, frameworks, padrões existentes (detectado via leitura do repo) |
 
 ## Workflow
@@ -29,13 +29,13 @@ Progresso:
 - [ ] 4. Identificar decisões arquiteturais relevantes
 - [ ] 5. Delegar a especialistas se aplicável (Daedalus/Kronos)
 - [ ] 6. Invocar kata-adr-write para cada decisão relevante
-- [ ] 7. Persistir em .issues/{n}/03-architecture.md
+- [ ] 7. Persistir em .ahrena/issues/{n}/03-architecture.md
 - [ ] 8. Atualizar checkpoint
 ```
 
 ### Passo 1: Ler brief + requisitos
 
-1. Ler `01-brief.md` e `02-requirements.md` em `.issues/{n}/`.
+1. Ler `01-brief.md` e `02-requirements.md` em `.ahrena/issues/{n}/`.
 2. Se algum ausente, informar e encerrar — fases predecessoras devem estar completas.
 3. Identificar ACs que exigem atenção arquitetural especial (ex.: performance, consistência, idempotência).
 
@@ -105,7 +105,7 @@ Para cada decisão identificada no Passo 4 que merece ADR:
 3. O ADR será transicionado para `accepted` após aprovação no Gate 1.
 4. Referenciar cada ADR criado no documento de arquitetura.
 
-### Passo 7: Persistir em `.issues/{n}/03-architecture.md`
+### Passo 7: Persistir em `.ahrena/issues/{n}/03-architecture.md`
 
 Estrutura:
 
@@ -185,7 +185,7 @@ Gate 1 — Aprovação de Escopo (aguarda aprovação humana).
 
 | Saída | Formato | Destino |
 |-------|---------|---------|
-| Documento de arquitetura | Markdown | `.issues/{n}/03-architecture.md` |
+| Documento de arquitetura | Markdown | `.ahrena/issues/{n}/03-architecture.md` |
 | ADRs (0 ou mais) | Markdown MADR | `docs/adr/ADR-{n}-*.md` |
 | OAS/doc/events (se aplicável) | conforme Daedalus/Kronos | `paths.oas`, `paths.events` |
 | Checkpoint atualizado | Markdown | `.ahrena/workflow/issue-{n}/checkpoint.md` |
@@ -196,7 +196,7 @@ Gate 1 — Aprovação de Escopo (aguarda aprovação humana).
 - **ADRs em status `proposed`:** até o Gate 1, todos os ADRs produzidos nesta fase ficam com status `proposed`. A transição para `accepted` só ocorre após aprovação humana.
 - **Delegação não substitui o documento desta fase:** mesmo quando delega a Daedalus/Kronos, o kata deve produzir o `03-architecture.md` com o contexto geral e referências aos outputs dos especialistas.
 - **Sem codificar:** este kata descreve **o que** e **onde**, não **como** (o Apollo fará o como na Fase 4).
-- **Destino fixo:** `.issues/{n}/03-architecture.md` e `docs/adr/ADR-*` (conforme `lex-issue-driven`).
+- **Destino fixo:** `.ahrena/issues/{n}/03-architecture.md` e `docs/adr/ADR-*` (conforme `lex-issue-driven`).
 
 ## Referências
 

@@ -1,10 +1,10 @@
 # Kata: Planejar Tarefa
 
-> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Criação e manutenção de planos de tarefa por agentes, conforme `lex-agent-planning` (modelo de 3 camadas — ADR-002)
+> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Criação e manutenção de planos de tarefa por agentes, conforme `lex-agent-planning` (modelo de 3 camadas)
 
 ## Objetivo
 
-Criar o plano canônico de uma tarefa antes da execução, garantindo que objetivo, escopo, etapas e dependências estejam no **body da Issue do GitHub** (canonical per ADR-002) e confirmados pelo usuário antes de qualquer ação irreversível começar. Este é o procedimento que **`warrior-eunomia` executa em modo top-level** (per plan-046 / absorção de plan-044) e que o agente da sessão segue como fallback enquanto Eunomia não estiver disponível.
+Criar o plano canônico de uma tarefa antes da execução, garantindo que objetivo, escopo, etapas e dependências estejam no **body da Issue do GitHub** (canonical) e confirmados pelo usuário antes de qualquer ação irreversível começar. Este é o procedimento que **`warrior-eunomia` executa em modo top-level** (per  / absorção de ) e que o agente da sessão segue como fallback enquanto Eunomia não estiver disponível.
 
 Per `lex-agent-planning` HARD-GATE, o label `status: todo` só pode ser aplicado à Issue quando os 5 passos canônicos forem concluídos: (1) Issue aberta per `lex-issue-quality`; (2) Issue Type verificado per `lex-issue-type-verified`; (3) branch remota criada via `gh issue develop` e linkada à Issue; (4) worktree criado per `lex-git-worktrees`; (5) **body da Issue preenchido com o plano canônico** (Summary + Plan section).
 
@@ -166,7 +166,7 @@ Aguardar OK do usuário antes de qualquer execução irreversível subsequente.
 
 ```
 Tarefa: migrar armazenamento do plano para o modelo Issue-as-plan
-(3-layer: Issue body + .plans/ cache + .issues/ artifacts)
+(3-layer: Issue body + .plans/ cache + .ahrena/issues/ artifacts)
 ```
 
 ### Passo 2 — Body gravado na Issue #96
@@ -177,25 +177,25 @@ Tarefa: migrar armazenamento do plano para o modelo Issue-as-plan
 **As** an Ahrena framework contributor,
 **I want** to migrate plan storage to a 3-layer model,
 **So that** plans live where they belong (audit in GitHub Issue,
-scratch in .plans/ cache, Phase artifacts in .issues/).
+scratch in .plans/ cache, Phase artifacts in .ahrena/issues/).
 
 ## Plan
 
 ### Objective
 Refatorar a camada de armazenamento do plano para que viva em três
 camadas com papéis claros: Issue body (canonical) + .plans/{N}.md
-(working memory da IA, gitignored) + .issues/{N}/ (committed Phase
+(working memory da IA, gitignored) + .ahrena/issues/{N}/ (committed Phase
 artifacts).
 
 ### Steps
 - [ ] Step 1 — Open Issue + branch + worktree (HARD-GATE)
-- [ ] Step 2 — ADR-002
+- [ ] Step 2
 - [ ] Step 3 — Rewrite lex-agent-planning (3 langs)
 - [ ] Step 3.5 — Split lex-issue-status (3 langs)
 ...
 
 ### Dependencies
-plan-043 (PR #93) merged.
+ merged.
 
 ### Risks
 - .plans/ perdida em fresh clone — mitigado por kata-load-plan-from-issue.
@@ -226,7 +226,7 @@ Agente: "Plano registrado em #96 (body canônico).
 ## Restrições
 
 - **Nunca aplicar `status: todo` antes do Passo 7** — HARD-GATE de `lex-agent-planning` exige todos os 5 passos canônicos concluídos.
-- **Nunca criar arquivo `.claude/plans/*.md` como canônico** — modelo legado pré-ADR-002. Body da Issue é canonical; `.plans/{N}.md` é cache regenerável.
+- **Nunca criar arquivo `.claude/plans/*.md` como canônico** — modelo legado pré-. Body da Issue é canonical; `.plans/{N}.md` é cache regenerável.
 - **Nunca pular o user OK no Passo 7** — execução irreversível subsequente exige confirmação explícita.
 - **Nunca omitir Summary ou seções do Plan** — body sem Summary, Steps, Risks, Dependencies, Open Questions não satisfaz HARD-GATE precondition (e).
 - **Preferir MCP > CLI** — per `lex-mcp` regra 1.
@@ -240,7 +240,6 @@ Agente: "Plano registrado em #96 (body canônico).
 - `lex-issue-first`, `lex-git-branches`, `lex-git-worktrees` — preconditions
 - `lex-mcp` — preferência MCP + fallback CLI
 - `codex-agent-planning` — manual operacional
-- ADR-002 — modelo de armazenamento em 3 camadas
 - `kata-load-plan-from-issue` — Passo 6 (materializa cache local)
 - `kata-flush-plan-to-issue` — usado em transições posteriores (não neste kata)
 - `kata-create-subtasks` — modo subtask de Eunomia (decomposição de child Issue)

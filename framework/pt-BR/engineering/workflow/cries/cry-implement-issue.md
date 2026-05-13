@@ -30,13 +30,13 @@ Este comando aciona o fluxo completo de desenvolvimento orientado por issue: des
 
 Invoca **warrior-athena** para conduzir as 7 fases do fluxo:
 
-1. **Fase 1 — Análise da Issue** (`kata-issue-analysis`): lê a issue no GitHub e busca contexto no Notion → `.issues/{n}/01-brief.md`
-2. **Fase 2 — Requisitos** (`kata-requirements-brief`): elicita ACs numerados com perspectiva PO → `.issues/{n}/02-requirements.md`
-3. **Fase 3 — Arquitetura** (`kata-architecture-brief`): mapeia componentes, delega design de API/eventos a Daedalus/Kronos se aplicável, invoca `kata-adr-write` para decisões relevantes → `.issues/{n}/03-architecture.md` + ADRs em `docs/adr/`
+1. **Fase 1 — Análise da Issue** (`kata-issue-analysis`): lê a issue no GitHub e busca contexto no Notion → `.ahrena/issues/{n}/01-brief.md`
+2. **Fase 2 — Requisitos** (`kata-requirements-brief`): elicita ACs numerados com perspectiva PO → `.ahrena/issues/{n}/02-requirements.md`
+3. **Fase 3 — Arquitetura** (`kata-architecture-brief`): mapeia componentes, delega design de API/eventos a Daedalus/Kronos se aplicável, invoca `kata-adr-write` para decisões relevantes → `.ahrena/issues/{n}/03-architecture.md` + ADRs em `docs/adr/`
 4. **Gate 1 — Aprovação de Escopo:** Athena apresenta artefatos ao humano e aguarda aprovação explícita
 5. **Fase 4 — Implementação:** Athena delega a `warrior-apollo` (ou warrior do stack) via `kata-python-implement`; testes marcam `AC-N` para rastreabilidade
-6. **Fase 5 — Revisão de Segurança** (`kata-security-review`): OWASP + CVE scan → `.issues/{n}/05-security-review.md`
-7. **Fase 6 — Gate 2 Qualidade** (`kata-quality-gate`): 6 checks (rastreabilidade AC↔teste, scope creep, best practices, testes, cobertura, tipos) → `.issues/{n}/06-quality-report.md`; `no-go` retorna à Fase 4
+6. **Fase 5 — Revisão de Segurança** (`kata-security-review`): OWASP + CVE scan → `.ahrena/issues/{n}/05-security-review.md`
+7. **Fase 6 — Gate 2 Qualidade** (`kata-quality-gate`): 6 checks (rastreabilidade AC↔teste, scope creep, best practices, testes, cobertura, tipos) → `.ahrena/issues/{n}/06-quality-report.md`; `no-go` retorna à Fase 4
 8. **Fase 7 — Preparar PR** (`kata-pr-prepare`): cria branch + push + PR via GitHub MCP; transiciona ADRs `proposed → accepted`
 
 ## Prompt Template
@@ -51,7 +51,7 @@ Atue como **warrior-athena** e conduza o fluxo Issue-Driven Development completo
 
 Execute as 7 fases em ordem estrita conforme `codex-issue-workflow`:
 
-1. **Fase 1:** kata-issue-analysis — leia a issue via GitHub MCP e busque contexto via Notion MCP; produza o brief em .issues/{n}/01-brief.md.
+1. **Fase 1:** kata-issue-analysis — leia a issue via GitHub MCP e busque contexto via Notion MCP; produza o brief em .ahrena/issues/{n}/01-brief.md.
 
 2. **Fase 2:** kata-requirements-brief — elicite critérios de aceitação numerados (AC-1, AC-2, ...); faça perguntas de clarificação ao usuário se necessário; produza 02-requirements.md.
 
@@ -80,10 +80,10 @@ Respeite rigorosamente lex-issue-driven: sem pular gates, com rastreabilidade AC
 
 **Output esperado (fluxo sequencial com pausas para humano):**
 
-- Athena lê issue #42, produz `.issues/42/01-brief.md`
+- Athena lê issue #42, produz `.ahrena/issues/42/01-brief.md`
 - Athena faz perguntas de clarificação ao usuário (se necessário)
 - Athena produz `02-requirements.md` com 5 ACs
-- Athena produz `03-architecture.md` + cria `docs/adr/ADR-008-*.md`
+- Athena produz `03-architecture.md` + cria `docs/adr/-*.md`
 - **Gate 1:** Athena apresenta resumo; usuário aprova
 - Apollo implementa; cada teste marca o AC correspondente
 - `kata-security-review` aprova (0 achados críticos)
@@ -95,7 +95,7 @@ Respeite rigorosamente lex-issue-driven: sem pular gates, com rastreabilidade AC
 - **Gate 1 é inviolável:** o comando não avança para implementação sem aprovação humana explícita
 - **Gate 2 é inviolável:** o comando não cria PR se o Gate 2 resultou em `no-go`
 - **Apenas issues existentes:** o comando recusa se a issue não existe ou está vazia (conforme `lex-issue-driven`)
-- **Documentação em `docs/`:** todos os artefatos públicos do fluxo ficam em `.issues/{n}/` e `docs/adr/`
+- **Documentação em `docs/`:** todos os artefatos públicos do fluxo ficam em `.ahrena/issues/{n}/` e `docs/adr/`
 - **Comando orquestra, não implementa:** o próprio comando não escreve código nem contratos — delega a Katas e warriors especialistas
 
 ## Cries e Warriors Associados

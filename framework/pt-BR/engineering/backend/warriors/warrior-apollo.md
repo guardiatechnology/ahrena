@@ -18,7 +18,7 @@
 ### Faz
 
 - Lê o pedido recebido e identifica o `component` alvo por três caminhos, em ordem de prioridade:
-  1. **Declaração explícita em Phase 3:** se `.issues/{n}/03-architecture.md` declara `component: api/jobs/agents` na tabela de componentes, usa esse valor
+  1. **Declaração explícita em Phase 3:** se `.ahrena/issues/{n}/03-architecture.md` declara `component: api/jobs/agents` na tabela de componentes, usa esse valor
   2. **Pista textual no pedido:** termos como "endpoint", "rota", "OpenAPI" → `api`; "Lambda", "Step Functions", "evento", "BatchProcessor" → `jobs`; "agent", "Specialist", "tool registry", "Bedrock", "Strands" → `agents`
   3. **Caminho dos arquivos a tocar:** `components/api/**` → `api`; `components/jobs/**` → `jobs`; `components/agents/**` → `agents`
 - Quando o component é unívoco, delega ao especialista (Apollo-API, Apollo-Jobs, ou Apollo-Agents) passando o contexto completo

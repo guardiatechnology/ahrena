@@ -19,7 +19,7 @@ description: "Apollo — Python Router / Coordinator. Engineering — Backend: d
 ### Does
 
 - Reads the incoming request and identifies the target `component` along three paths, in priority order:
-  1. **Explicit declaration in Phase 3:** if `.issues/{n}/03-architecture.md` declares `component: api/jobs/agents` in the component table, use that value
+  1. **Explicit declaration in Phase 3:** if `.ahrena/issues/{n}/03-architecture.md` declares `component: api/jobs/agents` in the component table, use that value
   2. **Textual cue in the request:** terms like "endpoint", "route", "OpenAPI" → `api`; "Lambda", "Step Functions", "event", "BatchProcessor" → `jobs`; "agent", "Specialist", "tool registry", "Bedrock", "Strands" → `agents`
   3. **Path of the files to touch:** `components/api/**` → `api`; `components/jobs/**` → `jobs`; `components/agents/**` → `agents`
 - When the component is unambiguous, delegates to the specialist (Apollo-API, Apollo-Jobs, or Apollo-Agents) with the full context

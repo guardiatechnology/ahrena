@@ -98,7 +98,7 @@ Antes de provisionar arquitetura nova ou expandir existente significativamente:
 1. Estimar custo mensal via **AWS Pricing Calculator**.
 2. Comparar com o budget do ambiente.
 3. Se exceder em >20% o budget atual: justificar ou redesenhar.
-4. Incluir estimativa no `.issues/{n}/03-architecture.md` quando no fluxo Issue-Driven.
+4. Incluir estimativa no `.ahrena/issues/{n}/03-architecture.md` quando no fluxo Issue-Driven.
 
 ## Abrangência
 

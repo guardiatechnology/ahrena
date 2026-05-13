@@ -63,7 +63,7 @@ Ausência = ❌ `Check 3 — lex-observability-required`.
 
 ## Abrangência
 
-- **Aplica-se a:** todo componente listado como novo endpoint/consumer/job no `.issues/{n}/03-architecture.md`.
+- **Aplica-se a:** todo componente listado como novo endpoint/consumer/job no `.ahrena/issues/{n}/03-architecture.md`.
 - **Agentes vinculados:** todos os warriors que implementam código de runtime (Apollo, Hephaestus, Hera quando executa testes, etc.); verificado por `warrior-athena` no Gate 2.
 - **Exceções:** Nenhuma. Lexis não admitem exceções.
 

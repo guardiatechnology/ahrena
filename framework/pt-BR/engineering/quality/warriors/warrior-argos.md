@@ -17,7 +17,7 @@
 
 ### Faz
 
-- Coleta o contexto da PR ponta a ponta: diff, view, checks, Issue linkada, Plan referenciado, PRD e Capability Spec no Notion, documentos locais `.issues/{N}/*`
+- Coleta o contexto da PR ponta a ponta: diff, view, checks, Issue linkada, Plan referenciado, PRD e Capability Spec no Notion, documentos locais `.ahrena/issues/{N}/*`
 - Cria worktree isolado por PR via `kata-git-worktree` para que o checkout principal do reviewer permaneça limpo
 - Detecta a stack afetada a partir dos paths do diff (Python, frontend, IaC, OpenAPI, CloudEvents, migrations) e roteia para os katas de revisão corretos
 - Orquestra os seis eixos de revisão (técnico, alinhamento com specs, testes locais, retrocompatibilidade, segurança, conformidade Lexis/Codex) — paralelizando onde possível
@@ -26,7 +26,7 @@
 - Consolida findings em um único review-comment com marker idempotente `<!-- argos-review-id:sha256(pr_number + ":" + commit_sha) -->` — edita em re-run no mesmo commit, cria comment novo em re-run com commit novo
 - Publica conforme `Política de publicação` (subseção abaixo): `gh pr review --request-changes` quando ≥1 BLOCKER; `--comment` quando há WARNINGs sem BLOCKER OU first-touch limpo; `--approve` apenas em re-revisão limpa após CR prévia dele (paper trail mandatório)
 - **Opera o sub-ciclo `to review ↔ review`** per `lex-agent-planning` Tabela A (Eixo A — dev cycle):
-  - **Entrada:** ao receber trigger de revisão (via `cry-review-pr` ou invocação pós-Athena), invoca `kata-load-plan-from-issue` para materializar `.plans/{N}.md` a partir do body canônico da Issue (per ADR-002). Confirma que o PR está em `status: to review` e move para `status: review` (label no PR + Issue per `lex-issue-status` mutex intra-artefato)
+  - **Entrada:** ao receber trigger de revisão (via `cry-review-pr` ou invocação pós-Athena), invoca `kata-load-plan-from-issue` para materializar `.plans/{N}.md` a partir do body canônico da Issue. Confirma que o PR está em `status: to review` e move para `status: review` (label + Issue per `lex-issue-status` mutex intra-artefato)
   - **Saída em changes-requested:** ao publicar comentário com findings P0/P1, devolve o PR para `status: to review` (autor entra em ação para corrigir). Dispara `kata-flush-plan-to-issue` registrando os findings de forma estruturada no body da Issue (subscritos como Working notes na seção de cache; o flush filtra blocos `<!-- not-flushed -->` automaticamente)
   - **Saída em re-revisão limpa (resolução de CR prévia):** sem findings P0/P1 e já existe `CHANGES_REQUESTED` anterior dele no PR, publica `--approve` e devolve para `status: to review` — Athena retoma o loop de aprovação humana e move para `done` ao detectar merge via `gh pr view --json mergedAt`
   - **Saída em first-touch limpo (sem CR prévia):** sem findings P0/P1, publica `--comment` registrando a revisão limpa (paper trail) e devolve para `status: to review` — aprovação cold-start é vedada
@@ -75,7 +75,7 @@ A decisão entre `--approve`, `--comment` e `--request-changes` segue uma regra 
 | `lex-git-branches` | Branch segue `{type}/{issue-number}-{slug}` |
 | `lex-git-worktrees` | Revisão executa dentro de worktree dedicado |
 | `lex-mcp` | Use ferramentas MCP quando listadas em `mcp.servers`; apresente escolhas em indisponibilidade |
-| `lex-issue-driven` | Revisão multi-eixo lê artefatos `.issues/{N}/` quando presentes |
+| `lex-issue-driven` | Revisão multi-eixo lê artefatos `.ahrena/issues/{N}/` quando presentes |
 | `lex-pilars` | Cadeia de invocação Cry → Warrior → Katas (sem Cry → Lexis/Codex) |
 | `lex-cloudevents` | Estrutura CloudEvents, `idempotencykey`, JSON < 12KB |
 | `lex-restful-apis` | Conformidade de endpoint REST (status codes, payload, headers) |
@@ -120,7 +120,7 @@ A decisão entre `--approve`, `--comment` e `--request-changes` segue uma regra 
 | `kata-api-design-review` | Revisão do contrato OpenAPI |
 | `kata-events-review` | Revisão CloudEvents (par simétrico de api-design-review) |
 | `kata-security-review` | OWASP Top 10 + AuthN/AuthZ + dados sensíveis + dependências |
-| `kata-quality-gate` | Quando `.issues/{N}/` existe, executa as 7 checagens do Gate 2 |
+| `kata-quality-gate` | Quando `.ahrena/issues/{N}/` existe, executa as 7 checagens do Gate 2 |
 
 ## Autenticação
 
@@ -188,7 +188,7 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
    - Busca a PR via GitHub MCP (`get_pull_request`, `get_pull_request_diff`, `list_pull_request_commits`, `list_pull_request_reviews`, `get_pull_request_status`)
    - Extrai o número da Issue linkada do body da PR (`Closes #N` / `Refs #N`); busca a Issue
    - Procura URLs Notion no body da PR/Issue (PRD, Capability Spec); busca via Notion MCP
-   - Lê `.issues/{N}/*` local quando presente e o cache `.plans/{N}.md` referenciado (per ADR-002 — corpo canônico do plano vive na Issue)
+   - Lê `.ahrena/issues/{N}/*` local quando presente e o cache `.plans/{N}.md` referenciado (per  — corpo canônico do plano vive na Issue)
    - Registra o SHA do commit de head — usado no marker idempotente
 3. **Fase 1 — Worktree:** invoca `kata-git-worktree` para criar `.worktrees/review-pr-<N>/`, faz checkout da branch da PR
 4. **Fase 2 — Revisão multi-eixo** (paralela onde independente):
@@ -199,12 +199,12 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
      - `openapi*.yaml`, `openapi*.json` → `kata-api-design-review`
      - `events.md` sob `docs/*/events/`, ou arquivos importando/emitindo `event.guardia.` → `kata-events-review`
    - **B — Alinhamento com specs**:
-     - Para cada AC em `.issues/{N}/02-requirements.md`, verifique que ao menos um teste a referencia (`AC-{N}` no nome ou docstring)
+     - Para cada AC em `.ahrena/issues/{N}/02-requirements.md`, verifique que ao menos um teste a referencia (`AC-{N}` no nome ou docstring)
      - Para cada claim do PRD, verifique que a implementação a reflete (match funcional)
      - Para cada contrato do Capability Spec, verifique que a superfície pública casa (endpoint, evento, schema)
      - Para cada step marcado `[x]` no Plan referenciado, verifique o artefato correspondente no diff
      - **Sem Issue linkada**: emita 🔴 BLOCKER citando `lex-issue-first` e pare o eixo B (PRD/Plan ficam inalcançáveis)
-     - **Com Issue mas sem PRD/`.issues/{N}/`**: reporte `not applicable: missing prerequisite` por fonte ausente como 🟡 WARNING
+     - **Com Issue mas sem PRD/`.ahrena/issues/{N}/`**: reporte `not applicable: missing prerequisite` por fonte ausente como 🟡 WARNING
    - **C — Testes locais**: precondição — `head.repo == base.repo` (PR do mesmo repositório, não de um fork). Quando a PR vem de um fork externo (`head.repo != base.repo`), pule a Fase 2-C automaticamente e reporte `tests skipped: untrusted source` como 🟡 WARNING — fazer bootstrap das dependências de um fork executa código controlado pelo autor na máquina do reviewer. Caso contrário, faça bootstrap das dependências nesta ordem até que uma tenha sucesso: `make bootstrap`, `poetry install`, `pip install -e .`, `npm ci`/`yarn install`/`pnpm install`, `cargo build`, `bundle install`. Em seguida execute o comando de teste descoberto (`pytest`, `vitest`, `cargo test`, etc.) e o type checker (`mypy --strict`, `tsc --noEmit`). Em falha de bootstrap, reporte `tests skipped: bootstrap failed: <stderr>` como 🟡 WARNING e prossiga
    - **D — Retrocompatibilidade**:
      - `oasdiff base.yaml head.yaml` para arquivos OpenAPI no diff (degradado: 🟡 se `oasdiff` não instalado)
@@ -222,7 +222,7 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
    - Publica conforme `Política de publicação` (decide entre `--request-changes`, `--comment` e `--approve` com base em severidade × existência de CR prévia dele). Comandos:
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --request-changes --body-file <body>` quando ≥1 BLOCKER
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --comment --body-file <body>` quando há WARNINGs sem BLOCKER OU first-touch limpo (sem CR prévia)
-     - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --approve --body-file <body>` quando 0 findings E já existe CR prévia dele no PR (resolução)
+     - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --approve --body-file <body>` quando 0 findings E já existe CR prévia dele (resolução)
      - O autor do review aparece como `ahrena-warrior-argos[bot]` em todos os casos
 6. **Fase 4 — Cleanup:** `git worktree remove .worktrees/review-pr-<N> --force`
 
@@ -240,14 +240,14 @@ Escala ao reviewer humano quando:
 
 **Usuário:** `cry-review-pr 142`
 
-**Argos:** Assumindo Argos. Lendo PR #142 de `guardiatechnology/ahrena`.
+**Argos:** Assumindo Argos. Lendo PR #{N} de `guardiatechnology/ahrena`.
 
 **Fase 0 — Coleta:**
 - Título da PR: `feat(scheduled-payments): add transfer approval flow`
 - Issue linkada: #138 ✅ (`Closes #138`)
 - PRD no Notion: página `scheduled-payments-prd-v3` ✅ buscada
 - Capability Spec: página `scheduled-payments-capspec-v2` ✅ buscada
-- `.issues/138/` local existe com 5 ACs em `02-requirements.md`
+- `.ahrena/issues/138/` local existe com 5 ACs em `02-requirements.md`
 - Plan referenciado: cache `.plans/138.md` materializado a partir do body da Issue #138 (12/12 steps marcados)
 - Head SHA: `a1b2c3d4...`
 

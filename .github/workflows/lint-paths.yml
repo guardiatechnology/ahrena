@@ -1,0 +1,62 @@
+name: Lint Paths
+
+on:
+  pull_request:
+    paths:
+      - 'framework/**'
+      - '.claude/**'
+      - '.cursor/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+  push:
+    branches:
+      - main
+
+jobs:
+  guard-pre-migration-paths:
+    name: Guard against pre-migration path references
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fail on legacy path references (docs/issues/, .issues/)
+        run: |
+          set -euo pipefail
+
+          # Per Issue #142 (refactor/142-migrate-issues-to-ahrena), Phase
+          # artifacts of the Issue-Driven flow live in .ahrena/issues/.
+          # References to docs/issues/ or .issues/ (other than the
+          # preserved historical content under .ahrena/issues/_legacy/)
+          # are forbidden in framework and synced-derivative files.
+
+          PATTERN='docs/issues/|(^|[^a-zA-Z0-9_/.])\.issues/'
+
+          # Search scope: framework + synced derivatives + scripts +
+          # workflows themselves. Exclude:
+          #  - .ahrena/issues/_legacy/   (preserved historical content)
+          #  - .claude/plans/            (provider cache; pre-ADR-002 zombies covered by P7)
+          #  - .worktrees/               (transient worktrees)
+          #  - .github/workflows/lint-paths.yml  (this file declares the pattern literally)
+
+          HITS=$(grep -rnE "$PATTERN" \
+                   --include="*.md" \
+                   --include="*.mdc" \
+                   --include="*.yml" \
+                   --include="*.yaml" \
+                   --include="*.py" \
+                   framework .claude .cursor scripts .github 2>/dev/null \
+                 | grep -v '\.worktrees/' \
+                 | grep -v '\.claude/plans/' \
+                 | grep -v 'lint-paths\.yml' \
+                 || true)
+
+          if [ -n "$HITS" ]; then
+            echo "::error::Forbidden references to docs/issues/ or .issues/ detected."
+            echo "Migrate to .ahrena/issues/ (per Issue #142)."
+            echo ""
+            echo "$HITS"
+            exit 1
+          fi
+
+          echo "OK — no pre-migration path references found."

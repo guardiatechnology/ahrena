@@ -13,12 +13,12 @@ alwaysApply: false
 
 | # | Phase | Main kata | Output |
 |:-:|---|---|---|
-| 1 | Issue analysis | `kata-issue-analysis` | `.issues/{n}/01-brief.md` |
-| 2 | Requirements elicitation | `kata-requirements-brief` | `.issues/{n}/02-requirements.md` |
-| 3 | Architectural design | `kata-architecture-brief` (+ `kata-adr-write` if applicable) | `.issues/{n}/03-architecture.md` + `docs/adr/ADR-*` |
+| 1 | Issue analysis | `kata-issue-analysis` | `.ahrena/issues/{n}/01-brief.md` |
+| 2 | Requirements elicitation | `kata-requirements-brief` | `.ahrena/issues/{n}/02-requirements.md` |
+| 3 | Architectural design | `kata-architecture-brief` (+ `kata-adr-write` if applicable) | `.ahrena/issues/{n}/03-architecture.md` + `docs/adr/ADR-*` |
 | 4 | Implementation | delegates to `warrior-apollo` → `kata-python-implement` (Python) | code + tests with `AC-N` marker |
-| 5 | Security review | `kata-security-review` | `.issues/{n}/05-security-review.md` |
-| 6 | Quality gate | `kata-quality-gate` | `.issues/{n}/06-quality-report.md` |
+| 5 | Security review | `kata-security-review` | `.ahrena/issues/{n}/05-security-review.md` |
+| 6 | Quality gate | `kata-quality-gate` | `.ahrena/issues/{n}/06-quality-report.md` |
 | 7 | PR preparation | `kata-pr-prepare` | PR URL on GitHub |
 
 ### The 2 gates

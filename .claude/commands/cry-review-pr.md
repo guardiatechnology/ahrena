@@ -33,7 +33,7 @@ Context:
 
 Task:
 Act as `warrior-argos`. Run the full multi-axis Pull Request review per the warrior's defined flow:
-- Phase 0: Collect PR, linked Issue, PRD/Capability Spec on Notion (when available), local .issues/{N}/, and the referenced plan
+- Phase 0: Collect PR, linked Issue, PRD/Capability Spec on Notion (when available), local .ahrena/issues/{N}/, and the referenced plan
 - Phase 1: Create isolated worktree via `kata-git-worktree`
 - Phase 2: Run review katas applicable to the diff (Python, frontend, AWS, API design, CloudEvents, security) plus axes B (spec alignment), C (local tests), D (backward compatibility), F (Lexis/Codex compliance)
 - Phase 3: Consolidate findings into a single review-comment with idempotent marker `<!-- argos-review-id:sha256(pr_number+commit_sha) -->`; post via `gh pr review --request-changes` (≥1 finding) or `--comment` (0 findings); never `--approve`
@@ -55,9 +55,9 @@ Output format:
 **Expected output:**
 
 ```
-Argos here. Reviewing PR #142 on guardiatechnology/ahrena.
+Argos here. Reviewing PR #{N} on guardiatechnology/ahrena.
 
-Phase 0 — Collection: Issue #138 ✅ | PRD on Notion ✅ | .issues/138/ ✅
+Phase 0 — Collection: Issue #138 ✅ | PRD on Notion ✅ | .ahrena/issues/138/ ✅
 Phase 1 — Worktree: .worktrees/review-pr-142/ created
 Phase 2 — Stack detected: Python + OpenAPI + CloudEvents + migrations
          Axes routed: A (python, api-design, events), B, C (pytest+mypy), D (oasdiff ✅, squawk ❌), E, F

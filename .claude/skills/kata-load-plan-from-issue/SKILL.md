@@ -1,11 +1,11 @@
 ---
 name: kata-load-plan-from-issue
-description: "Load Plan from Issue. Materializing the local cache .plans/{N}.md from the canonical GitHub Issue body, per the 3-layer storage model in ADR-002"
+description: "Load Plan from Issue. Materializing the local cache .plans/{N}.md from the canonical GitHub Issue body, per the 3-layer storage model in"
 ---
 
 # Kata: Load Plan from Issue
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Materializing the local cache `.plans/{N}.md` from the canonical GitHub Issue body, per the 3-layer storage model in ADR-002
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Materializing the local cache `.plans/{N}.md` from the canonical GitHub Issue body, per the 3-layer storage model in
 
 ## Workflow
 
@@ -106,11 +106,11 @@ dest_path: (default) .plans/96.md
 ### Objective
 Refactor the plan storage layer so that content lives in
 three layers with clear roles: Issue body (canonical) + .plans/ (AI cache)
-+ .issues/ (Phase artifacts).
++ .ahrena/issues/ (Phase artifacts).
 
 ### Steps
 - [x] Step 1 — Open Issue + branch + worktree
-- [x] Step 2 — ADR-002
+- [x] Step 2
 - [ ] Step 3 — Rewrite lex-agent-planning (3 langs)
 ...
 

@@ -4,9 +4,9 @@
 
 ## Visão Geral
 
-Este Codex é a referência operacional do fluxo **Issue-Driven Development** do Ahrena. Define as 7 fases do processo, os 2 gates de qualidade, o formato dos artefatos intermediários, a convenção de rastreabilidade entre critérios de aceitação e testes, o formato dos ADRs (Architecture Decision Records) e a estrutura de **Phase artifacts em `.issues/{n}/`** (per ADR-002). Consultado por `warrior-athena` e por todos os katas do clade `engineering/workflow/`.
+Este Codex é a referência operacional do fluxo **Issue-Driven Development** do Ahrena. Define as 7 fases do processo, os 2 gates de qualidade, o formato dos artefatos intermediários, a convenção de rastreabilidade entre critérios de aceitação e testes, o formato dos ADRs (Architecture Decision Records) e a estrutura de **Phase artifacts em `.ahrena/issues/{n}/`**. Consultado por `warrior-athena` e por todos os katas do clade `engineering/workflow/`.
 
-> **Janela de transição (per plan-046 OQ#7):** durante 1 release após plan-046 mergear, **ambos** caminhos são aceitos como válidos — `.issues/{n}/` (novo, canônico) e `docs/issues/issue-{n}/` (legado). Após o release seguinte, Gate 2 (`kata-quality-gate`) falha encontrando arquivos em `docs/issues/issue-{n}/` — força migração via `git mv docs/issues/issue-{n} .issues/{n}` em cada repo consumidor. ADRs permanecem em `docs/adr/` (são documentação de produto).
+> **Janela de transição:** durante 1 release após  mergear, **ambos** caminhos são aceitos como válidos — `.ahrena/issues/{n}/` (novo, canônico) e `.ahrena/issues/issue-{n}/` (legado). Após o release seguinte, Gate 2 (`kata-quality-gate`) falha encontrando arquivos em `.ahrena/issues/issue-{n}/` — força migração via `git mv .ahrena/issues/issue-{n} .ahrena/issues/{n}` em cada repo consumidor. ADRs permanecem em `docs/adr/` (são documentação de produto).
 
 ## Contexto
 
@@ -20,12 +20,12 @@ Este Codex é a referência operacional do fluxo **Issue-Driven Development** do
 
 | # | Fase | Kata principal | Saída |
 |:-:|---|---|---|
-| 1 | Análise da issue | `kata-issue-analysis` | `.issues/{n}/01-brief.md` |
-| 2 | Elicitação de requisitos | `kata-requirements-brief` | `.issues/{n}/02-requirements.md` |
-| 3 | Design arquitetural | `kata-architecture-brief` (+ `kata-adr-write` se aplicável) | `.issues/{n}/03-architecture.md` + `docs/adr/ADR-*` |
+| 1 | Análise da issue | `kata-issue-analysis` | `.ahrena/issues/{n}/01-brief.md` |
+| 2 | Elicitação de requisitos | `kata-requirements-brief` | `.ahrena/issues/{n}/02-requirements.md` |
+| 3 | Design arquitetural | `kata-architecture-brief` (+ `kata-adr-write` se aplicável) | `.ahrena/issues/{n}/03-architecture.md` + `docs/adr/ADR-*` |
 | 4 | Implementação | delega a `warrior-apollo` → `kata-python-implement` (Python) | código + testes com marcação `AC-N` |
-| 5 | Revisão de segurança | `kata-security-review` | `.issues/{n}/05-security-review.md` |
-| 6 | Gate de qualidade | `kata-quality-gate` | `.issues/{n}/06-quality-report.md` |
+| 5 | Revisão de segurança | `kata-security-review` | `.ahrena/issues/{n}/05-security-review.md` |
+| 6 | Gate de qualidade | `kata-quality-gate` | `.ahrena/issues/{n}/06-quality-report.md` |
 | 7 | Preparação do PR | `kata-pr-prepare` | URL do PR no GitHub |
 
 ### Os 2 gates
