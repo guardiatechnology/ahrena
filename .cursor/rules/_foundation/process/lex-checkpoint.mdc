@@ -79,8 +79,8 @@ The delineation between plan and checkpoint is categorical:
 
 | Content | Lives in |
 |---|---|
-| Objective, `[x]` Steps, Status (`pending → in-progress → done`), closed Decisions, Risks, Verification | Plan (`{plans_dir}/plan-NNN-{slug}.md`, resolved by `paths.plans` in `.ahrena/.directives` or per-agent default) — committed |
-| Activity, detailed Progress, Artifacts produced, Next steps of a task | Plan — committed |
+| Objective, `[x]` Steps, Status (`pending → in-progress → done`), closed Decisions, Risks, Verification | Plan: Plan sub-issue on GitHub (canonical body) + provider cache `.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md` (gitignored, regenerable) |
+| Activity, detailed Progress, Artifacts produced, Next steps of a task | Plan — sub-issue body on GitHub |
 | Overall focus of the working window (Session focus) | Checkpoint — gitignored |
 | Pointers to multiple active plans (Active plans) | Checkpoint — gitignored |
 | Parallel threads that did not become a plan (Open threads) | Checkpoint — gitignored |

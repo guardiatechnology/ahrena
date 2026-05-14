@@ -39,7 +39,7 @@ Issue (User Story | Bug | Tech Task)            ← problem, Why/What/How, AC
 3. Confirm via .gitignore that the provider's directory is excluded
 ```
 
-> **Legacy model (deprecated):** files named `plan-{NNN}-{slug}.md` in `.claude/plans/` (without a corresponding sub-issue) are considered zombies. Do not create new files without an open Plan sub-issue in GitHub. Existing caches that do not map to a sub-issue must be triaged into `.ahrena/issues/_legacy/` or discarded.
+> **Legacy model (deprecated):** files in `.claude/plans/` **without a corresponding Plan sub-issue on GitHub** are considered zombies (regardless of the filename pattern — the new canonical `plan-{M}-{slug}.md` always maps 1:1 with `{M}` = the sub-issue number). Do not create new files without an open Plan sub-issue in GitHub. Existing caches that do not map to a sub-issue must be triaged into `.ahrena/issues/_legacy/` or discarded.
 
 ---
 

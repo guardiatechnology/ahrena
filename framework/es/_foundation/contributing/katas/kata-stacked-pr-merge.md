@@ -182,7 +182,7 @@ Los tres `git branch` finales no deben retornar nada. `git worktree list` no deb
 - [ ] Issue paraguas está `CLOSED` (auto-cerrada por el último `Closes #N` o manualmente)
 - [ ] Worktree compartido eliminado
 - [ ] Todas las branches locales de la stack eliminadas
-- [ ] Plan correspondiente (`plan-NNN-...`) movido a `archived/` si existe
+- [ ] Plan correspondiente (`plan-{M}-{slug}`) movido a `archived/` si existe
 
 ## Salidas
 

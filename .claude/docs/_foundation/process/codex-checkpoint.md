@@ -38,7 +38,7 @@
 | Location | workspace root | `/path/to/repo/.checkpoint` |
 | Encoding | UTF-8, LF line endings | — |
 | Schema | 4 mandatory sections + 2-field frontmatter | See `lex-checkpoint` rule 3 |
-| Active plans entries | `\`plan-NNN\` — slug; 1-line context ≤ 80 chars` | `` `plan-040` — repositioning; drafting `` |
+| Active plans entries | `\`plan-{M}-{slug}\` — slug; 1-line context ≤ 80 chars` | `` `plan-040` — repositioning; drafting `` |
 | Open threads entries | 1-2 lines as bullet | `- Evaluate absorption of Session risks` |
 | Notes | free text, no schema | any markdown |
 | Typical size | < 4 KB | — |

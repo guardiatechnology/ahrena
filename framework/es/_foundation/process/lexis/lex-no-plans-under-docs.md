@@ -8,7 +8,7 @@ El directorio `docs/` está reservado para artefactos canónicos de documentaci�
 
 Los planes de ejecución (`plan-*.md`) siguen el modelo jerárquico Issue → Plan → PR descrito en `lex-agent-planning`: el cuerpo de la sub-issue Plan en GitHub es la fuente de verdad canónica; los provider caches locales (`.claude/plans/` o `.cursor/plans/`) materializan el contenido durante la sesión y están gitignored.
 
-Mezclar planes bajo `docs/` rompe esa separación: confunde la navegación del proyecto, contamina los artefactos de fase con estado operacional y abre la puerta a múltiples fuentes de verdad no sincronizadas. Violación observada en consumidores downstream del Ahrena: archivos del tipo `docs/skills/{slug}/plans/plan-NNN-*.md` materializados junto a specs.
+Mezclar planes bajo `docs/` rompe esa separación: confunde la navegación del proyecto, contamina los artefactos de fase con estado operacional y abre la puerta a múltiples fuentes de verdad no sincronizadas. Violación observada en consumidores downstream del Ahrena: archivos del tipo `docs/skills/{slug}/plans/plan-{M}-{slug}.md` materializados junto a specs.
 
 ## Ley
 

@@ -8,7 +8,7 @@ The `docs/` directory is reserved for canonical documentation artifacts: Issue-D
 
 Execution plans (`plan-*.md`) follow the hierarchical Issue → Plan → PR model described in `lex-agent-planning`: the GitHub Plan sub-issue body is the canonical source of truth; local provider caches (`.claude/plans/` or `.cursor/plans/`) materialize the content during the session and are gitignored.
 
-Mixing plans under `docs/` breaks that separation: it confuses project navigation, pollutes phase artifacts with operational state, and opens the door to multiple unsynchronized sources of truth. Observed violation in downstream Ahrena consumers: files like `docs/skills/{slug}/plans/plan-NNN-*.md` materialized next to specs.
+Mixing plans under `docs/` breaks that separation: it confuses project navigation, pollutes phase artifacts with operational state, and opens the door to multiple unsynchronized sources of truth. Observed violation in downstream Ahrena consumers: files like `docs/skills/{slug}/plans/plan-{M}-{slug}.md` materialized next to specs.
 
 ## Law
 

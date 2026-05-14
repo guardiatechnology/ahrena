@@ -46,7 +46,7 @@ Issue (User Story | Bug | Tech Task)            ← problema, Why/What/How, AC
 3. Confirmar via .gitignore que o diretório do provider está excluído
 ```
 
-> **Modelo legado (deprecated):** arquivos `plan-{NNN}-{slug}.md` em `.claude/plans/` (sem sub-issue correspondente) são considerados zombies. Não criar arquivos novos sem sub-issue Plan aberta no GitHub. Caches existentes que não mapeiam para uma sub-issue devem ser triados em `.ahrena/issues/_legacy/` ou descartados.
+> **Modelo legado (deprecated):** arquivos em `.claude/plans/` **sem sub-issue Plan correspondente no GitHub** são considerados zombies (independente do pattern do nome — o novo canônico `plan-{M}-{slug}.md` sempre mapeia 1:1 com `{M}` = número da sub-issue). Não criar arquivos novos sem sub-issue Plan aberta no GitHub. Caches existentes que não mapeiam para uma sub-issue devem ser triados em `.ahrena/issues/_legacy/` ou descartados.
 
 ---
 

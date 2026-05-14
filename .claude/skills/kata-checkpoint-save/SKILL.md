@@ -21,7 +21,7 @@ Progress:
 ### Step 1: Collect session context
 
 1. Capture **Session focus** from the active context or ask the user in 1-3 sentences.
-2. List **Active plans** — for each plan in use in the session, generate an entry `\`plan-NNN\` — slug; 1-line context ≤ 80 chars`. Infer from context or consult active `plan-*.md` files (status `in-progress`) in the plans directory resolved by `paths.plans` in `.ahrena/.directives` (per-agent default: `.claude/plans/` for Claude Code; `.cursor/plans/` for Cursor; `.plans/` for unknown).
+2. List **Active plans** — for each plan in use in the session, generate an entry `\`plan-{M}-{slug}\` — 1-line context ≤ 80 chars`. Infer from context or consult active `plan-*.md` files (status `in-progress`) in the provider cache (`.claude/plans/` for Claude Code; `.cursor/plans/` for Cursor).
 3. Collect **Open threads** — ask the user or extract from recent conversation history pending decisions that did not become a plan.
 4. Collect **Notes** — additional free text. May be empty.
 
@@ -30,7 +30,7 @@ Progress:
 Before writing, verify:
 
 - **Session focus** does NOT contain `## Steps`, `## Closed decisions`, `## Risks` (those live in the plan)
-- **Active plans** entries follow the canonical format (\`plan-NNN\` — description) and ≤ 80 chars
+- **Active plans** entries follow the canonical format (\`plan-{M}-{slug}\` — description) and ≤ 80 chars
 - **Open threads** does NOT contain detailed task steps (if it does, move to the corresponding plan before writing)
 - **Notes** does NOT contain artifacts produced (list of modified files — `git diff` covers this)
 

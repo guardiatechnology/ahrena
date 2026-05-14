@@ -43,7 +43,7 @@ Progreso:
 ### Paso 1: Recolectar contexto de la sesión
 
 1. Capturar **Session focus** del contexto activo o pedirlo al usuario en 1-3 frases.
-2. Listar **Active plans** — para cada plan en uso en la sesión, generar entrada `\`plan-NNN\` — slug; 1-line context ≤ 80 chars`. Inferir del contexto o consultar `plan-*.md` activos (status `in-progress`) en el directorio de planes resuelto por `paths.plans` en `.ahrena/.directives` (default por agente: `.claude/plans/` para Claude Code; `.cursor/plans/` para Cursor; `.plans/` para desconocido).
+2. Listar **Active plans** — para cada plan en uso en la sesión, generar entrada `\`plan-{M}-{slug}\` — 1-line context ≤ 80 chars`. Inferir del contexto o consultar `plan-*.md` activos (status `in-progress`) en el provider cache (`.claude/plans/` para Claude Code; `.cursor/plans/` para Cursor).
 3. Recolectar **Open threads** — preguntar al usuario o extraer del historial reciente de la conversación las decisiones pendientes que no se convirtieron en plan.
 4. Recolectar **Notes** — texto libre adicional. Puede estar vacío.
 
@@ -52,7 +52,7 @@ Progreso:
 Antes de escribir, verificar:
 
 - **Session focus** NO contiene `## Steps`, `## Decisiones cerradas`, `## Riesgos` (esos viven en el plan)
-- **Active plans** entries tienen formato canónico (\`plan-NNN\` — descripción) y ≤ 80 chars
+- **Active plans** entries tienen formato canónico (\`plan-{M}-{slug}\` — descripción) y ≤ 80 chars
 - **Open threads** NO contiene steps detallados de una task (si los contiene, mover al plan correspondiente antes de escribir)
 - **Notes** NO contiene artifacts produced (lista de archivos modificados — `git diff` cubre)
 
