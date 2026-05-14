@@ -187,7 +187,7 @@ Escala al humano cuando:
 
 **Precondiciones verificadas:**
 - ✅ `docs/reconciliation/agents-pov/rec-pov-classifier/` no existe (creación limpia)
-- ✅ `skills/reconciliation-pov-skill/` aún no existe — será scaffolded por Claudiomiro en Phase 4
+- ✅ `skills/reconciliation-pov-skill/` aún no existe — será creado por Claudiomiro en Phase 4
 - ✅ `lex-agent-construction-directives` mergeada
 
 **[Phase 1/7 — Scope & Value]** Ejecutando `kata-pov-scope-define`...
