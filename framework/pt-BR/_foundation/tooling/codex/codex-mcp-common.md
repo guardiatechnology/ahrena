@@ -20,7 +20,7 @@ MCP (Model Context Protocol) expõe capacidades de sistemas externos (serviços 
 
 ### Padrão de configuração compartilhado
 
-Cada servidor MCP é definido por um template JSON em `framework/mcp/<name>.json` com dois blocos de plataforma — `cursor` e `claude-code` — mesclados por `scripts/install.py` na config da respectiva plataforma:
+Cada servidor MCP é definido por um template JSON em `framework/mcp/<name>.json` com dois blocos de plataforma — `cursor` e `claude-code` — que recebem merge via `scripts/install.py` na config da respectiva plataforma:
 
 ```
 .cursor/mcp.json          ← populado a partir do bloco "cursor"

@@ -21,7 +21,7 @@ Produzir ou atualizar os documentos de design de uma feature na estrutura canôn
 | Categoria | Sim | Uma de: `entities`, `oas`, `events` (categorias `agents`, `metrics` reservadas) |
 | Conteúdo | Sim | Modelo de domínio, especificação OpenAPI ou catálogo de eventos a documentar |
 | Module CloudEvents | Sim quando categoria = `events` | Segmento `{module}` do tipo CloudEvents (ex.: `platform`) |
-| Operação | Sim | `create` (novo arquivo) ou `update` (mesclar com existente preservando seções estáveis) |
+| Operação | Sim | `create` (novo arquivo) ou `update` (fazer merge com existente preservando seções estáveis) |
 
 ## Fluxo de Trabalho
 
