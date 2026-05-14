@@ -36,6 +36,84 @@ DEFAULT_REPO = "https://github.com/guardiatechnology/ahrena"
 DEFAULT_VERSION = "main"
 MIN_PYTHON = (3, 8)
 
+# WHY: SemVer tags ship as `vX.Y.Z`; the .version manifest stores `X.Y.Z`
+# (no `v`) so consumers can use the value directly in version comparisons.
+# Non-tag refs (branches, commit-ish) are written verbatim.
+_SEMVER_TAG_RE = re.compile(r"^v(\d+\.\d+\.\d+(?:[-+].*)?)$")
+
+
+def resolve_install_version(args: argparse.Namespace) -> str:
+    """Resolve the version string written into `.ahrena/.version` at install time.
+
+    Resolution order:
+      1. `--source PATH` or `--local`  -> read `git describe --tags --abbrev=0`
+         from the source repo (strip `v` prefix) so a local install reflects the
+         tip of the source tree, not the literal `main` from DEFAULT_VERSION.
+      2. `--self` install               -> same git describe path against the
+         repo containing this script.
+      3. Remote install                  -> use `args.version` verbatim,
+         stripping the `v` prefix only when the value matches a SemVer tag.
+         Branch names (`main`, `release/*`) and commit-ish refs are preserved
+         as-is so the manifest reflects the exact ref consumed.
+
+    Returns the version string. Returns empty string when no value can be
+    resolved (caller decides how to react: skip the write, log a warning, ...).
+    """
+    if args.source is not None:
+        repo_path = Path(args.source).resolve()
+        return _git_describe_or_blank(repo_path)
+    if getattr(args, "self_source", False):
+        repo_path = Path(__file__).resolve().parent.parent
+        return _git_describe_or_blank(repo_path)
+    if args.local:
+        return _git_describe_or_blank(Path(".").resolve())
+    raw = (args.version or "").strip()
+    if not raw:
+        return ""
+    match = _SEMVER_TAG_RE.match(raw)
+    if match:
+        return match.group(1)
+    return raw
+
+
+def _git_describe_or_blank(repo_path: Path) -> str:
+    """Return `git describe --tags --abbrev=0` (no `v` prefix) or blank on failure."""
+    try:
+        result = subprocess.run(
+            ["git", "describe", "--tags", "--abbrev=0"],
+            cwd=str(repo_path),
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    if result.returncode != 0:
+        return ""
+    raw = result.stdout.strip()
+    if not raw:
+        return ""
+    match = _SEMVER_TAG_RE.match(raw)
+    return match.group(1) if match else raw
+
+
+def write_version_file(ahrena_dir: Path, version: str, dry_run: bool = False) -> None:
+    """Persist `.ahrena/.version` with a single-line SemVer string + final newline.
+
+    No-op when `version` is blank — the kata-ahrena-version fallback chain handles
+    the absent-file case gracefully.
+    """
+    if not version:
+        return
+    target = ahrena_dir / ".version"
+    if dry_run:
+        print(f"  [DRY-RUN] Would write {target} containing '{version}'")
+        return
+    ahrena_dir.mkdir(parents=True, exist_ok=True)
+    target.write_text(f"{version}\n", encoding="utf-8")
+    print(f"  Wrote {target} ({version})")
+
 # Pilar names (prefixes) for detection and clean; transposition comes from platforms.yaml.
 PILAR_NAMES: tuple[str, ...] = ("lex", "codex", "kata", "warrior", "cry")
 
@@ -1539,6 +1617,9 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
                 print("  Skipping label bootstrap (no GitHub remote detected).")
         except Exception as exc:  # noqa: BLE001 — best-effort; never abort install
             print(f"  Warning: label bootstrap step failed: {exc}")
+
+    # Persist install-time framework version manifest consumed by kata-ahrena-version.
+    write_version_file(ahrena_dir, resolve_install_version(args), dry_run=getattr(args, "dry_run", False))
 
     return ahrena_dir
 
