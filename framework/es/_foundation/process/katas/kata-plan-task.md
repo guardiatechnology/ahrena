@@ -121,17 +121,17 @@ M_db_id = result["id"]  # node ID requerido para sub-issue link
 Fallback CLI per regla 4 de `lex-mcp`:
 
 ```bash
-# Fallback CLI
-gh issue create \
+# Fallback CLI — capturar number e ID del database atómicamente desde la respuesta de create
+result=$(gh issue create \
   --repo {owner}/{repo} \
   --title "plan: {short title}" \
   --body-file /tmp/plan-{M}-body.md \
   --label "plan 📋" \
-  --label "{mirror parent labels}"
+  --label "{mirror parent labels}" \
+  --json number,id)
 
-# Capturar el número M retornado y el database ID
-M=$(gh issue list --search "plan: {short title}" --json number --jq '.[0].number')
-M_db_id=$(gh api repos/{owner}/{repo}/issues/{M} --jq '.id')
+M=$(echo "$result" | jq -r .number)
+M_db_id=$(echo "$result" | jq -r .id)
 ```
 
 Vincular la sub-issue como sub-issue de la Issue parent:
