@@ -4,7 +4,7 @@
 
 ## Propósito
 
-Body da Issue (canonical per ADR-002), Issue e PR carregam o mesmo trabalho em momentos distintos do ciclo. Sem um conjunto canônico de labels de status, o agente perde a referência cruzada, dashboards desalinham, e o cálculo agregado de child↔subtasks fica impreciso. Esta Lei codifica os labels `status: <name>` que espelham o enum de `lex-agent-planning`, **separa-o em dois eixos disjuntos** (dev cycle e release cycle), garante consistência intra-artefato, e mantém ortogonalidade com os labels de Discovery (`pending-spec`/`spec-ready`).
+Body da Issue (canonical), Issue e PR carregam o mesmo trabalho em momentos distintos do ciclo. Sem um conjunto canônico de labels de status, o agente perde a referência cruzada, dashboards desalinham, e o cálculo agregado parent↔Plan sub-issue fica impreciso. Esta Lei codifica os labels `status: <name>` que espelham o enum de `lex-agent-planning`, **separa-o em dois eixos disjuntos** (dev cycle e release cycle), garante consistência intra-artefato, e mantém ortogonalidade com os labels de Discovery (`pending-spec`/`spec-ready`).
 
 ## Lei
 

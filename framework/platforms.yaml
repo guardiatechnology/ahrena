@@ -122,7 +122,7 @@ cursor:
       description: "When contributing, follow the complete Issue → Branch → Commits → PR → Review → Merge workflow from this codex."
     _foundation/contributing/lexis/lex-issue-quality:
       alwaysApply: false
-      description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
+      description: "When creating or reviewing an issue, ensure it uses an approved template (feature-request, epic, user-story-for-api/frontend, bug, tech-task, plan), has required labels, has a defined Issue Type, answers Why/What/How, and (for non-Epic) carries status: todo at creation. Assignee is NOT a creation requirement — it is captured at todo → development by warrior-athena (second HARD-GATE in this Lex)."
     _foundation/contributing/lexis/lex-issue-status:
       alwaysApply: false
       description: "When applying or transitioning a status:* label, choose the axis based on artifact type: Axis A (dev cycle: todo→development→to review→review→done) for feature/fix Issues/PRs; Axis B (release cycle: to release→release→done) exclusively for the release Issue. Mutex is intra-artifact; cross-axis labeling is a HARD-GATE violation."
@@ -733,7 +733,7 @@ claude-code:
       description: "Before starting any multi-step task, create a plan at ./{agent}/plans/plan-{NNN}-{slug}.md (or paths.plans override). Show it to the user and wait for confirmation before executing."
     _foundation/contributing/lexis/lex-issue-quality:
       paths: [".github/ISSUE_TEMPLATE/**"]
-      description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, has a defined Issue Type, has an assignee, and answers Why/What/How."
+      description: "When creating or reviewing an issue, ensure it uses an approved template (feature-request, epic, user-story-for-api/frontend, bug, tech-task, plan), has required labels, has a defined Issue Type, answers Why/What/How, and (for non-Epic) carries status: todo at creation. Assignee is NOT a creation requirement — it is captured at todo → development by warrior-athena (second HARD-GATE in this Lex)."
     _foundation/contributing/lexis/lex-issue-status:
       paths: [".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md", ".github/PULL_REQUEST_TEMPLATE/**", "scripts/bootstrap_labels.sh"]
       description: "When applying or transitioning a status:* label, choose the axis based on artifact type: Axis A (dev cycle: todo→development→to review→review→done) for feature/fix Issues/PRs; Axis B (release cycle: to release→release→done) exclusively for the release Issue. Mutex is intra-artifact; cross-axis labeling is a HARD-GATE violation."

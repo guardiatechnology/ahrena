@@ -1,5 +1,5 @@
 ---
-description: "When creating or reviewing an issue, ensure it uses an approved template, has required labels, and answers Why/What/How."
+description: "When creating or reviewing an issue, ensure it uses an approved template (feature-request, epic, user-story-for-api/frontend, bug, tech-task, plan), has required labels, has a defined Issue Type, answers Why/What/How, and (for non-Epic) carries status: todo at creation. Assignee is NOT a creation requirement — it is captured at todo → development by warrior-athena (second HARD-GATE in this Lex)."
 alwaysApply: false
 ---
 

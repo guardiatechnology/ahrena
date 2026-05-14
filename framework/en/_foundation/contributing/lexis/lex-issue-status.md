@@ -4,7 +4,7 @@
 
 ## Purpose
 
-The Issue body (canonical per ADR-002), the Issue, and the PR carry the same work at distinct moments of the cycle. Without a canonical set of status labels, the agent loses the cross-reference, dashboards drift, and the aggregated child↔subtask computation becomes imprecise. This Law codifies the `status: <name>` labels that mirror the enum in `lex-agent-planning`, **splits them into two disjoint axes** (dev cycle and release cycle), guarantees intra-artifact consistency, and keeps orthogonality with the Discovery labels (`pending-spec`/`spec-ready`).
+The Issue body (canonical), the Issue, and the PR carry the same work at distinct moments of the cycle. Without a canonical set of status labels, the agent loses the cross-reference, dashboards drift, and the aggregated parent↔Plan sub-issue computation becomes imprecise. This Law codifies the `status: <name>` labels that mirror the enum in `lex-agent-planning`, **splits them into two disjoint axes** (dev cycle and release cycle), guarantees intra-artifact consistency, and keeps orthogonality with the Discovery labels (`pending-spec`/`spec-ready`).
 
 ## Law
 
