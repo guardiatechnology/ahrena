@@ -148,6 +148,39 @@ The rule is "every thread has closure," not "I agree with every comment."
 
 > **Who decides what is "addressed":** the PR author. The per-thread reply declares *the author's intent to have addressed that comment*. The reviewer retains the power to reopen the thread if they disagree — `Re-opening: the fix doesn't address {detail}` is a valid response and Rule 7 reactivates until the next closure. Rejected/deferred/not-applicable comments are also "addressed" in the Rule's sense (they receive a reply explaining why). The criterion is not "agreement" — it is "documented closure".
 
+### 8. Multi-reviewer sweep before declaring a fix round complete
+
+Rule 7 governs the **reply behavior** after a commit addresses comments. This Rule 8 governs the **prior sweep**: before declaring a fix round complete, requesting re-review, or marking the PR ready for merge, the author (or agent acting on their behalf) MUST list and process comments from **all** reviewers active on the PR — Argos, third-party bots (`gemini-code-assist`, `coderabbitai`, `Copilot`, `qodo-merge-pro`) and humans — **not only Argos**.
+
+**Why it exists:** Argos is Ahrena's native multi-axis reviewer; third-party bots capture complementary patterns (idiomatic style, performance, security, refactoring suggestions). Treating Argos as "the" reviewer and ignoring third-party bot comments produces PRs that receive `Argos APPROVED` but reach merge with unaddressed threads — generating noise for the human reviewer and wasting the bots' signal.
+
+**Sweep mechanism:**
+
+```bash
+# Review summaries per reviewer (Argos + third-party bots + humans)
+gh pr view $PR_NUMBER --repo $OWNER/$REPO --json reviews \
+  --jq '.reviews[] | {author: .author.login, state, submittedAt}'
+
+# PR review comments (per-line code comments) aggregated by reviewer
+gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" \
+  --jq 'group_by(.user.login) | map({reviewer: .[0].user.login, count: length})'
+
+# Issue comments on the Conversation tab (non-threaded)
+gh api "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" \
+  --jq '.[] | {user: .user.login, body: .body[:200]}'
+```
+
+**warrior-argos aid:** Argos's consolidated review body includes a "Pending threads from other reviewers" subsection (per `warrior-argos` Phase 3) listing open comments from third-party bots and humans. This is an **aid**, not a substitute — the sweep MUST still be executed by the agent that applies the fixes, to capture comments posted after Argos's review.
+
+**Criterion for "fix round complete":**
+
+- All Argos BLOCKERs addressed; **AND**
+- All third-party bot comments evaluated (accepted with fix, declined with rationale, or deferred with a follow-up Issue); **AND**
+- All human comments evaluated; **AND**
+- Every addressed thread has an individual reply per Rule 7.
+
+Declaring a fix round complete, requesting re-review, or marking the PR ready for merge while any thread (from any reviewer) remains open without documented closure is FORBIDDEN.
+
 ## HARD-GATE
 
 Per [`lex-hard-gate-pattern`](framework/en/_foundation/quality/lexis/lex-hard-gate-pattern.md), the textual block of this Lex is canonically expressed as:
@@ -178,6 +211,13 @@ agent MUST NOT merge PR without it satisfying ALL criteria:
       deferred — also receive a reply explaining why). A top-level
       summary comment is allowed alongside but does NOT replace the
       per-thread reply.
+  (l) Before requesting re-review or marking the PR ready for merge,
+      the agent swept comments from ALL active reviewers (Argos,
+      third-party bots — gemini-code-assist, coderabbitai, Copilot,
+      qodo-merge-pro — and humans), evaluated every thread, and
+      addressed or declined with documented closure, per Rule 8.
+      Addressing only Argos's BLOCKERs and ignoring third-party bot
+      threads is FORBIDDEN.
 
 This rule applies to EVERY PR, regardless of:
   - perceived size ("it's a trivial change")
@@ -193,7 +233,7 @@ explicit justification in the PR.
 
 ### Application to Stacked PRs
 
-In **stacked Pull Request** flows (`codex-stacked-prs`), every layer of the chain is a **real PR** on GitHub. The HARD-GATE above is evaluated **per PR of the stack**, not once for the whole chain: each layer must satisfy **all** criteria (a)–(k) before merging. The criteria themselves do not change; only the application scope is per layer.
+In **stacked Pull Request** flows (`codex-stacked-prs`), every layer of the chain is a **real PR** on GitHub. The HARD-GATE above is evaluated **per PR of the stack**, not once for the whole chain: each layer must satisfy **all** criteria (a)–(l) before merging. The criteria themselves do not change; only the application scope is per layer.
 
 Operational implications:
 
@@ -236,4 +276,4 @@ gh pr create --title "docs: add site" --body "Closes #42"
 
 - **Tool:** GitHub Actions PR size labeler (auto-applies `size/*`); GitHub Branch Protection with `required_pull_request_reviews` requiring code-owner approval; review checklist verifies mirrored labels, assignee, and reviewers; `kata-contributing-pr` applies every rule from this Lexis when creating PRs.
 - **When:** on PR creation and update; during the review checklist; monthly audit of repository CODEOWNERS files.
-- **Metric:** 0 PRs merged without a size label; 0 PRs merged without mirrored issue labels; 0 PRs without an assignee; 0 PRs merged without any requested reviewer; 0 PRs merged with review comments addressed by commits but missing per-thread replies; 100% of Guardia repositories with `.github/CODEOWNERS` configured.
+- **Metric:** 0 PRs merged without a size label; 0 PRs merged without mirrored issue labels; 0 PRs without an assignee; 0 PRs merged without any requested reviewer; 0 PRs merged with review comments addressed by commits but missing per-thread replies; 0 PRs merged with third-party bot comments (gemini-code-assist, coderabbitai, Copilot, qodo-merge-pro) without documented closure per Rule 8; 100% of Guardia repositories with `.github/CODEOWNERS` configured.
