@@ -643,13 +643,10 @@ def _install_rtk_binary(dry_run: bool = False) -> bool:
 
     Idempotent: returns immediately when `rtk` is already on PATH.
     """
-    import shutil as _shutil
-    import subprocess as _subprocess
-
     _INSTALL_URL = "https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh"
     _REPO_URL = "https://github.com/rtk-ai/rtk"
 
-    if _shutil.which("rtk"):
+    if shutil.which("rtk"):
         print("  RTK binary already installed.")
         return True
 
@@ -667,26 +664,26 @@ def _install_rtk_binary(dry_run: bool = False) -> bool:
     print(f"  Installing rtk binary ({_os})...")
     try:
         if _os == "macos":
-            brew = _shutil.which("brew")
+            brew = shutil.which("brew")
             via_brew = False
             if brew:
-                result = _subprocess.run([brew, "install", "rtk"], check=False)
+                result = subprocess.run([brew, "install", "rtk"], check=False)
                 via_brew = result.returncode == 0
             if not via_brew:
-                _subprocess.run(
+                subprocess.run(
                     ["bash", "-c", f"curl -fsSL {_INSTALL_URL} | sh"],
                     check=True,
                 )
         elif _os == "linux":
-            _subprocess.run(
+            subprocess.run(
                 ["bash", "-c", f"curl -fsSL {_INSTALL_URL} | sh"],
                 check=True,
             )
         else:  # windows
             installed = False
-            for shell in (_shutil.which("wsl"), _shutil.which("bash")):
+            for shell in (shutil.which("wsl"), shutil.which("bash")):
                 if shell:
-                    result = _subprocess.run(
+                    result = subprocess.run(
                         [shell, "-c", f"curl -fsSL {_INSTALL_URL} | sh"],
                         check=False,
                     )
@@ -694,9 +691,9 @@ def _install_rtk_binary(dry_run: bool = False) -> bool:
                     if installed:
                         break
             if not installed:
-                cargo = _shutil.which("cargo")
+                cargo = shutil.which("cargo")
                 if cargo:
-                    _subprocess.run(
+                    subprocess.run(
                         [cargo, "install", "--git", _REPO_URL],
                         check=True,
                     )
@@ -707,11 +704,11 @@ def _install_rtk_binary(dry_run: bool = False) -> bool:
                     print(f"    Cargo             : cargo install --git {_REPO_URL}")
                     print(f"    Binary download   : {_REPO_URL}/releases")
                     return False
-    except (_subprocess.CalledProcessError, OSError, FileNotFoundError) as exc:
+    except (subprocess.CalledProcessError, OSError, FileNotFoundError) as exc:
         print(f"  WARNING: rtk binary install failed ({exc}). Hook will no-op until installed.")
         return False
 
-    return _shutil.which("rtk") is not None
+    return shutil.which("rtk") is not None
 
 
 def install_rtk_bundle(
@@ -738,7 +735,6 @@ def install_rtk_bundle(
     Idempotent on every install/update run; no-op when rtk.enabled is false.
     """
     import json
-    import shutil
 
     # parse_directives is stdlib-only and returns scalars as strings (e.g. "false"),
     # so `bool("false")` would incorrectly be truthy. Coerce strings to real bools
