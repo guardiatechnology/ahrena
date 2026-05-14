@@ -42,6 +42,9 @@ cursor:
     _foundation/process/lexis/lex-no-plans-under-docs:
       alwaysApply: false
       description: "When materializing plan files (plan-*.md), only use .claude/plans/, .cursor/plans/ (provider caches, gitignored) or the GitHub Plan sub-issue body. Never under docs/ or any path combining docs/ and plans/."
+    _foundation/process/lexis/lex-agent-focus-on-active-plan:
+      alwaysApply: false
+      description: "When a Plan sub-issue is in status: development with the current session as owner, decline unrelated requests until the Plan reaches status: to review. Three declared exceptions only: critical blocker, question about the Plan, scope adjustment of the Plan."
     _foundation/process/codex/codex-directives:
       alwaysApply: false
       description: "When interpreting paths, language, or naming, use this reference for .directives structure and keys."
@@ -576,6 +579,8 @@ claude-code:
       description: "When naming files, directories, or artifacts, apply kebab-case and pilar prefix from this lex."
     _foundation/process/lexis/lex-no-plans-under-docs:
       description: "When materializing plan files (plan-*.md), only use .claude/plans/, .cursor/plans/ (provider caches, gitignored) or the GitHub Plan sub-issue body. Never under docs/ or any path combining docs/ and plans/."
+    _foundation/process/lexis/lex-agent-focus-on-active-plan:
+      description: "When a Plan sub-issue is in status: development with the current session as owner, decline unrelated requests until the Plan reaches status: to review. Three declared exceptions only: critical blocker, question about the Plan, scope adjustment of the Plan."
     _foundation/authoring/lexis/lex-pilars:
       description: "When creating a new framework artifact, choose the correct Pilar type and follow its mandatory sections."
     _foundation/tooling/lexis/lex-terminal-type:
