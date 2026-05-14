@@ -181,6 +181,34 @@ language:
 #   window_override_days: 14       # future: override [branch_creation_date, now]
 #   mask_absolute_cost: false      # future: replace USD value with qualitative band
 
+# ─── RTK (Rust Token Killer) ────────────────────────────────────
+# Transparent command rewriting via Claude Code PreToolUse hook to
+# cut token consumption on common dev commands (git, gh, tsc,
+# pytest, jest, etc.). When enabled, scripts/install.py wires the
+# command `if command -v rtk >/dev/null 2>&1; then rtk hook claude; fi`
+# into <target>/.claude/settings.json under hooks.PreToolUse with
+# matcher "Bash". The strict-fallback shape exits 0 with empty
+# stdout when the rtk binary is absent from PATH, so Claude Code
+# proceeds with the original tool input. RTK binary install is
+# the developer's responsibility (see https://github.com/rtk-ai/rtk);
+# Ahrena only wires the hook.
+
+# rtk:
+#   enabled: true                  # default true; set false to opt out
+#                                  # Every install/update reconciles the
+#                                  # hook idempotently when true. When
+#                                  # false, install/update do NOT touch
+#                                  # any RTK artifact (no add, no remove).
+#   auto_install_binary: true      # default true; set false to skip
+#                                  # automatic detection/install of the
+#                                  # rtk binary while still wiring the
+#                                  # PreToolUse hook. OS-aware install
+#                                  # paths: brew (macOS), curl install
+#                                  # script (Linux/macOS), WSL/cargo
+#                                  # (Windows). Hook keeps the strict
+#                                  # fallback shape, so a missing binary
+#                                  # never breaks Claude Code.
+
 # ─── Notifications ──────────────────────────────────────────────
 # Provider-agnostic notification configuration consumed by Athena
 # (PR review timeout), Janus (release published), and Eunomia
