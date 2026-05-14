@@ -144,8 +144,9 @@ When you install with `--platform claude-code`, Ahrena also wires the **RTK `Pre
 
 Behavior:
 
-- **Default `rtk.enabled: true`** in `.directives`: every `make install` / `make dev-install` / `make update` reconciles the hook idempotently and attempts to install the binary (`brew` / `curl` / `cargo`, OS-aware).
-- **Opt-out**: set `rtk.enabled: false` in `.ahrena/.directives` — install/update touch no RTK artifact.
+- **Default `rtk.enabled: true`** in `.directives`: every `make install` / `make dev-install` / `make update` reconciles the hook idempotently. When `rtk.auto_install_binary: true` (also the default), the installer detects the binary and attempts to install it when absent (`brew` on macOS, `curl install.sh | sh` on Linux/macOS, WSL or `cargo` on Windows). Binary install failures are non-fatal.
+- **Full opt-out**: set `rtk.enabled: false` in `.ahrena/.directives` — install/update touch no RTK artifact.
+- **Granular opt-out**: set `rtk.auto_install_binary: false` to keep the hook wired but skip the automatic binary install attempt.
 - **Strict fallback**: the command written to `settings.json` is `if command -v rtk >/dev/null 2>&1; then rtk hook claude; fi`. When the binary is absent from PATH the hook exits empty and Claude Code proceeds with the original input — no errors.
 
 Binary and documentation: <https://github.com/rtk-ai/rtk>.

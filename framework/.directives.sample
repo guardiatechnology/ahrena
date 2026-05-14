@@ -199,15 +199,15 @@ language:
 #                                  # hook idempotently when true. When
 #                                  # false, install/update do NOT touch
 #                                  # any RTK artifact (no add, no remove).
-#   auto_install_binary: false     # reserved placeholder (default false)
-#                                  # The actual auto-install logic
-#                                  # requires a follow-up ADR (RTK has
-#                                  # no native auto-updater; install
-#                                  # path varies per environment:
-#                                  # cargo, brew, curl, npm). When
-#                                  # false (default), install/update
-#                                  # logs a warning if `command -v rtk`
-#                                  # returns false but does not install.
+#   auto_install_binary: true      # default true; set false to skip
+#                                  # automatic detection/install of the
+#                                  # rtk binary while still wiring the
+#                                  # PreToolUse hook. OS-aware install
+#                                  # paths: brew (macOS), curl install
+#                                  # script (Linux/macOS), WSL/cargo
+#                                  # (Windows). Hook keeps the strict
+#                                  # fallback shape, so a missing binary
+#                                  # never breaks Claude Code.
 
 # ─── Notifications ──────────────────────────────────────────────
 # Provider-agnostic notification configuration consumed by Athena

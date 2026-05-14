@@ -751,8 +751,15 @@ def install_rtk_bundle(
     if not enabled:
         return
 
+    raw_auto_install = get_directive(directives, "rtk", "auto_install_binary", default=True)
+    if isinstance(raw_auto_install, str):
+        auto_install = raw_auto_install.strip().lower() not in ("false", "no", "0", "off")
+    else:
+        auto_install = bool(raw_auto_install)
+
     # 1. Ensure rtk binary is present (best-effort; hook stays safe if absent)
-    _install_rtk_binary(dry_run=dry_run)
+    if auto_install:
+        _install_rtk_binary(dry_run=dry_run)
 
     claude_dir = target_dir / ".claude"
     settings_path = claude_dir / "settings.json"
