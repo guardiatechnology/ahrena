@@ -34,10 +34,13 @@ jobs:
 
           # Search scope: framework + synced derivatives + scripts +
           # workflows themselves. Exclude:
-          #  - .ahrena/issues/_legacy/   (preserved historical content)
-          #  - .claude/plans/            (provider cache; pre-ADR-002 zombies covered by P7)
-          #  - .worktrees/               (transient worktrees)
+          #  - .ahrena/issues/_legacy/        (preserved historical content)
+          #  - .claude/plans/                 (provider cache; pre-ADR-002 zombies covered by P7)
+          #  - .worktrees/                    (transient worktrees)
           #  - .github/workflows/lint-paths.yml  (this file declares the pattern literally)
+          #  - lex-no-plans-under-docs        (the Lex that codifies the prohibition;
+          #                                    cites the forbidden substring pedagogically
+          #                                    in pt-BR/en/es framework files + 2 derivatives)
 
           HITS=$(grep -rnE "$PATTERN" \
                    --include="*.md" \
@@ -49,6 +52,7 @@ jobs:
                  | grep -v '\.worktrees/' \
                  | grep -v '\.claude/plans/' \
                  | grep -v 'lint-paths\.yml' \
+                 | grep -v 'lex-no-plans-under-docs' \
                  || true)
 
           if [ -n "$HITS" ]; then

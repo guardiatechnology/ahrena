@@ -39,6 +39,12 @@ cursor:
     _foundation/process/lexis/lex-naming:
       alwaysApply: false
       description: "When naming files/dirs or placing artifacts, follow naming.prefixes, naming.casing, naming.addressing from .directives."
+    _foundation/process/lexis/lex-no-plans-under-docs:
+      alwaysApply: false
+      description: "When materializing plan files (plan-*.md), only use .claude/plans/, .cursor/plans/ (provider caches, gitignored) or the GitHub Plan sub-issue body. Never under docs/ or any path combining docs/ and plans/."
+    _foundation/process/lexis/lex-agent-focus-on-active-plan:
+      alwaysApply: false
+      description: "When a Plan sub-issue is in status: development with the current session as owner, decline unrelated requests until the Plan reaches status: to review. Three declared exceptions only: critical blocker, question about the Plan, scope adjustment of the Plan."
     _foundation/process/codex/codex-directives:
       alwaysApply: false
       description: "When interpreting paths, language, or naming, use this reference for .directives structure and keys."
@@ -455,6 +461,9 @@ cursor:
     engineering/quality/lexis/lex-dry:
       alwaysApply: false
       description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
+    engineering/quality/lexis/lex-no-silent-tech-debt:
+      alwaysApply: false
+      description: "During an active Plan (status: development), forbid committing code or docs with silent TODO/FIXME/XXX/follow-up markers without a trackable Issue/Plan reference. Tangential findings must be surfaced to the human with 3 explicit options (expand Plan, new Plan, new Issue). Applies prospectively to diffs."
     engineering/quality/codex/codex-test-strategy:
       alwaysApply: false
       description: "When deciding test level/tool/scope, consult decision tree, per-stack tooling, and anti-patterns from this codex."
@@ -568,6 +577,10 @@ claude-code:
       description: "When creating or publishing a Lexis or Codex, add its rule key to platforms.yaml cursor.rules."
     _foundation/process/lexis/lex-naming:
       description: "When naming files, directories, or artifacts, apply kebab-case and pilar prefix from this lex."
+    _foundation/process/lexis/lex-no-plans-under-docs:
+      description: "When materializing plan files (plan-*.md), only use .claude/plans/, .cursor/plans/ (provider caches, gitignored) or the GitHub Plan sub-issue body. Never under docs/ or any path combining docs/ and plans/."
+    _foundation/process/lexis/lex-agent-focus-on-active-plan:
+      description: "When a Plan sub-issue is in status: development with the current session as owner, decline unrelated requests until the Plan reaches status: to review. Three declared exceptions only: critical blocker, question about the Plan, scope adjustment of the Plan."
     _foundation/authoring/lexis/lex-pilars:
       description: "When creating a new framework artifact, choose the correct Pilar type and follow its mandatory sections."
     _foundation/tooling/lexis/lex-terminal-type:
@@ -615,6 +628,8 @@ claude-code:
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
     engineering/quality/lexis/lex-dry:
       description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
+    engineering/quality/lexis/lex-no-silent-tech-debt:
+      description: "During an active Plan (status: development), forbid committing code or docs with silent TODO/FIXME/XXX/follow-up markers without a trackable Issue/Plan reference. Tangential findings must be surfaced to the human with 3 explicit options (expand Plan, new Plan, new Issue). Applies prospectively to diffs."
     engineering/sre/lexis/lex-slo-required:
       paths: ["docs/slo/**", "**/slo/**", "**/*.slo.yaml"]
       description: "Tier-1/2 services require SLO pre go-live; error budget guides priorization."
