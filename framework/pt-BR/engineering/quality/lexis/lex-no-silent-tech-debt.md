@@ -1,6 +1,6 @@
 # Lexis: Sem Dívida Técnica Silenciosa
 
-> **Prefixo:** `lex-` | **Tipo:** Lei Inquebável | **Escopo:** Comentários e seções deixadas em código ou documentação durante a execução de um Plan ativo
+> **Prefixo:** `lex-` | **Tipo:** Lei Inquebrável | **Escopo:** Comentários e seções deixadas em código ou documentação durante a execução de um Plan ativo
 
 ## Propósito
 
@@ -33,7 +33,7 @@ Pré-condições obrigatórias para commitar tais marcadores:
   (b) Ou o achado foi surfaceado ao humano com 3 opções explícitas (expandir Plan, abrir Plan novo, abrir Issue nova)
   (c) E o humano confirmou a decisão por escrito (resposta na sessão ou comment na Issue)
 
-Esta regra se aplica a TODO Plan em `status: development`, regardless of:
+Esta regra se aplica a TODO Plan em `status: development`, independentemente de:
   - "é só uma linha"
   - "o usuário não pediu mas vai precisar"
   - "é dívida técnica, não feature"

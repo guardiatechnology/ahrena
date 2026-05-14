@@ -1,6 +1,6 @@
 # Lexis: Foco do Agente no Plan Ativo
 
-> **Prefixo:** `lex-` | **Tipo:** Lei Inquebável | **Escopo:** Comportamento do agente quando uma sub-issue Plan está em `status: development` e a sessão corrente é a owner declarada
+> **Prefixo:** `lex-` | **Tipo:** Lei Inquebrável | **Escopo:** Comportamento do agente quando uma sub-issue Plan está em `status: development` e a sessão corrente é a owner declarada
 
 ## Propósito
 
@@ -10,7 +10,7 @@ O agente atua como guardião de disciplina contra context-switching. Não cabe a
 
 ## Lei
 
-> **Quando uma sub-issue Plan está em `status: development` e a sessão corrente é a owner declarada (assignee), o agente DEVE recusar requisições do usuário para trabalho não-relacionado até que o Plan transicione para `status: to review`. A recusa DEVE mencionar o Plan ativo (número, status atual, ETA estimada para `to review` quando conhecida) e oferecer retomar ao usuário a alternativa explícita: tratar a requisição como (a) achado tangencial ao Plan atual, (b) novo Plan sub-issue sob o mesmo parent Issue, (c) nova Issue parent, ou (d) bloqueador crítico declarado.**
+> **Quando uma sub-issue Plan está em `status: development` e a sessão corrente é a owner declarada (assignee), o agente DEVE recusar requisições do usuário para trabalho não-relacionado até que o Plan transicione para `status: to review`. A recusa DEVE mencionar o Plan ativo (número, status atual, ETA estimada para `to review` quando conhecida) e oferecer ao usuário a alternativa explícita: tratar a requisição como (a) achado tangencial ao Plan atual, (b) novo Plan sub-issue sob o mesmo parent Issue, (c) nova Issue parent, ou (d) bloqueador crítico declarado.**
 
 ## Abrangência
 
@@ -29,7 +29,7 @@ Pré-condições obrigatórias para aceitar requisição:
   (c) E o agente declara explicitamente qual exceção aplica antes de prosseguir
   (d) E o agente compromete-se a retomar o Plan após tratar a exceção
 
-Esta regra se aplica a TODA sessão com Plan ativo, regardless of:
+Esta regra se aplica a TODA sessão com Plan ativo, independentemente de:
   - "é rápido, só uma coisinha"
   - "enquanto isso, dá pra você também..."
   - "pera, antes de continuar..."

@@ -1,6 +1,6 @@
 # Lexis: Planos Não Vivem em `docs/`
 
-> **Prefixo:** `lex-` | **Tipo:** Lei Inquebável | **Escopo:** Caminhos canônicos para arquivos de plano (`plan-*.md`) em projetos Ahrena
+> **Prefixo:** `lex-` | **Tipo:** Lei Inquebrável | **Escopo:** Caminhos canônicos para arquivos de plano (`plan-*.md`) em projetos Ahrena
 
 ## Propósito
 
@@ -35,7 +35,7 @@ Pré-condições obrigatórias para criar/materializar um plano:
   (c) Nenhum segmento do path contém `docs/`
   (d) Nenhum segmento do path contém `plans/` sob `docs/`
 
-Esta regra se aplica a TODO projeto Ahrena, regardless of:
+Esta regra se aplica a TODO projeto Ahrena, independentemente de:
   - tamanho percebido ("é só um arquivo de plano de skill")
   - urgência ("preciso documentar agora")
   - quem solicitou ("o usuário pediu para colocar lá")
