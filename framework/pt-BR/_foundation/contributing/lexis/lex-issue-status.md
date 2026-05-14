@@ -4,7 +4,7 @@
 
 ## Propósito
 
-Body da Issue (canonical per ADR-002), Issue e PR carregam o mesmo trabalho em momentos distintos do ciclo. Sem um conjunto canônico de labels de status, o agente perde a referência cruzada, dashboards desalinham, e o cálculo agregado de child↔subtasks fica impreciso. Esta Lei codifica os labels `status: <name>` que espelham o enum de `lex-agent-planning`, **separa-o em dois eixos disjuntos** (dev cycle e release cycle), garante consistência intra-artefato, e mantém ortogonalidade com os labels de Discovery (`pending-spec`/`spec-ready`).
+Body da Issue (canonical), Issue e PR carregam o mesmo trabalho em momentos distintos do ciclo. Sem um conjunto canônico de labels de status, o agente perde a referência cruzada, dashboards desalinham, e o cálculo agregado parent↔Plan sub-issue fica impreciso. Esta Lei codifica os labels `status: <name>` que espelham o enum de `lex-agent-planning`, **separa-o em dois eixos disjuntos** (dev cycle e release cycle), garante consistência intra-artefato, e mantém ortogonalidade com os labels de Discovery (`pending-spec`/`spec-ready`).
 
 ## Lei
 
@@ -12,7 +12,7 @@ Body da Issue (canonical per ADR-002), Issue e PR carregam o mesmo trabalho em m
 
 ## Abrangência
 
-- **Aplica-se a:** todas as Issues abertas via templates aprovados (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `subtask`, **release** — novo template introduzido por ADR-002 / plan-046 Step 3.5), e todos os PRs em repositórios Guardia.
+- **Aplica-se a:** todas as Issues abertas via templates aprovados (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `bug`, `plan`, `release`), e todos os PRs em repositórios Guardia. Plan sub-issues (criadas via template `plan` per `lex-agent-planning`) seguem o Eixo A como qualquer outro artefato de dev cycle.
 - **Agentes vinculados:**
   - Eixo A — `warrior-eunomia` (`— → todo`), `warrior-athena` (`todo → development`, `development → to review`, `to review → done`), `warrior-argos` (`to review ↔ review`).
   - Eixo B — `warrior-janus` (`— → to release`, `to release → release`, `release → done`).
@@ -89,7 +89,19 @@ Epic é decomposto por Calliope (plan-038) e nunca passa por Athena diretamente.
 
 ### 8. Criação inicial das labels no repositório
 
-Cada repositório que adota o fluxo DEVE criar as labels via `gh label create` (script idempotente em `scripts/bootstrap_labels.sh`). Todas as labels já existem desde plan-043 (PR #93); plan-046 não introduz labels novas — apenas reorganiza a semântica em dois eixos.
+Cada repositório que adota o fluxo DEVE criar as labels via `gh label create` (script idempotente em `scripts/bootstrap_labels.sh`). O script bootstrapa o catálogo completo de labels (type + workflow + size + cross-cutting) de forma idempotente.
+
+### 9. Ausência de `status:*` em Issue não-Epic no fluxo é violação
+
+Toda Issue não-Epic que participa do fluxo Issue-Driven DEVE carregar exatamente um label `status:*` do conjunto canônico do eixo correto. **Ausência** de qualquer label `status:*` em uma Issue não-Epic ativa no fluxo é PROIBIDA — fecha o gap silencioso entre "criada" e "no fluxo".
+
+Detectado por:
+
+- `kata-contributing-issue` aplica `status: todo` como passo final da criação (per `lex-issue-quality` Regra 6).
+- Templates `.github/ISSUE_TEMPLATE/*.yml` declaram `labels: [..., "status: todo"]` para auto-aplicar na criação via UI.
+- Verificação periódica detecta Issues abertas sem `status:*` (excluindo Epic) e sinaliza ao owner para regularizar.
+
+Issues sem `status:*` não satisfazem `lex-issue-quality` HARD-GATE de criação precondition (d) e bloqueiam branch/PR.
 
 ## HARD-GATE
 

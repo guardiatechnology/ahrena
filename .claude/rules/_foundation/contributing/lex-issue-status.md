@@ -16,7 +16,7 @@ paths:
 
 ## Coverage
 
-- **Applies to:** every Issue opened via approved templates (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `subtask`, **release** — new template introduced by ADR-002 / plan-046 Step 3.5), and every PR in Guardia repositories.
+- **Applies to:** every Issue opened via approved templates (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `bug`, `plan`, `release`), and every PR in Guardia repositories. Plan sub-issues (created via the `plan` template per `lex-agent-planning`) follow Axis A like any other dev-cycle artifact.
 - **Bound agents:**
   - Axis A — `warrior-eunomia` (`— → todo`), `warrior-athena` (`todo → development`, `development → to review`, `to review → done`), `warrior-argos` (`to review ↔ review`).
   - Axis B — `warrior-janus` (`— → to release`, `to release → release`, `release → done`).
@@ -93,7 +93,19 @@ An Epic is decomposed by Calliope (plan-038) and never passes through Athena dir
 
 ### 8. Initial label creation in the repository
 
-Each repository that adopts the flow MUST create the labels via `gh label create` (idempotent script in `scripts/bootstrap_labels.sh`). All labels have existed since plan-043 (PR #93); plan-046 introduces no new labels — it only reorganizes the semantics into two axes.
+Each repository that adopts the flow MUST create the labels via `gh label create` (idempotent script in `scripts/bootstrap_labels.sh`). The script bootstraps the full label catalog (type + workflow + size + cross-cutting) idempotently.
+
+### 9. Absence of `status:*` on a non-Epic Issue in the flow is a violation
+
+Every non-Epic Issue that participates in the Issue-Driven flow MUST carry exactly one `status:*` label from the canonical set of the correct axis. **Absence** of any `status:*` label on a non-Epic Issue active in the flow is FORBIDDEN — this closes the silent gap between "created" and "in the flow".
+
+Detected by:
+
+- `kata-contributing-issue` applies `status: todo` as the final step of creation (per `lex-issue-quality` Rule 6).
+- Templates `.github/ISSUE_TEMPLATE/*.yml` declare `labels: [..., "status: todo"]` to auto-apply on creation via UI.
+- Periodic verification detects open Issues without `status:*` (excluding Epic) and signals the owner to regularize.
+
+Issues without `status:*` do not satisfy the `lex-issue-quality` creation HARD-GATE precondition (d) and block branch/PR.
 
 ## HARD-GATE
 
