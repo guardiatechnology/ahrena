@@ -92,7 +92,7 @@ Atenção especial a **dependências entre Plans da mesma decomposição**: o Pl
 
 Apresentar o conjunto de Plans rascunhados ao usuário:
 
-> "Esta é a decomposição da #{N} em {len(plans)} Plans. Quer ajustar a divisão, mesclar Plans, ou separar mais antes de eu criar as sub-issues?"
+> "Esta é a decomposição da #{N} em {len(plans)} Plans. Quer ajustar a divisão, fazer merge de Plans, ou separar mais antes de eu criar as sub-issues?"
 
 Aguardar confirmação. Incorporar ajustes. **Não criar nenhuma sub-issue antes da confirmação do conjunto completo.**
 
@@ -196,7 +196,7 @@ Agente: "Decomposição da #200 completa. 3 Plans criados:
 - **Nunca decompor sem Issue parent confirmada** — Issue parent precede qualquer Plan; sem Issue, não há decomposição.
 - **Nunca pular a confirmação do conjunto completo no Passo 3** — apresentar a decomposição inteira ao usuário antes de criar a primeira sub-issue evita meia-decomposição inconsistente.
 - **Nunca criar branch, worktree ou aplicar assignee neste kata** — delegado ao `kata-plan-task` (que também não os cria — pertencem a `todo → development`).
-- **Nunca decompor uma Issue parent já decomposta sem checar sub-issues existentes** — antes de criar, listar sub-issues atuais (`gh api repos/{owner}/{repo}/issues/{N}/sub_issues`) e apresentar ao usuário; decisão manual para criar mais, mesclar, ou abandonar a operação.
+- **Nunca decompor uma Issue parent já decomposta sem checar sub-issues existentes** — antes de criar, listar sub-issues atuais (`gh api repos/{owner}/{repo}/issues/{N}/sub_issues`) e apresentar ao usuário; decisão manual para criar mais, fazer merge, ou abandonar a operação.
 - **Documentar dependências entre Plans da mesma decomposição** — `plan_dependencies` deve listar explicitamente os outros Plans desta decomposição quando aplicável; Athena usa essa ordem para sequenciar `todo → development`.
 - **Não é transacional** — se a 3a invocação de `kata-plan-task` falhar, as 2 anteriores permanecem; recuperação é manual.
 

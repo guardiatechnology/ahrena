@@ -72,19 +72,19 @@ LABELS=(
 
   # Issue Type labels (required by lex-issue-quality Rule 2)
   "feature request ➕|5319E7|Issue about a new feature request"
-  "feature ➕|7828E5|New features added. Use only after approve feature request"
+  "feature ➕|7828E5|New features added. Use only after approving a feature request"
   "epic|5319E7|Large initiative grouping multiple stories or features"
   "user story 🎯|6A42EB|A new user story"
   "bug report 🐞|fc2803|Report a new bug"
   "plan 📋|7c4dff|Sub-issue: executable unit under a parent Issue (User Story / Bug / Tech Task)"
   "evolvability ♻️|008672|Issue or PR launched to ensure the project's evolvability. Aka refactoring, clean code, etc."
-  "documentation 📃|0075ca|Issue or PR releated to improvements or additions to documentation"
-  "ci 🏗️|ff7a0e|Issue or PR releated to Continuous Integration (CI) pipeline enhancements"
-  "enhancement 🔝|D5BBED|Issue or PR releated to a enhancement to an existing feature"
+  "documentation 📃|0075ca|Issue or PR related to improvements or additions to documentation"
+  "ci 🏗️|ff7a0e|Issue or PR related to Continuous Integration (CI) pipeline enhancements"
+  "enhancement 🔝|D5BBED|Issue or PR related to an enhancement to an existing feature"
 
   # Cross-cutting / lifecycle / state labels
   "bugfix 🔧|fc4e03|Issue or PR related to something isn't working"
-  "compliance 📜|ae6b09|Issue or PR releated to enhancement to be compliant with something"
+  "compliance 📜|ae6b09|Issue or PR related to an enhancement to be compliant with something"
   "security 🛡️|D93F0B|This PR resolves some security issue"
   "vulnerability 🚨|B60205|Vulnerability detected"
   "breaking change 💥|925845|Issue or PR adding a breaking change. Major version bump required"
@@ -108,12 +108,12 @@ LABELS=(
   "cursor ✨|111112|PR opened by Cursor"
 
   # PR size labels (auto-applied by GitHub Actions)
-  "size/XS|9b770a|This PR changes 0-9 lines, ignoring generated files. Setted automatically"
-  "size/S|e1b207|This PR changes 10-29 lines, ignoring generated files. Setted automatically"
-  "size/M|f3c511|This PR changes 30-99 lines, ignoring generated files. Setted automatically"
-  "size/L|ffdb4d|This PR changes 100-499 lines, ignoring generated files. Setted automatically"
-  "size/XL|cb9e0a|This PR changes 500-999 lines, ignoring generated files. Setted automatically"
-  "size/XXL|7a6600|This PR changes over 1,000 lines, ignoring the generated files. Setted automatically"
+  "size/XS|9b770a|This PR changes 0-9 lines, ignoring generated files. Set automatically"
+  "size/S|e1b207|This PR changes 10-29 lines, ignoring generated files. Set automatically"
+  "size/M|f3c511|This PR changes 30-99 lines, ignoring generated files. Set automatically"
+  "size/L|ffdb4d|This PR changes 100-499 lines, ignoring generated files. Set automatically"
+  "size/XL|cb9e0a|This PR changes 500-999 lines, ignoring generated files. Set automatically"
+  "size/XXL|7a6600|This PR changes over 1,000 lines, ignoring the generated files. Set automatically"
 )
 
 # --- Apply --------------------------------------------------------------------
