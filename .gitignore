@@ -28,10 +28,14 @@ temp.md
 # Claude Code session heartbeat dir (codex-session-tracking §6 — runtime-only)
 .ahrena/workflow/sessions/
 
-# AI working memory for plans (per ADR-002 — Issue-as-plan model).
-# The canonical plan body lives in the corresponding GitHub Issue;
-# .plans/{N}.md is a regenerable local cache materialized by
-# kata-load-plan-from-issue and flushed by kata-flush-plan-to-issue.
+# AI working memory for plans — provider cache, gitignored
+# per `lex-no-plans-under-docs` Rule (a)/(b). The canonical plan body
+# lives in the GitHub Plan sub-issue; the local file is a regenerable
+# cache materialized by kata-load-plan-from-subissue and flushed by
+# kata-flush-plan-to-subissue.
+.claude/plans/
+.cursor/plans/
+# Legacy alias kept for backward compatibility with older repos.
 .plans/
 
 # External skill projects — build intermediates (per lex-skill-project-structure)
