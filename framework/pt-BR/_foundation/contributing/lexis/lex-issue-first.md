@@ -85,4 +85,4 @@ Commit: refactor: restructure entire auth module
 
 - **Ferramenta:** template de PR com campo obrigatório `Closes #` ou `Refs #`; verificação do GitHub Actions no corpo do PR para referência à Issue.
 - **Quando:** na criação e atualização do PR.
-- **Métrica:** 0 PRs mesclados (excluindo exceções triviais) sem uma Issue associada.
+- **Métrica:** 0 PRs com merge (excluindo exceções triviais) sem uma Issue associada.

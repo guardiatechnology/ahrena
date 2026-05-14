@@ -4,7 +4,7 @@
 
 ## Lei
 
-> **Todo PR em um repositório Guardia DEVE: (1) espelhar todas as labels da issue associada; (2) ter exatamente uma label de tamanho (`size/XS` a `size/XXL`), aplicada automaticamente pelo GitHub Actions ou manualmente quando a automação ainda não estiver configurada; (3) aplicar labels específicos de PR quando aplicável (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) ser atribuído ao autor com `--assignee @me`; (5) ter reviewers solicitados a partir do `.github/CODEOWNERS` do repositório — automaticamente pelo GitHub quando a auto-request estiver habilitada, ou manualmente via `gh pr edit --add-reviewer` antes do merge; (6) quando o PR recebe comentários de review (humanos ou bots — Gemini, Argos, claude[bot], CodeRabbit, etc.) e fixes são aplicados, CADA comentário endereçado DEVE receber uma reply individual no thread original contendo o SHA do commit de fix + uma linha de justificativa, antes de re-pedir review ou marcar como pronto para merge. O repositório DEVE ter um arquivo `.github/CODEOWNERS` com pelo menos um owner default (`* @{team}`). PRs que não atendam a esses requisitos NÃO DEVEM ser mesclados.**
+> **Todo PR em um repositório Guardia DEVE: (1) espelhar todas as labels da issue associada; (2) ter exatamente uma label de tamanho (`size/XS` a `size/XXL`), aplicada automaticamente pelo GitHub Actions ou manualmente quando a automação ainda não estiver configurada; (3) aplicar labels específicos de PR quando aplicável (`breaking change 💥`, `security 🛡️`, `release ↗️`); (4) ser atribuído ao autor com `--assignee @me`; (5) ter reviewers solicitados a partir do `.github/CODEOWNERS` do repositório — automaticamente pelo GitHub quando a auto-request estiver habilitada, ou manualmente via `gh pr edit --add-reviewer` antes do merge; (6) quando o PR recebe comentários de review (humanos ou bots — Gemini, Argos, claude[bot], CodeRabbit, etc.) e fixes são aplicados, CADA comentário endereçado DEVE receber uma reply individual no thread original contendo o SHA do commit de fix + uma linha de justificativa, antes de re-pedir review ou marcar como pronto para merge. O repositório DEVE ter um arquivo `.github/CODEOWNERS` com pelo menos um owner default (`* @{team}`). PRs que não atendam a esses requisitos NÃO DEVEM receber merge.**
 
 ## Cobertura
 
@@ -89,7 +89,7 @@ gh pr view $PR_NUMBER --json reviewRequests --jq '[.reviewRequests[].login]'
 gh pr edit $PR_NUMBER --add-reviewer "org/team"
 ```
 
-PRs sem nenhum reviewer solicitado (após criação e fallback manual) NÃO DEVEM ser mesclados.
+PRs sem nenhum reviewer solicitado (após criação e fallback manual) NÃO DEVEM receber merge.
 
 ### 6. Pré-requisitos antes de criar o PR
 
@@ -236,4 +236,4 @@ gh pr create --title "docs: add site" --body "Closes #42"
 
 - **Ferramenta:** GitHub Actions PR size labeler (auto-aplica `size/*`); GitHub Branch Protection com `required_pull_request_reviews` exigindo aprovação de code owners; checklist de revisão verifica labels espelhadas, assignee e reviewers; `kata-contributing-pr` aplica todas as regras desta Lexis ao criar PRs.
 - **Quando:** na criação e atualização do PR; no checklist de revisão; auditoria mensal do CODEOWNERS dos repositórios.
-- **Métrica:** 0 PRs mesclados sem label de tamanho; 0 PRs mesclados sem espelhamento das labels da issue; 0 PRs sem assignee; 0 PRs mesclados sem nenhum reviewer solicitado; 0 PRs mesclados com comentários de review endereçados por commit mas sem reply per-thread; 100% dos repositórios Guardia com `.github/CODEOWNERS` configurado.
+- **Métrica:** 0 PRs com merge sem label de tamanho; 0 PRs com merge sem espelhamento das labels da issue; 0 PRs sem assignee; 0 PRs com merge sem nenhum reviewer solicitado; 0 PRs com merge com comentários de review endereçados por commit mas sem reply per-thread; 100% dos repositórios Guardia com `.github/CODEOWNERS` configurado.
