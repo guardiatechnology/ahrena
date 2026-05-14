@@ -219,6 +219,7 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
    - Resumen de conteos en el tope
    - Marker idempotente: calcula `sha256(pr_number + ":" + head_commit_sha)`, toma los primeros 16 caracteres, embute como `<!-- argos-review-id:<hash> -->` al inicio del body
    - Lista comments existentes del PR vía `gh api repos/{owner}/{repo}/issues/{pr}/comments` (lectura, PAT del reviewer); encuentra `argos-review-id:<hash>` previo que coincida con el hash actual → edita vía `GH_TOKEN=$(scripts/argos/auth.sh) gh api -X PATCH .../comments/<id>` (escritura, bot token). Si el hash difiere (commit nuevo pusheado) → crea nueva review (audit trail preservado)
+   - Lista comentarios abiertos de otros reviewers (`gemini-code-assist`, `coderabbitai`, `Copilot`, `qodo-merge-pro`, humanos) vía `gh api repos/{owner}/{repo}/pulls/{pr}/comments` (per-línea) Y `gh api repos/{owner}/{repo}/issues/{pr}/comments` (pestaña Conversation) filtrando por `user.login` ≠ `ahrena-warrior-argos[bot]`; agrega en subsección `## 🧭 Threads de otros reviewers — pendientes` del body consolidado cuando existan threads abiertos (omite la subsección si la lista está vacía). Es apoyo al barrido multi-reviewer obligatorio por la Regla 8 de `lex-pr-quality`, no sustituto — el agente que aplica los fixes AÚN DEBE ejecutar su propio barrido
    - Publica conforme `Política de publicación` (decide entre `--request-changes`, `--comment` y `--approve` con base en severidad × existencia de CR previa). Comandos:
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --request-changes --body-file <body>` cuando ≥1 BLOCKER
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --comment --body-file <body>` cuando hay WARNINGs sin BLOCKER O first-touch limpio (sin CR previa)
@@ -296,7 +297,18 @@ Ruteo: A → `kata-python-review`, `kata-api-design-review`, `kata-events-review
 |------------|---------------|-------|---------|
 | 🟡 WARNING | src/scheduled_payments/use_cases/approve.py:12 | lex-logging-decorator | Llamada inline `logger.info(...)`; debería usar decorator `@logged` |
 
-**Próximos pasos:** corregir 2 BLOCKERs antes del merge; tratar 4 WARNINGs en este PR o abrir Issues de follow-up.
+## 🧭 Threads de otros reviewers — pendientes
+
+Argos detectó comments abiertos de otros reviewers en este PR. El agente que aplica los fixes (Athena, Apollo, Hephaestus) DEBE barrer y abordar cada thread antes de declarar la fix round completa, per `lex-pr-quality` Regla 8 y HARD-GATE (l).
+
+| Reviewer | Path | Línea | Comment (resumen) | Estado |
+|----------|------|-------|-------------------|--------|
+| `gemini-code-assist[bot]` | src/scheduled_payments/use_cases/approve.py | 12 | Suggest using guard clause for early-return | open |
+| `coderabbitai[bot]` | docs/scheduled-payments/oas/openapi.yaml | 88 | Add `description` to schema field `amount` | open |
+
+> Esta sección es **informativa**: Argos no bloquea su propio merge por threads no-Argos. La obligación de barrer y abordar pertenece al agente que aplica los fixes, per `lex-pr-quality` Regla 8.
+
+**Próximos pasos:** corregir 2 BLOCKERs antes del merge; tratar 4 WARNINGs en este PR o abrir Issues de follow-up; barrer y abordar los 2 threads de otros reviewers arriba.
 ```
 
 **Fase 4 — Cleanup:** worktree eliminado.

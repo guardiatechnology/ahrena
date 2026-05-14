@@ -148,6 +148,39 @@ La regla es "cada thread tiene cierre", no "estoy de acuerdo con cada comentario
 
 > **Quién decide qué es "abordado":** el autor del PR. La reply per-thread declara *la intención del autor de haber abordado ese comment*. El reviewer mantiene el poder de reabrir el thread si está en desacuerdo — `Re-opening: the fix doesn't address {detail}` es respuesta válida y la Regla 7 vuelve a activarse hasta el próximo cierre. Los comments rechazados/diferidos/no-aplicables también están "abordados" en el sentido de la Regla (reciben reply explicando el motivo). El criterio no es "acuerdo", es "cierre documentado".
 
+### 8. Barrido multi-reviewer antes de declarar una fix round completa
+
+La Regla 7 gobierna el **comportamiento de respuesta** después de que un commit aborde comentarios. Esta Regla 8 gobierna el **barrido previo**: antes de declarar una fix round completa, pedir re-revisión o marcar el PR como listo para merge, el autor (o agente en su nombre) DEBE listar y procesar comments de **todos** los reviewers activos en el PR — Argos, bots terceros (`gemini-code-assist`, `coderabbitai`, `Copilot`, `qodo-merge-pro`) y humanos — **no solo Argos**.
+
+**Por qué existe:** Argos es el reviewer multi-eje nativo de Ahrena; los bots terceros capturan patrones complementarios (estilo idiomático, rendimiento, seguridad, sugerencias de refactorización). Tratar a Argos como "el" reviewer e ignorar comentarios de bots terceros produce PRs que reciben `Argos APPROVED` pero llegan al merge con threads sin abordar — generando ruido para el reviewer humano y desperdiciando la señal de los bots.
+
+**Mecanismo de barrido:**
+
+```bash
+# Resúmenes de review por reviewer (Argos + bots terceros + humanos)
+gh pr view $PR_NUMBER --repo $OWNER/$REPO --json reviews \
+  --jq '.reviews[] | {author: .author.login, state, submittedAt}'
+
+# PR review comments (comments por línea de código) agregados por reviewer
+gh api "repos/$OWNER/$REPO/pulls/$PR_NUMBER/comments" \
+  --jq 'group_by(.user.login) | map({reviewer: .[0].user.login, count: length})'
+
+# Issue comments en la pestaña Conversation (no-threaded)
+gh api "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" \
+  --jq '.[] | {user: .user.login, body: .body[:200]}'
+```
+
+**Apoyo de warrior-argos:** el body consolidado de revisión de Argos incluye una subsección "Threads de otros reviewers — pendientes" (per `warrior-argos` Fase 3) listando comentarios abiertos de bots terceros y humanos. Esto es un **apoyo**, no un sustituto — el barrido AÚN DEBE ser ejecutado por el agente que aplica los fixes para capturar comentarios publicados después de la revisión de Argos.
+
+**Criterio de "fix round completa":**
+
+- Todos los BLOCKERs de Argos abordados; **Y**
+- Todos los comments de bots terceros evaluados (aceptados con fix, declinados con razón, o diferidos con Issue follow-up); **Y**
+- Todos los comments humanos evaluados; **Y**
+- Cada thread abordado tiene reply individual per Regla 7.
+
+Declarar fix round completa, pedir re-revisión o marcar el PR como listo para merge mientras algún thread (de cualquier reviewer) permanezca abierto sin cierre documentado está PROHIBIDO.
+
 ## HARD-GATE
 
 Conforme [`lex-hard-gate-pattern`](framework/es/_foundation/quality/lexis/lex-hard-gate-pattern.md), el bloqueo textual de esta Lex se expresa canónicamente como:
@@ -178,6 +211,13 @@ agente NO DEBE mergear PR sin que él satisfaga TODOS los criterios:
       rechazados, diferidos — también reciben reply explicando el
       motivo). El comment top-level de resumen está permitido en
       conjunto, pero NO sustituye la reply per-thread.
+  (l) Antes de pedir re-revisión o marcar el PR como listo para merge,
+      el agente barrió comments de TODOS los reviewers activos
+      (Argos, bots terceros — gemini-code-assist, coderabbitai,
+      Copilot, qodo-merge-pro — y humanos), evaluó cada thread y
+      abordó o declinó con cierre documentado, per Regla 8.
+      Abordar solo los BLOCKERs de Argos e ignorar threads de bots
+      terceros está PROHIBIDO.
 
 Esta regla se aplica a TODO PR, independientemente de:
   - tamaño percibido ("es un cambio trivial")
@@ -193,7 +233,7 @@ exige justificación explícita en el PR.
 
 ### Aplicación a Stacked PRs
 
-En flujos de **stacked Pull Requests** (`codex-stacked-prs`), cada capa de la cadena es un **PR real** en GitHub. El HARD-GATE de arriba se evalúa **por PR de la stack**, no una sola vez para la cadena completa: cada capa debe satisfacer **todos** los criterios (a)–(k) antes de ser mergeada. Los criterios en sí no cambian; solo el alcance de aplicación es por capa.
+En flujos de **stacked Pull Requests** (`codex-stacked-prs`), cada capa de la cadena es un **PR real** en GitHub. El HARD-GATE de arriba se evalúa **por PR de la stack**, no una sola vez para la cadena completa: cada capa debe satisfacer **todos** los criterios (a)–(l) antes de ser mergeada. Los criterios en sí no cambian; solo el alcance de aplicación es por capa.
 
 Implicaciones operativas:
 
@@ -236,4 +276,4 @@ gh pr create --title "docs: add site" --body "Closes #42"
 
 - **Herramienta:** GitHub Actions PR size labeler (auto-aplica `size/*`); GitHub Branch Protection con `required_pull_request_reviews` exigiendo aprobación de code owners; checklist de revisión verifica labels reflejadas, assignee y reviewers; `kata-contributing-pr` aplica todas las reglas de esta Lexis al crear PRs.
 - **Cuándo:** al crear y actualizar el PR; en el checklist de revisión; auditoría mensual del CODEOWNERS de los repositorios.
-- **Métrica:** 0 PRs mergeados sin label de tamaño; 0 PRs mergeados sin reflejar las labels del issue; 0 PRs sin assignee; 0 PRs mergeados sin ningún reviewer solicitado; 0 PRs mergeados con comentarios de review abordados por commit pero sin reply per-thread; 100% de los repositorios Guardia con `.github/CODEOWNERS` configurado.
+- **Métrica:** 0 PRs mergeados sin label de tamaño; 0 PRs mergeados sin reflejar las labels del issue; 0 PRs sin assignee; 0 PRs mergeados sin ningún reviewer solicitado; 0 PRs mergeados con comentarios de review abordados por commit pero sin reply per-thread; 0 PRs mergeados con comments de bots terceros (gemini-code-assist, coderabbitai, Copilot, qodo-merge-pro) sin cierre documentado per Regla 8; 100% de los repositorios Guardia con `.github/CODEOWNERS` configurado.

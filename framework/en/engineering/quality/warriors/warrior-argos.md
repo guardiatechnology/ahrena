@@ -219,6 +219,7 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
    - Count summary at the top
    - Idempotent marker: computes `sha256(pr_number + ":" + head_commit_sha)`, takes the first 16 characters, embeds as `<!-- argos-review-id:<hash> -->` at the start of the body
    - Lists existing PR comments via `gh api repos/{owner}/{repo}/issues/{pr}/comments` (read, reviewer's PAT); finds prior `argos-review-id:<hash>` matching the current hash → edits via `GH_TOKEN=$(scripts/argos/auth.sh) gh api -X PATCH .../comments/<id>` (write, bot token). If the hash differs (new commit pushed) → creates a new review (audit trail preserved)
+   - Lists open comments from other reviewers (`gemini-code-assist`, `coderabbitai`, `Copilot`, `qodo-merge-pro`, humans) via `gh api repos/{owner}/{repo}/pulls/{pr}/comments` (per-line) AND `gh api repos/{owner}/{repo}/issues/{pr}/comments` (Conversation tab) filtering by `user.login` ≠ `ahrena-warrior-argos[bot]`; aggregates into a `## 🧭 Pending threads from other reviewers` subsection in the consolidated body when open threads exist (omits the subsection when the list is empty). This is an aid to the multi-reviewer sweep required by Rule 8 of `lex-pr-quality`, not a substitute — the agent applying the fixes MUST still run its own sweep
    - Publishes per `Publication policy` (chooses between `--request-changes`, `--comment`, and `--approve` based on severity × prior-CR existence). Commands:
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --request-changes --body-file <body>` when ≥1 BLOCKER
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --comment --body-file <body>` when WARNINGs without BLOCKER OR clean first-touch (no prior CR)
@@ -296,7 +297,18 @@ Routing: A → `kata-python-review`, `kata-api-design-review`, `kata-events-revi
 |----------|-----------|-------|---------|
 | 🟡 WARNING | src/scheduled_payments/use_cases/approve.py:12 | lex-logging-decorator | Inline `logger.info(...)` call; should use `@logged` decorator |
 
-**Next steps:** fix 2 BLOCKERs before merge; address 4 WARNINGs in this PR or open follow-up Issues.
+## 🧭 Pending threads from other reviewers
+
+Argos detected open comments from other reviewers on this PR. The agent applying the fixes (Athena, Apollo, Hephaestus) MUST sweep and address every thread before declaring the fix round complete, per `lex-pr-quality` Rule 8 and HARD-GATE (l).
+
+| Reviewer | Path | Line | Comment (summary) | State |
+|----------|------|------|-------------------|-------|
+| `gemini-code-assist[bot]` | src/scheduled_payments/use_cases/approve.py | 12 | Suggest using guard clause for early-return | open |
+| `coderabbitai[bot]` | docs/scheduled-payments/oas/openapi.yaml | 88 | Add `description` to schema field `amount` | open |
+
+> This section is **informative**: Argos does not block its own merge on non-Argos threads. The obligation to sweep and address belongs to the agent applying the fixes, per `lex-pr-quality` Rule 8.
+
+**Next steps:** fix 2 BLOCKERs before merge; address 4 WARNINGs in this PR or open follow-up Issues; sweep and address the 2 threads from other reviewers above.
 ```
 
 **Phase 4 — Cleanup:** worktree removed.
