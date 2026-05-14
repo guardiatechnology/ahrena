@@ -150,7 +150,19 @@ Se `make` não estiver disponível, use os scripts em PowerShell:
 |---------|------------|------------|--------------------------|
 | Sem `--platform` | framework, directives, scripts, Makefile | — | — |
 | `--platform cursor` | idem | rules, skills, commands, agents | — |
-| `--platform claude-code` | idem | — | docs, skills, commands, agents + CLAUDE.md |
+| `--platform claude-code` | idem | — | docs, skills, commands, agents + CLAUDE.md + RTK hook |
+
+### RTK (Rust Token Killer)
+
+Quando você instala com `--platform claude-code`, o Ahrena também vincula o **hook `PreToolUse` do RTK** em `.claude/settings.json`. O RTK reescreve comandos comuns (`git`, `gh`, `tsc`, `pytest`, `jest`, etc.) por versões com saída compacta, reduzindo o consumo de tokens em 60–90%.
+
+Comportamento:
+
+- **Padrão `rtk.enabled: true`** em `.directives`: cada `make install` / `make dev-install` / `make update` reconcilia o hook idempotentemente e tenta instalar o binário (`brew`/`curl`/`cargo`, conforme o SO).
+- **Opt-out**: defina `rtk.enabled: false` em `.ahrena/.directives` — install/update não tocam em nenhum artefato RTK.
+- **Fallback estrito**: o comando gravado em `settings.json` é `if command -v rtk >/dev/null 2>&1; then rtk hook claude; fi`. Quando o binário está ausente do PATH o hook termina vazio e o Claude Code segue com a entrada original — nenhum erro.
+
+Binário e documentação: <https://github.com/rtk-ai/rtk>.
 
 ---
 
