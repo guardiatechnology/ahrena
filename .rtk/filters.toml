@@ -1,0 +1,19 @@
+# Project-local RTK filters — commit this file with your repo.
+# Filters here override user-global and built-in filters.
+# Docs: https://github.com/rtk-ai/rtk#custom-filters
+#
+# This template is installed by Ahrena (scripts/install.py) when
+# rtk.enabled is true in .ahrena/.directives. The installer never
+# overwrites this file once it exists at the destination — your
+# project-specific filters are safe across upgrades.
+
+schema_version = 1
+
+# Example: suppress build noise from a custom tool
+# [filters.my-tool]
+# description = "Compact my-tool output"
+# match_command = "^my-tool\\s+build"
+# strip_ansi = true
+# strip_lines_matching = ["^\\s*$", "^Downloading", "^Installing"]
+# max_lines = 30
+# on_empty = "my-tool: ok"
