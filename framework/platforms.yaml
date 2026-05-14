@@ -458,6 +458,9 @@ cursor:
     engineering/quality/lexis/lex-dry:
       alwaysApply: false
       description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
+    engineering/quality/lexis/lex-no-silent-tech-debt:
+      alwaysApply: false
+      description: "During an active Plan (status: development), forbid committing code or docs with silent TODO/FIXME/XXX/follow-up markers without a trackable Issue/Plan reference. Tangential findings must be surfaced to the human with 3 explicit options (expand Plan, new Plan, new Issue). Applies prospectively to diffs."
     engineering/quality/codex/codex-test-strategy:
       alwaysApply: false
       description: "When deciding test level/tool/scope, consult decision tree, per-stack tooling, and anti-patterns from this codex."
@@ -620,6 +623,8 @@ claude-code:
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
     engineering/quality/lexis/lex-dry:
       description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
+    engineering/quality/lexis/lex-no-silent-tech-debt:
+      description: "During an active Plan (status: development), forbid committing code or docs with silent TODO/FIXME/XXX/follow-up markers without a trackable Issue/Plan reference. Tangential findings must be surfaced to the human with 3 explicit options (expand Plan, new Plan, new Issue). Applies prospectively to diffs."
     engineering/sre/lexis/lex-slo-required:
       paths: ["docs/slo/**", "**/slo/**", "**/*.slo.yaml"]
       description: "Tier-1/2 services require SLO pre go-live; error budget guides priorization."
