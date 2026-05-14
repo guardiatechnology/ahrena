@@ -152,7 +152,7 @@ La regla es "cada thread tiene cierre", no "estoy de acuerdo con cada comentario
 
 La Regla 7 gobierna el **comportamiento de respuesta** después de que un commit aborde comentarios. Esta Regla 8 gobierna el **barrido previo**: antes de declarar una fix round completa, pedir re-revisión o marcar el PR como listo para merge, el autor (o agente en su nombre) DEBE listar y procesar comments de **todos** los reviewers activos en el PR — Argos, bots terceros (`gemini-code-assist`, `coderabbitai`, `Copilot`, `qodo-merge-pro`) y humanos — **no solo Argos**.
 
-**Por qué existe:** Argos es el reviewer multi-eje nativo de Ahrena; los bots terceros capturan patrones complementarios (estilo idiomático, performance, seguridad, sugerencias de refactor). Tratar a Argos como "el" reviewer e ignorar comments de bots terceros produce PRs que reciben `Argos APPROVED` pero llegan al merge con threads sin abordar — generando ruido para el reviewer humano y desperdiciando la señal de los bots.
+**Por qué existe:** Argos es el reviewer multi-eje nativo de Ahrena; los bots terceros capturan patrones complementarios (estilo idiomático, rendimiento, seguridad, sugerencias de refactorización). Tratar a Argos como "el" reviewer e ignorar comentarios de bots terceros produce PRs que reciben `Argos APPROVED` pero llegan al merge con threads sin abordar — generando ruido para el reviewer humano y desperdiciando la señal de los bots.
 
 **Mecanismo de barrido:**
 
@@ -170,7 +170,7 @@ gh api "repos/$OWNER/$REPO/issues/$PR_NUMBER/comments" \
   --jq '.[] | {user: .user.login, body: .body[:200]}'
 ```
 
-**Apoyo de warrior-argos:** el body consolidado de review de Argos incluye una subsección "Threads de otros reviewers — pendientes" (per `warrior-argos` Fase 3) listando comments abiertos de bots terceros y humanos. Esto es un **apoyo**, no un sustituto — el barrido AÚN DEBE ser ejecutado por el agente que aplica los fixes para capturar comments publicados después del review de Argos.
+**Apoyo de warrior-argos:** el body consolidado de revisión de Argos incluye una subsección "Threads de otros reviewers — pendientes" (per `warrior-argos` Fase 3) listando comentarios abiertos de bots terceros y humanos. Esto es un **apoyo**, no un sustituto — el barrido AÚN DEBE ser ejecutado por el agente que aplica los fixes para capturar comentarios publicados después de la revisión de Argos.
 
 **Criterio de "fix round completa":**
 
