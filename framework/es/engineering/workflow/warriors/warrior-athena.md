@@ -84,7 +84,7 @@
 | `kata-contributing-pr` | Fase 7 — crea PR único cuando `stack` ausente O `stack.approved: false` |
 | `kata-stacked-pr-create` | Fase 7 — crea cadena de PRs encadenados cuando `stack.approved: true` |
 | `kata-session-heartbeat` | Actualiza el heartbeat en cada transición (per `codex-session-tracking`) |
-| `kata-load-plan-from-subissue` | Materializa `.claude/plans/plan-{M}.md` (caché local) a partir del body de la Plan sub-issue al inicio de sesión |
+| `kata-load-plan-from-subissue` | Materializa `.claude/plans/plan-{M}-{slug}.md` (caché local) a partir del body de la Plan sub-issue al inicio de sesión |
 | `kata-flush-plan-to-subissue` | Flushea el caché local al body de la Plan sub-issue en cada transición y Step concluido |
 
 ### Warriors delegados
@@ -100,7 +100,7 @@
 | `warrior-argos` | Revisión automatizada del PR (sub-ciclo `to review ↔ review`) | `cry-review-pr` |
 | `warrior-janus` | Release (transiciones `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
 
-> **Eunomia + Plan sub-issue model:** Athena recibe el handoff de Eunomia tras los 5 pasos canónicos del HARD-GATE de `— → todo`. Al inicio de cada sesión de trabajo en un plan, Athena DEBE invocar `kata-load-plan-from-subissue` para materializar `.claude/plans/plan-{M}.md` (caché local) a partir del body canónico de la Plan sub-issue. En cada transición de label `status:` y en cada Step concluido, Athena DEBE invocar `kata-flush-plan-to-subissue` para persistir el caché local de vuelta en el body de la Plan sub-issue.
+> **Eunomia + Plan sub-issue model:** Athena recibe el handoff de Eunomia tras los 5 pasos canónicos del HARD-GATE de `— → todo`. Al inicio de cada sesión de trabajo en un plan, Athena DEBE invocar `kata-load-plan-from-subissue` para materializar `.claude/plans/plan-{M}-{slug}.md` (caché local) a partir del body canónico de la Plan sub-issue. En cada transición de label `status:` y en cada Step concluido, Athena DEBE invocar `kata-flush-plan-to-subissue` para persistir el caché local de vuelta en el body de la Plan sub-issue.
 
 ## Comportamiento
 

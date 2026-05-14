@@ -35,14 +35,14 @@ Issue (User Story | Bug | Tech Task)            ← problema, Why/What/How, AC
 |---|---|---|---|
 | **Issue parent** | `https://github.com/{owner}/{repo}/issues/{N}` | Problema, AC, motivação. Não tem branch própria | GitHub audit log |
 | **Plan sub-issue** | `https://github.com/{owner}/{repo}/issues/{M}`, sub-issue de #{N} | Canonical. Summary + Plan (Objective, Steps, Risks, Dependencies, Open Questions). Carrega branch e PR(s) | GitHub audit log |
-| **Provider cache** | `.claude/plans/plan-{M}.md` ou `.cursor/plans/plan-{M}.md`, gitignored | AI working memory + scratch. Superset do body + blocos `<!-- not-flushed -->`. Nomeado pelo número da sub-issue | Cache local regenerável |
+| **Provider cache** | `.claude/plans/plan-{M}-{slug}.md` ou `.cursor/plans/plan-{M}-{slug}.md`, gitignored | AI working memory + scratch. Superset do body + blocos `<!-- not-flushed -->`. Nomeado pelo número da sub-issue | Cache local regenerável |
 | **Phase artifacts** | `.ahrena/issues/issue-{N}/`, committed | `01-brief.md` … `06-quality-report.md` do fluxo Issue-Driven (vinculados à Issue parent) | Git |
 
 ### Resolução do path do cache local
 
 ```
 1. Determinar o provider (Claude Code → .claude/plans/, Cursor → .cursor/plans/)
-2. Nomear o arquivo como plan-{M}.md, onde {M} é o número da sub-issue
+2. Nomear o arquivo como plan-{M}-{slug}.md, onde {M} é o número da sub-issue
 3. Confirmar via .gitignore que o diretório do provider está excluído
 ```
 
@@ -53,8 +53,8 @@ Issue (User Story | Bug | Tech Task)            ← problema, Why/What/How, AC
 ## 2. Nomeação do cache local
 
 ```
-.claude/plans/plan-{M}.md      (agente Claude)
-.cursor/plans/plan-{M}.md      (agente Cursor)
+.claude/plans/plan-{M}-{slug}.md      (agente Claude)
+.cursor/plans/plan-{M}-{slug}.md      (agente Cursor)
 ```
 
 | Campo | Regra |
@@ -117,7 +117,7 @@ O body da sub-issue é gravado por:
 - `kata-plan-task` quando o Plan é avulso (top-level vinculado a uma Issue existente)
 - `kata-flush-plan-to-subissue` em cada gatilho de sync (transição, Step concluído, fim de sessão)
 
-### 3b. Cache local `.claude/plans/plan-{M}.md` (working memory)
+### 3b. Cache local `.claude/plans/plan-{M}-{slug}.md` (working memory)
 
 ```markdown
 ## Summary
@@ -383,7 +383,7 @@ Issue parent (#N) — User Story | Bug | Tech Task
     │   │
     │   ├── PR (label: status: <name>, a partir de "to review")    [só Eixo A]
     │   │
-    │   ├── .claude/plans/plan-{M}.md ou .cursor/plans/plan-{M}.md  cache local
+    │   ├── .claude/plans/plan-{M}-{slug}.md ou .cursor/plans/plan-{M}-{slug}.md  cache local
     │   │   └── superset do body + blocos <!-- not-flushed -->     gitignored
     │   │
     │   └── docs/adr/ADR-{n}-*.md (committed)                       se decisão arquitetural

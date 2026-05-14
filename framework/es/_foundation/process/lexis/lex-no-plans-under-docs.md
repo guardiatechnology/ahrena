@@ -12,7 +12,7 @@ Mezclar planes bajo `docs/` rompe esa separación: confunde la navegación del p
 
 ## Ley
 
-> **Materializar archivos de plan (`plan-*.md`) bajo `docs/`, bajo cualquier ruta que combine `docs/` con `plans/` como segmentos del path, o en cualquier subdirectorio de `docs/` está FORBIDDEN. Las rutas canónicas para planes son exactamente tres: (a) `.claude/plans/plan-{M}.md` (provider cache de Claude Code, gitignored); (b) `.cursor/plans/plan-{M}.md` (provider cache de Cursor, gitignored); (c) cuerpo de la sub-issue Plan en GitHub (canónico, committed vía API GitHub). Ninguna otra ruta es válida.**
+> **Materializar archivos de plan (`plan-*.md`) bajo `docs/`, bajo cualquier ruta que combine `docs/` con `plans/` como segmentos del path, o en cualquier subdirectorio de `docs/` está FORBIDDEN. Las rutas canónicas para planes son exactamente tres: (a) `.claude/plans/plan-{M}-{slug}.md` (provider cache de Claude Code, gitignored); (b) `.cursor/plans/plan-{M}-{slug}.md` (provider cache de Cursor, gitignored); (c) cuerpo de la sub-issue Plan en GitHub (canónico, committed vía API GitHub). Ninguna otra ruta es válida.**
 
 ## Alcance
 

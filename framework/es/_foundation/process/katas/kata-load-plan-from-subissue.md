@@ -1,6 +1,6 @@
 # Kata: Cargar Plan desde la Sub-issue
 
-> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Materialización del caché local provider-specific (`.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`) a partir del body canónico de la sub-issue Plan, conforme al modelo jerárquico de `lex-agent-planning`
+> **Prefijo:** `kata-` | **Tipo:** Skill Repetible | **Alcance:** Materialización del caché local provider-specific (`.claude/plans/plan-{M}-{slug}.md` o `.cursor/plans/plan-{M}-{slug}.md`) a partir del body canónico de la sub-issue Plan, conforme al modelo jerárquico de `lex-agent-planning`
 
 ## Objetivo
 
@@ -10,7 +10,7 @@ Este kata materializa caché local a partir de una sub-issue Plan **ya existente
 
 ## Cuándo Usar
 
-- Inicio de sesión de Claude Code o Cursor (cualquier agente: Athena, Argos, Janus, etc.) antes de cualquier edición en `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`.
+- Inicio de sesión de Claude Code o Cursor (cualquier agente: Athena, Argos, Janus, etc.) antes de cualquier edición en `.claude/plans/plan-{M}-{slug}.md` o `.cursor/plans/plan-{M}-{slug}.md`.
 - Handoff entre agentes (ej.: Athena entrega a Argos en `to review → review`).
 - Fresh clone del repo (el caché local no existe).
 - Sospecha de drift entre el caché local y el body de la sub-issue Plan (ej.: otra sesión editó el body vía la UI de GitHub u otro agente flushó en paralelo).
@@ -31,7 +31,7 @@ Progreso:
 - [ ] 2. Confirmar que la sub-issue Plan existe (guardrail plan-first)
 - [ ] 3. Leer el body de la sub-issue vía MCP `get_issue` (preferido)
 - [ ] 4. Fallback `gh issue view --json body`
-- [ ] 5. Grabar el body en `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`
+- [ ] 5. Grabar el body en `.claude/plans/plan-{M}-{slug}.md` o `.cursor/plans/plan-{M}-{slug}.md`
 - [ ] 6. Validar idempotencia
 ```
 
@@ -44,7 +44,7 @@ Progreso:
    - Otro → consultar `.ahrena/.directives` y preguntar al usuario si es ambiguo.
 3. Resolver el path de destino:
    - Si `dest_path` se pasó, usarlo.
-   - Si no, path final: `<provider-dir>/plan-{M}.md`.
+   - Si no, path final: `<provider-dir>/plan-{M}-{slug}.md`.
 4. Asegurar que el directorio de destino existe (`mkdir -p`).
 
 ### Paso 2: Confirmar que la sub-issue Plan existe
@@ -91,7 +91,7 @@ Si `gh` también falla:
 1. Retry único después de 5 segundos de backoff.
 2. Si persiste, ofrecer al usuario: (a) intentar de nuevo con otro comando, (b) pausar para investigación, (c) abortar.
 
-### Paso 5: Grabar el body en `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`
+### Paso 5: Grabar el body en `.claude/plans/plan-{M}-{slug}.md` o `.cursor/plans/plan-{M}-{slug}.md`
 
 1. Si el caché local ya existe y tiene contenido, **preservar bloques `<!-- not-flushed -->` ... `<!-- /not-flushed -->`** existentes:
    - Extraer todos los bloques `<!-- not-flushed -->` del archivo actual.
@@ -118,7 +118,7 @@ Si hay diferencia fuera de bloques `<!-- not-flushed -->`, el reload falló sile
 
 | Output | Formato | Destino |
 |--------|---------|---------|
-| Caché local | Markdown (superset del body de la sub-issue + bloques `<!-- not-flushed -->` preservados) | `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md` |
+| Caché local | Markdown (superset del body de la sub-issue + bloques `<!-- not-flushed -->` preservados) | `.claude/plans/plan-{M}-{slug}.md` o `.cursor/plans/plan-{M}-{slug}.md` |
 
 ## Ejemplo de Ejecución
 

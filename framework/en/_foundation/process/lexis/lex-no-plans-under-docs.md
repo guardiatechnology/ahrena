@@ -12,7 +12,7 @@ Mixing plans under `docs/` breaks that separation: it confuses project navigatio
 
 ## Law
 
-> **Materializing plan files (`plan-*.md`) under `docs/`, under any path that combines `docs/` with `plans/` as path segments, or in any subdirectory of `docs/` is FORBIDDEN. The canonical paths for plans are exactly three: (a) `.claude/plans/plan-{M}.md` (Claude Code provider cache, gitignored); (b) `.cursor/plans/plan-{M}.md` (Cursor provider cache, gitignored); (c) GitHub Plan sub-issue body (canonical, committed via GitHub API). No other path is valid.**
+> **Materializing plan files (`plan-*.md`) under `docs/`, under any path that combines `docs/` with `plans/` as path segments, or in any subdirectory of `docs/` is FORBIDDEN. The canonical paths for plans are exactly three: (a) `.claude/plans/plan-{M}-{slug}.md` (Claude Code provider cache, gitignored); (b) `.cursor/plans/plan-{M}-{slug}.md` (Cursor provider cache, gitignored); (c) GitHub Plan sub-issue body (canonical, committed via GitHub API). No other path is valid.**
 
 ## Coverage
 

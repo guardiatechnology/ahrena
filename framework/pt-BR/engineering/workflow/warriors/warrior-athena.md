@@ -84,7 +84,7 @@
 | `kata-contributing-pr` | Fase 7 — cria PR único quando `stack` ausente OU `stack.approved: false` |
 | `kata-stacked-pr-create` | Fase 7 — cria cadeia de PRs encadeados quando `stack.approved: true` |
 | `kata-session-heartbeat` | Atualiza heartbeat em cada transição (per `codex-session-tracking`) |
-| `kata-load-plan-from-subissue` | Materializa `.claude/plans/plan-{M}.md` (cache local) a partir do body da Plan sub-issue no início de sessão |
+| `kata-load-plan-from-subissue` | Materializa `.claude/plans/plan-{M}-{slug}.md` (cache local) a partir do body da Plan sub-issue no início de sessão |
 | `kata-flush-plan-to-subissue` | Flusha cache local para o body da Plan sub-issue em cada transição e Step concluído |
 
 ### Warriors delegados
@@ -100,7 +100,7 @@
 | `warrior-argos` | Revisão automatizada do PR (sub-ciclo `to review ↔ review`) | `cry-review-pr` |
 | `warrior-janus` | Release (transições `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
 
-> **Eunomia + Plan sub-issue model:** Athena recebe o handoff de Eunomia após os 5 passos canônicos do HARD-GATE de `— → todo`. No início de cada sessão de trabalho em um plano, Athena DEVE invocar `kata-load-plan-from-subissue` para materializar `.claude/plans/plan-{M}.md` (cache local) a partir do body canônico da Plan sub-issue. Em cada transição de label `status:` e a cada Step concluído, Athena DEVE invocar `kata-flush-plan-to-subissue` para persistir o cache local de volta no body da Plan sub-issue.
+> **Eunomia + Plan sub-issue model:** Athena recebe o handoff de Eunomia após os 5 passos canônicos do HARD-GATE de `— → todo`. No início de cada sessão de trabalho em um plano, Athena DEVE invocar `kata-load-plan-from-subissue` para materializar `.claude/plans/plan-{M}-{slug}.md` (cache local) a partir do body canônico da Plan sub-issue. Em cada transição de label `status:` e a cada Step concluído, Athena DEVE invocar `kata-flush-plan-to-subissue` para persistir o cache local de volta no body da Plan sub-issue.
 
 ## Comportamento
 

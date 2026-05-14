@@ -1,6 +1,6 @@
 # Kata: Flush Plan to Sub-issue
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Synchronization of the provider-specific local cache (`.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`) to the canonical Plan sub-issue body, per the hierarchical model of `lex-agent-planning`
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Synchronization of the provider-specific local cache (`.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`) to the canonical Plan sub-issue body, per the hierarchical model of `lex-agent-planning`
 
 ## Objective
 
@@ -20,7 +20,7 @@ Persist the content of the provider-specific local cache (AI working memory) int
 |-------|:--------:|-------------|
 | `subissue_number` | Yes | Number `{M}` of the Plan sub-issue |
 | `owner/repo` | No | Repo where the Plan sub-issue lives. Default: current repo of the worktree |
-| `source_path` | No | Path of the local cache file. Default: resolved by provider detection (`.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`) |
+| `source_path` | No | Path of the local cache file. Default: resolved by provider detection (`.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`) |
 | `force` | No | `true` forces a write even if a remote edit is detected. Default: `false` (alerts + offers manual merge) |
 
 ## Workflow
@@ -40,8 +40,8 @@ Progress:
 
 1. If `source_path` was passed, use it.
 2. Otherwise, detect the agent runtime:
-   - Claude Code → `.claude/plans/plan-{M}.md`
-   - Cursor → `.cursor/plans/plan-{M}.md`
+   - Claude Code → `.claude/plans/plan-{M}-{slug}.md`
+   - Cursor → `.cursor/plans/plan-{M}-{slug}.md`
 3. If the file does not exist or is empty, abort with a message directing the user to run `kata-load-plan-from-subissue` first.
 
 ### Step 2: Read the local cache

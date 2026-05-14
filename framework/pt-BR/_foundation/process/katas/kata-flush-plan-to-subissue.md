@@ -1,6 +1,6 @@
 # Kata: Flushar Plano para a Sub-issue
 
-> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Sincronização do cache local provider-specific (`.claude/plans/plan-{M}.md` ou `.cursor/plans/plan-{M}.md`) para o body canônico da sub-issue Plan, conforme o modelo hierárquico de `lex-agent-planning`
+> **Prefixo:** `kata-` | **Tipo:** Skill Repetível | **Escopo:** Sincronização do cache local provider-specific (`.claude/plans/plan-{M}-{slug}.md` ou `.cursor/plans/plan-{M}-{slug}.md`) para o body canônico da sub-issue Plan, conforme o modelo hierárquico de `lex-agent-planning`
 
 ## Objetivo
 
@@ -20,7 +20,7 @@ Persistir o conteúdo do cache local provider-specific (working memory da IA) no
 |-------|:-----------:|-----------|
 | `subissue_number` | Sim | Número `{M}` da sub-issue Plan |
 | `owner/repo` | Não | Repo onde a sub-issue Plan vive. Default: repo corrente do worktree |
-| `source_path` | Não | Path do arquivo de cache local. Default: resolvido pela detecção de provider (`.claude/plans/plan-{M}.md` ou `.cursor/plans/plan-{M}.md`) |
+| `source_path` | Não | Path do arquivo de cache local. Default: resolvido pela detecção de provider (`.claude/plans/plan-{M}-{slug}.md` ou `.cursor/plans/plan-{M}-{slug}.md`) |
 | `force` | Não | `true` força gravação mesmo se houve edição remota desconhecida. Default: `false` (alerta + oferece merge manual) |
 
 ## Workflow
@@ -40,8 +40,8 @@ Progresso:
 
 1. Se `source_path` foi passado, usar.
 2. Senão, detectar o runtime do agente:
-   - Claude Code → `.claude/plans/plan-{M}.md`
-   - Cursor → `.cursor/plans/plan-{M}.md`
+   - Claude Code → `.claude/plans/plan-{M}-{slug}.md`
+   - Cursor → `.cursor/plans/plan-{M}-{slug}.md`
 3. Se o arquivo não existe ou está vazio, abortar com mensagem orientando a rodar `kata-load-plan-from-subissue` primeiro.
 
 ### Passo 2: Ler o cache local

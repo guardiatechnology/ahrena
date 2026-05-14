@@ -39,10 +39,10 @@ Issue (User Story | Bug | Tech Task)            ← problema, Why/What/How, AC
 |---|---|---|---|
 | **Issue (parent)** | `https://github.com/{owner}/{repo}/issues/{N}` | Lleva problema, motivación, criterios de aceptación. No tiene branch propia | GitHub audit log |
 | **Plan sub-issue** | `https://github.com/{owner}/{repo}/issues/{M}`, sub-issue de #{N} | Canónico. Summary + Plan (Objective, Steps, Risks, Dependencies, Open Questions). Lleva branch dedicada y PR(s) | GitHub audit log |
-| **Cache del provider** | `.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`, gitignored | AI working memory + scratch. Superset del body de la sub-issue + bloques `<!-- not-flushed -->`. Nombrado por el número de la sub-issue | Cache local regenerable |
+| **Cache del provider** | `.claude/plans/plan-{M}-{slug}.md` o `.cursor/plans/plan-{M}-{slug}.md`, gitignored | AI working memory + scratch. Superset del body de la sub-issue + bloques `<!-- not-flushed -->`. Nombrado por el número de la sub-issue | Cache local regenerable |
 | **Phase artifacts** | `.ahrena/issues/issue-{N}/`, committed | `01-brief.md` … `06-quality-report.md` del flujo Issue-Driven (vinculados a la Issue parent) | Git |
 
-El cache local es específico del provider: los agentes Claude usan `.claude/plans/plan-{M}.md`; los agentes Cursor usan `.cursor/plans/plan-{M}.md`. No hay cache compartido entre providers — cada uno lleva su working memory de forma independiente, regenerado desde la sub-issue vía `kata-load-plan-from-subissue`.
+El cache local es específico del provider: los agentes Claude usan `.claude/plans/plan-{M}-{slug}.md`; los agentes Cursor usan `.cursor/plans/plan-{M}-{slug}.md`. No hay cache compartido entre providers — cada uno lleva su working memory de forma independiente, regenerado desde la sub-issue vía `kata-load-plan-from-subissue`.
 
 ## Schema del body de la sub-issue Plan (canónico)
 
@@ -73,7 +73,7 @@ Parent: #{N}
 {Preguntas abiertas que requieren decisión antes/durante la ejecución; "None" si no hay.}
 ```
 
-Schema del cache local `.claude/plans/plan-{M}.md` (o `.cursor/plans/plan-{M}.md`): **superset** del body de la sub-issue. Lleva front-matter YAML para metadatos de sesión + el body completo espejado + secciones locales marcadas.
+Schema del cache local `.claude/plans/plan-{M}-{slug}.md` (o `.cursor/plans/plan-{M}-{slug}.md`): **superset** del body de la sub-issue. Lleva front-matter YAML para metadatos de sesión + el body completo espejado + secciones locales marcadas.
 
 **Front-matter** (canónico):
 
@@ -199,7 +199,7 @@ Cuando el usuario señala intención de plan sin referenciar una Issue (e.g., "v
 - **Camino B (plan-first / draft):** esbozar el plan directamente en `.claude/plans/plan-{slug}.md` (o `.cursor/plans/...`) con front-matter `status: draft, issue: TBD`. Cuando el borrador madura, **promover** en un paso atómico:
   1. `kata-contributing-issue` crea la Issue parent si aún no la hay.
   2. `kata-decompose-issue-into-plans` o `kata-plan-task` crea la sub-issue Plan canónica.
-  3. Renombrar el archivo de `plan-{slug}.md` a `plan-{M}.md` (donde `{M}` es el número de la sub-issue creada).
+  3. Renombrar el archivo de `plan-{slug}.md` a `plan-{M}-{slug}.md` (donde `{M}` es el número de la sub-issue creada).
   4. Actualizar el front-matter — `status: draft → todo`, `issue: TBD → {owner/repo#M}`, registrar `promoted_at` con timestamp UTC.
   5. Aplicar la label canónica `status: todo` en la sub-issue recién creada (Gate 1 de Eunomia).
 
@@ -297,7 +297,7 @@ Toggles intermedios, ediciones de scratch (`<!-- not-flushed -->`) y working not
 - **Issue parent (User Story / Bug / Tech Task):** lleva problema, motivación, AC. No tiene branch propia. Generalmente cierra vía `Closes #{N}` en el último PR de la última sub-issue Plan.
 - **Sub-issue Plan:** lleva el plan canónico en el body; la label `status: <name>` es la única fuente de verdad para el estado.
 - **PR:** a partir de `to review`, el PR lleva la label `status: <name>` correspondiente, actualizada por Athena/Argos/Janus a medida que el estado avanza. La sync de la label es responsabilidad del propietario de la transición.
-- **`.claude/plans/plan-{M}.md` o `.cursor/plans/plan-{M}.md`:** cache local específico del provider regenerable; nunca commiteado; reconstruido por `kata-load-plan-from-subissue` en fresh clone.
+- **`.claude/plans/plan-{M}-{slug}.md` o `.cursor/plans/plan-{M}-{slug}.md`:** cache local específico del provider regenerable; nunca commiteado; reconstruido por `kata-load-plan-from-subissue` en fresh clone.
 - **`.ahrena/issues/issue-{N}/`:** committed; recibe Phase artifacts del flujo Issue-Driven de la Issue parent #{N} (per `lex-issue-driven`).
 - **Checkpoint (`.checkpoint`):** el Plan cubre **task** (Steps, Decisiones, Riesgos en el body de la sub-issue); el checkpoint cubre **sesión** (foco de la ventana, hand-off entre Planes, threads paralelos). La superposición está PROHIBIDA — ver `lex-checkpoint` regla 5.
 - **ADR:** cuando un Plan identifica una decisión arquitectónica relevante, un ADR DEBE ser abierto conforme `lex-issue-driven`. Ejemplos de nombre de archivo: `ADR-008-use-event-sourcing-for-refund-audit-trail.md`, `ADR-007-use-fastapi-routers.md`, `ADR-001-use-event-sourcing-for-ledger.md`, `ADR-002-migrate-to-fastapi.md`.
