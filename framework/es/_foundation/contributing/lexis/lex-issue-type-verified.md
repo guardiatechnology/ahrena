@@ -8,12 +8,12 @@
 
 ## Ley
 
-> **Todo agente que crea una Issue (humano o IA, vía UI/CLI/MCP) DEBE verificar programáticamente, inmediatamente tras la creación, que el campo nativo `type` de la Issue está populado con un valor compatible con el template usado (`Feature` para `feature-request` / `user-story-for-api` / `user-story-for-frontend`; `Task` para `tech-task` / `subtask`; `Epic` para `epic`; `Bug` cuando aplicable). Si está vacío, el agente DEBE aplicar el type vía `gh api -X PATCH repos/{owner}/{repo}/issues/{N} -f type={Feature|Task|Bug|Epic}` antes de cualquier transición subsiguiente de la Issue. Aplicar label `status: todo` (per `lex-issue-status` Eje A) en una Issue sin `type` populado está PROHIBIDO.**
+> **Todo agente que crea una Issue (humano o IA, vía UI/CLI/MCP) DEBE verificar programáticamente, inmediatamente tras la creación, que el campo nativo `type` de la Issue está populado con un valor compatible con el template usado (`Feature` para `feature-request` / `user-story-for-api` / `user-story-for-frontend`; `Task` para `tech-task` / `plan`; `Bug` para `bug`; `Epic` para `epic`). Si está vacío, el agente DEBE aplicar el type vía `gh api -X PATCH repos/{owner}/{repo}/issues/{N} -f type={Feature|Task|Bug|Epic}` antes de cualquier transición subsiguiente de la Issue. Aplicar label `status: todo` (per `lex-issue-status` Eje A) en una Issue sin `type` populado está PROHIBIDO.**
 
 ## Alcance
 
 - **Aplica a:** todas las Issues creadas en repositorios Guardia, independiente del mecanismo (UI de GitHub, `gh issue create`, MCP `create_issue`, script automatizado).
-- **Agentes vinculados:** `warrior-eunomia` (modo top-level y subtask), `warrior-athena` (cuando delega creación de child Issue), `warrior-calliope` (decomposición de Epic), y cualquier agente que invoque `kata-plan-task`, `kata-create-subtasks` o `kata-contributing-issue`.
+- **Agentes vinculados:** `warrior-eunomia` (modo top-level y Plan sub-issue), `warrior-athena` (cuando delega creación de child Issue), `warrior-calliope` (decomposición de Epic), y cualquier agente que invoque `kata-plan-task`, `kata-decompose-issue-into-plans` o `kata-contributing-issue`.
 - **Excepciones:** Issues generadas por Dependabot o scanners de seguridad siguen flujo propio y quedan exentas.
 
 ## Reglas
@@ -37,8 +37,9 @@ gh api repos/{owner}/{repo}/issues/{N} --jq '.type.name // empty'
 | `epic` | `Epic` |
 | `user-story-for-api` | `Feature` |
 | `user-story-for-frontend` | `Feature` |
+| `bug` | `Bug` |
 | `tech-task` | `Task` |
-| `subtask` | `Task` |
+| `plan` | `Task` |
 
 Si el type retornado es incompatible con el template, **abortar y alertar al usuario** — no intentar reescribir silenciosamente (puede enmascarar error de creación).
 
@@ -130,6 +131,6 @@ gh issue edit 106 --add-label "status: todo"
 - `lex-agent-planning` — HARD-GATE precondición (b) cita esta Lex
 - `lex-issue-status` — Eje A (status: todo) requiere type populado
 - `lex-issue-first` — Issue como punto de origen; type es parte de la calidad de la Issue
-- `kata-plan-task`, `kata-create-subtasks`, `kata-contributing-issue` — invocan esta verificación
+- `kata-plan-task`, `kata-decompose-issue-into-plans`, `kata-contributing-issue` — invocan esta verificación
 - `warrior-eunomia` — owner que dispara la verificación en la creación del plan
 - Issue Types nativos de GitHub: https://docs.github.com/en/issues/tracking-your-work-with-issues/configuring-issues/managing-issue-types-in-an-organization

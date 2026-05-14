@@ -12,7 +12,7 @@ El body de la Issue (canonical per ADR-002), la Issue y el PR llevan el mismo tr
 
 ## Alcance
 
-- **Se aplica a:** todas las Issues abiertas vía templates aprobados (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `subtask`, **release** — nuevo template introducido por ADR-002 / plan-046 Step 3.5), y todos los PRs en repositorios Guardia.
+- **Se aplica a:** todas las Issues abiertas vía templates aprobados (`feature-request`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `bug`, `plan`, `release`), y todos los PRs en repositorios Guardia. Las Plan sub-issues (creadas vía template `plan` per `lex-agent-planning`) siguen el Eje A como cualquier otro artefacto de dev cycle.
 - **Agentes vinculados:**
   - Eje A — `warrior-eunomia` (`— → todo`), `warrior-athena` (`todo → development`, `development → to review`, `to review → done`), `warrior-argos` (`to review ↔ review`).
   - Eje B — `warrior-janus` (`— → to release`, `to release → release`, `release → done`).
@@ -89,7 +89,19 @@ Epic es descompuesto por Calliope (plan-038) y nunca pasa por Athena directament
 
 ### 8. Creación inicial de las labels en el repositorio
 
-Cada repositorio que adopta el flujo DEBE crear las labels vía `gh label create` (script idempotente en `scripts/bootstrap_labels.sh`). Todas las labels ya existen desde plan-043 (PR #93); plan-046 no introduce labels nuevas — solo reorganiza la semántica en dos ejes.
+Cada repositorio que adopta el flujo DEBE crear las labels vía `gh label create` (script idempotente en `scripts/bootstrap_labels.sh`). El script bootstrapea el catálogo completo de labels (type + workflow + size + cross-cutting) de forma idempotente.
+
+### 9. Ausencia de `status:*` en Issue no-Epic en el flujo es violación
+
+Toda Issue no-Epic que participa en el flujo Issue-Driven DEBE llevar exactamente una label `status:*` del conjunto canónico del eje correcto. **Ausencia** de cualquier label `status:*` en una Issue no-Epic activa en el flujo está PROHIBIDA — cierra el gap silencioso entre "creada" y "en el flujo".
+
+Detectado por:
+
+- `kata-contributing-issue` aplica `status: todo` como paso final de la creación (per `lex-issue-quality` Regla 6).
+- Los templates `.github/ISSUE_TEMPLATE/*.yml` declaran `labels: [..., "status: todo"]` para auto-aplicar en la creación vía UI.
+- Verificación periódica detecta Issues abiertas sin `status:*` (excluyendo Epic) y señala al owner para regularizar.
+
+Las Issues sin `status:*` no cumplen el HARD-GATE de creación de `lex-issue-quality` precondición (d) y bloquean branch/PR.
 
 ## HARD-GATE
 

@@ -29,7 +29,7 @@ Uma Issue DEVE conter no mínimo:
 
 - Um título claro que resume o objetivo.
 - Um corpo descrevendo o problema ou objetivo, contexto e resultado esperado.
-- Um tipo atribuído via template em `.ahrena/contributing_templates/` (`feature-request`, `epic`, `user-story-for-api` ou `user-story-for-frontend`).
+- Um tipo atribuído via template em `.ahrena/contributing_templates/` (`feature-request`, `epic`, `user-story-for-api`, `user-story-for-frontend`, `tech-task`, `bug` ou `plan`).
 
 ### 3. PR referencia a Issue
 
@@ -39,6 +39,8 @@ Todo corpo de PR DEVE incluir um dos seguintes:
 - `Refs #N` — o PR endereça parcialmente a Issue (a Issue permanece aberta).
 
 PRs sem referência a uma Issue são rejeitados durante a revisão.
+
+**Plan sub-issues (`lex-agent-planning`):** um PR PODE usar `Closes #M` onde `#M` é uma Plan sub-issue sob uma Issue pai `#N`. O `Closes #M` fecha apenas a sub-issue Plan; a Issue pai `#N` fecha somente quando TODAS as suas Plans sub-issues atingem `status: done`. Quando o PR contribui parcialmente para a Plan ou contextualiza o trabalho na Issue pai, use `Refs #M` ou `Refs #N` respectivamente — nunca `Closes` em ambas simultaneamente.
 
 ### 4. Exceção: correções triviais
 
