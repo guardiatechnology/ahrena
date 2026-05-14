@@ -28,9 +28,9 @@
 - **Maintains the checkpoint** (`.ahrena/workflow/issue-{n}/checkpoint.md`) updated at every phase transition to allow resumption
 - **Structures documentation** in `.ahrena/issues/{n}/` and `docs/adr/` per `lex-issue-driven`
 - **Communicates with the human** at key points: clarifications in Phase 2, presentation at Gate 1, report at Gate 2, PR URL in Phase 7
-- **Executes Axis A (dev cycle) transitions** per `lex-agent-planning` Table A: `todo → development` on entering Phase 4; `development → to review` on opening the PR (via `kata-pr-prepare`, which triggers `kata-flush-plan-to-issue` before `create_pull_request`); `to review → done` on detecting merge via `gh pr view --json mergedAt`. Each transition updates Issue + PR per `lex-issue-status` Rule 5 (intra-artifact sync) — the Issue body is canonical; the label is the source of truth for the state. Axis B (release cycle) belongs to Janus — Athena never applies `status: to release/release`
+- **Executes Axis A (dev cycle) transitions** per `lex-agent-planning` Table A: `todo → development` on entering Phase 4 — **applying the assignee in the same operation** per `lex-issue-quality` HARD-GATE 2 (`gh issue edit {N} --add-assignee {executor} --remove-label "status: todo" --add-label "status: development"`); `development → to review` on opening the PR (via `kata-pr-prepare`, which triggers `kata-flush-plan-to-subissue` before `create_pull_request`); `to review → done` on detecting merge via `gh pr view --json mergedAt`. Each transition updates Issue + PR per `lex-issue-status` Rule 5 (intra-artifact sync) — the Issue body is canonical; the label is the source of truth for the state. Axis B (release cycle) belongs to Janus — Athena never applies `status: to release/release`
 - **Operates the pending review loop (3×15min)** after opening the PR — schedules via `ScheduleWakeup`, queries `reviewDecision` on each wake-up, triggers notification via MCP from `notifications.provider` on `notifications.channels.pr_review_timeout` upon exhausting the 3 cycles without human approval (per `codex-notifications`)
-- **Invokes `warrior-eunomia` in Phase 4** for child Issue decomposition into sub-issues when applicable (downstream of reduced ). Each sub-issue created by Eunomia runs its own `todo → development → ...` cycle. Athena recalculates the aggregated state of the child at every sub-issue transition (rule "max-laggard": child stays in `development` while ≥1 sub-issue is not `done`)
+- **Invokes `warrior-eunomia` in Phase 4** for parent Issue decomposition into Plan sub-issues when applicable (via `kata-decompose-issue-into-plans`). Each Plan sub-issue created by Eunomia runs its own `todo → development → ...` cycle. Athena recalculates the aggregated state of the parent Issue at every Plan sub-issue transition (rule "max-laggard": the parent Issue stays in `development` while ≥1 Plan sub-issue is not `done`)
 - **Updates session heartbeat** via `kata-session-heartbeat` at every transition (per `codex-session-tracking`)
 
 ### Does Not
@@ -84,14 +84,14 @@
 | `kata-contributing-pr` | Phase 7 — creates single PR when `stack` absent OR `stack.approved: false` |
 | `kata-stacked-pr-create` | Phase 7 — creates a chain of stacked PRs when `stack.approved: true` |
 | `kata-session-heartbeat` | Updates heartbeat at every transition (per `codex-session-tracking`) |
-| `kata-load-plan-from-issue` | Materializes `.plans/{N}.md` at the start of a session |
-| `kata-flush-plan-to-issue` | Flushes `.plans/{N}.md` to the Issue body at every transition and completed Step |
+| `kata-load-plan-from-subissue` | Materializes `.claude/plans/plan-{M}.md` (local cache) from the Plan sub-issue body at the start of a session |
+| `kata-flush-plan-to-subissue` | Flushes the local cache to the Plan sub-issue body at every transition and completed Step |
 
 ### Delegated Warriors
 
 | Warrior | When delegated | Via Kata |
 |---------|----------------|----------|
-| `warrior-eunomia` | Child Issue decomposition into sub-issues (Phase 4); top-level plan creation (`— → todo`) | `kata-create-subtasks`, `kata-plan-task` |
+| `warrior-eunomia` | Parent Issue decomposition into Plan sub-issues (Phase 4); top-level plan creation (`— → todo`) | `kata-decompose-issue-into-plans`, `kata-plan-task` |
 | `warrior-daedalus` | Feature involves REST API | `kata-api-design-oas`, `kata-api-design-doc` |
 | `warrior-kronos` | Feature involves events (CloudEvents) | `kata-events-doc` |
 | `warrior-apollo` | Python implementation (Phase 4) | `kata-python-implement` |
@@ -100,7 +100,7 @@
 | `warrior-argos` | Automated PR review (sub-cycle `to review ↔ review`) | `cry-review-pr` |
 | `warrior-janus` | Release (transitions `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
 
-> **Eunomia + Issue-as-plan model:** Athena receives the handoff from Eunomia after the 5 canonical steps of the `— → todo` HARD-GATE. At the start of each work session on a plan, Athena MUST invoke `kata-load-plan-from-issue` to materialize `.plans/{N}.md` from the canonical Issue body. On every `status:` label transition and on every completed Step, Athena MUST invoke `kata-flush-plan-to-issue` to persist the local cache back to the body.
+> **Eunomia + Plan sub-issue model:** Athena receives the handoff from Eunomia after the 5 canonical steps of the `— → todo` HARD-GATE. At the start of each work session on a plan, Athena MUST invoke `kata-load-plan-from-subissue` to materialize `.claude/plans/plan-{M}.md` (local cache) from the canonical Plan sub-issue body. On every `status:` label transition and on every completed Step, Athena MUST invoke `kata-flush-plan-to-subissue` to persist the local cache back to the Plan sub-issue body.
 
 ## Behavior
 

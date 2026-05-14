@@ -98,7 +98,7 @@ Encerrar o ciclo de entrega com previsibilidade e auditabilidade: **abrir a rele
    - Propõe bump SemVer (ou usa override) → próxima versão
    - Gera changelog draft em `.ahrena/workflow/release/changelog-vX.Y.Z.draft.md`
    - Verifica CI verde no trunk; lista PRs abertos (informativo)
-   - Atualiza o body da release Issue com a versão final e o changelog draft (via `kata-flush-plan-to-issue`)
+   - Atualiza o body da release Issue com a versão final e o changelog draft via MCP `update_issue` (`kata-flush-plan-to-subissue` é específico de Plan sub-issues — release Issue é Eixo B e usa update_issue direto)
 4. **Apresenta:** proposta estruturada ao humano com pergunta explícita "Aprovar e publicar? (sim / editar / cancelar)"
 5. **[GATE HUMANO]** aguarda resposta:
    - **"sim"** → prossegue para Phase 2
@@ -194,6 +194,6 @@ Aprovar e publicar v1.3.0? (sim / editar / cancelar)
 - `lex-issue-status` — Eixo B (release cycle): `status: to release` → `release` → `done`
 - `lex-agent-planning` — Tabela B (release cycle owners)
 - `kata-release-prepare`, `kata-release-publish`, `kata-tag`
-- `kata-flush-plan-to-issue` — atualiza body da release Issue ao longo do ciclo
+- MCP `update_issue` — atualiza body da release Issue ao longo do ciclo (Janus opera no Eixo B; o kata `kata-flush-plan-to-subissue` é específico de Plan sub-issues no Eixo A)
 - `cry-release` — atalho que invoca este Warrior
 - Lição aprendida: v0.11.0 — race condition `gh release create` × workflow `release.yml`
