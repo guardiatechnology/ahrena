@@ -20,7 +20,7 @@ cursor:
   rules:
     _foundation/process/lexis/lex-agent-planning:
       alwaysApply: true
-      description: "Before starting any multi-step task, create a plan at ./{agent}/plans/plan-{NNN}-{slug}.md (or paths.plans override). Show it to the user and wait for confirmation before executing."
+      description: "Before any multi-step task, create a Plan sub-issue on GitHub linked to its parent Issue and materialize the provider cache at ./{agent}/plans/plan-{M}-{slug}.md (where {M} is the sub-issue number and {slug} matches the branch). Present to the user and wait for confirmation before executing."
     _foundation/process/codex/codex-agent-planning:
       alwaysApply: false
       description: "When creating or maintaining agent task plans, consult this codex for canonical path resolution, naming convention, full template, and lifecycle states."
@@ -730,7 +730,7 @@ claude-code:
       description: "When promoting an agent to operational-concrete, enforce the 5-precondition HARD-GATE: 13 files in docs/{context}/agents/{agent}/, dooc/{agent}.md, serves_features populated, reciprocity in feature-agent-map.md, and warrior-metis declared as author."
     _foundation/process/lexis/lex-agent-planning:
       paths: [".claude/plans/**", ".cursor/plans/**", "**/plan-*.md"]
-      description: "Before starting any multi-step task, create a plan at ./{agent}/plans/plan-{NNN}-{slug}.md (or paths.plans override). Show it to the user and wait for confirmation before executing."
+      description: "Before any multi-step task, create a Plan sub-issue on GitHub linked to its parent Issue and materialize the provider cache at ./{agent}/plans/plan-{M}-{slug}.md (where {M} is the sub-issue number and {slug} matches the branch). Present to the user and wait for confirmation before executing."
     _foundation/contributing/lexis/lex-issue-quality:
       paths: [".github/ISSUE_TEMPLATE/**"]
       description: "When creating or reviewing an issue, ensure it uses an approved template (feature-request, epic, user-story-for-api/frontend, bug, tech-task, plan), has required labels, has a defined Issue Type, answers Why/What/How, and (for non-Epic) carries status: todo at creation. Assignee is NOT a creation requirement — it is captured at todo → development by warrior-athena (second HARD-GATE in this Lex)."

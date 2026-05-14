@@ -27,14 +27,14 @@ Garantizar que todo plan (top-level o Plan sub-issue) entre en el flujo Issue-Dr
   5. **Rellena el body de la Issue con el plan canónico** (Summary + Plan section: Objective, Steps, Risks, Dependencies, Open Questions) vía MCP `update_issue` (preferido) o `gh issue edit --body-file` (fallback per `lex-mcp` regla 4)
 - **Modo Plan sub-issue:** invoca `kata-decompose-issue-into-plans` al recibir pedido downstream de Athena Phase 4 (descomposición de la Issue parent). Aplica los mismos 5 pasos para cada Plan sub-issue creada, marcando `Tracked by` apuntando a la Issue parent.
 - Aplica la label `status: todo` en la Issue **solo después** de los 5 pasos completados.
-- Materializa el caché local `.claude/plans/plan-{N}.md` (o `.cursor/plans/plan-{N}.md` para sesiones Cursor) vía `kata-load-plan-from-subissue` (Paso 6 implícito de `kata-plan-task`).
+- Materializa el caché local `.claude/plans/plan-{M}-{slug}.md` (o `.cursor/plans/plan-{M}-{slug}.md` para sesiones Cursor) vía `kata-load-plan-from-subissue` (Paso 6 implícito de `kata-plan-task`).
 - Presenta la Issue + branch + worktree + caché al usuario con pedido explícito de "¿Puedo iniciar?" antes de que Athena asuma Phase 4.
 - Aborta con mensaje estructurado cuando alguno de los 5 pasos falla (template inválido, Issue Type ausente, branch ya existe, worktree colisiona).
 
 ### No Hace
 
 - **No aplica `status: todo` sin los 5 pasos canónicos** — HARD-GATE de `lex-agent-planning` es inviolable.
-- **No materializa el plan fuera de los caminos canónicos** — el body de la Issue es canonical; `.claude/plans/plan-{N}.md` y `.cursor/plans/plan-{N}.md` son cachés locales regenerables (creados/actualizados por `kata-load-plan-from-subissue`); ningún otro camino es válido per `lex-no-plans-under-docs`.
+- **No materializa el plan fuera de los caminos canónicos** — el body de la Issue es canonical; `.claude/plans/plan-{M}-{slug}.md` y `.cursor/plans/plan-{M}-{slug}.md` son cachés locales regenerables (creados/actualizados por `kata-load-plan-from-subissue`); ningún otro camino es válido per `lex-no-plans-under-docs`.
 - **No salta la verificación de Issue Type** — Issue creada vía CLI sin template necesita aplicación manual vía `gh api -X PATCH ... -f type=...`.
 - **No crea worktree antes de la branch remota** — el orden es `gh issue develop` → `git worktree add`. Romper esto desvincula la branch de la Issue en la sidebar.
 - **No aplica assignee en la creación** — per `lex-issue-quality` HARD-GATE 2, el assignee se captura en la transición `todo → development` por Athena, no en la creación.
@@ -72,7 +72,7 @@ Garantizar que todo plan (top-level o Plan sub-issue) entre en el flujo Issue-Dr
 |------|-----------|
 | `kata-plan-task` | Modo top-level: crea Issue + branch + worktree + body canónico |
 | `kata-decompose-issue-into-plans` | Modo Plan sub-issue: descompone la Issue parent en N Plan sub-issues |
-| `kata-load-plan-from-subissue` | Materializa `.claude/plans/plan-{N}.md` (caché local) a partir del body recién grabado de la sub-issue |
+| `kata-load-plan-from-subissue` | Materializa `.claude/plans/plan-{M}-{slug}.md` (caché local) a partir del body recién grabado de la sub-issue |
 
 ## Comportamiento
 
@@ -93,9 +93,9 @@ Garantizar que todo plan (top-level o Plan sub-issue) entre en el flujo Issue-Dr
 5. **Ejecuta Paso 3:** `gh issue develop {N} --base main --name {type}/{N}-{slug}`
 6. **Ejecuta Paso 4:** `git worktree add .worktrees/{N}-{slug} {type}/{N}-{slug}`
 7. **Ejecuta Paso 5:** confirma que el body de la Issue lleva Summary + Plan section completos
-8. **Materializa caché:** `kata-load-plan-from-subissue` crea `.claude/plans/plan-{N}.md` (o `.cursor/plans/plan-{N}.md` en sesiones Cursor)
+8. **Materializa caché:** `kata-load-plan-from-subissue` crea `.claude/plans/plan-{M}-{slug}.md` (o `.cursor/plans/plan-{M}-{slug}.md` en sesiones Cursor)
 9. **Aplica label:** `status: todo` en la Issue
-10. **Confirma al usuario:** "Plan en #{N}, branch `feat/{N}-...`, worktree `.worktrees/{N}-.../`, caché `.claude/plans/plan-{N}.md`. Status: todo. ¿Puedo pasar a Athena (Phase 4)?"
+10. **Confirma al usuario:** "Plan en #{N}, branch `feat/{N}-...`, worktree `.worktrees/{N}-.../`, caché `.claude/plans/plan-{M}-{slug}.md`. Status: todo. ¿Puedo pasar a Athena (Phase 4)?"
 11. **Handoff:** si el usuario aprueba, dispara `kata-flush-plan-to-subissue` (garantizar caché sincronizado) y pasa el control a Athena
 
 **Modo Plan sub-issue (entrada downstream de Athena Phase 4):**

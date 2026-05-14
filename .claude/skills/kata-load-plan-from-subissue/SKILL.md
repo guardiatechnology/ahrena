@@ -1,11 +1,11 @@
 ---
 name: kata-load-plan-from-subissue
-description: "Load Plan from Sub-issue. Materialization of the provider-specific local cache (.claude/plans/plan-{M}.md or .cursor/plans/plan-{M}.md) from the canonical Plan sub-issue body, per the hierarchical model of lex-agent-planning"
+description: "Load Plan from Sub-issue. Materialization of the provider-specific local cache (.claude/plans/plan-{M}-{slug}.md or .cursor/plans/plan-{M}-{slug}.md) from the canonical Plan sub-issue body, per the hierarchical model of lex-agent-planning"
 ---
 
 # Kata: Load Plan from Sub-issue
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Materialization of the provider-specific local cache (`.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`) from the canonical Plan sub-issue body, per the hierarchical model of `lex-agent-planning`
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Materialization of the provider-specific local cache (`.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`) from the canonical Plan sub-issue body, per the hierarchical model of `lex-agent-planning`
 
 ## Workflow
 
@@ -15,7 +15,7 @@ Progress:
 - [ ] 2. Confirm the Plan sub-issue exists (plan-first guardrail)
 - [ ] 3. Read the sub-issue body via MCP `get_issue` (preferred)
 - [ ] 4. Fallback `gh issue view --json body`
-- [ ] 5. Write the body to `.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`
+- [ ] 5. Write the body to `.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`
 - [ ] 6. Validate idempotency
 ```
 
@@ -28,7 +28,7 @@ Progress:
    - Other → consult `.ahrena/.directives` and ask the user if ambiguous.
 3. Resolve the destination path:
    - If `dest_path` was passed, use it.
-   - Otherwise, final path: `<provider-dir>/plan-{M}.md`.
+   - Otherwise, final path: `<provider-dir>/plan-{M}-{slug}.md`.
 4. Ensure the destination directory exists (`mkdir -p`).
 
 ### Step 2: Confirm the Plan sub-issue exists
@@ -75,7 +75,7 @@ If `gh` also fails:
 1. Single retry after a 5-second backoff.
 2. If it persists, offer the user: (a) retry with another command, (b) pause for investigation, (c) abort.
 
-### Step 5: Write the body to `.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`
+### Step 5: Write the body to `.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`
 
 1. If the local cache already exists and has content, **preserve existing `<!-- not-flushed -->` ... `<!-- /not-flushed -->` blocks**:
    - Extract all `<!-- not-flushed -->` blocks from the current file.
@@ -102,7 +102,7 @@ If there is any difference outside `<!-- not-flushed -->` blocks, the reload sil
 
 | Output | Format | Destination |
 |--------|--------|-------------|
-| Local cache | Markdown (superset of the sub-issue body + preserved `<!-- not-flushed -->` blocks) | `.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md` |
+| Local cache | Markdown (superset of the sub-issue body + preserved `<!-- not-flushed -->` blocks) | `.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md` |
 
 ## Execution Example
 

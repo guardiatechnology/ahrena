@@ -50,7 +50,7 @@ A Lei correspondente é `lex-checkpoint`. Os procedimentos operacionais são `ka
 | Localização | raiz do workspace | `/path/to/repo/.checkpoint` |
 | Encoding | UTF-8, line endings LF | — |
 | Schema | 4 seções obrigatórias + frontmatter de 2 campos | Ver `lex-checkpoint` rule 3 |
-| Active plans entries | `\`plan-NNN\` — slug; 1-linha de contexto ≤ 80 chars` | `` `plan-040` — reposicionamento; em redação `` |
+| Active plans entries | `\`plan-{M}-{slug}\` — slug; 1-linha de contexto ≤ 80 chars` | `` `plan-040` — reposicionamento; em redação `` |
 | Open threads entries | 1-2 linhas em bullet | `- Avaliar absorção de Risks da sessão` |
 | Notes | texto livre, sem schema | qualquer markdown |
 | Tamanho típico | < 4 KB | — |

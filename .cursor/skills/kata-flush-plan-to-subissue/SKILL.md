@@ -1,11 +1,11 @@
 ---
 name: kata-flush-plan-to-subissue
-description: "Flush Plan to Sub-issue. Synchronization of the provider-specific local cache (.claude/plans/plan-{M}.md or .cursor/plans/plan-{M}.md) to the canonical Plan sub-issue body, per the hierarchical model of lex-agent-planning"
+description: "Flush Plan to Sub-issue. Synchronization of the provider-specific local cache (.claude/plans/plan-{M}-{slug}.md or .cursor/plans/plan-{M}-{slug}.md) to the canonical Plan sub-issue body, per the hierarchical model of lex-agent-planning"
 ---
 
 # Kata: Flush Plan to Sub-issue
 
-> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Synchronization of the provider-specific local cache (`.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`) to the canonical Plan sub-issue body, per the hierarchical model of `lex-agent-planning`
+> **Prefix:** `kata-` | **Type:** Repeatable Skill | **Scope:** Synchronization of the provider-specific local cache (`.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`) to the canonical Plan sub-issue body, per the hierarchical model of `lex-agent-planning`
 
 ## Workflow
 
@@ -24,8 +24,8 @@ Progress:
 
 1. If `source_path` was passed, use it.
 2. Otherwise, detect the agent runtime:
-   - Claude Code → `.claude/plans/plan-{M}.md`
-   - Cursor → `.cursor/plans/plan-{M}.md`
+   - Claude Code → `.claude/plans/plan-{M}-{slug}.md`
+   - Cursor → `.cursor/plans/plan-{M}-{slug}.md`
 3. If the file does not exist or is empty, abort with a message directing the user to run `kata-load-plan-from-subissue` first.
 
 ### Step 2: Read the local cache

@@ -182,7 +182,7 @@ Os três `git branch` finais não devem retornar nada. `git worktree list` não 
 - [ ] Issue guarda-chuva está `CLOSED` (auto-fechada pelo último `Closes #N` ou manualmente)
 - [ ] Worktree compartilhado removido
 - [ ] Todas as branches locais da stack deletadas
-- [ ] Plan correspondente (`plan-NNN-...`) movido para `archived/` se houver
+- [ ] Plan correspondente (`plan-{M}-{slug}`) movido para `archived/` se houver
 
 ## Saídas
 

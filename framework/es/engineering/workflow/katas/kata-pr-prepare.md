@@ -148,7 +148,7 @@ Ver [documento de arquitectura](.ahrena/issues/{n}/03-architecture.md).
 |---|---|---|---|---|
 | `85846253` | claude-vscode | creator + executor | 2026-05-11T12:30Z | 2026-05-11T14:00Z |
 
-- Plan(s): plan-{NNN}
+- Plan(s): plan-{M}-{slug}
 - Worktree: `.worktrees/{N}-{slug}`
 - Cumulative active time: ~Xh Ymin
 

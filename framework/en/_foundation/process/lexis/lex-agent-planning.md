@@ -39,10 +39,10 @@ Issue (User Story | Bug | Tech Task)            ← problem, Why/What/How, AC
 |---|---|---|---|
 | **Issue (parent)** | `https://github.com/{owner}/{repo}/issues/{N}` | Carries problem, motivation, acceptance criteria. Has no branch of its own | GitHub audit log |
 | **Plan sub-issue** | `https://github.com/{owner}/{repo}/issues/{M}`, sub-issue of #{N} | Canonical. Summary + Plan (Objective, Steps, Risks, Dependencies, Open Questions). Carries dedicated branch and PR(s) | GitHub audit log |
-| **Provider cache** | `.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`, gitignored | AI working memory + scratch. Superset of the sub-issue body + `<!-- not-flushed -->` blocks. Named by the sub-issue number | Regenerable local cache |
+| **Provider cache** | `.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`, gitignored | AI working memory + scratch. Superset of the sub-issue body + `<!-- not-flushed -->` blocks. Named by the sub-issue number | Regenerable local cache |
 | **Phase artifacts** | `.ahrena/issues/issue-{N}/`, committed | `01-brief.md` … `06-quality-report.md` of the Issue-Driven flow (tied to the parent Issue) | Git |
 
-The local cache is provider-specific: Claude agents use `.claude/plans/plan-{M}.md`; Cursor agents use `.cursor/plans/plan-{M}.md`. There is no shared cache between providers — each one carries its working memory independently, regenerated from the sub-issue via `kata-load-plan-from-subissue`.
+The local cache is provider-specific: Claude agents use `.claude/plans/plan-{M}-{slug}.md`; Cursor agents use `.cursor/plans/plan-{M}-{slug}.md`. There is no shared cache between providers — each one carries its working memory independently, regenerated from the sub-issue via `kata-load-plan-from-subissue`.
 
 ## Plan sub-issue body schema (canonical)
 
@@ -73,7 +73,7 @@ Parent: #{N}
 {Open questions that need a decision before/during execution; "None" if none.}
 ```
 
-Local cache schema (`.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`): **superset** of the sub-issue body. Carries YAML front-matter for session metadata + the full mirrored body + marked local sections.
+Local cache schema (`.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`): **superset** of the sub-issue body. Carries YAML front-matter for session metadata + the full mirrored body + marked local sections.
 
 **Front-matter** (canonical):
 
@@ -199,7 +199,7 @@ When the user signals plan intent without referencing an Issue (e.g., "let's pla
 - **Path B (plan-first / draft):** draft the plan directly in `.claude/plans/plan-{slug}.md` (or `.cursor/plans/...`) with front-matter `status: draft, issue: TBD`. When the draft matures, **promote** in an atomic step:
   1. `kata-contributing-issue` creates the parent Issue if there is not one yet.
   2. `kata-decompose-issue-into-plans` or `kata-plan-task` creates the canonical Plan sub-issue.
-  3. Rename the file from `plan-{slug}.md` to `plan-{M}.md` (where `{M}` is the number of the created sub-issue).
+  3. Rename the file from `plan-{slug}.md` to `plan-{M}-{slug}.md` (where `{M}` is the number of the created sub-issue).
   4. Update the front-matter — `status: draft → todo`, `issue: TBD → {owner/repo#M}`, record `promoted_at` with a UTC timestamp.
   5. Apply the canonical `status: todo` label on the newly created sub-issue (Eunomia's Gate 1).
 
@@ -297,7 +297,7 @@ Intermediate toggles, scratch edits (`<!-- not-flushed -->`), and working notes 
 - **Parent Issue (User Story / Bug / Tech Task):** carries problem, motivation, AC. Has no branch of its own. Typically closes via `Closes #{N}` on the final PR of the final Plan sub-issue.
 - **Plan sub-issue:** carries the canonical plan in the body; the `status: <name>` label is the only source of truth for state.
 - **PR:** starting at `to review`, the PR carries the corresponding `status: <name>` label, updated by Athena/Argos/Janus as state advances. Label sync is the transition owner's responsibility.
-- **`.claude/plans/plan-{M}.md` or `.cursor/plans/plan-{M}.md`:** provider-specific regenerable local cache; never committed; rebuilt by `kata-load-plan-from-subissue` on fresh clone.
+- **`.claude/plans/plan-{M}-{slug}.md` or `.cursor/plans/plan-{M}-{slug}.md`:** provider-specific regenerable local cache; never committed; rebuilt by `kata-load-plan-from-subissue` on fresh clone.
 - **`.ahrena/issues/issue-{N}/`:** committed; receives Phase artifacts of the Issue-Driven flow for parent Issue #{N} (per `lex-issue-driven`).
 - **Checkpoint (`.checkpoint`):** the Plan covers **task** (Steps, Decisions, Risks in the sub-issue body); the checkpoint covers **session** (window focus, hand-off between Plans, parallel threads). Overlap is FORBIDDEN — see `lex-checkpoint` rule 5.
 - **ADR:** when a Plan identifies a relevant architectural decision, an ADR MUST be opened per `lex-issue-driven`. Example filenames: `ADR-008-use-event-sourcing-for-refund-audit-trail.md`, `ADR-007-use-fastapi-routers.md`, `ADR-001-use-event-sourcing-for-ledger.md`, `ADR-002-migrate-to-fastapi.md`.

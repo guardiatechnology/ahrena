@@ -84,7 +84,7 @@
 | `kata-contributing-pr` | Phase 7 — creates single PR when `stack` absent OR `stack.approved: false` |
 | `kata-stacked-pr-create` | Phase 7 — creates a chain of stacked PRs when `stack.approved: true` |
 | `kata-session-heartbeat` | Updates heartbeat at every transition (per `codex-session-tracking`) |
-| `kata-load-plan-from-subissue` | Materializes `.claude/plans/plan-{M}.md` (local cache) from the Plan sub-issue body at the start of a session |
+| `kata-load-plan-from-subissue` | Materializes `.claude/plans/plan-{M}-{slug}.md` (local cache) from the Plan sub-issue body at the start of a session |
 | `kata-flush-plan-to-subissue` | Flushes the local cache to the Plan sub-issue body at every transition and completed Step |
 
 ### Delegated Warriors
@@ -100,7 +100,7 @@
 | `warrior-argos` | Automated PR review (sub-cycle `to review ↔ review`) | `cry-review-pr` |
 | `warrior-janus` | Release (transitions `to release → release → done`) | `kata-release-prepare`, `kata-release-publish` |
 
-> **Eunomia + Plan sub-issue model:** Athena receives the handoff from Eunomia after the 5 canonical steps of the `— → todo` HARD-GATE. At the start of each work session on a plan, Athena MUST invoke `kata-load-plan-from-subissue` to materialize `.claude/plans/plan-{M}.md` (local cache) from the canonical Plan sub-issue body. On every `status:` label transition and on every completed Step, Athena MUST invoke `kata-flush-plan-to-subissue` to persist the local cache back to the Plan sub-issue body.
+> **Eunomia + Plan sub-issue model:** Athena receives the handoff from Eunomia after the 5 canonical steps of the `— → todo` HARD-GATE. At the start of each work session on a plan, Athena MUST invoke `kata-load-plan-from-subissue` to materialize `.claude/plans/plan-{M}-{slug}.md` (local cache) from the canonical Plan sub-issue body. On every `status:` label transition and on every completed Step, Athena MUST invoke `kata-flush-plan-to-subissue` to persist the local cache back to the Plan sub-issue body.
 
 ## Behavior
 

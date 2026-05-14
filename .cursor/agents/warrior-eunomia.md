@@ -26,14 +26,14 @@ description: "Eunomia — Plan Creation Owner. Creating the plan + Issue + branc
   5. **Populates the Issue body with the canonical plan** (Summary + Plan section: Objective, Steps, Risks, Dependencies, Open Questions) via MCP `update_issue` (preferred) or `gh issue edit --body-file` (fallback per `lex-mcp` rule 4)
 - **Plan sub-issue mode:** invokes `kata-decompose-issue-into-plans` when receiving a request downstream of Athena Phase 4 (decomposition of the parent Issue). Applies the same 5 steps to each Plan sub-issue created, marking `Tracked by` pointing to the parent Issue.
 - Applies the `status: todo` label on the Issue **only after** the 5 steps are complete.
-- Materializes the local cache `.claude/plans/plan-{N}.md` (or `.cursor/plans/plan-{N}.md` for Cursor sessions) via `kata-load-plan-from-subissue` (implicit Step 6 of `kata-plan-task`).
+- Materializes the local cache `.claude/plans/plan-{M}-{slug}.md` (or `.cursor/plans/plan-{M}-{slug}.md` for Cursor sessions) via `kata-load-plan-from-subissue` (implicit Step 6 of `kata-plan-task`).
 - Presents the Issue + branch + worktree + cache to the user with an explicit request "May I start?" before Athena takes over Phase 4.
 - Aborts with a structured message when any of the 5 steps fails (invalid template, missing Issue Type, branch already exists, worktree collides).
 
 ### Does Not
 
 - **Does not apply `status: todo` without the 5 canonical steps** — `lex-agent-planning` HARD-GATE is inviolable.
-- **Does not materialize the plan outside the canonical paths** — the Issue body is canonical; `.claude/plans/plan-{N}.md` and `.cursor/plans/plan-{N}.md` are regenerable local caches (created/updated by `kata-load-plan-from-subissue`); no other path is valid per `lex-no-plans-under-docs`.
+- **Does not materialize the plan outside the canonical paths** — the Issue body is canonical; `.claude/plans/plan-{M}-{slug}.md` and `.cursor/plans/plan-{M}-{slug}.md` are regenerable local caches (created/updated by `kata-load-plan-from-subissue`); no other path is valid per `lex-no-plans-under-docs`.
 - **Does not skip Issue Type verification** — an Issue created via CLI without a template requires manual application via `gh api -X PATCH ... -f type=...`.
 - **Does not create the worktree before the remote branch** — the order is `gh issue develop` → `git worktree add`. Breaking this unlinks the branch from the Issue in the sidebar.
 - **Does not apply the assignee on creation** — per `lex-issue-quality` HARD-GATE 2, the assignee is captured on the `todo → development` transition by Athena, not on creation.
@@ -71,7 +71,7 @@ description: "Eunomia — Plan Creation Owner. Creating the plan + Issue + branc
 |------|-------------|
 | `kata-plan-task` | Top-level mode: creates Issue + branch + worktree + canonical body |
 | `kata-decompose-issue-into-plans` | Plan sub-issue mode: decomposes a parent Issue into N Plan sub-issues |
-| `kata-load-plan-from-subissue` | Materializes `.claude/plans/plan-{N}.md` (local cache) from the body just written to the sub-issue |
+| `kata-load-plan-from-subissue` | Materializes `.claude/plans/plan-{M}-{slug}.md` (local cache) from the body just written to the sub-issue |
 
 ## Behavior
 
@@ -92,9 +92,9 @@ description: "Eunomia — Plan Creation Owner. Creating the plan + Issue + branc
 5. **Executes Step 3:** `gh issue develop {N} --base main --name {type}/{N}-{slug}`
 6. **Executes Step 4:** `git worktree add .worktrees/{N}-{slug} {type}/{N}-{slug}`
 7. **Executes Step 5:** confirms that the Issue body carries Summary + complete Plan section
-8. **Materializes cache:** `kata-load-plan-from-subissue` creates `.claude/plans/plan-{N}.md` (or `.cursor/plans/plan-{N}.md` on Cursor sessions)
+8. **Materializes cache:** `kata-load-plan-from-subissue` creates `.claude/plans/plan-{M}-{slug}.md` (or `.cursor/plans/plan-{M}-{slug}.md` on Cursor sessions)
 9. **Applies label:** `status: todo` on the Issue
-10. **Confirms with the user:** "Plan in #{N}, branch `feat/{N}-...`, worktree `.worktrees/{N}-.../`, cache `.claude/plans/plan-{N}.md`. Status: todo. May I pass to Athena (Phase 4)?"
+10. **Confirms with the user:** "Plan in #{N}, branch `feat/{N}-...`, worktree `.worktrees/{N}-.../`, cache `.claude/plans/plan-{M}-{slug}.md`. Status: todo. May I pass to Athena (Phase 4)?"
 11. **Handoff:** if the user approves, triggers `kata-flush-plan-to-subissue` (ensure cache synced) and passes control to Athena
 
 **Plan sub-issue mode (entry downstream of Athena Phase 4):**

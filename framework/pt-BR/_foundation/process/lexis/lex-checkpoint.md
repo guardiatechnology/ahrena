@@ -80,8 +80,8 @@ A delimitação entre plano e checkpoint é categórica:
 
 | Conteúdo | Vive em |
 |---|---|
-| Objetivo, Steps `[x]`, Status (`pending → in-progress → done`), Decisões fechadas, Riscos, Verificação | Plano (`{plans_dir}/plan-NNN-{slug}.md`, resolvido por `paths.plans` em `.ahrena/.directives` ou padrão por agente) — committed |
-| Activity, Progress detalhado, Artifacts produced, Next steps de uma task | Plano — committed |
+| Objetivo, Steps `[x]`, Status (`pending → in-progress → done`), Decisões fechadas, Riscos, Verificação | Plano: sub-issue Plan no GitHub (canonical body) + provider cache `.claude/plans/plan-{M}-{slug}.md` ou `.cursor/plans/plan-{M}-{slug}.md` (gitignored, regenerável) |
+| Activity, Progress detalhado, Artifacts produced, Next steps de uma task | Plano — body da sub-issue no GitHub |
 | Foco geral da janela de trabalho (Session focus) | Checkpoint — gitignored |
 | Ponteiros para múltiplos planos ativos (Active plans) | Checkpoint — gitignored |
 | Threads paralelas que não viraram plano (Open threads) | Checkpoint — gitignored |

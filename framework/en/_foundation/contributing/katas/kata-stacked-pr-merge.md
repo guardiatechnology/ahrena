@@ -182,7 +182,7 @@ The three final `git branch` calls MUST return nothing. `git worktree list` MUST
 - [ ] Umbrella issue is `CLOSED` (auto-closed by the last `Closes #N` or manually)
 - [ ] Shared worktree removed
 - [ ] All local stack branches deleted
-- [ ] Corresponding plan (`plan-NNN-...`) moved to `archived/` if it exists
+- [ ] Corresponding plan (`plan-{M}-{slug}`) moved to `archived/` if it exists
 
 ## Outputs
 
