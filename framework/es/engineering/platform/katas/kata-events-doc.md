@@ -50,7 +50,7 @@ Progreso:
 
 ### Paso 3: Identificar Tipos de Evento y Payloads
 
-1. Listar **tipos de evento** en el formato `event.guardia.{domain}.{entity_name}.{event_name}` (ej.: `event.guardia.payments.transaction.created`, `event.guardia.payments.scheduled_transfer.cancelled`)
+1. Listar **tipos de evento** en el formato `event.guardia.{domain}.{entity_name}.{event_name}` (ej.: `event.guardia.financial.record.created`, `event.guardia.financial.scheduled_transfer.cancelled`)
 2. Para cada tipo, definir: **source** (URI base + entity_type + entity_id cuando aplique), **subject** (`{entity_type}/{entity_id}`), **data** (campos conforme codex-entities; sin history)
 3. Garantizar que cada evento tenga **idempotencykey** documentado y que el tamaño del evento sea inferior a 12KB
 4. Mapear entidades referenciadas en `data` a los campos obligatorios de codex-entities
@@ -109,9 +109,9 @@ Módulo: platform. Entidades: scheduled_transfer. Eventos: created (tras POST), 
 ### Output de Ejemplo (resumido)
 
 Archivo `docs/{context}/events/events.md` con:
-- event.guardia.payments.scheduled_transfer.created — tras creación; source, subject, idempotencykey; data con entity_id, entity_type, created_at, updated_at, version, etc.
-- event.guardia.payments.scheduled_transfer.updated
-- event.guardia.payments.scheduled_transfer.cancelled
+- event.guardia.financial.scheduled_transfer.created — tras creación; source, subject, idempotencykey; data con entity_id, entity_type, created_at, updated_at, version, etc.
+- event.guardia.financial.scheduled_transfer.updated
+- event.guardia.financial.scheduled_transfer.cancelled
 
 Cada uno con descripción, source, subject, data y ejemplo JSON conforme codex-cloudevents.
 

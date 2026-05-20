@@ -19,7 +19,7 @@ Este Codex descreve o uso da especificação CloudEvents para representar evento
 | Propriedade | Tipo | Padrão | Obrigatório | Descrição |
 |-------------|------|--------|-------------|-----------|
 | id | {entity_id_prefix}:{uuid_v7} | — | Sim | Identificador único da emissão do evento. Usa o MESMO `entity_id_prefix` da entidade que emite, com UUID v7 NOVO a cada emissão (RFC 9562). DEVE ser único por evento — a mesma entidade emite vários eventos (ex.: `created`, `approved`, `executed`), cada um com `id` distinto. NÃO é igual ao `entity_id`. Imutável. |
-| source | URI | — | Sim | Origem do evento. Formato: `https://api.guardia.technology/{context}/v{N}/{resource}/{entity_id}`, onde `{context}` é o bounded context emissor em kebab-case, `{N}` é a versão major da API (ex.: `1`) e `{resource}` é o recurso de API plural em kebab-case derivado de `entity_type` (ex.: `TRANSACTION` → `transactions`, `SCHEDULED_TRANSFER` → `scheduled-transfers`). |
+| source | URI | — | Sim | Origem do evento. Formato: `https://api.guardia.technology/{context}/v{N}/{resource}/{entity_id}`, onde `{context}` é o bounded context emissor em kebab-case (contexts canônicos da Guardia: `accounting`, `financial`, `tax`, `fiscal`), `{N}` é a versão major da API (ex.: `1`) e `{resource}` é o recurso de API plural em kebab-case derivado de `entity_type` (ex.: `RECORD` → `records`, `LEDGER_ENTRY` → `ledger-entries`). |
 | specversion | string | 1.0 | Sim | Versão da spec CloudEvents; valor fixo "1.0". |
 | type | string | — | Sim | Formato `event.{provider}.{domain}.{entity_name}.{event_name}`; todos os tokens em snake_case minúsculo; catalogado no Hub. |
 | time | datetime | — | Sim | Timestamp da ocorrência (RFC 3339). |
@@ -68,18 +68,18 @@ O prefixo aparece onde quer que um `entity_id` seja referenciado (`data.entity_i
 
 ```json
 {
-  "id": "txn:019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
-  "source": "https://api.guardia.technology/payments/v1/transactions/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "id": "rec:019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
+  "source": "https://api.guardia.technology/financial/v1/records/rec:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "specversion": "1.0",
-  "type": "event.guardia.payments.transaction.created",
+  "type": "event.guardia.financial.record.created",
   "time": "2026-03-08T12:00:00Z",
   "datacontenttype": "application/json",
-  "dataschema": "https://<schema-base>/schemas/transaction.v1.json",
-  "subject": "TRANSACTION/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "dataschema": "https://<schema-base>/schemas/record.v1.json",
+  "subject": "RECORD/rec:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "idempotencykey": "019b9f12-0000-7000-8000-000000000002",
   "data": {
-    "entity_id": "txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
-    "entity_type": "TRANSACTION",
+    "entity_id": "rec:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+    "entity_type": "RECORD",
     "external_entity_id": "ext-123",
     "created_at": "2026-03-08T12:00:00Z",
     "updated_at": "2026-03-08T12:00:00Z",
