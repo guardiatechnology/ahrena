@@ -187,11 +187,11 @@ Discovery catalog delivered to Phase 2 (`kata-events-doc`):
 **CloudEvents catalog:**
 | Domain Event | CloudEvents type | data (key fields) |
 |---|---|---|
-| ScheduledTransferRequested | event.guardia.platform.scheduled_transfer.requested | entity_id, amount, currency, scheduled_date, requestor_id |
-| ScheduledTransferApproved | event.guardia.platform.scheduled_transfer.approved | entity_id, approver_id, approved_at |
-| ScheduledTransferExecuted | event.guardia.platform.scheduled_transfer.executed | entity_id, executed_at, ledger_entry_id |
-| ScheduledTransferFailed | event.guardia.platform.scheduled_transfer.failed | entity_id, failure_reason, failed_at |
-| ScheduledTransferCancelled | event.guardia.platform.scheduled_transfer.cancelled | entity_id, cancelled_by, cancelled_at |
+| ScheduledTransferRequested | event.guardia.financial.scheduled_transfer.requested | entity_id, amount, currency, scheduled_date, requestor_id |
+| ScheduledTransferApproved | event.guardia.financial.scheduled_transfer.approved | entity_id, approver_id, approved_at |
+| ScheduledTransferExecuted | event.guardia.financial.scheduled_transfer.executed | entity_id, executed_at, ledger_entry_id |
+| ScheduledTransferFailed | event.guardia.financial.scheduled_transfer.failed | entity_id, failure_reason, failed_at |
+| ScheduledTransferCancelled | event.guardia.financial.scheduled_transfer.cancelled | entity_id, cancelled_by, cancelled_at |
 
 ## Constraints
 

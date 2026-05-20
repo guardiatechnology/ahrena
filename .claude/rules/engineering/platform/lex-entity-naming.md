@@ -62,7 +62,7 @@ The CloudEvents type format `event.{provider}.{domain}.{entity_name}.{event_name
 - `{domain}`: `platform`, `reconciliation`, `fiscal`
 - `{entity_name}`: lowercase form of the UPPER_SNAKE_CASE `entity_type` (e.g., `SCHEDULED_TRANSFER` → `scheduled_transfer`)
 - `{event_name}`: `created`, `approved`, `executed`, `failed`, `cancelled`
-- Full example: `event.guardia.platform.scheduled_transfer.approved`
+- Full example: `event.guardia.financial.scheduled_transfer.approved`
 
 ### 6. Database column names — snake_case
 
@@ -74,7 +74,7 @@ Database column names MUST use snake_case:
 
 In DDD artifacts (domain model documents, bounded context diagrams, aggregate definitions), **aggregate and entity names used as conceptual identifiers** MUST use PascalCase. This is the sole exception:
 - Aggregate in DDD doc: `ScheduledTransfer`, `LedgerEntry`, `Transaction`
-- The same entity at system boundaries: `entity_type: "SCHEDULED_TRANSFER"`, `event.guardia.platform.scheduled_transfer.created`
+- The same entity at system boundaries: `entity_type: "SCHEDULED_TRANSFER"`, `event.guardia.financial.scheduled_transfer.created`
 
 PascalCase in DDD documents reflects domain language; UPPER_SNAKE_CASE at system boundaries enforces technical consistency.
 
@@ -98,7 +98,7 @@ API resource URL path segments follow kebab-case (`/v1/scheduled-transfers`) per
 }
 ```
 
-CloudEvents type: `event.guardia.platform.scheduled_transfer.approved`
+CloudEvents type: `event.guardia.financial.scheduled_transfer.approved`
 
 CloudEvents subject: `SCHEDULED_TRANSFER/txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`
 
@@ -118,7 +118,7 @@ Cross-entity reference: `"transaction_id": "txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d
 }
 ```
 
-CloudEvents type (invalid): `event.guardia.platform.ScheduledTransfer.Approved`
+CloudEvents type (invalid): `event.guardia.financial.ScheduledTransfer.Approved`
 
 ## Automated Validation
 

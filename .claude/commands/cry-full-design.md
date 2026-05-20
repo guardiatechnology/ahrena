@@ -54,7 +54,7 @@ Deliver a final summary: artifacts in `docs/{context}/oas/` (OAS + API doc) and 
 **Expected output:**
 
 - **Phase 1:** Resources and endpoints (POST, GET, GET/:id, PATCH, DELETE); OpenAPI specification and API document created/updated in **`docs/{context}/oas/`**
-- **Phase 2:** Event catalog (event.guardia.platform.scheduled_transfer.created, .updated, .cancelled); events document created/updated in **`docs/{context}/events/`**
+- **Phase 2:** Event catalog (event.guardia.financial.scheduled_transfer.created, .updated, .cancelled); events document created/updated in **`docs/{context}/events/`**
 - Summary: three artifacts — OAS and API doc in `docs/scheduled-payments/oas/`; events doc in `docs/scheduled-payments/events/`
 
 ## Constraints

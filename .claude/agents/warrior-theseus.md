@@ -104,7 +104,7 @@ Once you answer, I will map entities, aggregates, use cases, and identify the in
 |--------|-------------|-----------------|-----------|
 | ScheduledTransfer | `scheduled_transfer` | ScheduledPayments | requested → approved → executed \| failed \| cancelled |
 
-**Integration Events identified:** `event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
+**Integration Events identified:** `event.guardia.financial.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
 
 **P1 hotspot resolved:** retry policy on execution failure — defined as: retry once after 30 minutes, then move to `failed` state.
 

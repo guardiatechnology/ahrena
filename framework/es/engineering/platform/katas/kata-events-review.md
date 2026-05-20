@@ -173,8 +173,8 @@ Modo de corrección: report
 
 | Severidad | Evento / Archivo | Regla | Finding | Sugerencia |
 |-----------|------------------|-------|---------|------------|
-| 🔴 BLOCKER | event.guardia.platform.scheduledTransfer.approved | lex-entity-naming | Segmento entity_type en camelCase | Renombrar a `scheduled_transfer` (snake_case) |
-| 🟡 WARNING | event.guardia.platform.scheduled_transfer.executed | lex-cloudevents | data.failure_reason marcado opcional pero ausente del catálogo de la entidad | Agregar `failure_reason` en docs/scheduled-payments/entities/scheduled-transfer.md |
+| 🔴 BLOCKER | event.guardia.financial.scheduledTransfer.approved | lex-entity-naming | Segmento entity_type en camelCase | Renombrar a `scheduled_transfer` (snake_case) |
+| 🟡 WARNING | event.guardia.financial.scheduled_transfer.executed | lex-cloudevents | data.failure_reason marcado opcional pero ausente del catálogo de la entidad | Agregar `failure_reason` en docs/scheduled-payments/entities/scheduled-transfer.md |
 | 🟡 WARNING | tabla del catálogo events.md | codex-feature-design-docs | Columna Consumers ausente | Llenar la columna Consumers para todas las filas |
 
 **Matriz de breaking change:** ninguna.

@@ -188,9 +188,9 @@ Resumen en 2-4 frases de los eventos publicados por este contexto y sus principa
 
 | entity_type | event_name | type completo | Publicador | Consumidores |
 |-------------|------------|---------------|------------|--------------|
-| `scheduled_transfer` | `requested` | `event.guardia.platform.scheduled_transfer.requested` | ScheduledPayments | Approval, Audit |
-| `scheduled_transfer` | `approved` | `event.guardia.platform.scheduled_transfer.approved` | Approval | ScheduledPayments, Audit |
-| `scheduled_transfer` | `executed` | `event.guardia.platform.scheduled_transfer.executed` | BankingIntegration | ScheduledPayments, Ledger |
+| `scheduled_transfer` | `requested` | `event.guardia.financial.scheduled_transfer.requested` | ScheduledPayments | Approval, Audit |
+| `scheduled_transfer` | `approved` | `event.guardia.financial.scheduled_transfer.approved` | Approval | ScheduledPayments, Audit |
+| `scheduled_transfer` | `executed` | `event.guardia.financial.scheduled_transfer.executed` | BankingIntegration | ScheduledPayments, Ledger |
 
 ---
 
@@ -223,8 +223,8 @@ stateDiagram-v2
 {
   "specversion": "1.0",
   "id": "01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
-  "source": "/guardia/platform/scheduled-payments",
-  "type": "event.guardia.platform.scheduled_transfer.requested",
+  "source": "https://api.guardia.technology/financial/v1/scheduled-transfers/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "type": "event.guardia.financial.scheduled_transfer.requested",
   "subject": "scheduled_transfer/{entity_id}",
   "time": "2026-04-26T10:00:00Z",
   "datacontenttype": "application/json",

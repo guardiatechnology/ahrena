@@ -115,7 +115,7 @@ Escala a humano (o a Athena/Kronos) cuando:
 
 ## Ejemplo de Interacción
 
-**Athena (Phase 4):** Issue #58 declara `component: jobs`. AC-1: al recibir `event.guardia.platform.refund.created`, procesar reembolso en el banco y publicar `event.guardia.platform.refund.executed` (con idempotencia sobre `entity_id`).
+**Athena (Phase 4):** Issue #58 declara `component: jobs`. AC-1: al recibir `event.guardia.financial.refund.created`, procesar reembolso en el banco y publicar `event.guardia.financial.refund.executed` (con idempotencia sobre `entity_id`).
 
 **Apollo-Jobs:**
 

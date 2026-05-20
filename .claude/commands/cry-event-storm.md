@@ -14,7 +14,7 @@ Event Storm — CloudEvents Discovery and Documentation. Shortcut to discover an
 
 | Parameter | Required | Description | Example |
 |-----------|:--------:|-------------|---------|
-| `feature or module context` | Yes | Module name and domain description (for Discovery) or explicit list of event types (for Documentation only) | `"Platform module, scheduled transfers — unknown events"` or `"event.guardia.platform.scheduled_transfer.created, .updated, .cancelled"` |
+| `feature or module context` | Yes | Module name and domain description (for Discovery) or explicit list of event types (for Documentation only) | `"Platform module, scheduled transfers — unknown events"` or `"event.guardia.financial.scheduled_transfer.created, .updated, .cancelled"` |
 | `source base` | No | Base URI for `source` (e.g., `https://tenant.guardia.finance/platform/api/v1`). If omitted, the agent proposes per codex-cloudevents | `https://tenant.guardia.finance/platform/api/v1` |
 
 ## What the Command Does

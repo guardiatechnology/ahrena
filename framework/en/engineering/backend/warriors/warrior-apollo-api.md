@@ -130,7 +130,7 @@ Escalates to the human (or to Athena/Daedalus) when:
    - `application/use_cases/create_refund.py` — orchestrates repository + publisher, returns `Result[RefundId, Error]`
    - `adapters/inbound/router_refunds.py` — FastAPI route translates Pydantic → command, `Result` → response
    - `adapters/outbound/refund_repository.py` — async SQLAlchemy 2.0 with idempotency store
-   - `adapters/outbound/refund_events_publisher.py` — publishes `event.guardia.platform.refund.created`
+   - `adapters/outbound/refund_events_publisher.py` — publishes `event.guardia.financial.refund.created`
    - Tests: unit in `domain/` + `use_case/`; integration with testcontainers PG + httpx_mock
 4. Implementing now; coming back with Ruff/mypy/pytest green.
 
