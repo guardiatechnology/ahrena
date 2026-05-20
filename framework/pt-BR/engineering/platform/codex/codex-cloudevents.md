@@ -18,7 +18,7 @@ Este Codex descreve o uso da especificação CloudEvents para representar evento
 
 | Propriedade | Tipo | Padrão | Obrigatório | Descrição |
 |-------------|------|--------|-------------|-----------|
-| id | UUID v7 | — | Sim | Identificador único da emissão do evento. UUID v7 conforme RFC 9562. DEVE ser único por evento — a mesma entidade pode emitir vários eventos (ex.: `created`, `approved`, `executed`), cada um com `id` distinto. NÃO é igual ao `entity_id`. Imutável. |
+| id | {entity_id_prefix}:{uuid_v7} | — | Sim | Identificador único da emissão do evento. Usa o MESMO `entity_id_prefix` da entidade que emite, com UUID v7 NOVO a cada emissão (RFC 9562). DEVE ser único por evento — a mesma entidade emite vários eventos (ex.: `created`, `approved`, `executed`), cada um com `id` distinto. NÃO é igual ao `entity_id`. Imutável. |
 | source | URI | — | Sim | Origem do evento. Formato: `https://api.guardia.technology/{context}/{entity_type}/{entity_id}` |
 | specversion | string | 1.0 | Sim | Versão da spec CloudEvents; valor fixo "1.0". |
 | type | string | — | Sim | Formato `event.{provider}.{domain}.{entity_name}.{event_name}`; todos os tokens em snake_case minúsculo; catalogado no Hub. |
@@ -62,13 +62,13 @@ Toda entidade tem um prefixo curto (2–5 caracteres alfanuméricos minúsculos)
 
 Exemplos: `txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`, `rec:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`
 
-O prefixo aparece onde quer que um `entity_id` seja referenciado: `data.entity_id`, `subject`, `source` e em qualquer campo de referência cruzada de entidade em `data`. O `id` do CloudEvents NÃO é um `entity_id` — é um UUID v7 novo a cada emissão de evento e não carrega prefixo.
+O prefixo aparece onde quer que um `entity_id` seja referenciado (`data.entity_id`, `subject`, `source`, campos de referência cruzada em `data`) **e** no `id` do CloudEvents. O `id` reusa o prefixo da entidade para manter eventos da mesma família identificáveis à primeira vista, mas o UUID v7 é novo a cada emissão — então `id` ≠ `entity_id`, ainda que ambos compartilhem o mesmo prefixo.
 
 ### Exemplo de evento (JSON)
 
 ```json
 {
-  "id": "019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
+  "id": "txn:019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
   "source": "https://api.guardia.technology/platform/TRANSACTION/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "specversion": "1.0",
   "type": "event.guardia.platform.transaction.created",

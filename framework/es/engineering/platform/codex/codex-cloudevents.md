@@ -18,7 +18,7 @@ Este Codex describe el uso de la especificación CloudEvents para representar ev
 
 | Propiedad | Tipo | Default | Obligatorio | Descripción |
 |-----------|------|---------|-------------|-------------|
-| id | UUID v7 | — | Sí | Identificador único de la emisión del evento. UUID v7 conforme RFC 9562. DEBE ser único por evento — la misma entidad puede emitir varios eventos (ej.: `created`, `approved`, `executed`), cada uno con un `id` distinto. NO es igual al `entity_id`. Inmutable. |
+| id | {entity_id_prefix}:{uuid_v7} | — | Sí | Identificador único de la emisión del evento. Usa el MISMO `entity_id_prefix` de la entidad que emite, con UUID v7 NUEVO en cada emisión (RFC 9562). DEBE ser único por evento — la misma entidad emite varios eventos (ej.: `created`, `approved`, `executed`), cada uno con un `id` distinto. NO es igual al `entity_id`. Inmutable. |
 | source | URI | — | Sí | Origen del evento. Formato: `https://api.guardia.technology/{context}/{entity_type}/{entity_id}` |
 | specversion | string | 1.0 | Sí | Versión de la spec CloudEvents; valor fijo "1.0". |
 | type | string | — | Sí | Formato `event.{provider}.{domain}.{entity_name}.{event_name}`; todos los tokens en snake_case en minúsculas; catalogado en el Hub. |
@@ -62,13 +62,13 @@ Toda entidad tiene un prefijo corto (2–5 caracteres alfanuméricos en minúscu
 
 Ejemplos: `txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`, `rec:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`
 
-El prefijo aparece donde sea que se referencie un `entity_id`: `data.entity_id`, `subject`, `source` y en cualquier campo de referencia cruzada de entidad en `data`. El `id` de CloudEvents NO es un `entity_id` — es un UUID v7 nuevo en cada emisión de evento y no lleva prefijo.
+El prefijo aparece donde sea que se referencie un `entity_id` (`data.entity_id`, `subject`, `source`, campos de referencia cruzada en `data`) **y** en el `id` de CloudEvents. El `id` reutiliza el prefijo de la entidad para mantener eventos de la misma familia identificables a primera vista, pero el UUID v7 es nuevo en cada emisión — entonces `id` ≠ `entity_id`, aunque ambos compartan el mismo prefijo.
 
 ### Ejemplo de evento (JSON)
 
 ```json
 {
-  "id": "019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
+  "id": "txn:019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
   "source": "https://api.guardia.technology/platform/TRANSACTION/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "specversion": "1.0",
   "type": "event.guardia.platform.transaction.created",

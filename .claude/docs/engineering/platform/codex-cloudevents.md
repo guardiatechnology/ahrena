@@ -8,7 +8,7 @@
 
 | Property | Type | Default | Required | Description |
 |----------|------|---------|----------|-------------|
-| id | UUID v7 | — | Yes | Unique identifier of the event emission. UUID v7 per RFC 9562. MUST be unique per event — the same entity may emit many events (e.g., `created`, `approved`, `executed`), each with a distinct `id`. NOT equal to `entity_id`. Immutable. |
+| id | {entity_id_prefix}:{uuid_v7} | — | Yes | Unique identifier of the event emission. Uses the SAME `entity_id_prefix` as the entity that emits the event, with a NEW UUID v7 per emission (RFC 9562). MUST be unique per event — the same entity emits many events (e.g., `created`, `approved`, `executed`), each with a distinct `id`. NOT equal to `entity_id`. Immutable. |
 | source | URI | — | Yes | Origin of the event. Format: `https://api.guardia.technology/{context}/{entity_type}/{entity_id}` |
 | specversion | string | 1.0 | Yes | CloudEvents spec version; fixed value "1.0". |
 | type | string | — | Yes | Format `event.{provider}.{domain}.{entity_name}.{event_name}`; all tokens lowercase snake_case; cataloged on the Hub. |
@@ -52,13 +52,13 @@ Every entity has a short prefix (2–5 lowercase alphanumeric characters) define
 
 Examples: `txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`, `rec:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`
 
-The prefix appears wherever an `entity_id` is referenced: `data.entity_id`, `subject`, `source`, and any cross-entity reference field in `data`. The CloudEvents `id` is NOT an `entity_id` — it is a fresh UUID v7 per event emission and carries no prefix.
+The prefix appears wherever an `entity_id` is referenced (`data.entity_id`, `subject`, `source`, cross-entity reference fields in `data`) **and** in the CloudEvents `id`. The `id` reuses the entity's prefix to keep events of the same family identifiable at a glance, but its UUID v7 is fresh per emission — so `id` ≠ `entity_id`, even though both share the same prefix.
 
 ### Example event (JSON)
 
 ```json
 {
-  "id": "019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
+  "id": "txn:019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
   "source": "https://api.guardia.technology/platform/TRANSACTION/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "specversion": "1.0",
   "type": "event.guardia.platform.transaction.created",
