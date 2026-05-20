@@ -9,7 +9,7 @@
 | Property | Type | Default | Required | Description |
 |----------|------|---------|----------|-------------|
 | id | {entity_id_prefix}:{uuid_v7} | — | Yes | Unique identifier of the event emission. Uses the SAME `entity_id_prefix` as the entity that emits the event, with a NEW UUID v7 per emission (RFC 9562). MUST be unique per event — the same entity emits many events (e.g., `created`, `approved`, `executed`), each with a distinct `id`. NOT equal to `entity_id`. Immutable. |
-| source | URI | — | Yes | Origin of the event. Format: `https://api.guardia.technology/{context}/{entity_type}/{entity_id}` |
+| source | URI | — | Yes | Origin of the event. Format: `https://api.guardia.technology/{context}/v{N}/{resource}/{entity_id}`, where `{context}` is the emitting bounded context in kebab-case, `{N}` is the API major version (e.g., `1`), and `{resource}` is the plural kebab-case API resource derived from `entity_type` (e.g., `TRANSACTION` → `transactions`, `SCHEDULED_TRANSFER` → `scheduled-transfers`). |
 | specversion | string | 1.0 | Yes | CloudEvents spec version; fixed value "1.0". |
 | type | string | — | Yes | Format `event.{provider}.{domain}.{entity_name}.{event_name}`; all tokens lowercase snake_case; cataloged on the Hub. |
 | time | datetime | — | Yes | Timestamp of occurrence (RFC 3339). |
@@ -59,9 +59,9 @@ The prefix appears wherever an `entity_id` is referenced (`data.entity_id`, `sub
 ```json
 {
   "id": "txn:019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
-  "source": "https://api.guardia.technology/platform/TRANSACTION/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "source": "https://api.guardia.technology/payments/v1/transactions/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "specversion": "1.0",
-  "type": "event.guardia.platform.transaction.created",
+  "type": "event.guardia.payments.transaction.created",
   "time": "2026-03-08T12:00:00Z",
   "datacontenttype": "application/json",
   "dataschema": "https://<schema-base>/schemas/transaction.v1.json",

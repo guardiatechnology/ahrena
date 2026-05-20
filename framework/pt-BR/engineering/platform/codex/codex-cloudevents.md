@@ -19,7 +19,7 @@ Este Codex descreve o uso da especificação CloudEvents para representar evento
 | Propriedade | Tipo | Padrão | Obrigatório | Descrição |
 |-------------|------|--------|-------------|-----------|
 | id | {entity_id_prefix}:{uuid_v7} | — | Sim | Identificador único da emissão do evento. Usa o MESMO `entity_id_prefix` da entidade que emite, com UUID v7 NOVO a cada emissão (RFC 9562). DEVE ser único por evento — a mesma entidade emite vários eventos (ex.: `created`, `approved`, `executed`), cada um com `id` distinto. NÃO é igual ao `entity_id`. Imutável. |
-| source | URI | — | Sim | Origem do evento. Formato: `https://api.guardia.technology/{context}/{entity_type}/{entity_id}` |
+| source | URI | — | Sim | Origem do evento. Formato: `https://api.guardia.technology/{context}/v{N}/{resource}/{entity_id}`, onde `{context}` é o bounded context emissor em kebab-case, `{N}` é a versão major da API (ex.: `1`) e `{resource}` é o recurso de API plural em kebab-case derivado de `entity_type` (ex.: `TRANSACTION` → `transactions`, `SCHEDULED_TRANSFER` → `scheduled-transfers`). |
 | specversion | string | 1.0 | Sim | Versão da spec CloudEvents; valor fixo "1.0". |
 | type | string | — | Sim | Formato `event.{provider}.{domain}.{entity_name}.{event_name}`; todos os tokens em snake_case minúsculo; catalogado no Hub. |
 | time | datetime | — | Sim | Timestamp da ocorrência (RFC 3339). |
@@ -69,9 +69,9 @@ O prefixo aparece onde quer que um `entity_id` seja referenciado (`data.entity_i
 ```json
 {
   "id": "txn:019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
-  "source": "https://api.guardia.technology/platform/TRANSACTION/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "source": "https://api.guardia.technology/payments/v1/transactions/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "specversion": "1.0",
-  "type": "event.guardia.platform.transaction.created",
+  "type": "event.guardia.payments.transaction.created",
   "time": "2026-03-08T12:00:00Z",
   "datacontenttype": "application/json",
   "dataschema": "https://<schema-base>/schemas/transaction.v1.json",
