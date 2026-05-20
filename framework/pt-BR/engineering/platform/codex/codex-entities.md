@@ -39,8 +39,8 @@ A estrutura base de uma entidade na Guardia DEVE conter as seguintes propriedade
 
 | Propriedade | Tipo | Obrigatório | Descrição |
 |-------------|------|-------------|-----------|
-| entity_id | UUID v7 | Sim | Identificador único da entidade. |
-| entity_type | string | Sim | Tipo de entidade. |
+| entity_id | {entity_id_prefix}:{uuid_v7} | Sim | Identificador único da entidade. O prefixo é uma string alfanumérica minúscula de 2–5 chars definida antes do desenvolvimento; UUID v7 garante ordenação temporal. |
+| entity_type | string (UPPER_SNAKE_CASE) | Sim | Tipo de entidade. Sempre UPPER_SNAKE_CASE (ex.: `TRANSACTION`). |
 | external_entity_id | string | Não | Identificador único da entidade em um sistema externo. |
 | created_at | datetime | Sim | Data e hora de criação da entidade. |
 | updated_at | datetime | Sim | Data e hora da última atualização da entidade. |
@@ -53,12 +53,25 @@ A estrutura base de uma entidade na Guardia DEVE conter as seguintes propriedade
 
 #### entity_id
 
-- DEVE implementar o UUID v7 conforme a [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562#name-uuid-version-7) assegurando ordenação temporal.
+- DEVE ser formatado como `{entity_id_prefix}:{uuid_v7}` onde:
+  - `entity_id_prefix` é uma string alfanumérica minúscula de 2–5 caracteres definida antes do início do desenvolvimento (ex.: `txn`, `rec`, `org`, `per`, `doc`).
+  - `uuid_v7` implementa UUID v7 conforme a [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562#name-uuid-version-7), assegurando ordenação temporal.
 - DEVE ser único, imutável e gerado pelo sistema.
+- O prefixo DEVE ser declarado no documento de design da entidade antes do início da codificação. Alterá-lo é uma mudança breaking que requer ADR.
 
 #### entity_type
 
+- DEVE usar UPPER_SNAKE_CASE (ex.: `TRANSACTION`, `SCHEDULED_TRANSFER`, `LEDGER_ENTRY`).
 - DEVE pertencer a uma lista controlada de entidades conhecidas pelo sistema.
+- A forma minúscula é usada apenas em segmentos `type` do CloudEvents e segmentos de path de URL — ver `lex-entity-naming`.
+
+#### Nomenclatura do campo de identificador
+
+Ao referenciar uma entidade pelo seu identificador no payload JSON de outra entidade:
+- Usar `{entity_name}_id`, onde `{entity_name}` é a forma minúscula de `entity_type`.
+- Exemplo: uma referência a uma entidade `TRANSACTION` usa o campo `transaction_id`.
+- O sufixo `_entity_id` é PROIBIDO: nunca usar `transaction_entity_id`.
+- Exceção: dentro do próprio payload da entidade, o campo de identificador canônico é sempre `entity_id`.
 
 #### external_entity_id
 
@@ -128,8 +141,8 @@ Este modelo DEVE ser adotado sempre que:
 
 | Termo | Definição |
 |-------|-----------|
-| entity_id | Identificador único global da entidade (UUID v7). |
-| entity_type | Tipo catalogado da entidade no sistema. |
+| entity_id | Identificador único global da entidade (formato `{entity_id_prefix}:{uuid_v7}`). |
+| entity_type | Tipo catalogado da entidade no sistema; sempre UPPER_SNAKE_CASE. |
 | soft delete | Descarte lógico via discarded_at; entidade mantida para rastreabilidade. |
 | history | Array de snapshots de versões anteriores para auditoria. |
 
