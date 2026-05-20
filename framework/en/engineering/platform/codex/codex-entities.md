@@ -141,8 +141,8 @@ This model MUST be adopted whenever:
 
 | Term | Definition |
 |------|------------|
-| entity_id | Global unique identifier of the entity (UUID v7). |
-| entity_type | Cataloged type of the entity in the system. |
+| entity_id | Global unique identifier of the entity, formatted as `{entity_id_prefix}:{uuid_v7}` (e.g., `txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`). |
+| entity_type | Cataloged type of the entity, always in UPPER_SNAKE_CASE (e.g., `TRANSACTION`, `SCHEDULED_TRANSFER`). |
 | soft delete | Logical discard via discarded_at; entity retained for traceability. |
 | history | Array of snapshots of previous versions for audit. |
 

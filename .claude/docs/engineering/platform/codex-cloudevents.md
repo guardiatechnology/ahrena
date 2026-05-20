@@ -8,14 +8,14 @@
 
 | Property | Type | Default | Required | Description |
 |----------|------|---------|----------|-------------|
-| id | {entity_id_prefix}:{uuid_v7} | — | Yes | Event identifier; equals the entity's `entity_id`. Prefix is 2–5 chars defined pre-development (e.g., `txn:01957f3e-...`). Immutable; RFC 9562. |
-| source | URI | — | Yes | Origin of the event. Format: `https://api.guardia.technology/{context}/{entity_type}/{entity_id_prefix}:{entity_id}` |
+| id | UUID v7 | — | Yes | Unique identifier of the event emission. UUID v7 per RFC 9562. MUST be unique per event — the same entity may emit many events (e.g., `created`, `approved`, `executed`), each with a distinct `id`. NOT equal to `entity_id`. Immutable. |
+| source | URI | — | Yes | Origin of the event. Format: `https://api.guardia.technology/{context}/{entity_type}/{entity_id}` |
 | specversion | string | 1.0 | Yes | CloudEvents spec version; fixed value "1.0". |
 | type | string | — | Yes | Format `event.{provider}.{domain}.{entity_name}.{event_name}`; all tokens lowercase snake_case; cataloged on the Hub. |
 | time | datetime | — | Yes | Timestamp of occurrence (RFC 3339). |
 | datacontenttype | string | application/json | Yes | Fixed value "application/json". |
 | dataschema | URI | — | Optional | URI of JSON schema on the Hub. |
-| subject | string | — | Yes | Format `{entity_type}/{entity_id_prefix}:{entity_id}`. `entity_type` in UPPER_SNAKE_CASE. |
+| subject | string | — | Yes | Format `{entity_type}/{entity_id}`. `entity_type` in UPPER_SNAKE_CASE. |
 | idempotencykey | UUID | — | Yes | Idempotency key; per codex-idempotency. |
 | data | object | — | Yes | Entity data; common fields: entity_id, entity_type, external_entity_id, created_at, updated_at, discarded_at, version, metadata. **Entity history MUST be omitted from events.** See codex-entities. |
 
@@ -52,13 +52,13 @@ Every entity has a short prefix (2–5 lowercase alphanumeric characters) define
 
 Examples: `txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`, `rec:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`
 
-The prefix appears in `id`, `subject`, `source`, `data.entity_id`, and any cross-entity reference field in `data`.
+The prefix appears wherever an `entity_id` is referenced: `data.entity_id`, `subject`, `source`, and any cross-entity reference field in `data`. The CloudEvents `id` is NOT an `entity_id` — it is a fresh UUID v7 per event emission and carries no prefix.
 
 ### Example event (JSON)
 
 ```json
 {
-  "id": "txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "id": "019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
   "source": "https://api.guardia.technology/platform/TRANSACTION/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "specversion": "1.0",
   "type": "event.guardia.platform.transaction.created",
