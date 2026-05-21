@@ -24,6 +24,7 @@ Mixing plans under `docs/` breaks that separation: it confuses project navigatio
 
 This Lex applies prospectively: legacy plan files detected under `docs/` in projects that adopted Ahrena before this Lex MUST be migrated to the canonical path (sub-issue body + provider cache) in the next session that touches that plan. There is no blind retroactive block — the agent that detects the orphan plan MUST signal the migration to the human before proceeding with any other work on that plan.
 
+```
 <HARD-GATE>
 Every agent MUST NOT create, move, or accept instruction to materialize
 a plan file (`plan-*.md`) at any path that combines `docs/` and `plans/`
@@ -44,6 +45,7 @@ This rule applies to EVERY Ahrena project, regardless of:
 Single declared exception: None. Legacy orphan plans under `docs/`
 MUST be migrated; never normalized.
 </HARD-GATE>
+```
 
 ## Detection Protocol
 

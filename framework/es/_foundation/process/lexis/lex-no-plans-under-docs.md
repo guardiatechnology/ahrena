@@ -24,6 +24,7 @@ Mezclar planes bajo `docs/` rompe esa separación: confunde la navegación del p
 
 Esta Lex aplica prospectivamente: los archivos de plan legados detectados bajo `docs/` en proyectos que adoptaron Ahrena antes de esta Lex DEBEN ser migrados a la ruta canónica (cuerpo de la sub-issue + provider cache) en la próxima sesión que toque ese plan. No hay bloqueo retroactivo ciego — el agente que detecte el plan huérfano DEBE señalar la migración al humano antes de proceder con cualquier otro trabajo en ese plan.
 
+```
 <HARD-GATE>
 Todo agente NO DEBE crear, mover o aceptar instrucción para materializar
 un archivo de plan (`plan-*.md`) en cualquier ruta que combine `docs/`
@@ -44,6 +45,7 @@ Esta regla se aplica a TODO proyecto Ahrena, independientemente de:
 Excepción única declarada: Ninguna. Los planes huérfanos legados
 bajo `docs/` DEBEN ser migrados; nunca normalizados.
 </HARD-GATE>
+```
 
 ## Protocolo de Detección
 

@@ -12,6 +12,7 @@
 - **Bound agents:** `warrior-athena` (primary orchestrator), `warrior-apollo`, `warrior-hephaestus`, `warrior-iris`, `warrior-claudionor`, and any warrior in execution during an active Plan
 - **Declared exceptions:** three and only three — (a) declared critical blocker (CI broken on `main`, declared P0 incident, critical security); (b) direct question about the active Plan (clarification, status query, next step); (c) scope adjustment of the active Plan itself (expand, contract, replan)
 
+```
 <HARD-GATE>
 Every agent MUST NOT start work unrelated to the active Plan when there
 is a Plan sub-issue in `status: development` with the current session
@@ -34,6 +35,7 @@ Declared exceptions (3, exhaustive):
   - Direct question about the active Plan (clarification, status, next step)
   - Scope adjustment of the active Plan itself (expand, contract, replan)
 </HARD-GATE>
+```
 
 ## Decline Protocol
 

@@ -22,6 +22,7 @@ The Ahrena framework treats every tangential finding as a **deliberate decision*
 
 This Lex applies prospectively: existing `# TODO`/`# FIXME`/`# follow-up` comments in historical code of projects that adopted Ahrena before this Lex are **not** retroactively blocked. The lint detects only markers added or modified in the current PR diff. Migration of historical debt is the work of a dedicated Plan, surfaced when relevant to the current Plan's scope.
 
+```
 <HARD-GATE>
 Every agent MUST NOT commit code or documentation containing
 markers `# TODO`, `// TODO`, `# FIXME`, `# XXX`, `# follow-up`,
@@ -45,6 +46,7 @@ Declared exceptions (not silent):
   - `<!-- not-flushed -->` blocks in plan provider cache
   - Pre-existing markers in historical code, outside the current PR diff
 </HARD-GATE>
+```
 
 ## Tangential Finding Protocol
 

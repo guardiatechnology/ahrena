@@ -190,6 +190,7 @@ Para cerrar esta brecha, Argos **DEBE** ejecutar una verificación programática
    - Máximo de 2 intentos de re-publicación. Tras 2 fallas consecutivas, Argos **DEBE** abortar la Fase 4 y escalar al reviewer humano con mensaje estructurado: estado de `.env.local` (¿env vars cargadas?), salida de `scripts/argos/auth.sh` (exit code, longitud del token) y los 2 logins obtenidos
    - Si `auth.sh` retorna exit ≠ 0 o token vacío en cualquier intento, la escalada es **inmediata** (sin retry — problema de auth, no de prefix olvidado)
 
+```
 <HARD-GATE>
 warrior-argos NO DEBE cerrar la Fase 4 (Cleanup) sin haber
 verificado que la última revisión publicada por él en este PR
@@ -217,6 +218,7 @@ independientemente de:
 Excepción declarada: ninguna. Falla de auth (auth.sh exit ≠ 0) escala
 inmediatamente — sin retry, sin fallback silencioso a PAT.
 </HARD-GATE>
+```
 
 **Implementación concreta** (referencia para la Fase 3):
 

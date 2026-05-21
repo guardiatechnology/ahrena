@@ -22,6 +22,7 @@ O framework Ahrena trata cada achado tangencial como **decisão deliberada**: o 
 
 Esta Lex aplica-se prospectivamente: comentários `# TODO`/`# FIXME`/`# follow-up` existentes em código histórico de projetos que adotaram Ahrena antes desta Lex **não** são bloqueados retroativamente. O lint detecta apenas marcadores adicionados ou modificados no diff do PR corrente. Migração de dívida histórica é trabalho de Plan dedicado, surfaceado quando relevante para o escopo do Plan corrente.
 
+```
 <HARD-GATE>
 Todo agente NÃO DEVE commitar código ou documentação contendo
 marcadores `# TODO`, `// TODO`, `# FIXME`, `# XXX`, `# follow-up`,
@@ -45,6 +46,7 @@ Exceções declaradas (não silenciosas):
   - Blocos `<!-- not-flushed -->` em provider cache de plan
   - Marcadores pré-existentes no código histórico, fora do diff do PR atual
 </HARD-GATE>
+```
 
 ## Protocolo de Achado Tangencial
 

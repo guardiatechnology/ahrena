@@ -162,6 +162,7 @@ Every Plan sub-issue MUST be created by Eunomia via `kata-decompose-issue-into-p
 
 Branch, worktree, and assignee are **NOT** preconditions of `— → todo`. They belong to `todo → development`.
 
+```
 <HARD-GATE>
 warrior-eunomia (or the session agent acting as fallback while Eunomia
 is not shipped) MUST NOT apply the `status: todo` label to a Plan
@@ -188,6 +189,7 @@ regardless of:
 Declared exception: none. Branch, worktree, and assignee are NOT
 preconditions of this gate — they belong to the todo → development gate.
 </HARD-GATE>
+```
 
 ### Plan-first guardrail
 
@@ -218,6 +220,7 @@ Athena takes the Plan when execution is about to start (not before). On `todo �
 
 Applying `status: development` without all 3 steps complete is FORBIDDEN. Athena does not start Phase 4 of Issue-Driven without the gate satisfied.
 
+```
 <HARD-GATE>
 warrior-athena MUST NOT apply the `status: development` label to a
 Plan sub-issue without satisfying ALL 3 canonical steps:
@@ -239,6 +242,7 @@ Declared exception: none. Athena does not start execution without branch,
 worktree, and assignee — these three are the minimum binding for audit
 and to prevent phantom work outside a Plan sub-issue.
 </HARD-GATE>
+```
 
 ## Owners of each transition
 
