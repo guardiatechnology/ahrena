@@ -178,7 +178,7 @@ Documenta **todos los eventos del Bounded Context**, organizados por entidad. Pa
 # Eventos — {Bounded Context}
 
 > **Bounded Context:** {context}
-> **Module CloudEvents:** `{module}` (segmento `{module}` en `event.guardia.{module}.{entity_name}.{event_name}`, donde `{entity_name}` es la forma en minúscula de `entity_type` per `lex-entity-naming` Rule 5)
+> **Módulo CloudEvents:** `{module}` (segmento `{module}` en `event.guardia.{module}.{entity_name}.{event_name}`, donde `{entity_name}` es la forma en minúscula de `entity_type` según `lex-entity-naming` Regla 5)
 
 ## Visión General
 
