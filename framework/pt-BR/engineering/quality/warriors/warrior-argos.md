@@ -222,17 +222,20 @@ imediatamente — não retry, não fallback silencioso para PAT.
 ```bash
 # Após publicar (Fase 3), recuperar marker da review publicada
 ARGOS_MARKER="<!-- argos-review-id:${HASH} -->"
+# REVIEW_ACTION é capturado na Fase 3 e reflete o veredito da review:
+#   --comment | --request-changes | --approve
+# Re-publicações DEVEM preservar essa ação (per "Política de publicação")
 LAST_LOGIN=$(gh api repos/${OWNER}/${REPO}/pulls/${PR}/reviews \
-  --jq ".[] | select(.body | startswith(\"${ARGOS_MARKER}\")) | .user.login" \
+  --jq ".[] | select(.body | strings | startswith(\"${ARGOS_MARKER}\")) | .user.login" \
   | tail -1)
 
 if [ "$LAST_LOGIN" != "ahrena-warrior-argos[bot]" ]; then
-  # Fallback detectado — re-publicar com prefix explícito
+  # Fallback detectado — re-publicar com prefix explícito, preservando REVIEW_ACTION
   for attempt in 1 2; do
     GH_TOKEN=$(scripts/argos/auth.sh) gh pr review "$PR" \
-      --comment --body-file "$BODY_FILE"
+      "$REVIEW_ACTION" --body-file "$BODY_FILE"
     LAST_LOGIN=$(gh api repos/${OWNER}/${REPO}/pulls/${PR}/reviews \
-      --jq ".[] | select(.body | startswith(\"${ARGOS_MARKER}\")) | .user.login" \
+      --jq ".[] | select(.body | strings | startswith(\"${ARGOS_MARKER}\")) | .user.login" \
       | tail -1)
     [ "$LAST_LOGIN" == "ahrena-warrior-argos[bot]" ] && break
   done
