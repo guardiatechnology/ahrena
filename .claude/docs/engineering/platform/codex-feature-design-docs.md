@@ -132,13 +132,13 @@ stateDiagram-v2
 ```json
 {
   "specversion": "1.0",
-  "id": "01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
-  "source": "https://api.guardia.technology/financial/v1/scheduled-transfers/txn:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+  "id": "txn:01b1c2d3-e4f5-7a8b-9c0d-1e2f3a4b5c6d",
+  "source": "https://api.guardia.technology/financial/v1/scheduled-transfers/txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
   "type": "event.guardia.financial.scheduled_transfer.requested",
-  "subject": "scheduled_transfer/{entity_id}",
+  "subject": "SCHEDULED_TRANSFER/txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
   "time": "2026-04-26T10:00:00Z",
   "datacontenttype": "application/json",
-  "idempotencykey": "01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
+  "idempotencykey": "txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
   "data": {
     "entity_id": "txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
     "entity_type": "SCHEDULED_TRANSFER",
