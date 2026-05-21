@@ -99,7 +99,7 @@ sin distinción. El tag `legacy-pov` no es permanente.
 
 1. **Bloqueo automático:** `kata-system-prompt-adversarial-validate` reprueba cuando cualquiera de las 9 preconditions falla; `warrior-athena` en el Gate 2 del Issue-Driven Flow bloquea el PR cuando el diff toca `docs/**/agents/**/system-prompt*.md` (o la ruta equivalente declarada en `paths.agents`) y la Kata no retorna `pass`. Un commit que introduce un secret hardcoded, omite un control OWASP crítico o remueve uno de los 4 bloques es rechazado.
 2. **Alerta:** notifica al owner del agente (declarado en el ítem (f) del DoOC, per `lex-agent-construction-directives`) y al canal `#agents-governance`; un agente en `legacy-pov` más allá del plazo de 90 días entra en un reporte semanal automático hasta su regularización o desactivación.
-3. **Remediación:** (a) corregir el prompt para satisfacer la precondition faltante y volver a ejecutar la suite adversarial; O (b) abrir un ADR registrando la excepción declarada (única hipótesis: transición `legacy-pov` dentro del plazo); O (c) decomisar el agente cuando el prompt no pueda corregirse sin pérdida de comportamiento esencial — caso en que la decomisión sigue el ciclo de vida descrito en `codex-system-prompt § Sección 1`.
+3. **Remediación:** (a) corregir el prompt para satisfacer la precondition faltante y volver a ejecutar la suite adversarial; O (b) abrir un ADR registrando la excepción declarada (única hipótesis: transición `legacy-pov` dentro del plazo); O (c) retirar el agente cuando el prompt no pueda corregirse sin pérdida de comportamiento esencial — caso en que la retirada sigue el ciclo de vida descrito en `codex-system-prompt § Sección 1`.
 
 ## Ejemplos
 
