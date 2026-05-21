@@ -172,6 +172,81 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
 
 **Compliance:** `pr_cost_tracking.known_ai_reviewers` in `.ahrena/.directives` (built-in) recognizes `ahrena-warrior-argos[bot]` as an AI reviewer, so `kata-pr-cost-stamp` correctly separates Argos from the human in the cost stamp.
 
+## Post-Publication Identity Verification
+
+Textual instruction to prefix `gh` with `GH_TOKEN=$(scripts/argos/auth.sh)` is easily skipped by a subagent when the path of least resistance (inherited shell PAT) publishes without error. The bot identity fails silently — the review appears under human authorship instead of the bot, breaking paper trail, cost attribution (`pr_cost_tracking.known_ai_reviewers`), and the visual "this came from the bot" cue in the thread.
+
+To close this gap, Argos **MUST** run a programmatic identity check **after every review publication** and before closing Phase 4 (Cleanup):
+
+1. **Query the freshly published review** via `gh api repos/{owner}/{repo}/pulls/{N}/reviews` locating the record whose `body` contains the marker `<!-- argos-review-id:<hash> -->` computed in the Consolidation step
+2. **Compare returned `user.login`** to the literal string `ahrena-warrior-argos[bot]`
+3. **Decide the course of action:**
+   - `login == "ahrena-warrior-argos[bot]"` → identity verified; Phase 4 may close
+   - `login != "ahrena-warrior-argos[bot]"` → silent PAT fallback detected; **MUST** re-publish (Step 4 below)
+4. **Re-publish with explicit prefix:**
+   - Preserve the fallback review as audit trail (do not delete — visibility > cleanliness)
+   - Re-execute the original publication command with the mandatory prefix: `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --comment --body-file <body>` (or `--request-changes` per Publication policy)
+   - Re-verify the login (Step 2)
+5. **Escalation on persistent failure:**
+   - Maximum of 2 re-publication attempts. After 2 consecutive failures, Argos **MUST** abort Phase 4 and escalate to the human reviewer with a structured message: `.env.local` state (env vars loaded?), `scripts/argos/auth.sh` output (exit code, token length), and the 2 obtained logins
+   - If `auth.sh` returns exit ≠ 0 or empty token on any attempt, escalation is **immediate** (no retry — auth problem, not forgotten prefix)
+
+<HARD-GATE>
+warrior-argos MUST NOT close Phase 4 (Cleanup) without having
+verified that the last review published by it on this PR
+satisfies ALL criteria:
+
+  (a) Review was located in gh api .../pulls/{N}/reviews by the
+      marker <!-- argos-review-id:<hash> --> computed in Phase 3
+  (b) The user.login field of the located record is exactly
+      "ahrena-warrior-argos[bot]"
+  (c) On failure of (b), re-publication with explicit prefix
+      GH_TOKEN=$(scripts/argos/auth.sh) was executed and the
+      re-verification returned (a) + (b) true — maximum 2 attempts
+  (d) On persistent failure after 2 attempts, Argos aborted
+      Phase 4 and escalated to the human with structured context
+
+This rule applies to EVERY review publication by Argos,
+regardless of:
+  - "the review went through anyway" (wrong authorship breaks paper trail)
+  - "PAT works" (goal is identity separation, not just it working)
+  - "subagent harness limitation" (programmatic enforcement
+    bypasses the harness — verify+retry is the warrior's responsibility)
+  - "just this one case" (silent fallback compounds; there is no "just one")
+
+Declared exception: none. Auth failure (auth.sh exit ≠ 0) escalates
+immediately — no retry, no silent fallback to PAT.
+</HARD-GATE>
+
+**Concrete implementation** (reference for Phase 3):
+
+```bash
+# After publishing (Phase 3), retrieve the marker of the published review
+ARGOS_MARKER="<!-- argos-review-id:${HASH} -->"
+# REVIEW_ACTION is captured at Phase 3 and reflects the review verdict:
+#   --comment | --request-changes | --approve
+# Re-publications MUST preserve this action (per "Publication policy")
+LAST_LOGIN=$(gh api repos/${OWNER}/${REPO}/pulls/${PR}/reviews \
+  --jq ".[] | select(.body | strings | startswith(\"${ARGOS_MARKER}\")) | .user.login" \
+  | tail -1)
+
+if [ "$LAST_LOGIN" != "ahrena-warrior-argos[bot]" ]; then
+  # Fallback detected — re-publish with explicit prefix, preserving REVIEW_ACTION
+  for attempt in 1 2; do
+    GH_TOKEN=$(scripts/argos/auth.sh) gh pr review "$PR" \
+      "$REVIEW_ACTION" --body-file "$BODY_FILE"
+    LAST_LOGIN=$(gh api repos/${OWNER}/${REPO}/pulls/${PR}/reviews \
+      --jq ".[] | select(.body | strings | startswith(\"${ARGOS_MARKER}\")) | .user.login" \
+      | tail -1)
+    [ "$LAST_LOGIN" = "ahrena-warrior-argos[bot]" ] && break
+  done
+  [ "$LAST_LOGIN" != "ahrena-warrior-argos[bot]" ] && {
+    echo "FATAL: identity verification failed after 2 attempts; escalating"
+    exit 1
+  }
+fi
+```
+
 ## Behavior
 
 ### Tone and Language
@@ -226,7 +301,8 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --comment --body-file <body>` when WARNINGs without BLOCKER OR clean first-touch (no prior CR)
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --approve --body-file <body>` when 0 findings AND a prior CR of his own exists on the PR (resolution)
      - The review author appears as `ahrena-warrior-argos[bot]` in all cases
-6. **Phase 4 — Cleanup:** `git worktree remove .worktrees/review-pr-<N> --force`
+   - **Post-publication identity verification (mandatory):** after each `gh pr review`, query `gh api repos/{owner}/{repo}/pulls/{N}/reviews`, locate the record by the marker `<!-- argos-review-id:<hash> -->` and confirm `user.login == "ahrena-warrior-argos[bot]"`. On PAT fallback, re-publish with explicit prefix `GH_TOKEN=$(scripts/argos/auth.sh)` and re-verify; maximum 2 attempts; escalate to the human on persistent failure. Full procedure, escalation, and HARD-GATE blocking Phase 4 are in the [Post-Publication Identity Verification](#post-publication-identity-verification) section above
+6. **Phase 4 — Cleanup:** `git worktree remove .worktrees/review-pr-<N> --force` (may only proceed after the Phase 3 identity verification returned `ahrena-warrior-argos[bot]`, per HARD-GATE)
 
 ### Escalation Criteria
 
