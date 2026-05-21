@@ -16,6 +16,7 @@ Garantizar que toda Idea en Ahrena tenga origen rastreable en insights aprobados
 - **Agentes vinculados:** `warrior-pitia`, `warrior-phanes`, y cualquier otro agente que cree o modifique archivos bajo `docs/discovery/`
 - **Excepciones:** Ninguna. Las Lexis no admiten excepciones. (Los HARD-GATEs abajo declaran *carve-outs de precondición* — no excepciones de la Ley. El carve-out del HG2 — creación inicial en `proposed` — es parte integral de la regla, no derogación.)
 
+```
 <HARD-GATE>
 warrior-phanes NO DEBE promover un insight a Idea sin que TODAS las
 precondiciones abajo sean atendidas:
@@ -36,7 +37,9 @@ Esta regla se aplica a TODA creación de Idea en Ahrena, independientemente de:
 
 Excepción única: ninguna.
 </HARD-GATE>
+```
 
+```
 <HARD-GATE>
 warrior-pitia NO DEBE alterar el status de un insight a cualquier
 valor distinto de "proposed" sin dirección humana explícita.
@@ -64,6 +67,7 @@ Excepción única: la creación inicial del insight (`[*] → proposed`) es
 de la propia warrior-pitia y no exige dirección humana — solo la
 existencia de al menos una referencia en `source_refs[]`.
 </HARD-GATE>
+```
 
 ## Consecuencias de Violación
 

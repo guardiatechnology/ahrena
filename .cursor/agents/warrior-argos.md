@@ -191,6 +191,7 @@ To close this gap, Argos **MUST** run a programmatic identity check **after ever
    - Maximum of 2 re-publication attempts. After 2 consecutive failures, Argos **MUST** abort Phase 4 and escalate to the human reviewer with a structured message: `.env.local` state (env vars loaded?), `scripts/argos/auth.sh` output (exit code, token length), and the 2 obtained logins
    - If `auth.sh` returns exit ≠ 0 or empty token on any attempt, escalation is **immediate** (no retry — auth problem, not forgotten prefix)
 
+```
 <HARD-GATE>
 warrior-argos MUST NOT close Phase 4 (Cleanup) without having
 verified that the last review published by it on this PR
@@ -217,6 +218,7 @@ regardless of:
 Declared exception: none. Auth failure (auth.sh exit ≠ 0) escalates
 immediately — no retry, no silent fallback to PAT.
 </HARD-GATE>
+```
 
 **Concrete implementation** (reference for Phase 3):
 

@@ -55,13 +55,17 @@ Exception {single / declared}: {literal description or "None"}.
 
 The 6 elements (subject, action, preconditions, scope, counter-pretexts, exception) are **mandatory**. Omitting any of them produces weak blocking.
 
-### 3. Positioning in the Lexis
+### 3. Positioning
 
 The `<HARD-GATE>` block MUST be:
 
-- **After** the `Law` section (or `Rules` section when present), and before `Examples`
 - Inside a fenced code block, with literal `HARD-GATE` tag on opening and closing lines
 - In the **same section** that defines the verified criteria — not in appendix or footnote
+
+Positioning within the file depends on the artifact type:
+
+- **In a Lexis** — after the `Law` section (or `Rules` section when present), and before `Examples`
+- **In a Warrior** — after the section that defines the verified preconditions (e.g., `Authentication`, `Tooling`, `Inputs`) and before the operational behavior section (e.g., `Behavior`, `Flow`, `Phases`)
 
 ### 4. Counter-pretexts
 
@@ -94,9 +98,9 @@ The `<HARD-GATE>` tag itself is **not translated** — it is literal in all 3 la
 
 ## Coverage
 
-- **Applies to:** all Lexis of the framework Ahrena that block concrete action
-- **Bound agents:** all agents that create or modify Lexis (human and AI), including Hécate when she exists
-- **Exceptions:** declarative Lexis (without effective blocking) are out of scope; they may be refined in future revisions if blocking necessity is identified
+- **Applies to:** all Lexis and Warriors of the framework Ahrena that block concrete action
+- **Bound agents:** all agents that create or modify Lexis or Warriors (human and AI), including Hécate when she exists
+- **Exceptions:** declarative Lexis or Warriors (without effective blocking) are out of scope; they may be refined in future revisions if blocking necessity is identified
 
 ## Consequences of Violation
 

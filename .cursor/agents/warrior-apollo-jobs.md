@@ -70,7 +70,7 @@ Escalates to the human (or to Athena/Kronos) when:
 
 ## Interaction Example
 
-**Athena (Phase 4):** Issue #58 declares `component: jobs`. AC-1: on receiving `event.guardia.platform.refund.created`, process the refund in the bank and publish `event.guardia.platform.refund.executed` (with idempotency on `entity_id`).
+**Athena (Phase 4):** Issue #58 declares `component: jobs`. AC-1: on receiving `event.guardia.financial.refund.created`, process the refund in the bank and publish `event.guardia.financial.refund.executed` (with idempotency on `entity_id`).
 
 **Apollo-Jobs:**
 

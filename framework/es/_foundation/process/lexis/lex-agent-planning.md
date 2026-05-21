@@ -161,6 +161,7 @@ Toda sub-issue Plan DEBE ser creada por Eunomia vía `kata-decompose-issue-into-
 
 Branch, worktree y assignee **NO** son precondiciones de `— → todo`. Pertenecen a `todo → development`.
 
+```
 <HARD-GATE>
 warrior-eunomia (o el agente de la sesión actuando como fallback mientras
 Eunomia no esté desplegada) MUST NOT aplicar la label `status: todo` en una
@@ -187,6 +188,7 @@ independiente de:
 Excepción declarada: ninguna. Branch, worktree y assignee NO son
 precondiciones de este gate — pertenecen al gate todo → development.
 </HARD-GATE>
+```
 
 ### Guardrail plan-first
 
@@ -217,6 +219,7 @@ Athena toma el Plan cuando la ejecución está por comenzar (no antes). En `todo
 
 Aplicar `status: development` sin los 3 pasos completos está PROHIBIDO. Athena no inicia Phase 4 de Issue-Driven sin el gate satisfecho.
 
+```
 <HARD-GATE>
 warrior-athena MUST NOT aplicar la label `status: development` en una
 sub-issue Plan sin satisfacer TODOS los 3 pasos canónicos:
@@ -238,6 +241,7 @@ Excepción declarada: ninguna. Athena no inicia ejecución sin branch,
 worktree y assignee — esos tres son el amarre mínimo para audit
 y para evitar trabajo fantasma fuera de una sub-issue Plan.
 </HARD-GATE>
+```
 
 ## Propietarios de cada transición
 

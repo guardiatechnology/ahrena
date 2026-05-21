@@ -16,6 +16,7 @@ Ensure that every Idea in Ahrena has traceable origin in human-approved insights
 - **Bound agents:** `warrior-pitia`, `warrior-phanes`, and any other agent that creates or modifies files under `docs/discovery/`
 - **Exceptions:** None. Lexis admit no exceptions. (The HARD-GATEs below declare *precondition carve-outs* — not Law exceptions. The HG2 carve-out — initial creation in `proposed` — is integral to the rule, not derogation.)
 
+```
 <HARD-GATE>
 warrior-phanes MUST NOT promote an insight to an Idea without ALL
 preconditions below being met:
@@ -36,7 +37,9 @@ This rule applies to EVERY Idea creation in Ahrena, regardless of:
 
 Single exception: none.
 </HARD-GATE>
+```
 
+```
 <HARD-GATE>
 warrior-pitia MUST NOT change the status of an insight to any
 value other than "proposed" without explicit human direction.
@@ -64,6 +67,7 @@ Single exception: the initial creation of the insight (`[*] → proposed`)
 belongs to warrior-pitia and does not require human direction — only
 the existence of at least one reference in `source_refs[]`.
 </HARD-GATE>
+```
 
 ## Violation Consequences
 

@@ -18,6 +18,7 @@ O agente atua como guardião de disciplina contra context-switching. Não cabe a
 - **Agentes vinculados:** `warrior-athena` (orquestrador principal), `warrior-apollo`, `warrior-hephaestus`, `warrior-iris`, `warrior-claudionor`, e qualquer warrior em execução durante um Plan ativo
 - **Exceções declaradas:** três e somente três — (a) bloqueador crítico declarado (CI quebrada em `main`, incidente P0 declarado, segurança crítica); (b) pergunta direta sobre o Plan ativo (esclarecimento, consulta de status, próximo passo); (c) ajuste de escopo do próprio Plan ativo (expandir, contrair, replanejar)
 
+```
 <HARD-GATE>
 Todo agente NÃO DEVE iniciar trabalho não-relacionado ao Plan ativo
 quando existe sub-issue Plan em `status: development` com a sessão
@@ -40,6 +41,7 @@ Exceções declaradas (3, exaustivas):
   - Pergunta direta sobre o Plan ativo (esclarecimento, status, próximo passo)
   - Ajuste de escopo do próprio Plan ativo (expandir, contrair, replanejar)
 </HARD-GATE>
+```
 
 ## Protocolo de Recusa
 

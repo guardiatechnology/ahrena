@@ -55,13 +55,17 @@ Excepción {única / declarada}: {descripción literal o "Ninguna"}.
 
 Los 6 elementos (sujeto, acción, precondiciones, alcance, anti-pretextos, excepción) son **obligatorios**. Omitir cualquiera produce bloqueo débil.
 
-### 3. Posicionamiento en la Lexis
+### 3. Posicionamiento
 
 El bloque `<HARD-GATE>` DEBE estar:
 
-- **Después** de la sección `Ley` (o sección `Reglas` cuando exista), y antes de `Ejemplos`
 - Dentro de bloque de código fenced, con tag `HARD-GATE` literal en las líneas de apertura y cierre
 - En la **misma sección** que define los criterios verificados — no en apéndice o nota al pie
+
+El posicionamiento dentro del archivo depende del tipo de artefacto:
+
+- **En una Lexis** — después de la sección `Ley` (o sección `Reglas` cuando exista), y antes de `Ejemplos`
+- **En un Warrior** — después de la sección que define las pre-condiciones verificadas (p. ej. `Autenticación`, `Herramental`, `Inputs`) y antes de la sección de comportamiento operacional (p. ej. `Comportamiento`, `Flujo`, `Fases`)
 
 ### 4. Anti-pretextos
 
@@ -94,9 +98,9 @@ El tag `<HARD-GATE>` en sí **no es traducido** — es literal en los 3 idiomas.
 
 ## Alcance
 
-- **Aplica a:** todas las Lexis del framework Ahrena que bloquean acción concreta
-- **Agentes vinculados:** todos los agentes que crean o modifican Lexis (humanos y IA), incluyendo Hécate cuando ella exista
-- **Excepciones:** Lexis declarativas (sin bloqueo efectivo) quedan fuera del alcance; pueden ser refinadas en revisiones futuras si se identifica necesidad de bloqueo
+- **Aplica a:** todas las Lexis y Warriors del framework Ahrena que bloquean acción concreta
+- **Agentes vinculados:** todos los agentes que crean o modifican Lexis o Warriors (humanos y IA), incluyendo Hécate cuando ella exista
+- **Excepciones:** Lexis o Warriors declarativos (sin bloqueo efectivo) quedan fuera del alcance; pueden ser refinados en revisiones futuras si se identifica necesidad de bloqueo
 
 ## Consecuencias de Violación
 
