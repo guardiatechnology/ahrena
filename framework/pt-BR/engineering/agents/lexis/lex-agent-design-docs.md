@@ -12,6 +12,7 @@ A Lexis complementa — mas não substitui — `lex-agent-construction-directive
 
 > **Todo agent em estado `operational-concrete` na plataforma Guardia DEVE ter (a) os 13 arquivos canônicos em `docs/{context}/agents/{agent}/` per `codex-agent-design-docs` (Hub & Spoke), (b) `docs/{context}/dooc/{agent}.md` preenchido per `lex-agent-construction-directives` HARD-GATE, (c) `overview.md` com campo `serves_features` populado, (d) reciprocidade em `docs/{context}/feature-agent-map.md` (forward e reverse mapping consistentes entre features e agents), (e) `warrior-metis` declarada como autora (PR ref, session-id ou assinatura `authored_by: warrior-metis` no header de `overview.md`).**
 
+```
 <HARD-GATE>
 warrior-metis, warrior-apollo-agents e qualquer outro agente NÃO PODE promover agent para `operational-concrete` (merge em main, deploy em produção) sem TODAS as 5 preconditions:
 
@@ -31,6 +32,7 @@ Exceções declaradas:
   - Agents em `pre-operational` (PoV produzida por `warrior-claudionor`) ficam FORA desta HARD-GATE — sua estrutura mínima viável é definida em `codex-agent-construction-directives` (rigor diferencial por estágio).
   - Agents em `legacy-pov` (anteriores ao merge desta Lexis) podem ser promovidos com DoOC retroativa + ADR per a cláusula de transição de `lex-agent-construction-directives` (90 dias após merge). Reciprocidade em `feature-agent-map.md` continua obrigatória.
 </HARD-GATE>
+```
 
 ## Abrangência
 
