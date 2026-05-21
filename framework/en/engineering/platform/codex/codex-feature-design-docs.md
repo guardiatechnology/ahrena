@@ -48,7 +48,7 @@ Each entity in the Bounded Context has a **dedicated file** under `docs/{context
 
 > **DDD Classification:** Entity | Aggregate Root | Value Object
 > **Bounded Context:** {context}
-> **entity_type:** `{snake_case}`
+> **entity_type:** `{UPPER_SNAKE_CASE}`
 
 ## Why it exists
 
@@ -59,7 +59,7 @@ Each entity in the Bounded Context has a **dedicated file** under `docs/{context
 | Field | Type | Size | Required | Description |
 |-------|------|------|:--------:|-------------|
 | `entity_id` | UUID v7 | 36 | Yes | Unique entity identifier (lex-entities) |
-| `entity_type` | string | — | Yes | Fixed value: `{snake_case}` |
+| `entity_type` | string | — | Yes | Fixed value: `{UPPER_SNAKE_CASE}` |
 | `version` | integer | — | Yes | Optimistic version |
 | `created_at` | datetime (ISO 8601) | — | Yes | Created |
 | `updated_at` | datetime (ISO 8601) | — | Yes | Last update |
@@ -107,7 +107,7 @@ Errors emitted by use cases that touch this entity. Each error MUST follow `lex-
 ## References
 
 - `lex-entities` — required base structure
-- `lex-entity-naming` — snake_case for entity_type and fields; PascalCase in DDD documents
+- `lex-entity-naming` — UPPER_SNAKE_CASE for entity_type; snake_case for fields; PascalCase in DDD documents
 - `lex-error-handling` — error format
 - `docs/{context}/events/events.md` — events emitted by this entity
 - `docs/{context}/oas/openapi.yaml` — REST endpoints exposing this entity
@@ -178,7 +178,7 @@ Documents **all events of the Bounded Context**, organized by entity. For each e
 # Events — {Bounded Context}
 
 > **Bounded Context:** {context}
-> **CloudEvents Module:** `{module}` (segment `{module}` in `event.guardia.{module}.{entity_type}.{event_name}`)
+> **CloudEvents Module:** `{module}` (segment `{module}` in `event.guardia.{module}.{entity_name}.{event_name}`, where `{entity_name}` is the lowercase form of `entity_type` per `lex-entity-naming` Rule 5)
 
 ## Overview
 
@@ -188,15 +188,15 @@ Documents **all events of the Bounded Context**, organized by entity. For each e
 
 | entity_type | event_name | full type | Publisher | Consumers |
 |-------------|------------|-----------|-----------|-----------|
-| `scheduled_transfer` | `requested` | `event.guardia.financial.scheduled_transfer.requested` | ScheduledPayments | Approval, Audit |
-| `scheduled_transfer` | `approved` | `event.guardia.financial.scheduled_transfer.approved` | Approval | ScheduledPayments, Audit |
-| `scheduled_transfer` | `executed` | `event.guardia.financial.scheduled_transfer.executed` | BankingIntegration | ScheduledPayments, Ledger |
+| `SCHEDULED_TRANSFER` | `requested` | `event.guardia.financial.scheduled_transfer.requested` | ScheduledPayments | Approval, Audit |
+| `SCHEDULED_TRANSFER` | `approved` | `event.guardia.financial.scheduled_transfer.approved` | Approval | ScheduledPayments, Audit |
+| `SCHEDULED_TRANSFER` | `executed` | `event.guardia.financial.scheduled_transfer.executed` | BankingIntegration | ScheduledPayments, Ledger |
 
 ---
 
 ## {EntityNameInPascalCase}
 
-> `entity_type`: `{snake_case}`
+> `entity_type`: `{UPPER_SNAKE_CASE}`
 
 ### Lifecycle
 
@@ -215,7 +215,7 @@ stateDiagram-v2
 
 ### Events
 
-#### `event.guardia.{module}.{entity_type}.requested`
+#### `event.guardia.{module}.{entity_name}.requested`
 
 > Emitted when the user creates the entity.
 
@@ -230,8 +230,8 @@ stateDiagram-v2
   "datacontenttype": "application/json",
   "idempotencykey": "01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
   "data": {
-    "entity_id": "01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
-    "entity_type": "scheduled_transfer",
+    "entity_id": "txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
+    "entity_type": "SCHEDULED_TRANSFER",
     "version": 1,
     "created_at": "2026-04-26T10:00:00Z",
     "updated_at": "2026-04-26T10:00:00Z",
@@ -247,7 +247,7 @@ stateDiagram-v2
 | `data` field | Type | Required | Description |
 |--------------|------|:--------:|-------------|
 | `entity_id` | UUID v7 | Yes | Entity identifier |
-| `entity_type` | string | Yes | Always `{snake_case}` |
+| `entity_type` | string | Yes | Always `{UPPER_SNAKE_CASE}` |
 | `scheduled_date` | date | Yes | Scheduled execution date |
 | `amount` | integer (cents) | Yes | Value in the currency's smallest unit |
 | `currency` | string (ISO 4217) | Yes | Currency code |
@@ -257,7 +257,7 @@ stateDiagram-v2
 
 ---
 
-#### `event.guardia.{module}.{entity_type}.approved`
+#### `event.guardia.{module}.{entity_name}.approved`
 
 > Emitted when supervisor approves.
 
