@@ -1,4 +1,4 @@
-# Lexis: Estructura Obligatoria de los Documentos de Diseño de Agent
+# Lexis: Estructura Obligatoria de los Documentos de Diseño de Agente
 
 > **Prefijo:** `lex-` | **Tipo:** Ley Inquebrantable | **Alcance:** Plataforma Guardia — eje Agent Design (documentos producidos por `warrior-metis` para promover y operar agentes)
 
@@ -10,45 +10,47 @@ Esta Lexis complementa — pero no sustituye — `lex-agent-construction-directi
 
 ## Ley
 
-> **Todo agent en estado `operational-concrete` en la plataforma Guardia DEBE tener (a) los 13 archivos canónicos en `docs/{context}/agents/{agent}/` según `codex-agent-design-docs` (Hub & Spoke), (b) `docs/{context}/dooc/{agent}.md` completado según el HARD-GATE de `lex-agent-construction-directives`, (c) `overview.md` con el campo `serves_features` poblado, (d) reciprocidad en `docs/{context}/feature-agent-map.md` (forward y reverse mapping consistentes entre features y agents), (e) `warrior-metis` declarada como autora (PR ref, session-id o firma `authored_by: warrior-metis` en el header de `overview.md`).**
+> **Todo agente en estado `operational-concrete` en la plataforma Guardia DEBE tener (a) los 13 archivos canónicos en `docs/{context}/agents/{agent}/` según `codex-agent-design-docs` (Hub & Spoke), (b) `docs/{context}/dooc/{agent}.md` completado según el HARD-GATE de `lex-agent-construction-directives`, (c) `overview.md` con el campo `serves_features` poblado, (d) reciprocidad en `docs/{context}/feature-agent-map.md` (forward y reverse mapping consistentes entre features y agentes), (e) `warrior-metis` declarada como autora (PR ref, session-id o firma `authored_by: warrior-metis` en el header de `overview.md`).**
 
+```
 <HARD-GATE>
-warrior-metis, warrior-apollo-agents y cualquier otro agente NO DEBE promover un agent a `operational-concrete` (merge en main, deploy en producción) sin TODAS las 5 preconditions:
+warrior-metis, warrior-apollo-agents y cualquier otro agente NO DEBE promover un agente a `operational-concrete` (merge en main, deploy en producción) sin TODAS las 5 preconditions:
 
   (a) 13 archivos presentes en `docs/{context}/agents/{agent}/`: `overview.md`, `orchestrator.md`, `specialists/{name}.md` (≥1), `tools.md`, `memory.md`, `reasoning-loop.md`, `feedback.md`, `context-pack.md`, `system-prompt.md`, `metrics.md`, `guardrails.md`, `authorization.md`, `escalation.md`
   (b) `docs/{context}/dooc/{agent}.md` existe y satisface el HARD-GATE de `lex-agent-construction-directives` (9 ítems de la DoOC con evidence o N/A justificado por ADR/PDR cuando `entry_mode` ≠ `with-pov`)
   (c) `agents/{agent}/overview.md` campo `serves_features` poblado con una lista válida de features existentes en `docs/{context}/features/`
-  (d) `docs/{context}/feature-agent-map.md` refleja la relación: forward (feature → agents) y reverse (agent → features) consistentes; ningún agent listado en una feature sin reciprocidad en `serves_features` del agent, y ninguna feature listada en `serves_features` sin reciprocidad en `served_by_agents`
+  (d) `docs/{context}/feature-agent-map.md` refleja la relación: forward (feature → agentes) y reverse (agente → features) consistentes; ningún agente listado en una feature sin reciprocidad en `serves_features` del agente, y ninguna feature listada en `serves_features` sin reciprocidad en `served_by_agents`
   (e) `warrior-metis` declarada como autora — PR ref en el header de `overview.md` (campo `PR ref: {owner/repo#NNN}`) O `authored_by: warrior-metis` en el header O session-id canónico en el commit message
 
-Esta regla se aplica a TODO agent en promoción a `operational-concrete`, sin importar:
-  - tamaño percibido ("es solo un agent simple")
+Esta regla se aplica a TODO agente en promoción a `operational-concrete`, sin importar:
+  - tamaño percibido ("es solo un agente simple")
   - urgencia declarada ("el cliente lo necesita hoy")
   - quién lo solicitó ("el CEO pidió")
   - confianza del equipo ("ya probamos bastante")
 
 Excepciones declaradas:
-  - Agents en `pre-operational` (PoV producida por `warrior-claudionor`) quedan FUERA de este HARD-GATE — su estructura mínima viable se define en `codex-agent-construction-directives` (rigor diferencial por etapa).
-  - Agents en `legacy-pov` (anteriores al merge de esta Lexis) PUEDEN ser promovidos con DoOC retroactiva + ADR según la cláusula de transición de `lex-agent-construction-directives` (90 días tras el merge). La reciprocidad en `feature-agent-map.md` sigue siendo obligatoria.
+  - Agentes en `pre-operational` (PoV producida por `warrior-claudionor`) quedan FUERA de este HARD-GATE — su estructura mínima viable se define en `codex-agent-construction-directives` (rigor diferencial por etapa).
+  - Agentes en `legacy-pov` (anteriores al merge de esta Lexis) PUEDEN ser promovidos con DoOC retroactiva + ADR según la cláusula de transición de `lex-agent-construction-directives` (90 días tras el merge). La reciprocidad en `feature-agent-map.md` sigue siendo obligatoria.
 </HARD-GATE>
+```
 
 ## Alcance
 
-- **Se aplica a:** todo agent que sirve features de producción en la plataforma Guardia (Isac, agents de reconciliación, clasificación fiscal/contable, cierre, futuros agents). Incluye agents que cubren un solo caso de uso (1..1) y agents que cubren múltiples features (1..N).
+- **Se aplica a:** todo agente que sirve features de producción en la plataforma Guardia (Isac, agentes de reconciliación, clasificación fiscal/contable, cierre, futuros agentes). Incluye agentes que cubren un solo caso de uso (1..1) y agentes que cubren múltiples features (1..N).
 - **Agentes vinculados:** `warrior-metis` (autora de los 13 archivos + `dooc/{agent}.md`), `warrior-apollo-agents` (consumidor durante la implementación), `warrior-athena` (Gate 2 cuando la feature toca `docs/**/agents/**`), `warrior-prometheus` (coordina la reciprocidad Feature ↔ Agent).
-- **Excepciones:** solo las dos declaradas en el `<HARD-GATE>` (agents en `pre-operational` y `legacy-pov`).
+- **Excepciones:** solo las dos declaradas en el `<HARD-GATE>` (agentes en `pre-operational` y `legacy-pov`).
 
 ## Consecuencias de la Violación
 
 1. **Bloqueo automático:** Gate 2 (`kata-quality-gate`) rechaza los PRs de promoción que no satisfagan las 5 preconditions. Los PRs con `serves_features` inconsistente con `served_by_agents` (reciprocidad rota) son bloqueados.
 2. **Alerta:** notifica a `warrior-metis`, `warrior-prometheus` (eje Feature) y al owner del agent (campo `Owner` en `overview.md`).
-3. **Remediación:** completar los 13 archivos, llenar `dooc/{agent}.md`, actualizar `feature-agent-map.md` para reflejar la reciprocidad y volver a publicar el PR de promoción. En deploy de emergencia, el rollback es obligatorio hasta la remediación.
+3. **Remediación:** completar los 13 archivos, llenar `dooc/{agent}.md`, actualizar `feature-agent-map.md` para reflejar la reciprocidad y volver a publicar el PR de promoción. En despliegue de emergencia, el rollback es obligatorio hasta la remediación.
 
 ## Ejemplos
 
 ### Correcto
 
-Agent `rec-classifier` en capability `reconciliation` promovido en el PR #543:
+Agente `rec-classifier` en capability `reconciliation` promovido en el PR #543:
 
 ```
 docs/
@@ -80,7 +82,7 @@ docs/
                                        # reverse: rec-classifier → transaction-classification, monthly-close-acceleration
 ```
 
-Reciprocidad verificada: `serves_features` en `rec-classifier/overview.md` lista las dos features y cada feature lista al agent en `served_by_agents`. Promoción aprobada en Gate 2.
+Reciprocidad verificada: `serves_features` en `rec-classifier/overview.md` lista las dos features y cada feature lista al agente en `served_by_agents`. Promoción aprobada en Gate 2.
 
 ### Incorrecto
 
@@ -99,13 +101,13 @@ docs/
 
 Reciprocidad rota: `serves_features` apunta a una feature inexistente (`refund-detection`) y `feature-agent-map.md` no la refleja. **Gate 2 rechaza** — preconditions (c) y (d) violadas.
 
-Otro caso incorrecto: agent promovido sin `dooc/{agent}.md` ("lo completamos después"). Sin un snapshot validado según `lex-agent-construction-directives`, la precondition (b) se viola; promoción bloqueada.
+Otro caso incorrecto: agente promovido sin `dooc/{agent}.md` ("lo completamos después"). Sin un snapshot validado según `lex-agent-construction-directives`, la precondition (b) se viola; promoción bloqueada.
 
 ## Validación Automatizada
 
 - **Herramienta:** verificación por el propio agente (`warrior-metis`) antes de la promoción + lint en el Gate 2 (`kata-quality-gate`) detectando: ausencia de los 13 archivos, `dooc/{agent}.md` faltante, campo `serves_features` vacío en `operational-concrete`, desincronía entre `serves_features` ↔ `served_by_agents` (reciprocidad), ausencia de `authored_by` o PR ref en el header de `overview.md`. En el futuro: `kata-agent-design-validate` formalizando los 5 checks.
-- **Momento:** Gate 2 del flujo Issue-Driven; PR review de la promoción; pre-deploy de cualquier agent en `operational-concrete`; auditoría periódica de agents en producción.
-- **Métrica:** 0 agents en `operational-concrete` sin las 5 preconditions ✅; 0 features con `served_by_agents` apuntando a un agent inexistente; 0 agents con `serves_features` apuntando a una feature inexistente; 100% de las promociones con `warrior-metis` rastreada como autora.
+- **Momento:** Gate 2 del flujo Issue-Driven; revisión de PR de la promoción; pre-despliegue de cualquier agente en `operational-concrete`; auditoría periódica de agentes en producción.
+- **Métrica:** 0 agentes en `operational-concrete` sin las 5 preconditions ✅; 0 features con `served_by_agents` apuntando a un agente inexistente; 0 agentes con `serves_features` apuntando a una feature inexistente; 100% de las promociones con `warrior-metis` rastreada como autora.
 
 ## Referencias
 
