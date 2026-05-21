@@ -48,10 +48,22 @@ cleanup() {
 trap cleanup EXIT
 
 # ─── Paths ─────────────────────────────────────────────────────────────────
+# Worktree-aware: when invoked from inside a git worktree, .env.local and the
+# installation-token cache live at the main repo root, not at the worktree
+# dir. `git rev-parse --git-common-dir` returns ".git" (relative) in the main
+# repo and the absolute path to <main>/.git in a worktree — its parent is the
+# main repo root in both cases, so a single resolution covers both modes.
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_ROOT="$( cd "${SCRIPT_DIR}/../.." && pwd )"
-ENV_FILE="${REPO_ROOT}/.env.local"
-CACHE_DIR="${REPO_ROOT}/.ahrena/argos"
+GIT_COMMON_DIR_REL="$( cd "${REPO_ROOT}" && git rev-parse --git-common-dir 2>/dev/null || true )"
+if [[ -n "${GIT_COMMON_DIR_REL}" ]]; then
+  GIT_COMMON_DIR_ABS="$( cd "${REPO_ROOT}" && cd "${GIT_COMMON_DIR_REL}" && pwd )"
+  MAIN_REPO_ROOT="$( dirname "${GIT_COMMON_DIR_ABS}" )"
+else
+  MAIN_REPO_ROOT="${REPO_ROOT}"
+fi
+ENV_FILE="${MAIN_REPO_ROOT}/.env.local"
+CACHE_DIR="${MAIN_REPO_ROOT}/.ahrena/argos"
 CACHE_FILE="${CACHE_DIR}/installation-token.json"
 
 # ─── Load .env.local (env vars win) ────────────────────────────────────────

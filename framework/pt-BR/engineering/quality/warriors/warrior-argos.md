@@ -169,6 +169,8 @@ GH_TOKEN=$(scripts/argos/auth.sh) gh api repos/{owner}/{repo}/pulls/{n}/comments
 
 `scripts/argos/auth.sh` carrega `.env.local`, assina um JWT (RS256, 10min) com a chave privada, troca por um installation token (TTL 1h, cache em `.ahrena/argos/installation-token.json` por 50min), e emite o token no stdout. Operações `gh` de **leitura** (`view`, `list`, `api GET`) podem usar o PAT do reviewer humano normalmente — só as escritas precisam do bot token.
 
+**Worktree-aware:** `auth.sh` resolve `.env.local` e o cache de token a partir do main repo root via `git rev-parse --git-common-dir`, de modo que invocações de qualquer `.worktrees/{N}-{slug}/` encontram os mesmos arquivos do main repo (sem duplicar credenciais nem re-mintar tokens por worktree).
+
 **Conformidade:** `pr_cost_tracking.known_ai_reviewers` em `.ahrena/.directives` (built-in) reconhece `ahrena-warrior-argos[bot]` como AI reviewer, então o stamp de custo do `kata-pr-cost-stamp` separa Argos do humano corretamente.
 
 ## Verificação de Identidade Pós-Publicação
