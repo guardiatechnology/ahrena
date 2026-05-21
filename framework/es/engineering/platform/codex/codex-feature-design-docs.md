@@ -48,7 +48,7 @@ Cada entidad del Bounded Context tiene **un archivo dedicado** en `docs/{context
 
 > **Clasificación DDD:** Entity | Aggregate Root | Value Object
 > **Bounded Context:** {context}
-> **entity_type:** `{snake_case}`
+> **entity_type:** `{UPPER_SNAKE_CASE}`
 
 ## Por qué existe
 
@@ -59,7 +59,7 @@ Cada entidad del Bounded Context tiene **un archivo dedicado** en `docs/{context
 | Campo | Tipo | Tamaño | Obligatorio | Descripción |
 |-------|------|--------|:-----------:|-------------|
 | `entity_id` | UUID v7 | 36 | Sí | Identificador único de la entidad (lex-entities) |
-| `entity_type` | string | — | Sí | Valor fijo: `{snake_case}` |
+| `entity_type` | string | — | Sí | Valor fijo: `{UPPER_SNAKE_CASE}` |
 | `version` | integer | — | Sí | Versión optimista de la entidad |
 | `created_at` | datetime (ISO 8601) | — | Sí | Creación |
 | `updated_at` | datetime (ISO 8601) | — | Sí | Última actualización |
@@ -107,7 +107,7 @@ Errores emitidos por casos de uso que tocan esta entidad. Cada error DEBE seguir
 ## Referencias
 
 - `lex-entities` — estructura base obligatoria
-- `lex-entity-naming` — snake_case para entity_type y campos; PascalCase en los documentos DDD
+- `lex-entity-naming` — UPPER_SNAKE_CASE para entity_type; snake_case para campos; PascalCase en los documentos DDD
 - `lex-error-handling` — formato de errores
 - `docs/{context}/events/events.md` — eventos emitidos por esta entidad
 - `docs/{context}/oas/openapi.yaml` — endpoints REST que exponen esta entidad
@@ -178,7 +178,7 @@ Documenta **todos los eventos del Bounded Context**, organizados por entidad. Pa
 # Eventos — {Bounded Context}
 
 > **Bounded Context:** {context}
-> **Module CloudEvents:** `{module}` (segmento `{module}` en `event.guardia.{module}.{entity_type}.{event_name}`)
+> **Module CloudEvents:** `{module}` (segmento `{module}` en `event.guardia.{module}.{entity_name}.{event_name}`, donde `{entity_name}` es la forma en minúscula de `entity_type` per `lex-entity-naming` Rule 5)
 
 ## Visión General
 
@@ -188,15 +188,15 @@ Resumen en 2-4 frases de los eventos publicados por este contexto y sus principa
 
 | entity_type | event_name | type completo | Publicador | Consumidores |
 |-------------|------------|---------------|------------|--------------|
-| `scheduled_transfer` | `requested` | `event.guardia.financial.scheduled_transfer.requested` | ScheduledPayments | Approval, Audit |
-| `scheduled_transfer` | `approved` | `event.guardia.financial.scheduled_transfer.approved` | Approval | ScheduledPayments, Audit |
-| `scheduled_transfer` | `executed` | `event.guardia.financial.scheduled_transfer.executed` | BankingIntegration | ScheduledPayments, Ledger |
+| `SCHEDULED_TRANSFER` | `requested` | `event.guardia.financial.scheduled_transfer.requested` | ScheduledPayments | Approval, Audit |
+| `SCHEDULED_TRANSFER` | `approved` | `event.guardia.financial.scheduled_transfer.approved` | Approval | ScheduledPayments, Audit |
+| `SCHEDULED_TRANSFER` | `executed` | `event.guardia.financial.scheduled_transfer.executed` | BankingIntegration | ScheduledPayments, Ledger |
 
 ---
 
 ## {NombreDeLaEntidadEnPascalCase}
 
-> `entity_type`: `{snake_case}`
+> `entity_type`: `{UPPER_SNAKE_CASE}`
 
 ### Ciclo de Vida
 
@@ -215,7 +215,7 @@ stateDiagram-v2
 
 ### Eventos
 
-#### `event.guardia.{module}.{entity_type}.requested`
+#### `event.guardia.{module}.{entity_name}.requested`
 
 > Emitido cuando el usuario crea la entidad.
 
@@ -230,8 +230,8 @@ stateDiagram-v2
   "datacontenttype": "application/json",
   "idempotencykey": "01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
   "data": {
-    "entity_id": "01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
-    "entity_type": "scheduled_transfer",
+    "entity_id": "txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
+    "entity_type": "SCHEDULED_TRANSFER",
     "version": 1,
     "created_at": "2026-04-26T10:00:00Z",
     "updated_at": "2026-04-26T10:00:00Z",
@@ -247,7 +247,7 @@ stateDiagram-v2
 | Campo de `data` | Tipo | Obligatorio | Descripción |
 |-----------------|------|:-----------:|-------------|
 | `entity_id` | UUID v7 | Sí | Identificador de la entidad |
-| `entity_type` | string | Sí | Siempre `{snake_case}` |
+| `entity_type` | string | Sí | Siempre `{UPPER_SNAKE_CASE}` |
 | `scheduled_date` | date | Sí | Fecha programada para ejecución |
 | `amount` | integer (centavos) | Sí | Valor en menor unidad de la moneda |
 | `currency` | string (ISO 4217) | Sí | Código de la moneda |
@@ -257,7 +257,7 @@ stateDiagram-v2
 
 ---
 
-#### `event.guardia.{module}.{entity_type}.approved`
+#### `event.guardia.{module}.{entity_name}.approved`
 
 > Emitido cuando el supervisor aprueba.
 
