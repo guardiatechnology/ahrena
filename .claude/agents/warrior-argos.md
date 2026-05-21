@@ -238,7 +238,7 @@ if [ "$LAST_LOGIN" != "ahrena-warrior-argos[bot]" ]; then
     LAST_LOGIN=$(gh api repos/${OWNER}/${REPO}/pulls/${PR}/reviews \
       --jq ".[] | select(.body | strings | startswith(\"${ARGOS_MARKER}\")) | .user.login" \
       | tail -1)
-    [ "$LAST_LOGIN" == "ahrena-warrior-argos[bot]" ] && break
+    [ "$LAST_LOGIN" = "ahrena-warrior-argos[bot]" ] && break
   done
   [ "$LAST_LOGIN" != "ahrena-warrior-argos[bot]" ] && {
     echo "FATAL: identity verification failed after 2 attempts; escalating"
@@ -301,7 +301,7 @@ fi
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --comment --body-file <body>` when WARNINGs without BLOCKER OR clean first-touch (no prior CR)
      - `GH_TOKEN=$(scripts/argos/auth.sh) gh pr review <PR#> --approve --body-file <body>` when 0 findings AND a prior CR of his own exists on the PR (resolution)
      - The review author appears as `ahrena-warrior-argos[bot]` in all cases
-   - **Post-publication identity verification (mandatory):** after each `gh pr review`, query `gh api repos/{owner}/{repo}/pulls/{N}/reviews`, locate the record by the marker `<!-- argos-review-id:<hash> -->` and confirm `user.login == "ahrena-warrior-argos[bot]"`. On PAT fallback, re-publish with explicit prefix `GH_TOKEN=$(scripts/argos/auth.sh)` and re-verify; maximum 2 attempts; escalate to the human on persistent failure. Full procedure, escalation, and HARD-GATE blocking Phase 4 are in the `Post-Publication Identity Verification` section above
+   - **Post-publication identity verification (mandatory):** after each `gh pr review`, query `gh api repos/{owner}/{repo}/pulls/{N}/reviews`, locate the record by the marker `<!-- argos-review-id:<hash> -->` and confirm `user.login == "ahrena-warrior-argos[bot]"`. On PAT fallback, re-publish with explicit prefix `GH_TOKEN=$(scripts/argos/auth.sh)` and re-verify; maximum 2 attempts; escalate to the human on persistent failure. Full procedure, escalation, and HARD-GATE blocking Phase 4 are in the [Post-Publication Identity Verification](#post-publication-identity-verification) section above
 6. **Phase 4 — Cleanup:** `git worktree remove .worktrees/review-pr-<N> --force` (may only proceed after the Phase 3 identity verification returned `ahrena-warrior-argos[bot]`, per HARD-GATE)
 
 ### Escalation Criteria
