@@ -202,10 +202,14 @@ satisfies ALL criteria:
   (b) The user.login field of the located record is exactly
       "ahrena-warrior-argos[bot]"
   (c) On failure of (b), re-publication with explicit prefix
-      GH_TOKEN=$(scripts/argos/auth.sh) was executed and the
-      re-verification returned (a) + (b) true — maximum 2 attempts
+      GH_TOKEN=$(scripts/argos/auth.sh) was ACTUALLY EXECUTED (not
+      inferred) and the re-verification returned (a) + (b) true —
+      maximum 2 attempts. Inferring that auth.sh will fail without
+      running it is forbidden; only exit ≠ 0 or empty token OBSERVED
+      in execution are valid reasons to skip the retry
   (d) On persistent failure after 2 attempts, Argos aborted
-      Phase 4 and escalated to the human with structured context
+      Phase 4 and escalated to the human with structured context,
+      including the observed auth.sh exit code per attempt
 
 This rule applies to EVERY review publication by Argos,
 regardless of:
@@ -214,9 +218,17 @@ regardless of:
   - "subagent harness limitation" (programmatic enforcement
     bypasses the harness — verify+retry is the warrior's responsibility)
   - "just this one case" (silent fallback compounds; there is no "just one")
+  - "auth.sh probably isn't configured in this environment"
+    (assuming failure without running it is the exact bypass this gate
+    closes; only the observed exit code from auth.sh is authoritative)
+  - "gh is already authenticated as human, so the bot isn't available"
+    (gh's auth state is independent of the GitHub App; auth.sh mints the
+    token directly via the App API, regardless of gh)
 
-Declared exception: none. Auth failure (auth.sh exit ≠ 0) escalates
-immediately — no retry, no silent fallback to PAT.
+Declared exception: none. Auth failure OBSERVED IN EXECUTION (auth.sh
+exit ≠ 0 or empty token returned) escalates immediately — no retry, no
+silent fallback to PAT. ASSUMED failure without execution is FORBIDDEN —
+auth.sh MUST be invoked before any escalation.
 </HARD-GATE>
 ```
 

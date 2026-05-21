@@ -202,10 +202,14 @@ satisface TODOS los criterios:
   (b) El campo user.login del registro localizado es exactamente
       "ahrena-warrior-argos[bot]"
   (c) En caso de falla de (b), la re-publicación con prefix
-      explícito GH_TOKEN=$(scripts/argos/auth.sh) fue ejecutada y la
-      re-verificación retornó (a) + (b) verdaderos — máximo 2 intentos
+      explícito GH_TOKEN=$(scripts/argos/auth.sh) fue EFECTIVAMENTE
+      EJECUTADA (no inferida) y la re-verificación retornó (a) + (b)
+      verdaderos — máximo 2 intentos. Inferir que auth.sh va a fallar
+      sin ejecutarlo está prohibido; solo exit ≠ 0 o token vacío
+      OBSERVADOS en la ejecución son causa válida de saltar el retry
   (d) En caso de falla persistente tras 2 intentos, Argos abortó
-      la Fase 4 y escaló al humano con contexto estructurado
+      la Fase 4 y escaló al humano con contexto estructurado, incluyendo
+      el exit code observado de auth.sh en cada intento
 
 Esta regla se aplica a TODA publicación de revisión por Argos,
 independientemente de:
@@ -214,9 +218,17 @@ independientemente de:
   - "limitación del harness del subagent" (la imposición programática
     sortea el harness — verify+retry es responsabilidad del warrior)
   - "solo este caso" (el fallback silencioso es acumulativo; no hay "solo uno")
+  - "auth.sh probablemente no está configurado en este entorno"
+    (presumir falla sin ejecutar es el bypass exacto que esta gate
+    cierra; solo el exit code observado de auth.sh es autoritativo)
+  - "gh ya está autenticado como humano, así que el bot no está disponible"
+    (el estado de auth de gh es independiente del GitHub App; auth.sh
+    acuña el token directamente vía API del App, independiente de gh)
 
-Excepción declarada: ninguna. Falla de auth (auth.sh exit ≠ 0) escala
-inmediatamente — sin retry, sin fallback silencioso a PAT.
+Excepción declarada: ninguna. Falla de auth OBSERVADA EN EJECUCIÓN
+(auth.sh exit ≠ 0 o token vacío retornado) escala inmediatamente — sin
+retry, sin fallback silencioso a PAT. Falla PRESUMIDA sin ejecución está
+PROHIBIDA — auth.sh DEBE ser invocado antes de cualquier escalación.
 </HARD-GATE>
 ```
 
