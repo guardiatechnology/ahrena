@@ -11,6 +11,7 @@ alwaysApply: false
 
 > **Every agent in the `operational-concrete` state on the Guardia platform MUST have (a) the 13 canonical files in `docs/{context}/agents/{agent}/` per `codex-agent-design-docs` (Hub & Spoke), (b) `docs/{context}/dooc/{agent}.md` filled in per `lex-agent-construction-directives` HARD-GATE, (c) `overview.md` with the `serves_features` field populated, (d) reciprocity in `docs/{context}/feature-agent-map.md` (forward and reverse mapping consistent between features and agents), (e) `warrior-metis` declared as author (PR ref, session-id, or `authored_by: warrior-metis` signature in the header of `overview.md`).**
 
+```
 <HARD-GATE>
 warrior-metis, warrior-apollo-agents, and any other agent MUST NOT promote an agent to `operational-concrete` (merge into main, deploy to production) without ALL 5 preconditions:
 
@@ -30,6 +31,7 @@ Declared exceptions:
   - Agents in `pre-operational` (PoV produced by `warrior-claudionor`) are OUTSIDE this HARD-GATE — their minimum viable structure is defined in `codex-agent-construction-directives` (differential rigor per stage).
   - Agents in `legacy-pov` (prior to the merge of this Lexis) MAY be promoted with retroactive DoOC + ADR per the transition clause of `lex-agent-construction-directives` (90 days after merge). Reciprocity in `feature-agent-map.md` remains mandatory.
 </HARD-GATE>
+```
 
 ## Coverage
 
