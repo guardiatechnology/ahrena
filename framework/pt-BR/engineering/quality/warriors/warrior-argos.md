@@ -201,10 +201,14 @@ satisfaz TODOS os critérios:
   (b) Campo user.login do registro localizado é exatamente
       "ahrena-warrior-argos[bot]"
   (c) Em caso de falha de (b), a re-publicação com prefix explícito
-      GH_TOKEN=$(scripts/argos/auth.sh) foi executada e a re-verificação
-      retornou (a) + (b) verdadeiros — máximo 2 tentativas
+      GH_TOKEN=$(scripts/argos/auth.sh) foi EFETIVAMENTE EXECUTADA (não
+      inferida) e a re-verificação retornou (a) + (b) verdadeiros —
+      máximo 2 tentativas. Inferir que auth.sh vai falhar sem executá-lo
+      é proibido; apenas exit ≠ 0 ou token vazio OBSERVADOS na execução
+      são causa válida de pular o retry
   (d) Em caso de falha persistente após 2 tentativas, Argos abortou
-      Fase 4 e escalou ao humano com contexto estruturado
+      Fase 4 e escalou ao humano com contexto estruturado, incluindo
+      o exit code observado de auth.sh em cada tentativa
 
 Esta regra se aplica a TODA publicação de review por Argos,
 independentemente de:
@@ -213,9 +217,17 @@ independentemente de:
   - "limitação do harness do subagent" (enforcement programático
     contorna o harness — verify+retry é responsabilidade do warrior)
   - "só este caso" (silent fallback é cumulativo; não há "só um")
+  - "auth.sh provavelmente não está configurado neste ambiente"
+    (presumir falha sem executar é o exato bypass que esta gate fecha;
+    apenas o exit code observado de auth.sh é autoritativo)
+  - "gh já está autenticado como humano, então o bot não está disponível"
+    (estado de auth do gh é independente do GitHub App; auth.sh cunha
+    o token diretamente via API do App, independente do gh)
 
-Exceção declarada: nenhuma. Falha de auth (auth.sh exit ≠ 0) escala
-imediatamente — não retry, não fallback silencioso para PAT.
+Exceção declarada: nenhuma. Falha de auth OBSERVADA EM EXECUÇÃO (auth.sh
+exit ≠ 0 ou token vazio retornado) escala imediatamente — não retry,
+não fallback silencioso para PAT. Falha PRESUMIDA sem execução é
+PROIBIDA — auth.sh deve ser invocado antes de qualquer escalação.
 </HARD-GATE>
 ```
 
