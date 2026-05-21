@@ -16,7 +16,7 @@ Este comando aciona o Warrior Kronos (especialista em Event Storm) para descobri
 
 | Parâmetro | Obrigatório | Descrição | Exemplo |
 |-----------|:-----------:|-----------|---------|
-| `contexto da feature ou módulo` | Sim | Nome do módulo e descrição do domínio (para Descoberta) ou lista explícita de tipos de evento (apenas para Documentação) | `"Módulo platform, transferências agendadas — eventos desconhecidos"` ou `"event.guardia.platform.scheduled_transfer.created, .updated, .cancelled"` |
+| `contexto da feature ou módulo` | Sim | Nome do módulo e descrição do domínio (para Descoberta) ou lista explícita de tipos de evento (apenas para Documentação) | `"Módulo platform, transferências agendadas — eventos desconhecidos"` ou `"event.guardia.financial.scheduled_transfer.created, .updated, .cancelled"` |
 | `source base` | Não | Base da URI `source` (ex.: `https://tenant.guardia.finance/platform/api/v1`). Se omitido, o agente propõe conforme codex-cloudevents | `https://tenant.guardia.finance/platform/api/v1` |
 
 ## O que o Comando Faz
@@ -72,7 +72,7 @@ Output esperado:
 **Cenário B — Eventos já conhecidos (Fase 2 apenas):**
 
 ```
-/cry-event-storm "event.guardia.platform.scheduled_transfer.created, .updated, .cancelled"
+/cry-event-storm "event.guardia.financial.scheduled_transfer.created, .updated, .cancelled"
 ```
 
 Output esperado:

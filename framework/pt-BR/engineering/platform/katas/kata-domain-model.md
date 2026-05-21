@@ -226,7 +226,7 @@ Notas adicionais consolidadas pelo warrior-prometheus (publicadas no Notion):
 
 **Use Cases:** `RequestScheduledTransfer`, `ApproveScheduledTransfer`, `ExecuteScheduledTransfer`, `CancelScheduledTransfer`
 
-**Eventos de Integração:** `event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
+**Eventos de Integração:** `event.guardia.financial.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
 
 **Hotspots em Aberto:**
 | Descrição | Prioridade | Responsável |

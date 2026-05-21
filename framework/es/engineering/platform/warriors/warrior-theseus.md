@@ -131,7 +131,7 @@ Cuando responda, mapearé entidades, agregados, use cases e identificaré los ev
 |---------|-------------|-----------------|---------------|
 | ScheduledTransfer | `scheduled_transfer` | ScheduledPayments | requested → approved → executed \| failed \| cancelled |
 
-**Eventos de Integración identificados:** `event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
+**Eventos de Integración identificados:** `event.guardia.financial.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
 
 **Hotspot P1 resuelto:** política de retry ante fallo de ejecución — definida como: retry una vez pasados 30 minutos, luego pasar al estado `failed`.
 

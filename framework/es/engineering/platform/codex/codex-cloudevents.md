@@ -18,36 +18,68 @@ Este Codex describe el uso de la especificación CloudEvents para representar ev
 
 | Propiedad | Tipo | Default | Obligatorio | Descripción |
 |-----------|------|---------|-------------|-------------|
-| id | UUID v7 | — | Sí | Identificador único del evento; inmutable; RFC 9562. |
-| source | URI | — | Sí | Origen del evento (ej.: https://&lt;tenant_id&gt;.guardia.finance/&lt;module&gt;/api/v1/&lt;entity_type&gt;/&lt;entity_id&gt;) |
+| id | {entity_id_prefix}:{uuid_v7} | — | Sí | Identificador único de la emisión del evento. Usa el MISMO `entity_id_prefix` de la entidad que emite, con UUID v7 NUEVO en cada emisión (RFC 9562). DEBE ser único por evento — la misma entidad emite varios eventos (ej.: `created`, `approved`, `executed`), cada uno con un `id` distinto. NO es igual al `entity_id`. Inmutable. |
+| source | URI | — | Sí | Origen del evento. Formato: `https://api.guardia.technology/{context}/v{N}/{resource}/{entity_id}`, donde `{context}` es el bounded context emisor en kebab-case (contexts canónicos de Guardia: `accounting`, `financial`, `tax`, `fiscal`), `{N}` es la versión major de la API (ej.: `1`) y `{resource}` es el recurso de API en plural kebab-case derivado de `entity_type` (ej.: `RECORD` → `records`, `LEDGER_ENTRY` → `ledger-entries`). |
 | specversion | string | 1.0 | Sí | Versión de la spec CloudEvents; valor fijo "1.0". |
-| type | string | — | Sí | Formato event.{provider}.{module}.{entity_type}.{event_name}; catalogado en el Hub. |
+| type | string | — | Sí | Formato `event.{provider}.{domain}.{entity_name}.{event_name}`; todos los tokens en snake_case en minúsculas; catalogado en el Hub. |
 | time | datetime | — | Sí | Timestamp de la ocurrencia (RFC 3339). |
 | datacontenttype | string | application/json | Sí | Valor fijo "application/json". |
 | dataschema | URI | — | Opcional | URI del schema JSON en el Hub. |
-| subject | string | — | Sí | Formato {entity_type}/{entity_id}. |
+| subject | string | — | Sí | Formato `{entity_type}/{entity_id}`. `entity_type` en UPPER_SNAKE_CASE. |
 | idempotencykey | UUID | — | Sí | Clave de idempotencia; conforme codex-idempotency. |
 | data | object | — | Sí | Datos de la entidad; campos comunes: entity_id, entity_type, external_entity_id, created_at, updated_at, discarded_at, version, metadata. **El historial de la entidad DEBE omitirse de los eventos.** Ver codex-entities. |
 
+Notas de las propiedades:
 - **type:** DEBE ser un tipo catalogado en el catálogo de eventos del proyecto (schemas).
 - **dataschema:** cuando esté presente, DEBE apuntar al schema JSON del proyecto.
+- **data.entity_type:** DEBE usar UPPER_SNAKE_CASE (ej.: `TRANSACTION`, `SCHEDULED_TRANSFER`), conforme `lex-entity-naming`.
+- **data.entity_id:** DEBE usar el formato `{entity_id_prefix}:{uuid_v7}`.
+
+### Formato del tipo CloudEvents
+
+El formato canónico para eventos internos de Guardia es:
+
+```
+event.{provider}.{domain}.{entity_name}.{event_name}
+```
+
+| Token | Descripción | Ejemplo |
+|-------|-------------|---------|
+| `provider` | Siempre `guardia` para eventos internos; nombre del proveedor externo para eventos externos mapeados | `guardia` |
+| `domain` | Bounded context / dominio del servicio emisor | `platform`, `reconciliation`, `fiscal` |
+| `entity_name` | Forma en minúsculas del `entity_type` en UPPER_SNAKE_CASE | `TRANSACTION` → `transaction` |
+| `event_name` | Verbo en pasado describiendo lo que ocurrió | `created`, `approved`, `executed`, `failed` |
+
+El segmento `{entity_name}` es la excepción declarada a la regla UPPER_SNAKE_CASE para `entity_type`: el estándar de notación dot-notation reverso del DNS de CloudEvents requiere minúsculas, por lo que `entity_name` se deriva convirtiendo `entity_type` a minúsculas.
+
+### entity_id_prefix
+
+Toda entidad tiene un prefijo corto (2–5 caracteres alfanuméricos en minúsculas) definido antes del inicio del desarrollo. El prefijo se combina con un UUID v7 para formar el identificador de la entidad:
+
+```
+{entity_id_prefix}:{uuid_v7}
+```
+
+Ejemplos: `txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`, `rec:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`
+
+El prefijo aparece donde sea que se referencie un `entity_id` (`data.entity_id`, `subject`, `source`, campos de referencia cruzada en `data`) **y** en el `id` de CloudEvents. El `id` reutiliza el prefijo de la entidad para mantener eventos de la misma familia identificables a primera vista, pero el UUID v7 es nuevo en cada emisión — entonces `id` ≠ `entity_id`, aunque ambos compartan el mismo prefijo.
 
 ### Ejemplo de evento (JSON)
 
 ```json
 {
-  "id": "019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
-  "source": "https://tenant.guardia.finance/platform/api/v1/transactions/019b9f12-0000-7000-8000-000000000001",
+  "id": "rec:019b9f12-9999-7c8d-9e0f-aaaaaaaaaaaa",
+  "source": "https://api.guardia.technology/financial/v1/records/rec:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "specversion": "1.0",
-  "type": "event.guardia.platform.transaction.created",
+  "type": "event.guardia.financial.record.created",
   "time": "2026-03-08T12:00:00Z",
   "datacontenttype": "application/json",
-  "dataschema": "https://<schema-base>/schemas/transaction.v1.json",
-  "subject": "transaction/019b9f12-0000-7000-8000-000000000001",
+  "dataschema": "https://<schema-base>/schemas/record.v1.json",
+  "subject": "RECORD/rec:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
   "idempotencykey": "019b9f12-0000-7000-8000-000000000002",
   "data": {
-    "entity_id": "019b9f12-0000-7000-8000-000000000001",
-    "entity_type": "transaction",
+    "entity_id": "rec:019b9f12-3a4b-7c8d-9e0f-1a2b3c4d5e6f",
+    "entity_type": "RECORD",
     "external_entity_id": "ext-123",
     "created_at": "2026-03-08T12:00:00Z",
     "updated_at": "2026-03-08T12:00:00Z",
@@ -67,7 +99,7 @@ Este Codex describe el uso de la especificación CloudEvents para representar ev
 ### Comportamientos esperados
 
 - Eventos inmutables tras la publicación.
-- Publicación en tópicos distintos por tipo: estándar event.guardia.{module}.{entity_type}.{event_name}.
+- Publicación en tópicos distintos por tipo: estándar `event.guardia.{domain}.{entity_name}.{event_name}` (todos los tokens en snake_case en minúsculas).
 - Los consumidores DEBEN implementar idempotencia.
 - Orden de entrega preservada para consistencia temporal y causal.
 - Eventos auto-descriptivos; validación contra schema cuando esté definido.
@@ -75,7 +107,7 @@ Este Codex describe el uso de la especificación CloudEvents para representar ev
 ### Eventos externos
 
 - Los eventos externos que no sigan CloudEvents DEBEN ser mapeados a este estándar.
-- Publicación en tópicos con nomenclatura event.{provider}.{module}.{entity_type}.{event_name}.
+- Publicación en tópicos con nomenclatura `event.{provider}.{domain}.{entity_name}.{event_name}` (todos los tokens en snake_case en minúsculas).
 
 ### Cuándo usar
 
@@ -96,4 +128,4 @@ Este Codex describe el uso de la especificación CloudEvents para representar ev
 ## Referencias
 
 - codex-entities, codex-idempotency
-- Cloud Events Specification; RFC 3339
+- Cloud Events Specification; RFC 3339; RFC 9562

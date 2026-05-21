@@ -73,7 +73,7 @@ Entregue o pacote final de artefatos:
 
 - **Confirmação Fase 1:** Catálogo de entidades (`ScheduledTransfer`, entity_type `scheduled_transfer`), ciclo de vida, use cases, eventos de integração — usuário confirma antes da Fase 2
 - **Confirmação Fase 2:** Endpoints (POST /v1/scheduled-transfers, GET, GET/:id, PATCH, DELETE), Idempotency-Key, payloads — usuário confirma antes da Fase 3
-- **Confirmação Fase 3:** Catálogo de CloudEvents (`event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`) — resumo final
+- **Confirmação Fase 3:** Catálogo de CloudEvents (`event.guardia.financial.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`) — resumo final
 - **Pacote de artefatos:**
   - `docs/scheduled-payments/entities/scheduled-transfer.md`
   - `docs/scheduled-payments/oas/openapi.yaml`

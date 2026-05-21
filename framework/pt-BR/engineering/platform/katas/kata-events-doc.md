@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Este Kata define o procedimento para **produzir documentação em Markdown** dos eventos CloudEvents de uma feature ou módulo: consultar `lex-cloudevents`, `codex-cloudevents` e `codex-feature-design-docs`, identificar os tipos de evento (formato `event.guardia.{module}.{entity_type}.{event_name}`), estruturar o conteúdo por entidade com `stateDiagram-v2` do ciclo de vida e payload CloudEvents por evento, e delegar a persistência ao `kata-feature-design-docs` em `docs/{context}/events/events.md`.
+Este Kata define o procedimento para **produzir documentação em Markdown** dos eventos CloudEvents de uma feature ou módulo: consultar `lex-cloudevents`, `codex-cloudevents` e `codex-feature-design-docs`, identificar os tipos de evento (formato `event.guardia.{domain}.{entity_name}.{event_name}`), estruturar o conteúdo por entidade com `stateDiagram-v2` do ciclo de vida e payload CloudEvents por evento, e delegar a persistência ao `kata-feature-design-docs` em `docs/{context}/events/events.md`.
 
 ## Quando Usar
 
@@ -43,13 +43,13 @@ Progresso:
 
 1. Consultar **lex-directives** (obrigatório)
 2. Consultar **lex-cloudevents** — eventos devem seguir CloudEvents (estrutura, propriedades obrigatórias, idempotencykey, JSON, tamanho < 12KB)
-3. Consultar **codex-cloudevents** — estrutura do evento (id, source, specversion, type, time, datacontenttype, subject, idempotencykey, data); formato de type `event.guardia.{module}.{entity_type}.{event_name}`; shape de `data` conforme codex-entities
+3. Consultar **codex-cloudevents** — estrutura do evento (id, source, specversion, type, time, datacontenttype, subject, idempotencykey, data); formato de type `event.guardia.{domain}.{entity_name}.{event_name}`; shape de `data` conforme codex-entities
 4. Consultar **lex-entities** e **codex-entities** — campos de entidade em `data` (entity_id, entity_type, version, created_at, updated_at, discarded_at; history omitido)
 5. Consultar **lex-idempotency** e **codex-idempotency** — idempotencykey obrigatório; consumidores devem deduplicar
 
 ### Passo 3: Identificar Tipos de Evento e Payloads
 
-1. Listar **tipos de evento** no formato `event.guardia.{module}.{entity_type}.{event_name}` (ex.: `event.guardia.platform.transaction.created`, `event.guardia.platform.scheduled_transfer.cancelled`)
+1. Listar **tipos de evento** no formato `event.guardia.{domain}.{entity_name}.{event_name}` (ex.: `event.guardia.financial.record.created`, `event.guardia.financial.scheduled_transfer.cancelled`)
 2. Para cada tipo, definir: **source** (URI base + entity_type + entity_id quando aplicável), **subject** (`{entity_type}/{entity_id}`), **data** (campos conforme codex-entities; sem history)
 3. Garantir que cada evento tenha **idempotencykey** documentado e que o tamanho do evento seja inferior a 12KB
 4. Mapear entidades referenciadas em `data` aos campos obrigatórios de codex-entities
@@ -58,7 +58,7 @@ Progresso:
 
 Para cada evento catalogado, documentar:
 
-1. **type** — nome completo do tipo (event.guardia.{module}.{entity_type}.{event_name})
+1. **type** — nome completo do tipo (event.guardia.{domain}.{entity_name}.{event_name})
 2. **Descrição** — quando o evento é emitido (ex.: após criação de transferência agendada)
 3. **source** — padrão da URI de origem (conforme codex-cloudevents)
 4. **subject** — formato `{entity_type}/{entity_id}`
@@ -85,7 +85,7 @@ Persistência: invocar **`kata-feature-design-docs`** com `Bounded Context`, `Ca
 Antes de entregar o output, verificar:
 
 - [ ] Todos os eventos seguem lex-cloudevents (estrutura, type catalogado, idempotencykey, data conforme codex-entities)
-- [ ] Tipo no formato event.guardia.{module}.{entity_type}.{event_name}
+- [ ] Tipo no formato event.guardia.{domain}.{entity_name}.{event_name}
 - [ ] data sem history; campos obrigatórios de entidade documentados
 - [ ] Documento está completo (tabela de eventos, detalhes por tipo) e sem contradição com as Lexis
 - [ ] `stateDiagram-v2` presente para cada entidade que emite eventos
@@ -108,9 +108,9 @@ Módulo: platform. Entidades: scheduled_transfer. Eventos: created (após POST),
 ### Output de Exemplo (resumido)
 
 Arquivo `docs/{context}/events/events.md` com:
-- event.guardia.platform.scheduled_transfer.created — após criação; source, subject, idempotencykey; data com entity_id, entity_type, created_at, updated_at, version, etc.
-- event.guardia.platform.scheduled_transfer.updated
-- event.guardia.platform.scheduled_transfer.cancelled
+- event.guardia.financial.scheduled_transfer.created — após criação; source, subject, idempotencykey; data com entity_id, entity_type, created_at, updated_at, version, etc.
+- event.guardia.financial.scheduled_transfer.updated
+- event.guardia.financial.scheduled_transfer.cancelled
 
 Cada um com descrição, source, subject, data e exemplo JSON conforme codex-cloudevents.
 

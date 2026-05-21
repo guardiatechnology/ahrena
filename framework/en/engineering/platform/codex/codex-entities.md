@@ -39,8 +39,8 @@ The base structure of an entity in Guardia MUST contain the following properties
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
-| entity_id | UUID v7 | Yes | Unique identifier of the entity. |
-| entity_type | string | Yes | Entity type. |
+| entity_id | {entity_id_prefix}:{uuid_v7} | Yes | Unique identifier of the entity. Prefix is a 2–5 char lowercase string defined pre-development; UUID v7 ensures temporal ordering. |
+| entity_type | string (UPPER_SNAKE_CASE) | Yes | Entity type. Always UPPER_SNAKE_CASE (e.g., `TRANSACTION`). |
 | external_entity_id | string | No | Unique identifier of the entity in an external system. |
 | created_at | datetime | Yes | Entity creation date and time. |
 | updated_at | datetime | Yes | Entity last update date and time. |
@@ -53,12 +53,25 @@ The base structure of an entity in Guardia MUST contain the following properties
 
 #### entity_id
 
-- MUST implement UUID v7 per [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562#name-uuid-version-7) ensuring temporal ordering.
+- MUST be formatted as `{entity_id_prefix}:{uuid_v7}` where:
+  - `entity_id_prefix` is a 2–5 character lowercase alphanumeric string defined before development starts (e.g., `txn`, `rec`, `org`, `per`, `doc`).
+  - `uuid_v7` implements UUID v7 per [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562#name-uuid-version-7), ensuring temporal ordering.
 - MUST be unique, immutable, and system-generated.
+- The prefix MUST be declared in the entity's design document before coding begins. Changing it is a breaking change requiring an ADR.
 
 #### entity_type
 
+- MUST use UPPER_SNAKE_CASE (e.g., `TRANSACTION`, `SCHEDULED_TRANSFER`, `LEDGER_ENTRY`).
 - MUST belong to a controlled list of entity types known to the system.
+- The lowercase form is used only in CloudEvents `type` segments and URL path segments — see `lex-entity-naming`.
+
+#### Identifier field naming
+
+When referencing an entity by its identifier in another entity's JSON payload:
+- Use `{entity_name}_id`, where `{entity_name}` is the lowercase form of `entity_type`.
+- Example: a reference to a `TRANSACTION` entity uses the field `transaction_id`.
+- The suffix `_entity_id` is FORBIDDEN: never use `transaction_entity_id`.
+- Exception: within the entity's own payload, the canonical identifier field is always `entity_id`.
 
 #### external_entity_id
 
@@ -128,8 +141,8 @@ This model MUST be adopted whenever:
 
 | Term | Definition |
 |------|------------|
-| entity_id | Global unique identifier of the entity (UUID v7). |
-| entity_type | Cataloged type of the entity in the system. |
+| entity_id | Global unique identifier of the entity, formatted as `{entity_id_prefix}:{uuid_v7}` (e.g., `txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f`). |
+| entity_type | Cataloged type of the entity, always in UPPER_SNAKE_CASE (e.g., `TRANSACTION`, `SCHEDULED_TRANSFER`). |
 | soft delete | Logical discard via discarded_at; entity retained for traceability. |
 | history | Array of snapshots of previous versions for audit. |
 

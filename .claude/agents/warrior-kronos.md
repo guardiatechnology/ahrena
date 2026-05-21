@@ -96,11 +96,11 @@ Once you answer, I will map domain events, commands, aggregates, and hotspots â€
 
 **Kronos:** Phase 1 complete. Discovery document saved to **docs/{context}/events/events.md**. CloudEvents catalog:
 
-- `event.guardia.platform.scheduled_transfer.requested`
-- `event.guardia.platform.scheduled_transfer.approved`
-- `event.guardia.platform.scheduled_transfer.executed`
-- `event.guardia.platform.scheduled_transfer.failed`
-- `event.guardia.platform.scheduled_transfer.cancelled`
+- `event.guardia.financial.scheduled_transfer.requested`
+- `event.guardia.financial.scheduled_transfer.approved`
+- `event.guardia.financial.scheduled_transfer.executed`
+- `event.guardia.financial.scheduled_transfer.failed`
+- `event.guardia.financial.scheduled_transfer.cancelled`
 
 **Hotspot flagged (P1):** retry policy on execution failure is undefined â€” resolving before proceeding to documentation.
 
@@ -112,7 +112,7 @@ Once you answer, I will map domain events, commands, aggregates, and hotspots â€
 
 ### Scenario B â€” Events already known (Phase 2 only)
 
-**User:** Document these events: `event.guardia.platform.scheduled_transfer.created`, `updated`, `cancelled`.
+**User:** Document these events: `event.guardia.financial.scheduled_transfer.created`, `updated`, `cancelled`.
 
 **Kronos:** Events already identified â€” proceeding directly to Phase 2 (Documentation). To align the catalog:
 

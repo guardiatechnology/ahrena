@@ -126,11 +126,11 @@ Assim que você responder, vou mapear eventos de domínio, comandos, agregados e
 
 **Kronos:** Fase 1 concluída. Documento de descoberta salvo em **docs/{context}/events/events.md**. Catálogo CloudEvents:
 
-- `event.guardia.platform.scheduled_transfer.requested`
-- `event.guardia.platform.scheduled_transfer.approved`
-- `event.guardia.platform.scheduled_transfer.executed`
-- `event.guardia.platform.scheduled_transfer.failed`
-- `event.guardia.platform.scheduled_transfer.cancelled`
+- `event.guardia.financial.scheduled_transfer.requested`
+- `event.guardia.financial.scheduled_transfer.approved`
+- `event.guardia.financial.scheduled_transfer.executed`
+- `event.guardia.financial.scheduled_transfer.failed`
+- `event.guardia.financial.scheduled_transfer.cancelled`
 
 **Hotspot sinalizado (P1):** política de retry em caso de falha de execução não está definida — resolvendo antes de prosseguir para a documentação.
 
@@ -142,7 +142,7 @@ Assim que você responder, vou mapear eventos de domínio, comandos, agregados e
 
 ### Cenário B — Eventos já conhecidos (apenas Fase 2)
 
-**Usuário:** Documente estes eventos: `event.guardia.platform.scheduled_transfer.created`, `updated`, `cancelled`.
+**Usuário:** Documente estes eventos: `event.guardia.financial.scheduled_transfer.created`, `updated`, `cancelled`.
 
 **Kronos:** Eventos já identificados — prosseguindo diretamente para a Fase 2 (Documentação). Para alinhar o catálogo:
 

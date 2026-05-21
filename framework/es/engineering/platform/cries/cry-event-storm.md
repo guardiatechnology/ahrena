@@ -56,7 +56,7 @@ Formato de salida:
 **Output esperado:**
 
 Respuesta estructurada del Warrior Kronos con:
-- Eventos identificados: `event.guardia.platform.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
+- Eventos identificados: `event.guardia.financial.scheduled_transfer.requested`, `.approved`, `.executed`, `.failed`, `.cancelled`
 - Diagrama de ciclo de vida Mermaid para `scheduled_transfer`
 - Payload CloudEvents completo para cada evento (specversion, id, source, type, subject, time, idempotencykey, data)
 - Documentación creada o actualizada en `docs/{context}/events/` (directorio creado si no existía)

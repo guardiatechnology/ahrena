@@ -202,11 +202,11 @@ Catálogo de descubrimiento entregado a la Fase 2 (`kata-events-doc`):
 **Catálogo CloudEvents:**
 | Evento de Dominio | Tipo CloudEvents | data (campos clave) |
 |---|---|---|
-| TransferenciaAgendadaSolicitada | event.guardia.platform.scheduled_transfer.requested | entity_id, amount, currency, scheduled_date, requestor_id |
-| TransferenciaAgendadaAprobada | event.guardia.platform.scheduled_transfer.approved | entity_id, approver_id, approved_at |
-| TransferenciaAgendadaEjecutada | event.guardia.platform.scheduled_transfer.executed | entity_id, executed_at, ledger_entry_id |
-| TransferenciaAgendadaFallida | event.guardia.platform.scheduled_transfer.failed | entity_id, failure_reason, failed_at |
-| TransferenciaAgendadaCancelada | event.guardia.platform.scheduled_transfer.cancelled | entity_id, cancelled_by, cancelled_at |
+| TransferenciaAgendadaSolicitada | event.guardia.financial.scheduled_transfer.requested | entity_id, amount, currency, scheduled_date, requestor_id |
+| TransferenciaAgendadaAprobada | event.guardia.financial.scheduled_transfer.approved | entity_id, approver_id, approved_at |
+| TransferenciaAgendadaEjecutada | event.guardia.financial.scheduled_transfer.executed | entity_id, executed_at, ledger_entry_id |
+| TransferenciaAgendadaFallida | event.guardia.financial.scheduled_transfer.failed | entity_id, failure_reason, failed_at |
+| TransferenciaAgendadaCancelada | event.guardia.financial.scheduled_transfer.cancelled | entity_id, cancelled_by, cancelled_at |
 
 ## Restricciones
 

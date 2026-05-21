@@ -56,7 +56,7 @@ Entregue um resumo final: artefatos em `docs/{context}/oas/` (OAS + doc da API) 
 **Output esperado:**
 
 - **Fase 1:** Recursos e endpoints (POST, GET, GET/:id, PATCH, DELETE); especificação OpenAPI e doc da API criados/atualizados em **`docs/{context}/oas/`**
-- **Fase 2:** Catálogo de eventos (event.guardia.platform.scheduled_transfer.created, .updated, .cancelled); doc de eventos criado/atualizado em **`docs/{context}/events/`**
+- **Fase 2:** Catálogo de eventos (event.guardia.financial.scheduled_transfer.created, .updated, .cancelled); doc de eventos criado/atualizado em **`docs/{context}/events/`**
 - Resumo: três artefatos — OAS e doc da API em `docs/scheduled-payments/oas/`; doc de eventos em `docs/scheduled-payments/events/`
 
 ## Restrições
