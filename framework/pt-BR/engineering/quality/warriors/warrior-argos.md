@@ -221,7 +221,7 @@ independentemente de:
     (presumir falha sem executar é o exato bypass que esta gate fecha;
     apenas o exit code observado de auth.sh é autoritativo)
   - "gh já está autenticado como humano, então o bot não está disponível"
-    (estado de auth do gh é independente do GitHub App; auth.sh minta
+    (estado de auth do gh é independente do GitHub App; auth.sh cunha
     o token diretamente via API do App, independente do gh)
 
 Exceção declarada: nenhuma. Falha de auth OBSERVADA EM EXECUÇÃO (auth.sh
