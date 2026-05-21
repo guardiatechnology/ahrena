@@ -75,9 +75,18 @@ En artefactos DDD (documentos de modelo de dominio, diagramas de bounded context
 
 PascalCase en documentos DDD refleja el lenguaje del dominio; UPPER_SNAKE_CASE en los límites del sistema impone consistencia técnica.
 
-### 8. Segmentos de path de URL — kebab-case
+### 8. Segmentos de path de URL — plural kebab-case
 
-Los segmentos de path de URL de recursos de la API siguen kebab-case (`/v1/scheduled-transfers`) conforme a las convenciones RESTful (`lex-restful-apis`). Esto es enrutamiento de API — `entity_type` en el payload permanece UPPER_SNAKE_CASE.
+Los segmentos de path de URL de recursos de la API siguen **plural en kebab-case** conforme a las convenciones RESTful (`lex-restful-apis`). La forma plural se deriva del `entity_type` singular en UPPER_SNAKE_CASE:
+
+| `entity_type` (dato) | Segmento de recurso en la URL |
+|----------------------|-------------------------------|
+| `TRANSACTION` | `transactions` |
+| `RECORD` | `records` |
+| `SCHEDULED_TRANSFER` | `scheduled-transfers` |
+| `LEDGER_ENTRY` | `ledger-entries` |
+
+Ejemplo de path completo: `/v1/scheduled-transfers/txn:01957f3e-...`. El valor de `entity_type` en el payload JSON permanece UPPER_SNAKE_CASE singular (`SCHEDULED_TRANSFER`) independientemente de la forma de la URL. Las URIs de `source` de CloudEvents siguen la misma convención — ver `codex-cloudevents`.
 
 ## Alcance
 
