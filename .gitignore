@@ -49,3 +49,4 @@ temp.md
 # Sample/template env files (committed as documentation)
 !.env.sample
 !.env.example
+.DS_Store
