@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "language": "pt-BR",
-  "runtimes": {
-    "scripts": "python",
-    "widgets": "react"
-  },
-  "external_refs": []
-}
