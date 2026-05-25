@@ -156,7 +156,7 @@ make install-to TARGET=/caminho/para/o/projeto
 ### Fluxo típico de contribuição
 
 ```
-1. fork + clone do guardiafinance/ahrena
+1. fork + clone do guardiatechnology/ahrena
 2. crie a branch: feat/{issue}-{slug}
 3. edite os artefatos em framework/
 4. make dev-install           ← instala localmente para testar
@@ -197,4 +197,4 @@ make dev-install TARGET=../meu-outro-projeto
 - [Conceitos fundamentais](ahrena/concepts.md) — entenda Lexis, Codex, Katas, Warriors e Cries
 - [Catálogo de Cries](ahrena/cries.md) — todos os comandos disponíveis nos IDEs
 - [Catálogo de Katas](ahrena/katas.md) — todas as skills executáveis
-- [Contribuindo](https://github.com/guardiafinance/ahrena/blob/main/CONTRIBUTING.md) — como contribuir com o framework
+- [Contribuindo](https://github.com/guardiatechnology/ahrena/blob/main/CONTRIBUTING.md) — como contribuir com o framework

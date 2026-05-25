@@ -7,7 +7,7 @@ labels:
   - "user story 🎯"
   - "status: todo"
 projects:
-  - "guardiafinance/13"
+  - "guardiatechnology/13"
 
 body:
   - type: textarea
@@ -295,7 +295,7 @@ body:
       label: "References"
       description: "Links to relevant documentation"
       value: |
-        - [OpenAPI Specification](https://raw.githubusercontent.com/guardiafinance/hub/refs/heads/main/docs/api/{project}/{project}.openapi.yaml)
+        - [OpenAPI Specification](https://raw.githubusercontent.com/guardiatechnology/hub/refs/heads/main/docs/api/{project}/{project}.openapi.yaml)
         - [Guardia Documentation](https://docs.guardia.finance/)
 
  

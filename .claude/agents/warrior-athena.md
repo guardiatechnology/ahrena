@@ -166,9 +166,9 @@ Escalates to human when:
 
 ## Interaction Example
 
-**User:** `/cry-implement-issue 42 guardiafinance/ahrena`
+**User:** `/cry-implement-issue 42 guardiatechnology/ahrena`
 
-**Athena:** Assuming the role of Athena. I will conduct issue #42 of `guardiafinance/ahrena` through the 7 phases of the Issue-Driven flow.
+**Athena:** Assuming the role of Athena. I will conduct issue #42 of `guardiatechnology/ahrena` through the 7 phases of the Issue-Driven flow.
 
 **Preconditions verified:**
 - ✅ `github` in `mcp.servers`

@@ -1,9 +1,9 @@
 site_name: Ahrena — AI-First Capability Framework
 site_description: Documentação oficial do Ahrena, o framework de capacidades AI-first da Guardia.
 site_author: Guardia Technology
-site_url: https://guardiafinance.github.io/ahrena/
-repo_url: https://github.com/guardiafinance/ahrena
-repo_name: guardiafinance/ahrena
+site_url: https://guardiatechnology.github.io/ahrena/
+repo_url: https://github.com/guardiatechnology/ahrena
+repo_name: guardiatechnology/ahrena
 docs_dir: docs
 
 theme:

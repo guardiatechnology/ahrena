@@ -17,7 +17,7 @@ Este comando dispara el flujo completo de desarrollo orientado por issue: desde 
 | Parámetro | Obligatorio | Descripción | Ejemplo |
 |-----------|:-----------:|-------------|---------|
 | `número de issue` | Sí | Número de la issue en GitHub | `42` |
-| `<owner>/<repo>` | No | Repositorio de destino; por defecto: repo actual (vía git remote) | `guardiafinance/ahrena` |
+| `<owner>/<repo>` | No | Repositorio de destino; por defecto: repo actual (vía git remote) | `guardiatechnology/ahrena` |
 
 ## Requisitos previos
 
@@ -75,7 +75,7 @@ Respeta rigurosamente lex-issue-driven: sin saltar gates, con trazabilidad AC↔
 **Input:**
 
 ```
-/cry-implement-issue 42 guardiafinance/ahrena
+/cry-implement-issue 42 guardiatechnology/ahrena
 ```
 
 **Output esperado (flujo secuencial con pausas para humano):**
@@ -88,7 +88,7 @@ Respeta rigurosamente lex-issue-driven: sin saltar gates, con trazabilidad AC↔
 - Apollo implementa; cada prueba marca el AC correspondiente
 - `kata-security-review` aprueba (0 hallazgos críticos)
 - `kata-quality-gate`: 6 checks ✅ → `go`
-- Athena crea el PR e informa URL: `https://github.com/guardiafinance/ahrena/pull/123`
+- Athena crea el PR e informa URL: `https://github.com/guardiatechnology/ahrena/pull/123`
 
 ## Restricciones
 

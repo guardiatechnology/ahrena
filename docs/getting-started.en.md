@@ -156,7 +156,7 @@ make install-to TARGET=/path/to/the/project
 ### Typical contribution workflow
 
 ```
-1. fork + clone guardiafinance/ahrena
+1. fork + clone guardiatechnology/ahrena
 2. create the branch: feat/{issue}-{slug}
 3. edit artifacts in framework/
 4. make dev-install           ← install locally to test
@@ -197,4 +197,4 @@ make dev-install TARGET=../my-other-project
 - [Core Concepts](ahrena/concepts.md) — understand Lexis, Codex, Katas, Warriors, and Cries
 - [Cries Catalog](ahrena/cries.md) — all commands available in the IDEs
 - [Katas Catalog](ahrena/katas.md) — all executable skills
-- [Contributing](https://github.com/guardiafinance/ahrena/blob/main/CONTRIBUTING.md) — how to contribute to the framework
+- [Contributing](https://github.com/guardiatechnology/ahrena/blob/main/CONTRIBUTING.md) — how to contribute to the framework

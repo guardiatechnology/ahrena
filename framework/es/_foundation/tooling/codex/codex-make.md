@@ -73,7 +73,7 @@ Cuando `make` no está disponible (ej.: PowerShell en Windows), use los scripts 
 
 **Instalación remota:**
 ```powershell
-python .ahrena/install.py --target . --version main --repo https://github.com/guardiafinance/ahrena --platform cursor
+python .ahrena/install.py --target . --version main --repo https://github.com/guardiatechnology/ahrena --platform cursor
 ```
 
 **Instalación local (en el repo Ahrena):**
@@ -100,7 +100,7 @@ python .ahrena/update.py --target . --source C:\ruta\a\ahrena
 
 **Bootstrap (primera instalación):** descargar el instalador desde GitHub y ejecutarlo; en PowerShell, por ejemplo:
 ```powershell
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
 ```
 
 **Sync-cursor (regenerar .cursor/):**

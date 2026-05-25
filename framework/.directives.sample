@@ -18,7 +18,7 @@ paths:
   # Project-specific artifacts (create here first; push to framework when ready)
   project_artifacts: ".ahrena/artifacts/"
   # Optional: URL or slug of the framework repo on GitHub (used by kata-push-to-framework and kata-diff-artifacts in --remote mode)
-  # framework_repo: "https://github.com/guardiafinance/ahrena"
+  # framework_repo: "https://github.com/guardiatechnology/ahrena"
   # NOTE: paths.oas and paths.events were removed by lex-feature-design-docs —
   # design artifacts now live under docs/{context}/{entities|oas|events}/ per
   # codex-feature-design-docs (fixed structure, no configurable paths).

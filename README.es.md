@@ -44,13 +44,13 @@ El instalador descarga el framework desde GitHub y configura el proyecto (no es 
 
 ```powershell
 # Windows (PowerShell)
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -OutFile Makefile
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/Makefile -OutFile Makefile
 make bootstrap PLATFORM=cursor
 ```
 
 ```bash
 # macOS / Linux
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -o Makefile
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/Makefile -o Makefile
 make bootstrap PLATFORM=cursor
 ```
 
@@ -58,21 +58,21 @@ make bootstrap PLATFORM=cursor
 
 ```powershell
 # Windows — solo framework
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py; Remove-Item install.py
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py; Remove-Item install.py
 
 # Windows — framework + Cursor IDE
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
 
 # Windows — framework + Claude Code
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform claude-code; Remove-Item install.py
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform claude-code; Remove-Item install.py
 ```
 
 ```bash
 # macOS / Linux — framework + Cursor
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform cursor
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform cursor
 
 # macOS / Linux — framework + Claude Code
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform claude-code
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform claude-code
 ```
 
 **Opciones del instalador:**
@@ -100,7 +100,7 @@ Si no hay acceso a internet, o desea distribuir Ahrena en entornos restringidos,
 
 ```bash
 # Clonar el repo una vez (con acceso a red)
-git clone https://github.com/guardiafinance/ahrena.git
+git clone https://github.com/guardiatechnology/ahrena.git
 
 # Instalar en cualquier proyecto, desde cualquier directorio, sin red
 python /ruta/a/ahrena/scripts/install.py --self --target /ruta/al/proyecto --platform cursor
@@ -244,7 +244,7 @@ Ahrena ofrece un **flujo completo de desarrollo orientado por issues de GitHub**
 
 ```bash
 # Requisito previo: mcp.servers incluye github (y opcionalmente notion) en .ahrena/.directives
-/cry-implement-issue 42 guardiafinance/ahrena
+/cry-implement-issue 42 guardiatechnology/ahrena
 ```
 
 **Gate 1 (Alcance):** el humano aprueba brief + ACs + arquitectura antes de la implementación.

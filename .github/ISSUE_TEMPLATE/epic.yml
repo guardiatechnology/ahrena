@@ -7,7 +7,7 @@ type: Epic
 assignees:
   - commitybyguardia
 projects:
-  - "guardiafinance/3"
+  - "guardiatechnology/3"
 
 body:
   - type: markdown

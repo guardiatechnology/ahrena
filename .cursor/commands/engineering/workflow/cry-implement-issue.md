@@ -17,7 +17,7 @@ description: "Implement Issue (Issue-Driven Development). Entry point for the Is
 | Parameter | Required | Description | Example |
 |-----------|:--------:|-------------|---------|
 | `issue-number` | Yes | GitHub issue number | `42` |
-| `<owner>/<repo>` | No | Target repository; default: current repo (via git remote) | `guardiafinance/ahrena` |
+| `<owner>/<repo>` | No | Target repository; default: current repo (via git remote) | `guardiatechnology/ahrena` |
 
 ## Prerequisites
 
@@ -75,7 +75,7 @@ Strictly respect lex-issue-driven: no skipping gates, with AC↔test traceabilit
 **Input:**
 
 ```
-/cry-implement-issue 42 guardiafinance/ahrena
+/cry-implement-issue 42 guardiatechnology/ahrena
 ```
 
 **Expected output (sequential flow with human pauses):**
@@ -88,7 +88,7 @@ Strictly respect lex-issue-driven: no skipping gates, with AC↔test traceabilit
 - Apollo implements; each test marks the corresponding AC
 - `kata-security-review` approves (0 critical findings)
 - `kata-quality-gate`: 6 checks ✅ → `go`
-- Athena creates the PR and reports the URL: `https://github.com/guardiafinance/ahrena/pull/123`
+- Athena creates the PR and reports the URL: `https://github.com/guardiatechnology/ahrena/pull/123`
 
 ## Restrictions
 

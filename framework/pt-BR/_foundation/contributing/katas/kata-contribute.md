@@ -85,7 +85,7 @@ Invocar MCP `pull_request_create` (server: `user-GitKraken`) com:
 |-----------|-------|
 | `provider` | `github` |
 | `repository_name` | Extraído do remote (ex: `ahrena`) |
-| `repository_organization` | Extraído do remote (ex: `guardiafinance`) |
+| `repository_organization` | Extraído do remote (ex: `guardiatechnology`) |
 | `title` | Título em Conventional Commits |
 | `source_branch` | Branch atual |
 | `target_branch` | `main` |
