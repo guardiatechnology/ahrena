@@ -150,5 +150,5 @@ sequenceDiagram
 
 ## References
 
-- [OpenAPI Specification](https://raw.githubusercontent.com/guardiafinance/hub/refs/heads/main/docs/api/{project}/{project}.openapi.yaml)
+- [OpenAPI Specification](https://raw.githubusercontent.com/guardiatechnology/hub/refs/heads/main/docs/api/{project}/{project}.openapi.yaml)
 - [Guardia Documentation](https://docs.guardia.finance/)

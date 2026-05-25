@@ -17,7 +17,7 @@ Obtener y leer información de repositorios GitHub (código, issues, PRs, commit
 
 | Input | Obligatorio | Descripción |
 |-------|:-----------:|-------------|
-| Repositorio | Sí | `owner/repo` (ej.: `guardiafinance/ahrena`) |
+| Repositorio | Sí | `owner/repo` (ej.: `guardiatechnology/ahrena`) |
 | Objeto | Sí | Qué consultar: `code`, `issues`, `prs`, `commits`, `branches`, `file` |
 | Consulta o ruta | Depende | Término de búsqueda (para `code`), ruta (para `file`), filtros (para `issues`/`prs`) |
 | Branch | No | Branch de referencia; por defecto: branch principal del repositorio |

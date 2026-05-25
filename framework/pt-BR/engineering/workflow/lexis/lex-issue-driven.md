@@ -72,7 +72,7 @@ O agente **DEVE** manter o checkpoint em `.ahrena/workflow/issue-{n}/checkpoint.
 ---
 schema_version: 1
 issue: 42
-repo: guardiafinance/ahrena
+repo: guardiatechnology/ahrena
 phase_completed: 3
 phase_next: 4
 artifacts:
@@ -250,7 +250,7 @@ A delegação direta não muda nenhuma outra regra do fluxo (Gates 1 e 2, rastre
 
 ```
 # Fluxo conduzido a partir de uma issue existente:
-/cry-implement-issue 42 guardiafinance/ahrena
+/cry-implement-issue 42 guardiatechnology/ahrena
 
 # Athena lê a issue #42, produz:
 # .ahrena/issues/42/01-brief.md

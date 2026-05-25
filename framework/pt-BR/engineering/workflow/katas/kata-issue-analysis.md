@@ -16,7 +16,7 @@ Ler uma issue do GitHub (título, descrição, comentários, labels, metadata) e
 | Input | Obrigatório | Descrição |
 |-------|:-----------:|-----------|
 | Número da issue | Sim | Número da issue no GitHub (ex.: `42`) |
-| Repositório | Sim | `owner/repo` (ex.: `guardiafinance/ahrena`) |
+| Repositório | Sim | `owner/repo` (ex.: `guardiatechnology/ahrena`) |
 | Raiz Notion | Não | Página/database de contexto; padrão: `knowledge.notion.root_page` em `.ahrena/.directives` |
 
 ## Workflow

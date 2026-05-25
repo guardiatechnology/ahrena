@@ -165,9 +165,9 @@ Escala para humano quando:
 
 ## Exemplo de Interação
 
-**Usuário:** `/cry-implement-issue 42 guardiafinance/ahrena`
+**Usuário:** `/cry-implement-issue 42 guardiatechnology/ahrena`
 
-**Athena:** Assumindo o papel de Athena. Vou conduzir a issue #42 de `guardiafinance/ahrena` pelas 7 fases do fluxo Issue-Driven.
+**Athena:** Assumindo o papel de Athena. Vou conduzir a issue #42 de `guardiatechnology/ahrena` pelas 7 fases do fluxo Issue-Driven.
 
 **Pré-condições verificadas:**
 - ✅ `github` em `mcp.servers`

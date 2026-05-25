@@ -2,7 +2,7 @@
 
 🇧🇷 [Português](../pt-BR/README.md) | 🇺🇸 [English](../en/README.md)
 
-> Documentación completa: **[guardiafinance.github.io/ahrena](https://guardiafinance.github.io/ahrena/)**
+> Documentación completa: **[guardiatechnology.github.io/ahrena](https://guardiatechnology.github.io/ahrena/)**
 >
 > Guía práctica para quienes contribuyen al repositorio de Ahrena. Para usar el framework en proyectos, consulte el [README principal](../../README.es.md).
 

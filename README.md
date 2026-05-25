@@ -44,13 +44,13 @@ O instalador baixa o framework do GitHub e configura o projeto (não é necessá
 
 ```powershell
 # Windows (PowerShell)
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -OutFile Makefile
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/Makefile -OutFile Makefile
 make bootstrap PLATFORM=cursor
 ```
 
 ```bash
 # macOS / Linux
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/Makefile -o Makefile
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/Makefile -o Makefile
 make bootstrap PLATFORM=cursor
 ```
 
@@ -58,21 +58,21 @@ make bootstrap PLATFORM=cursor
 
 ```powershell
 # Windows — somente framework
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py; Remove-Item install.py
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py; Remove-Item install.py
 
 # Windows — framework + Cursor IDE
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform cursor; Remove-Item install.py
 
 # Windows — framework + Claude Code
-Invoke-WebRequest https://github.com/guardiafinance/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform claude-code; Remove-Item install.py
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform claude-code; Remove-Item install.py
 ```
 
 ```bash
 # macOS / Linux — framework + Cursor
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform cursor
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform cursor
 
 # macOS / Linux — framework + Claude Code
-curl -sSL https://github.com/guardiafinance/ahrena/releases/latest/download/install.py | python3 - --platform claude-code
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform claude-code
 ```
 
 **Opções do instalador:**
@@ -100,7 +100,7 @@ Se não houver acesso à internet, ou você queira distribuir o Ahrena em ambien
 
 ```bash
 # Clonar o repo uma vez (com acesso)
-git clone https://github.com/guardiafinance/ahrena.git
+git clone https://github.com/guardiatechnology/ahrena.git
 
 # Instalar em qualquer projeto, de qualquer diretório, sem rede
 python /caminho/para/ahrena/scripts/install.py --self --target /caminho/para/projeto --platform cursor
@@ -136,8 +136,8 @@ Se `make` não estiver disponível, use os scripts em PowerShell:
 
 | Ação | Comando |
 |------|---------|
-| Instalação remota + Cursor | `python .ahrena/install.py --target . --version main --repo https://github.com/guardiafinance/ahrena --platform cursor` |
-| Instalação remota + Claude Code | `python .ahrena/install.py --target . --version main --repo https://github.com/guardiafinance/ahrena --platform claude-code` |
+| Instalação remota + Cursor | `python .ahrena/install.py --target . --version main --repo https://github.com/guardiatechnology/ahrena --platform cursor` |
+| Instalação remota + Claude Code | `python .ahrena/install.py --target . --version main --repo https://github.com/guardiatechnology/ahrena --platform claude-code` |
 | Instalação local (no repo Ahrena) | `python scripts/install.py --local --target . --platform cursor` |
 | Instalação offline (clone) | `python C:\path\to\ahrena\scripts\install.py --self --target . --platform cursor` |
 | Instalação local (path) | `python .ahrena/install.py --target . --source C:\path\to\ahrena --platform cursor` |
@@ -258,7 +258,7 @@ O Ahrena oferece um **fluxo completo de desenvolvimento orientado por issues do 
 
 ```bash
 # Pré-requisito: mcp.servers inclui github (e opcionalmente notion) em .ahrena/.directives
-/cry-implement-issue 42 guardiafinance/ahrena
+/cry-implement-issue 42 guardiatechnology/ahrena
 ```
 
 **Gate 1 (Escopo):** humano aprova brief + ACs + arquitetura antes da implementação.

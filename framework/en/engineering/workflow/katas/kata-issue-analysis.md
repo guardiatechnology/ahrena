@@ -16,7 +16,7 @@ Read a GitHub issue (title, body, comments, labels, metadata) and fetch related 
 | Input | Required | Description |
 |-------|:--------:|-------------|
 | Issue number | Yes | GitHub issue number (e.g., `42`) |
-| Repository | Yes | `owner/repo` (e.g., `guardiafinance/ahrena`) |
+| Repository | Yes | `owner/repo` (e.g., `guardiatechnology/ahrena`) |
 | Notion root | No | Context page/database; defaults to `knowledge.notion.root_page` in `.ahrena/.directives` |
 
 ## Workflow

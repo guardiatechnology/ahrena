@@ -4,9 +4,9 @@
 
 ## Documentação
 
-A documentação oficial está em **[guardiafinance.github.io/ahrena](https://guardiafinance.github.io/ahrena/)**.
+A documentação oficial está em **[guardiatechnology.github.io/ahrena](https://guardiatechnology.github.io/ahrena/)**.
 
-Para rodar localmente: veja o [Getting Started](https://guardiafinance.github.io/ahrena/getting-started/).
+Para rodar localmente: veja o [Getting Started](https://guardiatechnology.github.io/ahrena/getting-started/).
 
 ## Estrutura
 

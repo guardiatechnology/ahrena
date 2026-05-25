@@ -17,7 +17,7 @@ Fetch and read information from GitHub repositories (code, issues, PRs, commits,
 
 | Input | Required | Description |
 |-------|:--------:|-------------|
-| Repository | Yes | `owner/repo` (e.g., `guardiafinance/ahrena`) |
+| Repository | Yes | `owner/repo` (e.g., `guardiatechnology/ahrena`) |
 | Object | Yes | What to query: `code`, `issues`, `prs`, `commits`, `branches`, `file` |
 | Query or path | Depends | Search term (for `code`), path (for `file`), filters (for `issues`/`prs`) |
 | Branch | No | Reference branch; default: repository's default branch |

@@ -72,7 +72,7 @@ The agent **MUST** keep the checkpoint at `.ahrena/workflow/issue-{n}/checkpoint
 ---
 schema_version: 1
 issue: 42
-repo: guardiafinance/ahrena
+repo: guardiatechnology/ahrena
 phase_completed: 3
 phase_next: 4
 artifacts:
@@ -250,7 +250,7 @@ Direct delegation does not change any other flow rule (Gates 1 and 2, AC ↔ tes
 
 ```
 # Flow driven from an existing issue:
-/cry-implement-issue 42 guardiafinance/ahrena
+/cry-implement-issue 42 guardiatechnology/ahrena
 
 # Athena reads issue #42, produces:
 # .ahrena/issues/42/01-brief.md

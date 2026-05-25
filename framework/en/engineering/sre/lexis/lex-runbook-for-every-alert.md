@@ -70,7 +70,7 @@ Every alert config (Prometheus, CloudWatch, Datadog) **MUST** have annotation:
 
 ```yaml
 annotations:
-  runbook_url: "https://github.com/guardiafinance/{repo}/blob/main/docs/runbooks/refund-api-p99-breach.md"
+  runbook_url: "https://github.com/guardiatechnology/{repo}/blob/main/docs/runbooks/refund-api-p99-breach.md"
   summary: "refund-api p99 > 300ms for 5 min"
 ```
 
