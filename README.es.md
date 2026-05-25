@@ -81,6 +81,11 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 |------|-------------|
 | `--platform cursor` | Generar `.cursor/` (rules, skills, commands, agents) |
 | `--platform claude-code` | Generar `.claude/` (docs, skills, commands, agents) y `CLAUDE.md` |
+| `--profile {full\|standard\|minimal}` | Perfil base de preferencias; sobrescrito por `--with-*` / `--without-*`. Default: `full` |
+| `--with-mcp / --without-mcp LISTA` | Incluir/excluir MCPs (csv); el servidor `ahrena` siempre se mantiene |
+| `--with-hooks / --without-hooks LISTA` | Incluir/excluir hooks (csv): `rtk`, `pr-cost-attribution` |
+| `--with-features / --without-features LISTA` | Incluir/excluir features opcionales del `.directives` (`pr_cost_tracking`, `session_tracking`, `notifications`, `pm`) |
+| `--list-catalog` | Imprimir el catálogo (MCPs, hooks, features) y salir |
 | `--clades X,Y` | Instalar solo los clades indicados (ej.: `_foundation,documentation`) |
 | `--version v0.1.0` | Versión específica (tag o rama) — instalación remota |
 | `--local` | Usar el directorio actual como fuente (ejecutar en la raíz del repo Ahrena) |
@@ -93,6 +98,8 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 | `--clean` | Eliminar archivos instalados por Ahrena |
 
 Cuando se usa `--clades`, la selección se guarda en `.ahrena/.installed-clades` y es respetada por `update.py`.
+
+**Instalación guiada por preferencias:** en la primera instalación (cuando `.ahrena/.directives` aún no existe), el instalador resuelve la selección de MCPs, hooks y features opcionales a partir de `--profile` + `--with-*` / `--without-*`. Sin ninguna flag y con stdin TTY, abre un prompt interactivo (pre-marcado = perfil Full). Con `--non-interactive` (CI), aplica directamente la selección resuelta. Variables de entorno ausentes para MCPs seleccionados generan WARNING — nunca fallan la instalación. Ejecute `python scripts/install.py --list-catalog` para listar todas las opciones.
 
 ### Instalación offline
 

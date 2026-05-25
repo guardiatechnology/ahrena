@@ -16,7 +16,9 @@
   "enabledMcpjsonServers": [
     "ahrena",
     "slack",
-    "github"
+    "github",
+    "notion",
+    "figma"
   ],
   "hooks": {
     "UserPromptSubmit": [

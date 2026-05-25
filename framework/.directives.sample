@@ -3,6 +3,11 @@
 # Canonical instructions that govern the framework's default
 # behavior. This file is the source of truth for cross-cutting
 # configurations consulted by all agents.
+#
+# This file is rendered by scripts/install.py from a preference
+# selection (--profile / --with-* / --without-* / interactive).
+# Downstream clients edit this file directly; the framework sample
+# (framework/.directives.sample) mirrors the Full-default output.
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 # ─── Paths ───────────────────────────────────────────────────────
@@ -62,16 +67,15 @@ references:
 # .ahrena/mcp/<name>.json.
 #
 # `ahrena` is the framework's own internal server (see
-# codex-ahrena-mcp). Default-on. Comment the line to disable.
-# Add `github`, `notion`, `figma` for those integrations
-# (each requires the corresponding env var per codex-mcp-*).
+# codex-ahrena-mcp). Mandatory.
 
 mcp:
   servers:
     - ahrena
-    # - github
-    # - notion
-    # - figma
+    - github
+    - notion
+    - figma
+    - slack
 
 # ─── Quality (Issue-Driven Workflow) ────────────────────────────
 # Settings used by kata-quality-gate (Gate 2 of the Issue-Driven
@@ -143,43 +147,21 @@ language:
 # kata-pr-cost-stamp. Disabled by default to keep data inside teams
 # that explicitly opt in. See codex-pr-cost-tracking and
 # kata-pr-cost-stamp.
-
-# pr_cost_tracking:
-#   enabled: false                 # true | false (master switch for the stamp)
-#   idle_gap_minutes: 10           # gap (in minutes) that splits active windows
-#                                  #   inside a Claude Code session for the
-#                                  #   active-time computation. Default 10
-#                                  #   covers most flows; tune lower to be
-#                                  #   stricter, higher to merge longer pauses.
-#   attribution_mode: hook         # hook | project
-#                                  #   hook (default): pr-cost-attribution.sh
-#                                  #     records branch + purpose per turn in
-#                                  #     ~/.claude/projects/<hash>/branches.jsonl;
-#                                  #     pr-cost-stamp.sh --branch / --purpose
-#                                  #     filters off-branch noise and splits
-#                                  #     dev/review buckets.
-#                                  #   project (legacy): no sidecar; project +
-#                                  #     since filter only. Kept for backward
-#                                  #     compatibility with PRs predating the
-#                                  #     hook.
-#   branches_sidecar_max_mb: 50    # warning threshold for the size of
-#                                  #   branches.jsonl. Manual purge until a
-#                                  #   future iteration ships rotation.
-#   known_ai_reviewers:            # extra GitHub logins recognized as AI
-#     - "gemini-code-assist[bot]"  #   reviewers in the Review subsection.
-#     - "claude[bot]"              #   Built-ins (gemini-code-assist[bot],
-#     - "coderabbitai[bot]"        #   claude[bot], coderabbitai[bot],
-#     - "qodo-merge-pro[bot]"      #   qodo-merge-pro[bot], ahrena-warrior-argos[bot])
-#                                  #   are always recognized; entries here
-#                                  #   extend the set.
-#
-# Reserved for future iterations (declared so the schema is stable;
-# the kata does not yet consume them):
-# pr_cost_tracking:
-#   currency: USD                  # future: currency for display (currently fixed at USD)
-#   include_cache_breakdown: true  # future: hide cache reads/writes when false
-#   window_override_days: 14       # future: override [branch_creation_date, now]
-#   mask_absolute_cost: false      # future: replace USD value with qualitative band
+pr_cost_tracking:
+  # master switch for the stamp (true | false)
+  enabled: true
+  # gap in minutes that splits active windows for active-time computation
+  idle_gap_minutes: 10
+  # hook | project (legacy)
+  attribution_mode: hook
+  # warning threshold for branches.jsonl size
+  branches_sidecar_max_mb: 50
+  # extra GitHub logins recognized as AI reviewers in the Review subsection
+  known_ai_reviewers:
+    - "gemini-code-assist[bot]"
+    - "claude[bot]"
+    - "coderabbitai[bot]"
+    - "qodo-merge-pro[bot]"
 
 # ─── RTK (Rust Token Killer) ────────────────────────────────────
 # Transparent command rewriting via Claude Code PreToolUse hook to
@@ -192,22 +174,11 @@ language:
 # proceeds with the original tool input. RTK binary install is
 # the developer's responsibility (see https://github.com/rtk-ai/rtk);
 # Ahrena only wires the hook.
-
-# rtk:
-#   enabled: true                  # default true; set false to opt out
-#                                  # Every install/update reconciles the
-#                                  # hook idempotently when true. When
-#                                  # false, install/update do NOT touch
-#                                  # any RTK artifact (no add, no remove).
-#   auto_install_binary: true      # default true; set false to skip
-#                                  # automatic detection/install of the
-#                                  # rtk binary while still wiring the
-#                                  # PreToolUse hook. OS-aware install
-#                                  # paths: brew (macOS), curl install
-#                                  # script (Linux/macOS), WSL/cargo
-#                                  # (Windows). Hook keeps the strict
-#                                  # fallback shape, so a missing binary
-#                                  # never breaks Claude Code.
+rtk:
+  # master switch (set false to skip every RTK action; install/update do not touch RTK artifacts)
+  enabled: true
+  # set false to skip the automatic binary install while still wiring the hook
+  auto_install_binary: true
 
 # ─── Notifications ──────────────────────────────────────────────
 # Provider-agnostic notification configuration consumed by Athena
@@ -217,36 +188,44 @@ language:
 # to provider-specific identifiers lives in codex-notifications.
 # See lex-mcp rule 5 (transport preference) and codex-mcp-slack
 # (initial provider implementation).
+notifications:
+  # slack | discord | teams | none — must be listed in mcp.servers
+  provider: slack
+  channels:
+    # Athena after the 3 review wait cycles
+    pr_review_timeout: "notifications-gh-pull-request"
+    # Janus on release published
+    release_notify: "notifications-gh-releases"
+    # Eunomia periodic digest
+    plans_status: "notifications-plans-status"
+  # working window for non-critical digests
+  working_hours:
+    start: "07:00"
+    end: "22:00"
+    timezone: "America/Sao_Paulo"
 
-# notifications:
-#   provider: slack                # slack | discord | teams | none
-#                                  # the named MCP server must be listed
-#                                  # under mcp.servers and reachable.
-#   channels:
-#     pr_review_timeout: "notifications-gh-pull-request"  # Athena after 3 cycles
-#     release_notify:    "notifications-gh-releases"      # Janus on publish
-#     plans_status:      "notifications-plans-status"     # Eunomia digest
-#   working_hours:                 # window for non-critical digests
-#     start: "07:00"
-#     end:   "22:00"
-#     timezone: "America/Sao_Paulo"
-
-# pm:                              # consumed by Eunomia
-#   loop_interval_minutes: 15      # cadence of the PM digest loop
-#   stalled_threshold_hours: 4     # mark plan as stalled in the digest
-#   critical_stalled_hours: 24     # bypass working hours and alert immediately
+# pm: consumed by Eunomia
+pm:
+  # cadence of the PM digest loop (minutes)
+  loop_interval_minutes: 15
+  # mark plan as stalled in the digest (hours)
+  stalled_threshold_hours: 4
+  # bypass working hours and alert immediately (hours)
+  critical_stalled_hours: 24
 
 # ─── Session Tracking ───────────────────────────────────────────
 # Per codex-session-tracking. Records heartbeat files in
 # .ahrena/workflow/sessions/<session-id>.json so Eunomia's digest
 # and the Session Trace block on PR bodies can attribute work to
 # the Claude Code session that produced it.
-
-# session_tracking:
-#   enabled: true                          # global on/off
-#   heartbeat_dir: ".ahrena/workflow/sessions"
-#   stale_threshold_minutes: 30            # PM considers offline after this
-#   pr_trace_required: true                # Gate 2 rejects PR without "Session Trace"
+session_tracking:
+  # global on/off
+  enabled: true
+  heartbeat_dir: ".ahrena/workflow/sessions"
+  # PM considers offline after this many minutes without heartbeat
+  stale_threshold_minutes: 30
+  # Gate 2 rejects PR without "Session Trace" when true
+  pr_trace_required: true
 
 # ─── Naming ─────────────────────────────────────────────────────
 # Canonical naming conventions for files, directories, and

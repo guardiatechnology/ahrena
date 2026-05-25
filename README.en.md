@@ -81,6 +81,11 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 |------|-------------|
 | `--platform cursor` | Generate `.cursor/` (rules, skills, commands, agents) |
 | `--platform claude-code` | Generate `.claude/` (docs, skills, commands, agents) and `CLAUDE.md` |
+| `--profile {full\|standard\|minimal}` | Preference base profile; overridden by `--with-*` / `--without-*`. Default: `full` |
+| `--with-mcp / --without-mcp LIST` | Include/exclude MCPs (csv); the `ahrena` server is always kept |
+| `--with-hooks / --without-hooks LIST` | Include/exclude hooks (csv): `rtk`, `pr-cost-attribution` |
+| `--with-features / --without-features LIST` | Include/exclude optional `.directives` features (`pr_cost_tracking`, `session_tracking`, `notifications`, `pm`) |
+| `--list-catalog` | Print the catalog (MCPs, hooks, features) and exit |
 | `--clades X,Y` | Install only specified clades (e.g. `_foundation,documentation`) |
 | `--version v0.1.0` | Specific version (tag or branch) — remote install |
 | `--local` | Use current directory as source (run from Ahrena repo root) |
@@ -93,6 +98,8 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 | `--clean` | Remove files installed by Ahrena |
 
 When `--clades` is used, the selection is saved in `.ahrena/.installed-clades` and respected by `update.py`.
+
+**Preference-driven install:** on first install (when `.ahrena/.directives` does not yet exist), the installer resolves the selection of MCPs, hooks, and optional features from `--profile` + `--with-*` / `--without-*`. Without any flag and with a TTY stdin, an interactive prompt opens (pre-checked = Full profile). With `--non-interactive` (CI), the resolved selection applies directly. Missing environment variables for selected MCPs emit WARNINGs — they never fail the install. Run `python scripts/install.py --list-catalog` to list every option.
 
 ### Offline installation
 

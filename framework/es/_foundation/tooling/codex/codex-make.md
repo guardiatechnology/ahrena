@@ -67,6 +67,26 @@ make update SOURCE=../ahrena
 make clean
 ```
 
+### Instalación guiada por preferencias
+
+En la primera instalación, `scripts/install.py` materializa el `.directives` a partir de una selección de preferencias. Cuando stdin es TTY y no se pasa `--non-interactive`, el instalador pregunta al usuario qué MCPs, hooks y features opcionales activar (pre-marcado = perfil Full). Para ejecuciones no interactivas (CI, scripts), elija un perfil y ajuste:
+
+```powershell
+# Conocer el catálogo (MCPs, hooks, features opcionales)
+python scripts/install.py --list-catalog
+
+# Default Full (sin flag, sin prompt): todos los MCPs, todos los hooks, todas las features
+python scripts/install.py --self --target . --platform claude-code --non-interactive
+
+# Perfil minimal (solo MCP ahrena + hook rtk)
+python scripts/install.py --self --target . --platform claude-code --non-interactive --profile=minimal
+
+# Full menos MCPs específicos
+python scripts/install.py --self --target . --platform claude-code --non-interactive --profile=full --without-mcp=notion,figma
+```
+
+Orden de resolución: `--with-*` / `--without-*` explícitos sobrescriben `--profile`, que sobrescribe el default Full. El MCP `ahrena` siempre se mantiene (servidor del propio framework). Los archivos `.directives` existentes se preservan en reinstalaciones.
+
 ### Equivalencia sin Make (Windows)
 
 Cuando `make` no está disponible (ej.: PowerShell en Windows), use los scripts directamente:
