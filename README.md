@@ -81,6 +81,11 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 |------|------------|
 | `--platform cursor` | Gerar `.cursor/` (rules, skills, commands, agents) |
 | `--platform claude-code` | Gerar `.claude/` (docs, skills, commands, agents) e `CLAUDE.md` |
+| `--profile {full\|standard\|minimal}` | Perfil base de preferências; sobrescrito por `--with-*` / `--without-*`. Default: `full` |
+| `--with-mcp / --without-mcp LISTA` | Incluir/excluir MCPs (csv); o servidor `ahrena` é sempre mantido |
+| `--with-hooks / --without-hooks LISTA` | Incluir/excluir hooks (csv): `rtk`, `pr-cost-attribution` |
+| `--with-features / --without-features LISTA` | Incluir/excluir features opcionais do `.directives` (`pr_cost_tracking`, `session_tracking`, `notifications`, `pm`) |
+| `--list-catalog` | Imprime o catálogo (MCPs, hooks, features) e sai |
 | `--clades X,Y` | Instalar apenas clades especificados (ex.: `_foundation,documentation`) |
 | `--version v0.1.0` | Versão específica (tag ou branch) — instalação remota |
 | `--local` | Usar o diretório atual como fonte (executar na raiz do repo Ahrena) |
@@ -93,6 +98,8 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 | `--clean` | Remover arquivos instalados pelo Ahrena |
 
 Quando `--clades` é usado, a seleção é salva em `.ahrena/.installed-clades` e respeitada pelo `update.py`.
+
+**Instalação guiada por preferências:** na primeira instalação (quando `.ahrena/.directives` ainda não existe), o instalador resolve a seleção de MCPs, hooks e features opcionais a partir de `--profile` + `--with-*` / `--without-*`. Sem nenhuma flag e com stdin TTY, abre um prompt interativo (pré-marcado = perfil Full). Em modo `--non-interactive` (CI), aplica diretamente a seleção resolvida. Variáveis de ambiente ausentes para MCPs selecionados geram WARNING — nunca falham a instalação. `python scripts/install.py --list-catalog` lista todas as opções.
 
 ### Instalação offline
 

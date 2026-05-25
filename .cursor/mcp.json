@@ -15,6 +15,20 @@
     },
     "slack": {
       "url": "https://mcp.slack.com/mcp"
+    },
+    "notion": {
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "figma": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "figma-developer-mcp",
+        "--stdio"
+      ],
+      "env": {
+        "FIGMA_API_KEY": "${env:FIGMA_API_KEY}"
+      }
     }
   }
 }
