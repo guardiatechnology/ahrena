@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 per `lex-semantic-version`.
 
+## [0.15.1] - 2026-05-25
+
+3 PRs merged since v0.15.0 (#254, #257, #260) plus one maintenance commit.
+
+### Chore
+
+- **framework:** rename `guardiafinance` → `guardiatechnology` across canonical sources (pt-BR, es, en), READMEs, mkdocs config, public docs, GitHub issue templates, `.directives.sample`, and templates; regenerate `.claude/` and `.cursor/` derivatives (#260, f4d61a7)
+- **discovery:** capture Rust framework support PRs as 2 Insights (status approved) and 2 Ideas (status promoted) under topic `rust-framework-support` (#257, 97e42a8)
+- **skills:** drop legacy `hello-skill` experiment (#254, 946e0d8)
+- **build:** add `.DS_Store` to `.gitignore`; make `scripts/install.py` executable (9166d7c)
+
+[0.15.1]: https://github.com/guardiatechnology/ahrena/compare/v0.15.0...v0.15.1
+
 ## [0.15.0] - 2026-05-21
 
 13 PRs merged since v0.14.1 (#219, #220, #223, #225, #228, #230, #232, #235, #239, #242, #246, #249, #251).
