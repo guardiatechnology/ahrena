@@ -1061,7 +1061,13 @@ def resolve_selection(args: argparse.Namespace, interactive: bool) -> Selection:
         with_mcp | without_mcp | with_hooks | without_hooks | with_features | without_features
     )
 
-    if interactive and not profile_name and not any_override and sys.stdin.isatty():
+    if (
+        interactive
+        and not profile_name
+        and not any_override
+        and sys.stdin is not None
+        and sys.stdin.isatty()
+    ):
         resolved = interactive_select(resolved)
 
     # `ahrena` is the framework's own server; non-negotiable.
@@ -1104,27 +1110,22 @@ def _render_section(title: str, catalog: dict[str, tuple[str, list[str]]],
         if raw.lower() == "q":
             raise SystemExit(130)
         tokens = re.split(r"[,\s]+", raw)
-        ok = True
         for tok in tokens:
             if not tok:
                 continue
             if not tok.isdigit():
                 print(f"    WARNING: '{tok}' is not a number; ignoring.")
-                ok = False
                 continue
             i = int(tok)
             if i < 1 or i > len(items):
                 print(f"    WARNING: {i} out of range (1..{len(items)}); ignoring.")
-                ok = False
                 continue
             name = items[i - 1]
             if name in current:
                 current.remove(name)
             else:
                 current.add(name)
-        if ok:
-            # Loop again to show updated state; user confirms with empty Enter.
-            continue
+        # Loop iterates again to show the updated state; user confirms with empty Enter.
 
 
 def interactive_select(initial: Selection) -> Selection:
