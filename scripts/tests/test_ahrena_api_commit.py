@@ -27,6 +27,8 @@ import os
 import subprocess
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT_UNDER_TEST = REPO_ROOT / "scripts" / "ahrena-api-commit.sh"
 FAKE_CURL = REPO_ROOT / "scripts" / "tests" / "fixtures" / "fake-curl.sh"
@@ -554,3 +556,122 @@ def test_repo_resolved_from_ssh_origin(tmp_path: Path) -> None:
     # Cleanup expectation: subsequent steps not planned → script will exit
     # non-zero (which is fine for this assertion-focused test).
     assert proc.returncode != 0  # may be 2 (tree call missing) or 3
+
+
+@pytest.mark.parametrize(
+    "origin_url",
+    [
+        "https://github.com/o/r.git",
+        "https://github.com/o/r",
+        "http://github.com/o/r.git",
+        "git@github.com:o/r.git",
+        "ssh://git@github.com/o/r.git",
+        "ssh://github.com/o/r",
+        "git://github.com/o/r.git",
+    ],
+)
+def test_repo_resolution_across_url_schemes(tmp_path: Path, origin_url: str) -> None:
+    """Every origin URL form GitHub publishes MUST resolve to `o/r`.
+
+    Addresses gemini-code-assist comment #3301245358 on PR #279: the
+    pre-fix-up sed only handled https://, http:// and scp-style. The
+    parametric matrix below pins ssh:// and git:// (plus existing
+    schemes as regression guards).
+    """
+    repo = tmp_path / "repo"
+    _init_repo(repo)
+    subprocess.run(
+        ["git", "remote", "set-url", "origin", origin_url],
+        cwd=repo,
+        check=True,
+    )
+    _stage_file(repo, "foo.txt", "bar\n")
+    plan = [(201, {"sha": "blob_sha"})]
+    proc, _plan_dir, state_dir = _run_script(repo, token=TEST_TOKEN, plan=plan)
+    calls = _read_call_log(state_dir)
+    assert calls, f"no curl calls captured for origin {origin_url!r}"
+    # Every API URL produced by the script must include the resolved
+    # `o/r` slug — never the original scheme prefix.
+    assert "/repos/o/r/" in calls[0], (
+        f"repo not resolved correctly for origin {origin_url!r}; first call: {calls[0]!r}"
+    )
+    # The script will exit non-zero because we only planned the first
+    # call; we are only asserting URL parsing here.
+    assert proc.returncode != 0
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# AC-P2-2 first-commit on a brand-new branch: PATCH 404 → POST /git/refs
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+def test_patch_404_falls_back_to_post_create_ref(tmp_path: Path) -> None:
+    """First commit on a brand-new feature branch: `PATCH /git/refs/heads/<branch>`
+    returns 404 (the ref does not exist yet). The script MUST fall back
+    to `POST /git/refs` with `{ref, sha}` so the branch is created and
+    the bot-author commit lands.
+
+    Addresses gemini-code-assist comment #3301245348 on PR #279:
+    without the fallback, AC-P2-2 was silently broken on the first
+    commit of every new branch — the kata would drop to the human-
+    author fallback path even though the API token was valid.
+    """
+    repo = tmp_path / "repo"
+    _init_repo(repo)
+    _stage_file(repo, "foo.txt", "bar\n")
+    plan = [
+        # Steps 1-4: happy-path blob + tree + commit.
+        (201, {"sha": "blob_sha_xxxxxxxxxxxxxxxxxxxx"}),
+        (201, {"sha": "tree_sha_xxxxxxxxxxxxxxxxxxxx"}),
+        (201, {"sha": "commit_sha_xxxxxxxxxxxxxxxxxxxx"}),
+        # Step 5: PATCH ref → 404 (branch does not exist on remote yet).
+        (404, {"message": "Reference does not exist"}),
+        # Step 6: POST /git/refs → 201 (ref created).
+        (201, {"ref": "refs/heads/main", "object": {"sha": "commit_sha_xxxxxxxxxxxxxxxxxxxx"}}),
+    ]
+    proc, _plan_dir, state_dir = _run_script(repo, token=TEST_TOKEN, plan=plan)
+    # Exit 3 = commit landed remotely (PATCH 404 + POST 201) but local
+    # `git fetch origin <branch>` fails because origin is a fake URL.
+    # That is exactly the same end-state as the existing happy-path test.
+    assert proc.returncode == 3, (
+        f"expected exit 3 after POST fallback; got {proc.returncode}\n"
+        f"stdout={proc.stdout!r}\nstderr={proc.stderr!r}"
+    )
+    calls = _read_call_log(state_dir)
+    # 5 API calls total: blob + tree + commit + PATCH(404) + POST(201).
+    assert len(calls) == 5, f"expected 5 API calls; got {len(calls)}:\n{calls}"
+    # Verify the PATCH was attempted first and the POST followed as the
+    # 5th call against `/git/refs` (not `/git/refs/heads/<branch>`).
+    assert "method=PATCH" in calls[3] and "/git/refs/heads/main" in calls[3]
+    assert "method=POST" in calls[4] and "/git/refs" in calls[4]
+    assert "/git/refs/heads/" not in calls[4], (
+        f"POST fallback must target /git/refs (no branch path); got {calls[4]!r}"
+    )
+    # POST body must carry the canonical {ref, sha} pair.
+    post_req = _read_request_body(state_dir, 5)
+    assert post_req is not None
+    assert post_req == {
+        "ref": "refs/heads/main",
+        "sha": "commit_sha_xxxxxxxxxxxxxxxxxxxx",
+    }, f"unexpected POST /git/refs body: {post_req!r}"
+
+
+def test_patch_and_post_both_fail_returns_2(tmp_path: Path) -> None:
+    """When PATCH 404s and the POST fallback also fails (5xx, 422, etc.),
+    the script MUST exit 2 so the kata falls back to local commit.
+    """
+    repo = tmp_path / "repo"
+    _init_repo(repo)
+    _stage_file(repo, "foo.txt", "bar\n")
+    plan = [
+        (201, {"sha": "blob_sha"}),
+        (201, {"sha": "tree_sha"}),
+        (201, {"sha": "commit_sha"}),
+        (404, {"message": "Reference does not exist"}),
+        (422, {"message": "Validation Failed"}),
+    ]
+    proc, _plan_dir, state_dir = _run_script(repo, token=TEST_TOKEN, plan=plan)
+    assert proc.returncode == 2, f"stderr={proc.stderr!r}"
+    assert "ref update/creation failed" in proc.stderr
+    calls = _read_call_log(state_dir)
+    assert len(calls) == 5

@@ -80,7 +80,7 @@ Conducir la promoción de agents Guardia de `pre-operational` (PoV) a `operation
 | `codex-agent-design-docs` | 15 templates (13 archivos del agent + dooc + feature-agent-map) |
 | `codex-system-prompt` | Templates de los 4 bloques, OWASP applied controls, guardrail org_id/client_id |
 | `codex-feature-design-docs` | Estructura de `docs/{context}/{features|entities|oas|events|agents|metrics}/` |
-| `codex-incident-response` | Runbooks linkados en `escalation.md` |
+| `codex-incident-response` | Runbooks vinculados en `escalation.md` |
 | `codex-mcp-common` | Patterns MCP relevantes al catálogo de tools |
 
 ### Katas (Procedimientos que ejecuta)

@@ -80,7 +80,7 @@ Conduzir a promoção de agents Guardia de `pre-operational` (PoV) para `operati
 | `codex-agent-design-docs` | 15 templates (13 arquivos do agent + dooc + feature-agent-map) |
 | `codex-system-prompt` | Templates dos 4 blocos, OWASP applied controls, guardrail org_id/client_id |
 | `codex-feature-design-docs` | Estrutura de `docs/{context}/{features|entities|oas|events|agents|metrics}/` |
-| `codex-incident-response` | Runbooks linkados em `escalation.md` |
+| `codex-incident-response` | Runbooks vinculados em `escalation.md` |
 | `codex-mcp-common` | Patterns MCP relevantes ao catálogo de tools |
 
 ### Katas (Procedimentos que executa)
@@ -244,7 +244,7 @@ Passo 7/8 — kata-agent-context-pack-design (Diretriz 06; --from-pov)
 Passo 8/8 — kata-agent-guardrails-design (Diretriz 05)
   ✅ guardrails.md (5 OWASP + tool injection + PII boundary + cross-tenant)
   ✅ authorization.md (callers: Isac human-mediated, /v1/agents/rec-classifier API)
-  ✅ escalation.md (matriz com 8 gatilhos + 3 runbooks linkados)
+  ✅ escalation.md (matriz com 8 gatilhos + 3 runbooks vinculados)
 
 Passo 9 — Reciprocidade Feature ↔ Agent
   ✅ docs/reconciliation/features/transaction-classification.md::served_by_agents inclui rec-classifier

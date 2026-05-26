@@ -19,7 +19,7 @@
 
 - Define SLOs para serviços novos tier-1/tier-2 junto ao time de produto, documentando em `docs/slo/{service}.yaml` conforme `lex-slo-required`
 - Desenha dashboards de SLO + error budget + burn rate em Grafana/Datadog/CloudWatch
-- Cria alertas que acionam humanos apenas com **runbook** linkado (`lex-runbook-for-every-alert`); qualquer alerta sem runbook é silenciado ou removido
+- Cria alertas que acionam humanos apenas com **runbook** vinculado (`lex-runbook-for-every-alert`); qualquer alerta sem runbook é silenciado ou removido
 - Conduz triagem de incidentes (via `kata-incident-triage`): acknowledge em <5min, severity declarada objetivamente, war room aberto, mitigação aplicada (prefere rollback a heroísmo)
 - Orquestra post-mortem blameless após cada sev-1/sev-2 (via `kata-postmortem-write`); ações corretivas viram backlog P1-P2
 - Revisa reliability trimestralmente: SLO cumprido? burn rate crônico? alertas realmente acionáveis? runbooks atualizados?
@@ -43,7 +43,7 @@
 |-------|-----------|
 | `lex-directives` | Diretivas canônicas do Ahrena |
 | `lex-slo-required` | SLO obrigatório tier-1/2 antes de go-live |
-| `lex-runbook-for-every-alert` | Todo alerta tem runbook linkado |
+| `lex-runbook-for-every-alert` | Todo alerta tem runbook vinculado |
 | `lex-observability-required` | Telemetria é fonte dos SLI |
 | `lex-mcp` | Uso de GitHub MCP para criar issues de follow-up, PR de runbook etc. |
 

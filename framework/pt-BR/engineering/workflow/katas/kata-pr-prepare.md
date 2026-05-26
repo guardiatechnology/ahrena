@@ -31,7 +31,7 @@ Progresso:
 - [ ] 3. Criar branch via GitHub MCP
 - [ ] 4. Push dos arquivos modificados
 - [ ] 5. Compor body do PR com referências
-- [ ] 6. Criar PR linkado à issue
+- [ ] 6. Criar PR vinculado à issue
 - [ ] 7. Atualizar status dos ADRs (proposed → accepted)
 - [ ] 8. Atualizar checkpoint final
 ```
@@ -186,7 +186,7 @@ Antes de invocar `create_pull_request`, garantir que o body da Issue reflete o e
 
 Esse passo substitui a mecânica antiga de "atualizar `status:` no front-matter do plano" (modelo legado pré-): no Issue-as-plan model, o body da Issue é o canonical; o cache local `.plans/{N}.md` é regenerável.
 
-### Passo 6: Criar PR linkado à issue
+### Passo 6: Criar PR vinculado à issue
 
 1. Resolver o token de autor do PR de acordo com o roteamento decidido no Passo 1:
    - **Rota bot-author** (selecionada no Passo 1): invocar o comando de criação do PR em um subshell com `GH_TOKEN=$GH_TOKEN_AHRENA_BOT` para que o autor do PR resolva como `ahrena-bot[bot]`. Exemplo para o fallback CLI:
@@ -205,7 +205,7 @@ Esse passo substitui a mecânica antiga de "atualizar `status:` no front-matter 
    - `body` — do Passo 5
    - `draft` — conforme input (padrão `false`)
 3. Capturar `html_url` do PR criado.
-4. Se `Resolves #{n}` está no body, o GitHub linkará automaticamente a issue.
+4. Se `Resolves #{n}` está no body, o GitHub vinculará automaticamente a issue.
 5. **Soft-fail para token humano** — se a rota bot-author retornar status não-zero (ex.: o App não tem `pull_requests:write` neste repo), emitir aviso visível e tentar novamente com o token padrão do chamador. Nunca silenciar a degradação.
 
 ### Passo 6b: Aplicar `status: to review` (transição `development → to review`)

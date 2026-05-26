@@ -140,7 +140,7 @@ Feedback: cada clasificación es revisada por un analista Guardia.
 # Owner: warrior-metis; product owner: @ana.santos
 # System prompt canónico: docs/reconciliation/agents/rec-classifier/system-prompt.md (codifica rol, tono, voz, escalation)
 
-Rol, dominio, rechazos, tono, voz Guardia: ver system-prompt.md canónico (linkado en el header).
+Rol, dominio, rechazos, tono, voz Guardia: ver system-prompt.md canónico (vinculado en el header).
 
 Memoria:
 - Corta: ventana de la sesión actual

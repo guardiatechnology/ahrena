@@ -136,10 +136,15 @@ if [[ -z "${REPO}" ]]; then
     echo "WARN (ahrena-api-commit.sh): cannot resolve repo — no 'origin' remote." >&2
     exit 2
   fi
-  # Strip protocol and .git suffix: handles both git@github.com:owner/repo.git
-  # and https://github.com/owner/repo[.git] forms.
+  # Strip protocol and .git suffix. Handles every scheme git supports for
+  # GitHub remotes: https://, http://, ssh://, git://, and the scp-style
+  # git@host:owner/repo. The order matters — strip the explicit scheme
+  # prefixes first, then the scp-style user@host:, then the trailing .git.
   REPO="$(printf '%s' "${ORIGIN_URL}" \
-    | sed -E -e 's#^git@[^:]+:##' -e 's#^https?://[^/]+/##' -e 's#\.git$##')"
+    | sed -E \
+        -e 's#^(ssh|git|https?)://([^/@]+@)?[^/]+/##' \
+        -e 's#^[^/@]+@[^:]+:##' \
+        -e 's#\.git$##')"
 fi
 
 if [[ ! "${REPO}" =~ ^[^/]+/[^/]+$ ]]; then
@@ -175,6 +180,20 @@ _api_call() {
   local body_file="${3:-}"
   local out_file
   out_file="$(mktemp "${_AHRENA_API_COMMIT_TMPDIR}/resp.XXXXXX")"
+
+  # Re-source ahrena-auth.sh so a token refresh performed in a previous
+  # _api_call (which runs in a command substitution / subshell) propagates
+  # into this parent-shell invocation. Without this, the parent's
+  # GH_TOKEN_AHRENA_BOT stays stale and every subsequent call would have
+  # to absorb its own 401-then-retry. ahrena-auth.sh caches the
+  # installation token, so this is a cheap near-no-op when the cached
+  # token is still fresh.
+  local _ahrena_script_dir
+  _ahrena_script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+  if [[ -r "${_ahrena_script_dir}/ahrena-auth.sh" ]]; then
+    # shellcheck disable=SC1091
+    source "${_ahrena_script_dir}/ahrena-auth.sh" >/dev/null 2>&1 || true
+  fi
 
   local curl_args=(
     -sS
@@ -267,7 +286,11 @@ fi
 # (copy), T (type change). We treat A/M/T as blob upload, D as deletion,
 # and R/C as "delete old + add new" (the new blob is the staged content of
 # the new path; the old path is deleted in the tree entry).
-STAGED_STATUS="$(git diff --cached --name-status 2>/dev/null || true)"
+# `core.quotePath=false` keeps non-ASCII paths (accented chars, CJK,
+# emoji) verbatim in the output instead of being wrapped in double quotes
+# with octal escapes. Without it `git show ":${path}"` later receives a
+# literal `\303\247` string and fails to read the staged content.
+STAGED_STATUS="$(git -c core.quotePath=false diff --cached --name-status 2>/dev/null || true)"
 if [[ -z "${STAGED_STATUS}" ]]; then
   echo "WARN (ahrena-api-commit.sh): nothing staged — refusing to create an empty commit." >&2
   exit 2
@@ -302,8 +325,10 @@ _append_tree_entry() {
 _resolve_mode() {
   local path="$1"
   local mode
-  # `git ls-files --stage <path>` prints: <mode> <sha> <stage>\t<path>
-  mode="$(git ls-files --stage -- "${path}" 2>/dev/null | awk '{print $1; exit}')"
+  # `git ls-files --stage <path>` prints: <mode> <sha> <stage>\t<path>.
+  # `core.quotePath=false` mirrors the diff above so non-ASCII paths match
+  # the working tree literal instead of being quoted/escaped.
+  mode="$(git -c core.quotePath=false ls-files --stage -- "${path}" 2>/dev/null | awk '{print $1; exit}')"
   if [[ -z "${mode}" ]]; then
     # Path is staged-as-add but not yet in the index? Fall back to working-
     # tree mode via `stat`. Symlinks become 120000; executables 100755;
@@ -332,12 +357,20 @@ while IFS=$'\t' read -r status path1 path2; do
       # bytes (images, .pyc, etc.) round-trip cleanly. Text files also
       # work — GitHub stores the decoded bytes.
       blob_payload="${_AHRENA_API_COMMIT_TMPDIR}/blob-payload.json"
-      content_b64="$(git show ":${path1}" 2>/dev/null | base64 | tr -d '\n')"
-      if [[ -z "${content_b64}" ]]; then
-        # Empty file — base64 of zero bytes is the empty string; emit an
-        # explicit empty content blob.
-        content_b64=""
+      # Read staged content via a buffer so a pipeline failure (e.g. the
+      # path is corrupted, the index entry is unreadable) does not silently
+      # produce an empty blob and upload zero bytes. `set -o pipefail`
+      # surfaces the inner failure; we still need an explicit guard because
+      # the assignment swallows the non-zero exit by itself.
+      _ahrena_raw="${_AHRENA_API_COMMIT_TMPDIR}/blob-raw.bin"
+      if ! git show ":${path1}" >"${_ahrena_raw}" 2>/dev/null; then
+        echo "WARN (ahrena-api-commit.sh): failed to read staged content for ${path1}" >&2
+        exit 2
       fi
+      content_b64="$(base64 < "${_ahrena_raw}" | tr -d '\n')"
+      rm -f "${_ahrena_raw}"
+      # Empty file is legitimate: base64 of zero bytes is the empty string;
+      # GitHub stores the empty blob correctly when content="" + encoding=base64.
       jq -n --arg c "${content_b64}" --arg e "base64" \
         '{content: $c, encoding: $e}' > "${blob_payload}"
 
@@ -367,7 +400,16 @@ while IFS=$'\t' read -r status path1 path2; do
       _append_tree_entry "${path1}" "100644" "null"
       mode="$(_resolve_mode "${path2}")"
       blob_payload="${_AHRENA_API_COMMIT_TMPDIR}/blob-payload.json"
-      content_b64="$(git show ":${path2}" 2>/dev/null | base64 | tr -d '\n')"
+      # Same buffered-read pattern as the A|M|T branch: surface git failures
+      # explicitly instead of uploading an empty blob for the rename/copy
+      # destination.
+      _ahrena_raw="${_AHRENA_API_COMMIT_TMPDIR}/blob-raw.bin"
+      if ! git show ":${path2}" >"${_ahrena_raw}" 2>/dev/null; then
+        echo "WARN (ahrena-api-commit.sh): failed to read staged content for ${path2}" >&2
+        exit 2
+      fi
+      content_b64="$(base64 < "${_ahrena_raw}" | tr -d '\n')"
+      rm -f "${_ahrena_raw}"
       jq -n --arg c "${content_b64}" --arg e "base64" \
         '{content: $c, encoding: $e}' > "${blob_payload}"
       blob_response="$(_api_call POST "/repos/${REPO}/git/blobs" "${blob_payload}")" || {
@@ -443,9 +485,21 @@ jq -n --arg sha "${NEW_COMMIT_SHA}" '{sha: $sha, force: false}' > "${REF_PAYLOAD
 
 # Body of the ref-update response is not consumed (the success-or-fail is
 # what matters); discard via /dev/null but keep the failure branch.
+#
+# PATCH /git/refs/heads/<branch> returns 404 when the ref does not yet
+# exist on the remote (first commit of a brand-new feature branch). In
+# that case the correct path is POST /git/refs with {ref, sha}. Without
+# this fallback the very first bot-author commit on every new branch
+# would always 404 and the kata would drop to the human-author fallback,
+# making AC-P2-2 silently broken on first commit of any new branch.
 if ! _api_call PATCH "/repos/${REPO}/git/refs/heads/${BRANCH}" "${REF_PAYLOAD_FILE}" >/dev/null; then
-  echo "WARN (ahrena-api-commit.sh): ref update failed for refs/heads/${BRANCH}." >&2
-  exit 2
+  CREATE_REF_FILE="${_AHRENA_API_COMMIT_TMPDIR}/create-ref-payload.json"
+  jq -n --arg ref "refs/heads/${BRANCH}" --arg sha "${NEW_COMMIT_SHA}" \
+    '{ref: $ref, sha: $sha}' > "${CREATE_REF_FILE}"
+  if ! _api_call POST "/repos/${REPO}/git/refs" "${CREATE_REF_FILE}" >/dev/null; then
+    echo "WARN (ahrena-api-commit.sh): ref update/creation failed for refs/heads/${BRANCH}." >&2
+    exit 2
+  fi
 fi
 
 # ─── Step 6: sync local working tree ───────────────────────────────────────

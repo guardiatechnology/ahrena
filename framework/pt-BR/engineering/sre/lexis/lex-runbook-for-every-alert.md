@@ -6,11 +6,11 @@
 
 Alertas sem runbook são crueldade operacional: acordam engenheiros às 3h da manhã sem indicação do que fazer. O on-call gasta tempo descobrindo o que o alerta significa, onde ver dashboards, quais passos de mitigação aplicar — tempo em que o incidente se agrava. Pior: alertas recorrentes sem runbook normalizam "ignorar alerta até dar mesmo pau", destruindo o valor do sistema de monitoramento.
 
-Esta Lexis existe para garantir que **todo alerta que aciona um humano tenha runbook versionado e linkado**, que **runbooks tenham passos acionáveis**, e que **alertas sem runbook sejam silenciados ou removidos até terem um**.
+Esta Lexis existe para garantir que **todo alerta que aciona um humano tenha runbook versionado e vinculado**, que **runbooks tenham passos acionáveis**, e que **alertas sem runbook sejam silenciados ou removidos até terem um**.
 
 ## Lei
 
-> **Todo alerta que aciona um humano (page, on-call) DEVE ter runbook versionado em `docs/runbooks/{service}-{alert-name}.md`, linkado diretamente no annotation do alerta. O runbook DEVE conter: sintomas, impacto no usuário, diagnóstico inicial (dashboards e queries), ações de mitigação, passos de escalação. Alertas sem runbook DEVEM ser silenciados ou removidos.**
+> **Todo alerta que aciona um humano (page, on-call) DEVE ter runbook versionado em `docs/runbooks/{service}-{alert-name}.md`, vinculado diretamente no annotation do alerta. O runbook DEVE conter: sintomas, impacto no usuário, diagnóstico inicial (dashboards e queries), ações de mitigação, passos de escalação. Alertas sem runbook DEVEM ser silenciados ou removidos.**
 
 ## Regras
 
