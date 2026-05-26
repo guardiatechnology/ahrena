@@ -97,7 +97,15 @@ def _make_test_repo(tmp_path: Path) -> tuple[Path, Path]:
     # Minimal git repo so `git rev-parse --git-common-dir` returns
     # `.git` (in-repo), which makes _AHRENA_MAIN_REPO_ROOT resolve to
     # `repo` itself instead of climbing into the framework's main repo.
-    subprocess.run(["git", "init", "--quiet", "-b", "main"], cwd=repo, check=True)
+    # `git init -b main` requires Git 2.28+. Initialize then set HEAD via
+    # `git symbolic-ref` so the test repo also runs on older Git (legacy
+    # enterprise distros, older CI runners).
+    subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True)
+    subprocess.run(
+        ["git", "symbolic-ref", "HEAD", "refs/heads/main"],
+        cwd=repo,
+        check=True,
+    )
 
     # .ahrena/.directives with warriors_default_author.enabled=true.
     # This is the file the script's activation gate reads — when the
@@ -231,7 +239,10 @@ def _run_script(
         cmd = [
             "bash",
             "-c",
-            f"set -x; source {script}",
+            # Single-quote the script path so paths containing spaces
+            # (tmp_path on some macOS configurations, custom workspace
+            # roots, etc.) do not break word-splitting in bash.
+            f"set -x; source '{script}'",
         ]
     elif explicit_xtrace_in_script:
         # Direct `bash -x scripts/ahrena-auth.sh`. The shell process
@@ -385,7 +396,10 @@ def test_normal_invocation_exports_expected_env_vars(tmp_path: Path) -> None:
     cmd = [
         "bash",
         "-c",
-        f"source {script} && env",
+        # Single-quote the script path so paths containing spaces do
+        # not break word-splitting in bash (see also the
+        # `inherit_xtrace` branch in `_run_script`).
+        f"source '{script}' && env",
     ]
     proc = subprocess.run(
         cmd, cwd=repo, env=env, capture_output=True, text=True
