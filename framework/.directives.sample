@@ -162,6 +162,13 @@ pr_cost_tracking:
     - "claude[bot]"
     - "coderabbitai[bot]"
     - "qodo-merge-pro[bot]"
+  # extra GitHub logins recognized as AI authors in the Development subsection
+  # Symmetric to known_ai_reviewers; drives the bot-author classification in
+  # kata-pr-cost-stamp § "Author identity".
+  known_ai_authors:
+    - "ahrena-bot[bot]"
+    - "claude[bot]"
+    - "copilot[bot]"
 
 # ─── Warriors Default Author ────────────────────────────────────
 # Warriors default GitHub App identity for commits/PRs. When

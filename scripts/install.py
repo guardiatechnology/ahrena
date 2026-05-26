@@ -1754,6 +1754,13 @@ pr_cost_tracking:
     - "claude[bot]"
     - "coderabbitai[bot]"
     - "qodo-merge-pro[bot]"
+  # extra GitHub logins recognized as AI authors in the Development subsection
+  # Symmetric to known_ai_reviewers; drives the bot-author classification in
+  # kata-pr-cost-stamp § "Author identity".
+  known_ai_authors:
+    - "ahrena-bot[bot]"
+    - "claude[bot]"
+    - "copilot[bot]"
 """
     body_commented = """\
 # pr_cost_tracking:
@@ -1766,6 +1773,10 @@ pr_cost_tracking:
 #     - "claude[bot]"
 #     - "coderabbitai[bot]"
 #     - "qodo-merge-pro[bot]"
+#   known_ai_authors:              # extra GitHub logins recognized as AI authors
+#     - "ahrena-bot[bot]"
+#     - "claude[bot]"
+#     - "copilot[bot]"
 """
     return "\n" + header + (body_selected if selected else body_commented)
 
