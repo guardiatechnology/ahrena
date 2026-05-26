@@ -16,7 +16,7 @@ Esta Lexis garantiza que todo commit sea firmado y verificable, conforme lo exig
 
 ### 1. Firma obligatoria
 
-Todo commit enviado a repositorios Guardia DEBE contener una firma válida que GitHub pueda verificar. La firma PUEDE provenir de una clave GPG local mantenida por el contribuyente O de la firma server-side realizada por GitHub cuando un token de instalación de App crea el commit a través de la Git Data API.
+Todo commit enviado a repositorios Guardia DEBE contener una firma válida que GitHub pueda verificar. La firma PUEDE provenir de una clave GPG local mantenida por el colaborador O de la firma server-side realizada por GitHub cuando un token de instalación de App crea el commit a través de la Git Data API.
 
 ### 2. Estado aceptado
 
@@ -46,7 +46,7 @@ Dos vías satisfacen esta Ley, ambas produciendo el estado "Verified" en GitHub:
 
 | Modalidad | Cuándo | Cómo |
 |-----------|--------|------|
-| **Firma GPG local** | Por defecto para commits realizados por humano | El contribuyente configura `commit.gpgsign true` + una clave de firma válida (`lex-signed-commits` Regla 3). La firma se produce localmente antes del push. |
+| **Firma GPG local** | Por defecto para commits realizados por humano | El colaborador configura `commit.gpgsign true` + una clave de firma válida (`lex-signed-commits` Regla 3). La firma se produce localmente antes del push. |
 | **Firma vía instalación de App** | Cuando `warriors_default_author.enabled: true` y el warrior en ejecución figura en `warriors_default_author.apply_to` | Los warriors invocan `scripts/ahrena-auth.sh` + `scripts/ahrena-api-commit.sh`, que crean el commit por la GitHub Git Data API con el token de instalación del App. GitHub firma el commit server-side; el sello "Verified" aparece en la página del commit y no se utiliza ninguna clave GPG local. Véase `codex-git-workflow` ("Identidad del autor"). |
 
 Ambas modalidades producen commits cuyo estado de verificación DEBE ser "Verified". Un commit que no pase por ninguna de las dos vías de firma (sin GPG local y sin la vía de commit por API) viola esta Ley.
