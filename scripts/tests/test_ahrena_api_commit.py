@@ -104,6 +104,23 @@ def _env_with_fake_curl(state_dir: Path, plan_dir: Path, token: str | None) -> d
         "FAKE_CURL_PLAN_DIR": str(plan_dir),
         "FAKE_CURL_STATE_DIR": str(state_dir),
         "FAKE_CURL_TOKEN_REDACT_GUARD": token or "",
+        # Opt out of `_api_call`'s defensive re-source of ahrena-auth.sh
+        # (added by caa4f61). Two reasons to disable it in tests:
+        #   1. Without this gate, sourcing ahrena-auth.sh from inside the
+        #      $(...) subshell that wraps _api_call would EXPORT a real
+        #      bot installation token whenever the directives file on the
+        #      developer's main repo has warriors_default_author.enabled=
+        #      true, replacing the test's TEST_TOKEN sentinel and breaking
+        #      both the redaction guard and every assertion that relies on
+        #      a stable token.
+        #   2. The activated path of ahrena-auth.sh references variables
+        #      like $USER that may legitimately be missing from a minimal
+        #      env; `set -u` (inherited from the script) would abort the
+        #      $(...) subshell with no curl call made, producing the
+        #      misleading "blob upload failed" warning observed in #292.
+        # The flag is a test-only contract; production callers never set
+        # it and keep the full token-refresh propagation behavior.
+        "AHRENA_API_COMMIT_DISABLE_REAUTH": "1",
     }
     if token is not None:
         env["GH_TOKEN_AHRENA_WARRIORS_DEFAULT"] = token

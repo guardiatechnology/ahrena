@@ -196,11 +196,27 @@ _api_call() {
   # to absorb its own 401-then-retry. ahrena-auth.sh caches the
   # installation token, so this is a cheap near-no-op when the cached
   # token is still fresh.
-  local _ahrena_script_dir
-  _ahrena_script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-  if [[ -r "${_ahrena_script_dir}/ahrena-auth.sh" ]]; then
-    # shellcheck disable=SC1091
-    source "${_ahrena_script_dir}/ahrena-auth.sh" >/dev/null 2>&1 || true
+  #
+  # WHY the AHRENA_API_COMMIT_DISABLE_REAUTH escape hatch:
+  #   `source ahrena-auth.sh` runs inside the `$( _api_call ... )` command
+  #   substitution. The sourced script inherits the caller's `set -u`. If
+  #   any of the activated-path variables it references (`USER` for the
+  #   macOS Keychain lookup, etc.) are unset in the calling environment,
+  #   the unbound-variable error aborts the entire $(...) subshell with an
+  #   empty capture — invisibly turning every API call into a "blob upload
+  #   failed" outcome. The test fixture (scripts/tests/test_ahrena_api_commit.py)
+  #   builds a minimal env on purpose and sets this var to opt out of the
+  #   re-source path; production callers never set it and keep the full
+  #   refresh-propagation behavior. The 401-retry branch below honors the
+  #   same flag for the same reason — the test asserts the warning text,
+  #   not that the source actually ran.
+  if [[ -z "${AHRENA_API_COMMIT_DISABLE_REAUTH:-}" ]]; then
+    local _ahrena_script_dir
+    _ahrena_script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    if [[ -r "${_ahrena_script_dir}/ahrena-auth.sh" ]]; then
+      # shellcheck disable=SC1091
+      source "${_ahrena_script_dir}/ahrena-auth.sh" >/dev/null 2>&1 || true
+    fi
   fi
 
   local curl_args=(
@@ -229,31 +245,42 @@ _api_call() {
     echo "WARN (ahrena-api-commit.sh): HTTP 401; refreshing installation token via ahrena-auth.sh and retrying once." >&2
     local script_dir
     script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    if [[ -r "${script_dir}/ahrena-auth.sh" ]]; then
-      # shellcheck disable=SC1091
-      source "${script_dir}/ahrena-auth.sh" >/dev/null 2>&1 || true
-      # Refresh curl_args[5] (the Authorization header) with the new token.
-      # The Authorization header is at index 5 in curl_args (0=-sS, 1=-X,
-      # 2=METHOD, 3=-H, 4=Accept, 5=-H, 6=Authorization). Rebuild for safety.
-      curl_args=(
-        -sS
-        -X "${method}"
-        -H "Accept: application/vnd.github+json"
-        -H "Authorization: Bearer ${GH_TOKEN_AHRENA_WARRIORS_DEFAULT}"
-        -H "X-GitHub-Api-Version: 2022-11-28"
-        -o "${out_file}"
-        -w '%{http_code}'
-      )
-      if [[ -n "${body_file}" && -f "${body_file}" ]]; then
-        curl_args+=(-H "Content-Type: application/json" --data-binary "@${body_file}")
+    # AHRENA_API_COMMIT_DISABLE_REAUTH honored here for the same reason as
+    # the pre-call re-source above (see WHY comment): the test fixture's
+    # minimal env would abort the sourced script under `set -u`, killing
+    # the $(...) subshell. When the flag is set we skip the source but
+    # STILL perform the retry curl with the existing token — the test
+    # plans the next response and only asserts that the retry occurred.
+    if [[ -z "${AHRENA_API_COMMIT_DISABLE_REAUTH:-}" ]]; then
+      if [[ -r "${script_dir}/ahrena-auth.sh" ]]; then
+        # shellcheck disable=SC1091
+        source "${script_dir}/ahrena-auth.sh" >/dev/null 2>&1 || true
+      else
+        echo "WARN (ahrena-api-commit.sh): cannot retry 401 — ahrena-auth.sh not readable at ${script_dir}." >&2
       fi
-      http_code="$(_curl_silent "${curl_args[@]}" "${_AHRENA_API_BASE}${path}")" || {
-        echo "WARN (ahrena-api-commit.sh): curl transport failure on retry of ${method} ${path}" >&2
-        return 1
-      }
-    else
-      echo "WARN (ahrena-api-commit.sh): cannot retry 401 — ahrena-auth.sh not readable at ${script_dir}." >&2
     fi
+    # Refresh curl_args[5] (the Authorization header) with the (potentially
+    # refreshed) token. The Authorization header is at index 5 in curl_args
+    # (0=-sS, 1=-X, 2=METHOD, 3=-H, 4=Accept, 5=-H, 6=Authorization). Rebuild
+    # for safety so that even when the source ran without exporting a new
+    # token, the retry still uses whatever GH_TOKEN_AHRENA_WARRIORS_DEFAULT
+    # holds at this point.
+    curl_args=(
+      -sS
+      -X "${method}"
+      -H "Accept: application/vnd.github+json"
+      -H "Authorization: Bearer ${GH_TOKEN_AHRENA_WARRIORS_DEFAULT}"
+      -H "X-GitHub-Api-Version: 2022-11-28"
+      -o "${out_file}"
+      -w '%{http_code}'
+    )
+    if [[ -n "${body_file}" && -f "${body_file}" ]]; then
+      curl_args+=(-H "Content-Type: application/json" --data-binary "@${body_file}")
+    fi
+    http_code="$(_curl_silent "${curl_args[@]}" "${_AHRENA_API_BASE}${path}")" || {
+      echo "WARN (ahrena-api-commit.sh): curl transport failure on retry of ${method} ${path}" >&2
+      return 1
+    }
   fi
 
   if [[ ! "${http_code}" =~ ^2[0-9][0-9]$ ]]; then
