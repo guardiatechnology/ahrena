@@ -44,8 +44,9 @@ Progreso:
    - `hook` — `scripts/pr-cost-stamp.sh` se invoca con `--branch <HEAD_REF>` y `--purpose <dev|review>`, consumiendo el sidecar `~/.claude/projects/*/branches.jsonl` producido por el hook `pr-cost-attribution.sh`. Permite separar Development y Review.
    - `project` (legado) — comportamiento anterior: filtro solo por project + since, sin distinción de branch ni de purpose. Mantenido para proyectos que aún no migraron. El bloque renderizado en este modo omite la subsección Review (Claude Code local) y agrega un aviso `meta.warnings`.
 5. Leer `pr_cost_tracking.known_ai_reviewers` (lista, opcional). El default trae `gemini-code-assist[bot]`, `claude[bot]`, `coderabbitai[bot]`, `qodo-merge-pro[bot]`. Los proyectos pueden extenderlo para reconocer otros bots de revisión.
-6. Verificar disponibilidad de `gh` (autenticado), `git`, `scripts/pr-cost-stamp.sh` y `scripts/pr-cost-stamp-reviews.sh`. Cualquier ausencia → finalizar con warning, sin propagar el error.
-7. Intentar `npx ccusage@latest --version` (timeout 30s). Éxito → `ccusage` es el backend de tokens/USD para el bucket Development. Falla → `scripts/pr-cost-stamp.sh` también cubre tokens (sin costo). En ambos caminos, el script es la fuente única de verdad de los tiempos (activo + calendario) — `ccusage` no expone `timestamp` por turno en ningún subcomando.
+6. Leer `pr_cost_tracking.known_ai_authors` (lista, opcional). El default trae `ahrena-bot[bot]`, `claude[bot]`, `copilot[bot]`. Conduce el reconocimiento de autor-bot descrito en `## Identidad del autor`. Los proyectos extienden la lista para reconocer autores-bot adicionales.
+7. Verificar disponibilidad de `gh` (autenticado), `git`, `scripts/pr-cost-stamp.sh` y `scripts/pr-cost-stamp-reviews.sh`. Cualquier ausencia → finalizar con warning, sin propagar el error.
+8. Intentar `npx ccusage@latest --version` (timeout 30s). Éxito → `ccusage` es el backend de tokens/USD para el bucket Development. Falla → `scripts/pr-cost-stamp.sh` también cubre tokens (sin costo). En ambos caminos, el script es la fuente única de verdad de los tiempos (activo + calendario) — `ccusage` no expone `timestamp` por turno en ningún subcomando.
 
 ### Paso 2: Resolver contexto del PR
 
@@ -288,11 +289,29 @@ Reglas de formato:
 - [ ] Backend de tokens identificado (`ccusage` o fallback) y versión registrada en el bloque
 - [ ] En modo `hook`: `scripts/pr-cost-stamp.sh` invocado **dos veces** (`--purpose dev` y `--purpose review`), con `--branch <HEAD_REF>`, `--idle-gap-minutes`, `--calendar-start` y `--calendar-end` poblados
 - [ ] `scripts/pr-cost-stamp-reviews.sh` invocado, clasificando `ai_reviewers` y `human_reviewers`
+- [ ] `PR_AUTHOR_LOGIN` leído vía `gh pr view --json author`; clasificación de autor-bot aplicada conforme `## Identidad del autor`
 - [ ] Subsecciones Development, Review (cuando aplica) y Total presentes en el bloque renderizado
+- [ ] Línea `Bot-authored: yes (<login>)` emitida cuando `PR_AUTHOR_IS_BOT` es verdadero
 - [ ] Marcadores `<!-- ahrena:cost-stamp:start v=2 -->` / `:end` en líneas propias
 - [ ] Body actualizado contiene exactamente una ocurrencia de los marcadores
 - [ ] `meta.warnings` (si los hay) anexado al footer del bloque
 - [ ] `gh pr view $PR_NUMBER --json body` muestra el bloque visible y formateado
+
+## Identidad del autor
+
+Cuando `warriors_default_author.enabled: true`, los PRs conducidos por warriors llevan la identidad `[bot]` del App como autor en GitHub (conforme `codex-git-workflow` "Identidad del autor"). El stamp reconoce ese escenario para atribuir el trabajo correctamente:
+
+1. **Lectura del autor:** durante el Paso 2 la kata consulta `gh pr view $PR_NUMBER --json author --jq '.author.login'` y lo almacena como `PR_AUTHOR_LOGIN`.
+2. **Allow-list de autor-AI:** los built-ins son `ahrena-bot[bot]`, `claude[bot]`, `copilot[bot]`. El proyecto extiende vía `pr_cost_tracking.known_ai_authors` (véase `lex-directives`).
+3. **Clasificación:** `PR_AUTHOR_IS_BOT = PR_AUTHOR_LOGIN ∈ (built-ins ∪ pr_cost_tracking.known_ai_authors)`.
+4. **Impacto en la renderización (Paso 6 — subsección Development):** cuando `PR_AUTHOR_IS_BOT` es verdadero, el renderizador emite una línea de pie poco antes del cierre del bloque de costo:
+   ```
+   **Bot-authored: yes (<PR_AUTHOR_LOGIN>)**
+   _PR conducido por la identidad warriors-default de Ahrena; los trailers `Co-authored-by:` listan los conductores humanos._
+   ```
+5. **Impacto en la renderización (Paso 6 — subsección Total):** el texto cambia de "Tracked AI cost" a "Tracked AI cost (PR entero — autor y herramental son AI)" para dejar claro que tanto la implementación como la actividad de revisión son conducidas por AI en ese PR.
+
+Ese reconocimiento es simétrico a `known_ai_reviewers` (Paso 5) y reutiliza el mismo camino de parse en `parse_directives`. El script del stamp (`scripts/pr-cost-stamp.sh`) no depende del autor — el reconocimiento de autor vive a nivel de orquestación de la kata, lo que encaja con el diseño de los warriors Ahrena (Athena/Apollo) que ya consultan `gh pr view` para metadatos del PR.
 
 ## Salidas
 
