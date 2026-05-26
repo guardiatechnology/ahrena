@@ -22,7 +22,7 @@ Ambas plataformas consumen el **servidor remoto oficial hospedado por GitHub** e
 ```json
 "github": {
   "url": "https://api.githubcopilot.com/mcp/",
-  "headers": { "Authorization": "Bearer ${env:GITHUB_PAT}" }
+  "headers": { "Authorization": "Bearer ${env:GH_TOKEN}" }
 }
 ```
 
@@ -31,13 +31,26 @@ Ambas plataformas consumen el **servidor remoto oficial hospedado por GitHub** e
 "github": {
   "type": "http",
   "url": "https://api.githubcopilot.com/mcp/",
-  "headers": { "Authorization": "Bearer ${GITHUB_PAT}" }
+  "headers": { "Authorization": "Bearer ${GH_TOKEN}" }
 }
 ```
 
-> La variable `GITHUB_PAT` debe estar definida en el entorno (token clásico o fine-grained con scopes de repositorio). Nunca escribir tokens en archivos rastreados (ver `lex-mcp`).
+> La variable `GH_TOKEN` debe estar definida en el entorno (token clásico o fine-grained). El nombre coincide con la convención del CLI `gh` y con la variable documentada del servidor MCP de GitHub. Nunca escribir tokens en archivos rastreados (ver `lex-mcp`).
 >
 > Diferencia sintáctica intencional: Cursor usa `${env:VAR}` para interpolar variables de entorno; Claude Code usa `${VAR}`. Ambas formas resuelven al mismo valor en runtime.
+
+#### Scopes OAuth requeridos
+
+Un PAT clásico utilizado con el MCP de GitHub DEBE conceder los siguientes scopes para la superficie completa de herramientas (issues, PRs, ramas, workflows, búsquedas de usuario):
+
+| Scope | Por qué |
+|---|---|
+| `repo` | Lectura/escritura en issues, PRs, ramas, archivos, commits |
+| `read:org` | Listar equipos, miembros y code owners de la organización |
+| `workflow` | Leer ejecuciones de workflow, disparar reruns (usado por katas de release/CI) |
+| `read:user` | Resolver `@me` e identidades de assignees |
+
+El `scripts/install.py` verifica estos scopes en el momento del install cuando `GH_TOKEN` está definida y emite una línea de aviso (solo warn, nunca bloquea) por scope faltante, con la sugerencia lista para pegar: `gh auth refresh -s <scope>`. Fallas de red o PATs fine-grained (que no exponen el header `X-OAuth-Scopes`) caen a una única línea consultiva.
 
 #### Override para el camino npx legacy
 
@@ -49,12 +62,12 @@ El paquete npx (`@modelcontextprotocol/server-github`) está deprecated pero sig
   "cursor": {
     "command": "npx",
     "args": ["-y", "@modelcontextprotocol/server-github"],
-    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PAT}" }
+    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GH_TOKEN}" }
   },
   "claude-code": {
     "command": "npx",
     "args": ["-y", "@modelcontextprotocol/server-github"],
-    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}" }
+    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GH_TOKEN}" }
   }
 }
 ```

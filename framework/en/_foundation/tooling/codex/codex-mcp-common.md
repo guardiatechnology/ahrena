@@ -81,7 +81,7 @@ Standard variable names per server:
 
 | Server | Env Var |
 |---|---|
-| GitHub | `GITHUB_PAT` |
+| GitHub | `GH_TOKEN` |
 | Notion | `NOTION_API_KEY` |
 | Figma | `FIGMA_API_KEY` |
 

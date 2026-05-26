@@ -36,7 +36,7 @@ Progresso:
 
 1. Consultar `.ahrena/.directives` conforme `lex-directives`.
 2. Verificar que `github` está listado em `mcp.servers` (conforme `lex-mcp`). Se não estiver, informar ao usuário e encerrar.
-3. Confirmar que a variável de ambiente `GITHUB_PAT` está definida. Se não estiver, informar ao usuário qual variável configurar e encerrar.
+3. Confirmar que a variável de ambiente `GH_TOKEN` está definida. Se não estiver, informar ao usuário qual variável configurar e encerrar.
 4. Consultar `codex-mcp-github` para identificar as ferramentas e parâmetros corretos.
 
 ### Passo 2: Identificar repositório e objeto de consulta
@@ -98,7 +98,7 @@ Progresso:
 
 - **Somente leitura:** esta kata nunca cria branches, issues, PRs, comentários ou faz push de arquivos.
 - **Usar apenas MCP:** nunca usar o CLI `gh` ou a API REST do GitHub diretamente quando o servidor MCP estiver ativo (conforme `lex-mcp`).
-- **Sem credenciais hardcoded:** autenticação exclusivamente via variável de ambiente `GITHUB_PAT`.
+- **Sem credenciais hardcoded:** autenticação exclusivamente via variável de ambiente `GH_TOKEN`.
 - **Confirmar repositório:** sempre confirmar `owner/repo` com o usuário antes de iniciar a consulta.
 
 ## Referências

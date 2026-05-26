@@ -1,9 +1,9 @@
 {
-  "_comment": "Ahrena MCP: GitHub server config. HTTP-first per lex-mcp §5 (transport preference: HTTP > binary > npx). Both platforms use the official remote endpoint at api.githubcopilot.com/mcp/, so no local Node/binary is required. Merged into platform MCP files during install. Do not edit — override via .ahrena/mcp/github.json instead.",
+  "_comment": "Ahrena MCP: GitHub server config. HTTP-first per lex-mcp §5 (transport preference: HTTP > binary > npx). Both platforms use the official remote endpoint at api.githubcopilot.com/mcp/, so no local Node/binary is required. Env var name GH_TOKEN matches the gh CLI convention and the GitHub MCP server's documented variable. Merged into platform MCP files during install. Do not edit — override via .ahrena/mcp/github.json instead.",
   "cursor": {
     "url": "https://api.githubcopilot.com/mcp/",
     "headers": {
-      "Authorization": "Bearer ${env:GITHUB_PAT}"
+      "Authorization": "Bearer ${env:GH_TOKEN}"
     },
     "requires": []
   },
@@ -11,7 +11,7 @@
     "type": "http",
     "url": "https://api.githubcopilot.com/mcp/",
     "headers": {
-      "Authorization": "Bearer ${GITHUB_PAT}"
+      "Authorization": "Bearer ${GH_TOKEN}"
     },
     "requires": []
   }

@@ -24,7 +24,7 @@ Progress:
 1. Consult `.ahrena/.directives` per `lex-directives`.
 2. Confirm that `github` is in `mcp.servers` (per `lex-mcp`). If not, inform the user and stop.
 3. Confirm that `notion` is in `mcp.servers`. If not, continue without Notion context (inform the user that enrichment will be skipped).
-4. Confirm `GITHUB_PAT` and `NOTION_API_KEY` (if applicable) are defined in the environment.
+4. Confirm `GH_TOKEN` and `NOTION_API_KEY` (if applicable) are defined in the environment.
 
 ### Step 2: Read the GitHub issue
 

@@ -199,7 +199,7 @@ Na próxima execução de `make sync-cursor`, `make sync-claude-code` ou `make i
 
 | Servidor | Variável de ambiente | Uso |
 |----------|---------------------|-----|
-| `github` | `GITHUB_PAT` | Criar issues, PRs, push de arquivos, listagem de commits |
+| `github` | `GH_TOKEN` | Criar issues, PRs, push de arquivos, listagem de commits |
 | `notion` | `NOTION_API_KEY` | Criar e sincronizar páginas, pesquisar databases |
 | `figma` | `FIGMA_API_KEY` | Extrair design tokens, specs de componentes, exportar frames |
 

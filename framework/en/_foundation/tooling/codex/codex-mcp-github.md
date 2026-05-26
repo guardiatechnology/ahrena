@@ -22,7 +22,7 @@ Both platforms consume the **official remote endpoint hosted by GitHub** at `htt
 ```json
 "github": {
   "url": "https://api.githubcopilot.com/mcp/",
-  "headers": { "Authorization": "Bearer ${env:GITHUB_PAT}" }
+  "headers": { "Authorization": "Bearer ${env:GH_TOKEN}" }
 }
 ```
 
@@ -31,13 +31,26 @@ Both platforms consume the **official remote endpoint hosted by GitHub** at `htt
 "github": {
   "type": "http",
   "url": "https://api.githubcopilot.com/mcp/",
-  "headers": { "Authorization": "Bearer ${GITHUB_PAT}" }
+  "headers": { "Authorization": "Bearer ${GH_TOKEN}" }
 }
 ```
 
-> The `GITHUB_PAT` variable must be defined in the environment (classic or fine-grained PAT with repo scopes). Never hardcode tokens in tracked files (see `lex-mcp`).
+> The `GH_TOKEN` variable must be defined in the environment (classic or fine-grained PAT). The name matches the `gh` CLI convention and the GitHub MCP server's documented variable. Never hardcode tokens in tracked files (see `lex-mcp`).
 >
 > Intentional syntactic difference: Cursor uses `${env:VAR}` for environment variable interpolation; Claude Code uses `${VAR}`. Both forms resolve to the same runtime value.
+
+#### Required OAuth scopes
+
+A classic PAT used with the GitHub MCP must grant the following scopes for the full tool surface (issues, PRs, branches, workflows, user lookups):
+
+| Scope | Why |
+|---|---|
+| `repo` | Read/write on issues, PRs, branches, files, commits |
+| `read:org` | List organization teams, members, code owners |
+| `workflow` | Read workflow runs, dispatch reruns (used by release/CI katas) |
+| `read:user` | Resolve `@me` and assignee identities |
+
+`scripts/install.py` verifies these scopes at install time when `GH_TOKEN` is set and emits one warn-only line per missing scope with a copy-paste hint: `gh auth refresh -s <scope>`. The check never blocks the install; network failures or fine-grained PATs (which do not expose the `X-OAuth-Scopes` header) fall back to a single advisory line.
 
 #### Override for the legacy npx path
 
@@ -49,12 +62,12 @@ The npx package (`@modelcontextprotocol/server-github`) is deprecated but still 
   "cursor": {
     "command": "npx",
     "args": ["-y", "@modelcontextprotocol/server-github"],
-    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PAT}" }
+    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GH_TOKEN}" }
   },
   "claude-code": {
     "command": "npx",
     "args": ["-y", "@modelcontextprotocol/server-github"],
-    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}" }
+    "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GH_TOKEN}" }
   }
 }
 ```

@@ -23,7 +23,7 @@ description: "Implement Issue (Issue-Driven Development). Entry point for the Is
 
 - `github` listed in `mcp.servers` in `.ahrena/.directives`
 - `notion` listed in `mcp.servers` (optional — enriches with Notion context when available)
-- Environment variables: `GITHUB_PAT` (required) and `NOTION_API_KEY` (optional)
+- Environment variables: `GH_TOKEN` (required) and `NOTION_API_KEY` (optional)
 - Existing issue in the indicated repository
 
 ## What the Command Does

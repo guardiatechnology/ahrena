@@ -182,7 +182,7 @@ On the next run of `make sync-cursor`, `make sync-claude-code`, or `make install
 
 | Server | Environment variable | Use |
 |--------|---------------------|-----|
-| `github` | `GITHUB_PAT` | Create issues, PRs, push files, list commits |
+| `github` | `GH_TOKEN` | Create issues, PRs, push files, list commits |
 | `notion` | `NOTION_API_KEY` | Create and sync pages, search databases |
 | `figma` | `FIGMA_API_KEY` | Extract design tokens, component specs, export frames |
 

@@ -1086,11 +1086,66 @@ def install_gitignore_merge(source_dir: Path, target_dir: Path) -> None:
 # Env var names mirror those referenced in framework/mcp/<name>.json.
 MCP_CATALOG: dict[str, tuple[str, list[str]]] = {
     "ahrena":  ("Ahrena's internal MCP server (codex-ahrena-mcp)", []),
-    "github":  ("GitHub MCP — Issues, PRs, releases", ["GITHUB_PAT"]),
+    "github":  ("GitHub MCP — Issues, PRs, releases", ["GH_TOKEN"]),
     "notion":  ("Notion MCP — pages, databases (OAuth on first call)", []),
     "figma":   ("Figma MCP — design tokens, file inspect", ["FIGMA_API_KEY"]),
     "slack":   ("Slack MCP — channels, messages, notifications provider (OAuth)", []),
 }
+
+# Baseline OAuth scopes required by the GitHub MCP server's tool surface
+# (issues/PRs/branches/workflows/users). Kept adjacent to the catalog entry
+# so drift is visible when the upstream tool surface grows. Source:
+# https://github.com/github/github-mcp-server (toolset docs).
+GITHUB_MCP_REQUIRED_SCOPES: list[str] = ["repo", "read:org", "workflow", "read:user"]
+
+
+# Sentinel scope name returned in the "missing scopes" list when the token
+# is a fine-grained PAT (the GitHub API omits or empties the X-OAuth-Scopes
+# header for fine-grained tokens). Callers branch on this value to emit the
+# warn-only "manual scope verification needed" line instead of a per-scope
+# refresh hint, since `gh auth refresh -s <scope>` does not apply.
+GITHUB_FINE_GRAINED_SENTINEL = "__fine_grained_pat__"
+
+
+def check_github_token_scopes(token: str, required: list[str]) -> list[str]:
+    """Return the list of missing OAuth scopes for a classic GitHub PAT.
+
+    Calls GET https://api.github.com/ with the token and reads the granted
+    scopes from the response's `X-OAuth-Scopes` header. Soft-fail discipline:
+    any failure path (network error, timeout, DNS, non-200) returns an empty
+    list so the install never blocks. The token value is never logged by
+    this helper — only scope names cross the boundary upward.
+
+    Return contract:
+      - `[]`                                 → all required scopes granted
+                                              OR network failure (soft-fail);
+                                              callers cannot distinguish the
+                                              two and treat both as "do not warn"
+      - `[GITHUB_FINE_GRAINED_SENTINEL]`     → fine-grained PAT detected
+                                              (empty/missing X-OAuth-Scopes);
+                                              caller emits a warn-only line
+      - `["read:org", ...]`                  → missing scope names, in the
+                                              order declared in `required`
+    """
+    req = urllib.request.Request(
+        "https://api.github.com/",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "User-Agent": "ahrena-install",
+            "Accept": "application/vnd.github+json",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:  # noqa: S310 (constant URL)
+            scopes_header = resp.headers.get("X-OAuth-Scopes")
+    except Exception:
+        # Soft-fail: never block install on network blip, DNS, 5xx, etc.
+        return []
+    if scopes_header is None or not scopes_header.strip():
+        # Fine-grained PAT — X-OAuth-Scopes is absent or empty.
+        return [GITHUB_FINE_GRAINED_SENTINEL]
+    granted = {s.strip() for s in scopes_header.split(",") if s.strip()}
+    return [s for s in required if s not in granted]
 
 # Catalog of installer-managed Claude Code hooks.
 HOOK_CATALOG: dict[str, tuple[str, list[str]]] = {
@@ -1374,15 +1429,38 @@ def check_env_vars(selection: Selection) -> list[str]:
 
     The install never fails on missing vars; callers print the warnings so
     the user knows which secrets to export before the MCP server can run.
+
+    For the github MCP, when GH_TOKEN is present, this function additionally
+    verifies the token's OAuth scopes against GITHUB_MCP_REQUIRED_SCOPES and
+    emits one warn-only line per missing scope with a copy-paste fix hint:
+    `gh auth refresh -s <scope>`. Soft-fail: network/timeout failures emit
+    nothing; the install proceeds.
     """
     warnings: list[str] = []
     for name in sorted(selection.mcps):
         _desc, required = MCP_CATALOG.get(name, ("", []))
         for var in required:
-            if not os.environ.get(var):
+            value = os.environ.get(var)
+            if not value:
                 warnings.append(
                     f"WARNING: MCP '{name}' requires {var} (currently unset)"
                 )
+                continue
+            # Var is set — for github, verify scopes (warn-only).
+            if name == "github" and var == "GH_TOKEN":
+                missing = check_github_token_scopes(value, GITHUB_MCP_REQUIRED_SCOPES)
+                for scope in missing:
+                    if scope == GITHUB_FINE_GRAINED_SENTINEL:
+                        warnings.append(
+                            "WARNING: MCP 'github' GH_TOKEN is a fine-grained PAT; "
+                            "automated scope verification unavailable. Confirm the "
+                            f"token grants: {', '.join(GITHUB_MCP_REQUIRED_SCOPES)}."
+                        )
+                    else:
+                        warnings.append(
+                            f"WARNING: MCP 'github' GH_TOKEN missing scope: {scope}. "
+                            f"Run: gh auth refresh -s {scope}"
+                        )
     return warnings
 
 

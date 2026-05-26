@@ -172,7 +172,7 @@ Escala para humano quando:
 **Pré-condições verificadas:**
 - ✅ `github` em `mcp.servers`
 - ✅ `notion` em `mcp.servers`
-- ✅ `GITHUB_PAT` e `NOTION_API_KEY` definidas
+- ✅ `GH_TOKEN` e `NOTION_API_KEY` definidas
 
 **[Fase 1/7 — Análise da Issue]**
 

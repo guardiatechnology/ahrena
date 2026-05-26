@@ -38,7 +38,7 @@ Progresso:
 ### Passo 1: Verificar pré-condições MCP e Gate 2
 
 1. Confirmar que `github` está em `mcp.servers` (conforme `lex-mcp`). Se não, informar e encerrar.
-2. Confirmar `GITHUB_PAT` definida.
+2. Confirmar `GH_TOKEN` definida.
 3. Ler `.ahrena/issues/{n}/06-quality-report.md` e confirmar resultado `go`. Se `no-go`, recusar criar PR e retornar ao orquestrador.
 4. Consultar `codex-mcp-github` para identificar ferramentas corretas (`create_branch`, `push_files`, `create_pull_request`).
 
@@ -395,7 +395,7 @@ Para cada ADR criado na Fase 3 (listados no checkpoint):
 ## Restrições
 
 - **Usar apenas MCP:** não usar `git push` direto nem `gh pr create` quando o MCP GitHub está ativo (conforme `lex-mcp`).
-- **Sem credenciais hardcoded:** autenticação exclusivamente via `GITHUB_PAT`.
+- **Sem credenciais hardcoded:** autenticação exclusivamente via `GH_TOKEN`.
 - **Gate 2 `go` é pré-requisito inviolável:** não abrir PR se `06-quality-report.md` resultou `no-go`.
 - **Body do PR deve referenciar .ahrena/issues/{n}/:** rastreabilidade desde a issue até o PR exige esses links.
 - **Conventional Commits obrigatório:** título do PR e mensagens de commit devem seguir o formato (conforme `lex-conventional-commits`).
