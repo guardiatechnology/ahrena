@@ -44,6 +44,39 @@
 #   defensively with explicit checks + `return` (when sourced) or `exit`
 #   (when executed directly). Token values are NEVER echoed to stdout
 #   or to logs — they are exported and consumed by downstream tools.
+#
+# xtrace-defense pattern (Plan P7 — Issue #283):
+#   The activated path of this script touches secret material on every
+#   non-trivial line: it reads the App private key, base64-encodes the JWT
+#   header/payload, signs the JWT with `openssl dgst`, POSTs the JWT to
+#   /app/installations/{id}/access_tokens, and exports the resulting
+#   installation token to the calling shell. If the calling shell has
+#   `set -x` (xtrace) active — directly or inherited from `set -euxo
+#   pipefail` in a caller — every one of those operations would land in
+#   the trace stream on stderr in plain text, leaking the private key,
+#   the JWT, and the installation token to terminal history, scrollback,
+#   and CI logs.
+#
+#   This script defends against that leak by capturing the caller's
+#   xtrace state at the entry of the activated path, forcing `set +x`
+#   for the duration, and restoring the caller's state at every exit
+#   point (success and error paths). The guard ceremony lives at the
+#   boundary, not inside individual lines, so the entire sensitive flow
+#   runs with xtrace OFF regardless of how it was enabled upstream.
+#
+#   The no-op path (when warriors_default_author.enabled=false or
+#   absent) deliberately leaves xtrace alone: it touches no secrets,
+#   so legitimate debugging of the activation gate stays observable.
+#
+#   The guard pattern (canonical, mirrored from scripts/ahrena-api-commit.sh):
+#     { _SAVED_XTRACE=${-//[^x]/}; set +x; } 2>/dev/null
+#     # ... sensitive code ...
+#     { [ "${_SAVED_XTRACE}" = "x" ] && set -x; } 2>/dev/null
+#
+#   The redirect to /dev/null on each toggle hides the `set +x` and
+#   `set -x` commands themselves from the trace stream — without it,
+#   the guard would announce its own activation and obscure the trace
+#   immediately around the protected region.
 
 # ─── Source vs. exec detection ─────────────────────────────────────────────
 # When sourced: ${BASH_SOURCE[0]} != $0; use `return` to exit early without
@@ -56,6 +89,19 @@ fi
 
 _ahrena_auth_exit() {
   local code="${1:-0}"
+  # Restore the caller's xtrace state BEFORE handing control back.
+  # Sourced path: the EXIT trap does not fire (it would belong to the
+  # calling shell), so we MUST restore here or the caller observes a
+  # silently-disabled xtrace after the script returns. Executed path:
+  # the trap also runs `_ahrena_auth_finalize`, but calling restore
+  # here first is idempotent and keeps the contract uniform across
+  # both invocation modes. The function is declared before the
+  # activated path's helpers, so guard against the variable/helper
+  # being undefined when the no-op path returns 0 without ever
+  # touching xtrace state.
+  if declare -F _ahrena_auth_restore_xtrace >/dev/null 2>&1; then
+    _ahrena_auth_restore_xtrace
+  fi
   if [[ "${_AHRENA_AUTH_SOURCED}" == "1" ]]; then
     return "${code}"
   else
@@ -128,10 +174,21 @@ fi
 # ─── Activated path ────────────────────────────────────────────────────────
 # From this point on the directive opted in. Use defensive checks instead
 # of `set -euo pipefail` to avoid killing the calling shell when sourced.
+#
+# xtrace-defense entry point (Plan P7 — Issue #283):
+#   Capture the caller's xtrace state BEFORE doing anything that could
+#   leak. `${-//[^x]/}` collapses the current shell flag set to either
+#   the literal "x" (xtrace on) or the empty string (xtrace off). The
+#   `set +x` then disables xtrace for the rest of the activated path,
+#   and `_ahrena_auth_restore_xtrace` restores the caller's original
+#   state at every exit point. The redirect `2>/dev/null` on each
+#   toggle hides the toggle command itself from any in-flight trace.
+{ _AHRENA_SAVED_XTRACE=${-//[^x]/}; set +x; } 2>/dev/null
 
 umask 077
 
-# Unified tempfile cleanup (idempotent)
+# Unified tempfile cleanup (idempotent). Internal helper — the public
+# cleanup-and-restore wrapper is `_ahrena_auth_finalize` below.
 _AHRENA_KEYCHAIN_TMP_KEY=""
 _AHRENA_TMP_CACHE=""
 _ahrena_auth_cleanup() {
@@ -141,10 +198,31 @@ _ahrena_auth_cleanup() {
   _AHRENA_TMP_CACHE=""
   return 0
 }
+
+# Restore the caller's xtrace state. Idempotent — safe to call multiple
+# times along an error path. The inner brace block + 2>/dev/null mirrors
+# the entry-point guard so the restore command itself never lands in
+# the trace stream.
+_ahrena_auth_restore_xtrace() {
+  { [ "${_AHRENA_SAVED_XTRACE:-}" = "x" ] && set -x; } 2>/dev/null
+  return 0
+}
+
+# Combined finalizer: clean up tempfiles, then restore xtrace. Every
+# exit path in the activated section calls this (directly or via the
+# trap) so the caller never observes a leak window between cleanup
+# and xtrace restoration.
+_ahrena_auth_finalize() {
+  _ahrena_auth_cleanup
+  _ahrena_auth_restore_xtrace
+  return 0
+}
+
 # Only register the trap when executed (not sourced) — a sourced script
-# must not steal the calling shell's EXIT handler.
+# must not steal the calling shell's EXIT handler. The trap also covers
+# unexpected exits (signals, errors that bypass the explicit cleanup).
 if [[ "${_AHRENA_AUTH_SOURCED}" == "0" ]]; then
-  trap _ahrena_auth_cleanup EXIT
+  trap _ahrena_auth_finalize EXIT
 fi
 
 # Load .env.local (env wins)
