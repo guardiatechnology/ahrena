@@ -254,7 +254,7 @@ sequenceDiagram
 
 ### 4. `agents/{agent}/tools.md`
 
-Catálogo tripartido de tools (Diretriz 03): **deterministic** (funções puras, validações, cálculos), **ML** (classificadores, embeddings), **MCP** (servers externos). Quando `Type = MCP`, é **obrigatório** linkar para `lex-mcp` (transport preference + comportamento de fallback).
+Catálogo tripartido de tools (Diretriz 03): **deterministic** (funções puras, validações, cálculos), **ML** (classificadores, embeddings), **MCP** (servers externos). Quando `Type = MCP`, é **obrigatório** referenciar `lex-mcp` (transport preference + comportamento de fallback).
 
 ````markdown
 # Tools — {AgentName}
@@ -658,7 +658,7 @@ slos:
 | `{agent}-error-rate-high` | error_rate > 5% (5m) | `docs/runbooks/{agent}-error-rate-high.md` |
 | `{agent}-accuracy-drop` | accuracy < 0.85 (24h) | `docs/runbooks/{agent}-accuracy-drop.md` |
 
-> Per `lex-runbook-for-every-alert`, todo alerta DEVE ter runbook versionado e linkado na annotation `runbook_url`.
+> Per `lex-runbook-for-every-alert`, todo alerta DEVE ter runbook versionado e vinculado na annotation `runbook_url`.
 
 ## Trace + metric + log obrigatórios
 
@@ -1027,7 +1027,7 @@ Os 13 arquivos de cada agent e o snapshot DoOC se referenciam:
 | `agents/{agent}/authorization.md` → `feedback.md`, `escalation.md` | Ação proibida dispara HITL ou escalação |
 | `agents/{agent}/guardrails.md` → `escalation.md` | Guardrail violation força handoff a Security |
 | `agents/{agent}/system-prompt.md` → `guardrails.md` | System prompt referencia os controles OWASP aplicados |
-| `agents/{agent}/tools.md` (Type=MCP) → `lex-mcp` | Tools tipo MCP linkam `lex-mcp` para preferência de transporte e fallback |
+| `agents/{agent}/tools.md` (Type=MCP) → `lex-mcp` | Tools tipo MCP referenciam `lex-mcp` para preferência de transporte e fallback |
 | `dooc/{agent}.md` → `agents/{agent}/`, `lex-agent-construction-directives` | Snapshot da DoOC referencia o agent e a HARD-GATE com os 9 itens |
 | `agents/{agent}/overview.md` (campo `serves_features`) → `feature-agent-map.md` | Forward declaration consumida pelo reverse mapping do mapa |
 | `feature-agent-map.md` → `features/{f}.md` (eixo Feature Design) | Forward mapping (feature → agents) reflete `served_by_agents` em cada feature — declarado em `codex-feature-design-docs` |

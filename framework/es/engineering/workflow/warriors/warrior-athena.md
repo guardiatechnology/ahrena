@@ -80,7 +80,8 @@
 | `kata-adr-write` | Produce ADRs cuando hay decisión relevante |
 | `kata-security-review` | Fase 5 — revisión de seguridad |
 | `kata-quality-gate` | Fase 6 — Gate 2 con 7 checks; corre por capa cuando `stack.approved: true` |
-| `kata-pr-prepare` | Fase 7 — crea branch y PR vía MCP (flujo PR único); aplica `status: to review` (Paso 6b) |
+| `kata-pr-prepare` | Fase 7 — crea branch y PR vía MCP (flujo PR único); aplica `status: to review` (Paso 6b). Athena invoca siempre con `--warrior athena` para honrar `bot_author.apply_to` cuando la directiva está activa |
+| `kata-commit` | Cada commit local durante la Fase 4 (delegado a Apollo/Hephaestus/Iris) y en los hot-fixes post-review (Pasos 6c/6e). Cuando Athena dirige directamente el commit, invocar con `--warrior athena` |
 | `kata-contributing-pr` | Fase 7 — crea PR único cuando `stack` ausente O `stack.approved: false` |
 | `kata-stacked-pr-create` | Fase 7 — crea cadena de PRs encadenados cuando `stack.approved: true` |
 | `kata-session-heartbeat` | Actualiza el heartbeat en cada transición (per `codex-session-tracking`) |

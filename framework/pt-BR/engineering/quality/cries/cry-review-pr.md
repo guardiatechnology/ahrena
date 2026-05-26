@@ -4,7 +4,7 @@
 
 ## Descrição
 
-Este comando invoca `warrior-argos` para executar revisão multi-eixo estruturada em uma Pull Request aberta: coleta contexto do GitHub (PR diff, view, checks, Issue linkada) e Notion (PRD, Capability Spec) quando disponíveis; cria worktree isolado; executa os katas de revisão aplicáveis (Python, frontend, AWS, OpenAPI, CloudEvents, segurança); roda testes localmente; detecta breaking changes em contratos públicos; e consolida findings em um único review-comment idempotente publicado via `gh pr review --request-changes` (ou `--comment` quando não há findings). Nunca `--approve` — a aprovação permanece decisão humana.
+Este comando invoca `warrior-argos` para executar revisão multi-eixo estruturada em uma Pull Request aberta: coleta contexto do GitHub (PR diff, view, checks, Issue vinculada) e Notion (PRD, Capability Spec) quando disponíveis; cria worktree isolado; executa os katas de revisão aplicáveis (Python, frontend, AWS, OpenAPI, CloudEvents, segurança); roda testes localmente; detecta breaking changes em contratos públicos; e consolida findings em um único review-comment idempotente publicado via `gh pr review --request-changes` (ou `--comment` quando não há findings). Nunca `--approve` — a aprovação permanece decisão humana.
 
 ## Uso
 
@@ -35,7 +35,7 @@ Contexto:
 
 Tarefa:
 Atue como `warrior-argos`. Execute a revisão multi-eixo completa de Pull Request conforme o fluxo definido pelo warrior:
-- Fase 0: Coletar PR, Issue linkada, PRD/Capability Spec no Notion (quando disponíveis), `.ahrena/issues/{N}/` local, e o plan referenciado
+- Fase 0: Coletar PR, Issue vinculada, PRD/Capability Spec no Notion (quando disponíveis), `.ahrena/issues/{N}/` local, e o plan referenciado
 - Fase 1: Criar worktree isolado via `kata-git-worktree`
 - Fase 2: Executar katas de revisão aplicáveis ao diff (Python, frontend, AWS, API design, CloudEvents, segurança) somados aos eixos B (alinhamento com specs), C (testes locais), D (retrocompatibilidade), F (conformidade Lexis/Codex)
 - Fase 3: Consolidar findings em um único review-comment com marker idempotente `<!-- argos-review-id:sha256(pr_number+commit_sha) -->`; publicar via `gh pr review --request-changes` (≥1 finding) ou `--comment` (0 findings); nunca `--approve`

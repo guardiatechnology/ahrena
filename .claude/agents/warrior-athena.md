@@ -81,7 +81,8 @@ description: "Athena — Issue-Driven Flow Orchestrator. End-to-end conduct of a
 | `kata-adr-write` | Produces ADRs when there is a relevant decision |
 | `kata-security-review` | Phase 5 — security review |
 | `kata-quality-gate` | Phase 6 — Gate 2 with 7 checks; runs per layer when `stack.approved: true` |
-| `kata-pr-prepare` | Phase 7 — creates branch and PR via MCP (single PR flow); applies `status: to review` (Step 6b) |
+| `kata-pr-prepare` | Phase 7 — creates branch and PR via MCP (single PR flow); applies `status: to review` (Step 6b). Athena always invokes with `--warrior athena` so `bot_author.apply_to` is honored when the directive is on |
+| `kata-commit` | Each local commit during Phase 4 (delegated to Apollo/Hephaestus/Iris) and on post-review hot-fixes (Steps 6c/6e). When Athena drives the commit directly, invoke with `--warrior athena` |
 | `kata-contributing-pr` | Phase 7 — creates single PR when `stack` absent OR `stack.approved: false` |
 | `kata-stacked-pr-create` | Phase 7 — creates a chain of stacked PRs when `stack.approved: true` |
 | `kata-session-heartbeat` | Updates heartbeat at every transition (per `codex-session-tracking`) |

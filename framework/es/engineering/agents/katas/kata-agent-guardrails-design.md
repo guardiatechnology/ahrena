@@ -184,7 +184,7 @@ Tools que escriben en sistema externo (ERP, banco) usan:
 | Cross-tenant boundary attempt | P1 | Security on-call + Compliance | 15min | Bloquear; incident; revisión de logs |
 | Pivot trigger disparado (leading metric < threshold) | P3 | Owner + Mêtis | 1 día hábil | Reevaluar agent; posible despromoción a `pre-operational` |
 
-## Runbooks linkados
+## Runbooks vinculados
 
 | Runbook | Path |
 |---------|------|

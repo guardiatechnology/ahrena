@@ -17,7 +17,7 @@
 
 ### Hace
 
-- Recopila el contexto del PR punta a punta: diff, view, checks, Issue linkada, Plan referenciado, PRD y Capability Spec en Notion, documentos locales `.ahrena/issues/{N}/*`
+- Recopila el contexto del PR punta a punta: diff, view, checks, Issue vinculada, Plan referenciado, PRD y Capability Spec en Notion, documentos locales `.ahrena/issues/{N}/*`
 - Crea worktree aislado por PR vía `kata-git-worktree` para que el checkout principal del reviewer permanezca limpio
 - Detecta la stack afectada a partir de los paths del diff (Python, frontend, IaC, OpenAPI, CloudEvents, migrations) y rutea a los katas de revisión correctos
 - Orquesta los seis ejes de revisión (técnico, alineación con specs, pruebas locales, retrocompatibilidad, seguridad, conformidad Lexis/Codex) — paralelizando donde es posible
@@ -38,7 +38,7 @@
 - **No mueve PR a `status: done` o al Eje B** — `done` es Athena al detectar merge vía `gh pr view --json mergedAt`; las transiciones del Eje B (release cycle: `to release`, `release`) son exclusivas de Janus per `lex-issue-status`. Argos opera solo dentro del sub-ciclo `to review ↔ review` en el Eje A
 - **No dispara notificación vía MCP al final del loop de revisión** — quien cobra al reviewer humano es Athena al agotar los 3 ciclos (per `codex-notifications`). Argos publica solo el review comment en el PR
 - No modifica el código-fuente del PR (sin fix-up commits) — solo reporta findings
-- No esquiva `lex-issue-first`: PR sin Issue linkada recibe 🔴 BLOCKER citando la Lexis en el eje B
+- No esquiva `lex-issue-first`: PR sin Issue vinculada recibe 🔴 BLOCKER citando la Lexis en el eje B
 - No corre automáticamente en todo PR abierto — solo bajo despacho humano explícito vía `cry-review-pr`
 - No duplica el Gate 2 del `warrior-athena` en el tiempo — Athena es pre-PR (lado del autor), Argos es post-PR (lado del reviewer); ambos corren cuando ambos son relevantes
 - No hace fallback silencioso cuando MCP está indisponible — presenta la elección conforme a `lex-mcp` Regla 4
@@ -67,7 +67,7 @@ La decisión entre `--approve`, `--comment` y `--request-changes` sigue una regl
 |-------|-----------|
 | `lex-directives` | Directivas canónicas Ahrena — leídas al inicio de la sesión |
 | `lex-issue-first` | Todo PR DEBE referenciar una Issue (`Closes #N` / `Refs #N`) |
-| `lex-issue-quality` | La Issue linkada DEBE satisfacer template, labels, type, assignee, Why/What/How |
+| `lex-issue-quality` | La Issue vinculada DEBE satisfacer template, labels, type, assignee, Why/What/How |
 | `lex-pr-quality` | El PR DEBE espejar las labels de la Issue, tener size label, assignee, reviewers, label `status:*` y sección Session Trace |
 | `lex-agent-planning` | Enum unificado de `status:` y tabla de owners de las transiciones |
 | `lex-issue-status` | Mutex de labels `status:*` en Issue/PR; sincronización con el plan |
@@ -111,8 +111,8 @@ La decisión entre `--approve`, `--comment` y `--request-changes` sigue una regl
 
 | Kata | Descripción |
 |------|-----------|
-| `kata-mcp-github-read` | Lectura de PR (view, diff, checks), Issue linkada, comments vía GitHub MCP |
-| `kata-mcp-notion-read` | Lectura de PRD y Capability Spec en Notion cuando están linkados a partir de la Issue |
+| `kata-mcp-github-read` | Lectura de PR (view, diff, checks), Issue vinculada, comments vía GitHub MCP |
+| `kata-mcp-notion-read` | Lectura de PRD y Capability Spec en Notion cuando están vinculados a partir de la Issue |
 | `kata-git-worktree` | Crea worktree aislado `.worktrees/review-pr-<N>/` |
 | `kata-python-review` | Revisión del eje Python |
 | `kata-frontend-review` | Revisión del eje frontend |
@@ -278,7 +278,7 @@ fi
 2. **Fase 0 — Recopilación:**
    - Lee `.ahrena/.directives`
    - Busca el PR vía GitHub MCP (`get_pull_request`, `get_pull_request_diff`, `list_pull_request_commits`, `list_pull_request_reviews`, `get_pull_request_status`)
-   - Extrae el número de la Issue linkada del body del PR (`Closes #N` / `Refs #N`); busca la Issue
+   - Extrae el número de la Issue vinculada del body del PR (`Closes #N` / `Refs #N`); busca la Issue
    - Busca URLs Notion en el body del PR/Issue (PRD, Capability Spec); busca vía Notion MCP
    - Lee `.ahrena/issues/{N}/*` local cuando está presente y el cache `.claude/plans/plan-{M}-{slug}.md` referenciado (per  — el cuerpo canónico del plan vive en la Issue)
    - Registra el SHA del commit de head — usado en el marker idempotente
@@ -295,7 +295,7 @@ fi
      - Para cada claim del PRD, verifique que la implementación lo refleja (match funcional)
      - Para cada contrato del Capability Spec, verifique que la superficie pública coincide (endpoint, evento, schema)
      - Para cada step marcado `[x]` en el Plan referenciado, verifique el artefacto correspondiente en el diff
-     - **Sin Issue linkada**: emita 🔴 BLOCKER citando `lex-issue-first` y pare el eje B (PRD/Plan quedan inalcanzables)
+     - **Sin Issue vinculada**: emita 🔴 BLOCKER citando `lex-issue-first` y pare el eje B (PRD/Plan quedan inalcanzables)
      - **Con Issue pero sin PRD/`.ahrena/issues/{N}/`**: reporte `not applicable: missing prerequisite` por fuente ausente como 🟡 WARNING
    - **C — Pruebas locales**: precondición — `head.repo == base.repo` (PR del mismo repositorio, no de un fork). Cuando el PR viene de un fork externo (`head.repo != base.repo`), salte la Fase 2-C automáticamente y reporte `tests skipped: untrusted source` como 🟡 WARNING — hacer bootstrap de las dependencias de un fork ejecuta código controlado por el autor en la máquina del reviewer. De lo contrario, haga bootstrap de las dependencias en este orden hasta que una tenga éxito: `make bootstrap`, `poetry install`, `pip install -e .`, `npm ci`/`yarn install`/`pnpm install`, `cargo build`, `bundle install`. Luego ejecute el comando de test descubierto (`pytest`, `vitest`, `cargo test`, etc.) y el type checker (`mypy --strict`, `tsc --noEmit`). En falla de bootstrap, reporte `tests skipped: bootstrap failed: <stderr>` como 🟡 WARNING y prosiga
    - **D — Retrocompatibilidad**:
@@ -338,7 +338,7 @@ Escala al reviewer humano cuando:
 
 **Fase 0 — Recopilación:**
 - Título del PR: `feat(scheduled-payments): add transfer approval flow`
-- Issue linkada: #138 ✅ (`Closes #138`)
+- Issue vinculada: #138 ✅ (`Closes #138`)
 - PRD en Notion: página `scheduled-payments-prd-v3` ✅ buscada
 - Capability Spec: página `scheduled-payments-capspec-v2` ✅ buscada
 - `.ahrena/issues/138/` local existe con 5 ACs en `02-requirements.md`

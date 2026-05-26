@@ -85,7 +85,7 @@ Escolha CDK **ou** Terraform; não os dois no mesmo bounded context sem ADR.
 | Mix CDK + Terraform sem isolamento | Um per bounded context; ADR se houver exceção |
 | Sem tags de cost allocation | Tags via default global; revisão de PR pega |
 | Backup/snapshot manual | Backup plan no IaC (AWS Backup, RDS automated snapshots) |
-| Alarme novo sem runbook linkado | Per `lex-runbook-for-every-alert` — bloqueia PR |
+| Alarme novo sem runbook vinculado | Per `lex-runbook-for-every-alert` — bloqueia PR |
 | Estimativa de custo ausente em mudança ≥ US$ 100/mês | Per `lex-aws-cost` — incluir Infracost output ou diff manual no PR |
 
 ## Referências
@@ -94,7 +94,7 @@ Escolha CDK **ou** Terraform; não os dois no mesmo bounded context sem ADR.
 - `lex-aws-iac` — IaC versionada, remote state, drift, segregação de tools
 - `lex-aws-cost` — tagging, budgets, right-sizing, padrões a evitar
 - `lex-aws-security` — IAM, encryption, secrets, public access, audit
-- `lex-runbook-for-every-alert` — alarmes que paginam humano linkam runbook
+- `lex-runbook-for-every-alert` — alarmes que paginam humano vinculam runbook
 - `lex-slo-required` — tier-1/2 declara SLO antes de go-live (vive em `docs/slo/`)
 - `lex-data-retention` — políticas de retenção referenciadas no IaC (lifecycle S3, RDS retention)
 - `codex-aws-services`, `codex-aws-well-architected`
