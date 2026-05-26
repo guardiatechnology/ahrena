@@ -181,7 +181,7 @@ def test_check_env_vars_full_warns_for_mcps_with_required_vars(
     warnings = check_env_vars(PROFILE_FULL)
     joined = "\n".join(warnings)
     # github and figma declare env vars and should warn.
-    assert "GITHUB_PAT" in joined
+    assert "GH_TOKEN" in joined
     assert "FIGMA_API_KEY" in joined
     # ahrena, notion, slack do not declare required vars in MCP_CATALOG.
     assert "ahrena" not in joined.lower() or "MCP 'ahrena'" not in joined
@@ -196,10 +196,10 @@ def test_check_env_vars_clears_warning_when_var_is_set(
         for var in vars_:
             monkeypatch.delenv(var, raising=False)
     before = check_env_vars(PROFILE_FULL)
-    assert any("GITHUB_PAT" in w for w in before)
-    monkeypatch.setenv("GITHUB_PAT", "ghp_test_value")
+    assert any("GH_TOKEN" in w for w in before)
+    monkeypatch.setenv("GH_TOKEN", "ghp_test_value")
     after = check_env_vars(PROFILE_FULL)
-    assert not any("GITHUB_PAT" in w for w in after)
+    assert not any("GH_TOKEN" in w for w in after)
 
 
 def test_check_env_vars_minimal_emits_no_warnings(

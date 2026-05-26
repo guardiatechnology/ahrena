@@ -36,7 +36,7 @@ Progresso:
 1. Consultar `.ahrena/.directives` conforme `lex-directives`.
 2. Confirmar que `github` está em `mcp.servers` (conforme `lex-mcp`). Se não, informar ao usuário e encerrar.
 3. Confirmar que `notion` está em `mcp.servers`. Se não, continuar sem contexto Notion (informar ao usuário que o enriquecimento será pulado).
-4. Confirmar `GITHUB_PAT` e `NOTION_API_KEY` (se aplicável) definidas no ambiente.
+4. Confirmar `GH_TOKEN` e `NOTION_API_KEY` (se aplicável) definidas no ambiente.
 
 ### Passo 2: Ler issue do GitHub
 

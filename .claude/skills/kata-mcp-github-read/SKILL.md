@@ -21,7 +21,7 @@ Progress:
 
 1. Consult `.ahrena/.directives` per `lex-directives`.
 2. Verify that `github` is listed in `mcp.servers` (per `lex-mcp`). If not, inform the user and stop.
-3. Confirm that the `GITHUB_PAT` environment variable is defined. If not, inform the user which variable to configure and stop.
+3. Confirm that the `GH_TOKEN` environment variable is defined. If not, inform the user which variable to configure and stop.
 4. Consult `codex-mcp-github` to identify the correct tools and parameters.
 
 ### Step 2: Identify repository and query object
@@ -83,5 +83,5 @@ Progress:
 
 - **Read-only:** this kata never creates branches, issues, PRs, comments, or pushes files.
 - **Use MCP only:** never use the `gh` CLI or the GitHub REST API directly when the MCP server is active (per `lex-mcp`).
-- **No hardcoded credentials:** authentication exclusively via `GITHUB_PAT` environment variable.
+- **No hardcoded credentials:** authentication exclusively via `GH_TOKEN` environment variable.
 - **Confirm repository:** always confirm `owner/repo` with the user before starting the query.

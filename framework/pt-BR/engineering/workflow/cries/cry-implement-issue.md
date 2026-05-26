@@ -23,7 +23,7 @@ Este comando aciona o fluxo completo de desenvolvimento orientado por issue: des
 
 - `github` listado em `mcp.servers` em `.ahrena/.directives`
 - `notion` listado em `mcp.servers` (opcional — enriquece com contexto Notion quando disponível)
-- Variáveis de ambiente: `GITHUB_PAT` (obrigatório) e `NOTION_API_KEY` (opcional)
+- Variáveis de ambiente: `GH_TOKEN` (obrigatório) e `NOTION_API_KEY` (opcional)
 - Issue existente no repositório indicado
 
 ## O que o Comando Faz
