@@ -468,7 +468,11 @@ if [[ -z "${_AHRENA_TOKEN}" ]]; then
 
   # Cache atomically (tempfile + rename)
   mkdir -p "${_AHRENA_CACHE_DIR}"
-  _AHRENA_TMP_CACHE="$(mktemp "${_AHRENA_CACHE_DIR}/.installation-token.XXXXXX")"
+  _AHRENA_TMP_CACHE="$(mktemp "${_AHRENA_CACHE_DIR}/.installation-token.XXXXXX")" || {
+    echo "ERROR (ahrena-auth.sh): failed to create temporary file for installation-token cache." >&2
+    _ahrena_auth_exit 1
+    return 1 2>/dev/null
+  }
   chmod 600 "${_AHRENA_TMP_CACHE}"
 
   jq -n \
