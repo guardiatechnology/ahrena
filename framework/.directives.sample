@@ -163,6 +163,31 @@ pr_cost_tracking:
     - "coderabbitai[bot]"
     - "qodo-merge-pro[bot]"
 
+# ─── Bot Author ─────────────────────────────────────────────────
+# Ahrena bot as commit/PR author. When enabled, warriors listed in
+# apply_to call scripts/ahrena-auth.sh before `git commit` /
+# `gh pr create` so the resulting commits/PRs are attributed to the
+# `ahrena-bot[bot]` GitHub App identity (server-signed via the App's
+# installation token) and the human driver appears as
+# `Co-authored-by:` (when commit_co_author=human). Disabled by
+# default — existing human-author behavior is preserved bit-for-bit
+# until a project explicitly opts in. Requires the GitHub App
+# credentials (AHRENA_BOT_APP_ID, AHRENA_BOT_INSTALLATION_ID,
+# AHRENA_BOT_PRIVATE_KEY_PATH or macOS Keychain entry
+# `ahrena.bot.github-app`) in .env.local or the environment.
+# See codex-git-workflow ("Author identity").
+# bot_author:
+#   enabled: false                 # true | false (master switch; false = no-op)
+#   identity: ahrena-bot           # GitHub App slug
+#   commit_mode: api               # api | local (reserved)
+#   commit_co_author: human        # human | none
+#   apply_to:                      # warriors that honor the override
+#     - athena
+#     - apollo
+#     - hephaestus
+#     - iris
+#     - claudionor
+
 # ─── RTK (Rust Token Killer) ────────────────────────────────────
 # Transparent command rewriting via Claude Code PreToolUse hook to
 # cut token consumption on common dev commands (git, gh, tsc,
