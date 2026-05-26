@@ -85,7 +85,8 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 | `--with-mcp / --without-mcp LISTA` | Incluir/excluir MCPs (csv); o servidor `ahrena` é sempre mantido |
 | `--with-hooks / --without-hooks LISTA` | Incluir/excluir hooks (csv): `rtk`, `pr-cost-attribution` |
 | `--with-features / --without-features LISTA` | Incluir/excluir features opcionais do `.directives` (`pr_cost_tracking`, `session_tracking`, `notifications`, `pm`) |
-| `--list-catalog` | Imprime o catálogo (MCPs, hooks, features) e sai |
+| `--with-setup / --without-setup LISTA` | Incluir/excluir itens de project setup (csv): `github-issue-templates`, `github-pr-template`, `github-codeowners`, `gitignore-merge` |
+| `--list-catalog` | Imprime o catálogo (MCPs, hooks, features, project setup) e sai |
 | `--clades X,Y` | Instalar apenas clades especificados (ex.: `_foundation,documentation`) |
 | `--version v0.1.0` | Versão específica (tag ou branch) — instalação remota |
 | `--local` | Usar o diretório atual como fonte (executar na raiz do repo Ahrena) |
@@ -99,7 +100,9 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 
 Quando `--clades` é usado, a seleção é salva em `.ahrena/.installed-clades` e respeitada pelo `update.py`.
 
-**Instalação guiada por preferências:** na primeira instalação (quando `.ahrena/.directives` ainda não existe), o instalador resolve a seleção de MCPs, hooks e features opcionais a partir de `--profile` + `--with-*` / `--without-*`. Sem nenhuma flag e com stdin TTY, abre um prompt interativo (pré-marcado = perfil Full). Em modo `--non-interactive` (CI), aplica diretamente a seleção resolvida. Variáveis de ambiente ausentes para MCPs selecionados geram WARNING — nunca falham a instalação. `python scripts/install.py --list-catalog` lista todas as opções.
+**Instalação guiada por preferências:** na primeira instalação (quando `.ahrena/.directives` ainda não existe), o instalador resolve a seleção de MCPs, hooks, features opcionais e itens de project setup a partir de `--profile` + `--with-*` / `--without-*`. Sem nenhuma flag e com stdin TTY, abre um prompt interativo (pré-marcado = perfil Full). Em modo `--non-interactive` (CI), aplica diretamente a seleção resolvida. Variáveis de ambiente ausentes para MCPs selecionados geram WARNING — nunca falham a instalação. `python scripts/install.py --list-catalog` lista todas as opções.
+
+**Project setup (`--with-setup` / `--without-setup`):** materializa convenções de GitHub do projeto além do `.directives`/MCPs/hooks: `.github/ISSUE_TEMPLATE/*.yml` (issues), `.github/pull_request_template.md` (PRs), `.github/CODEOWNERS` (preservado quando já existe; resolve a org via `git remote get-url origin`, com fallback comentado quando o remote não está no GitHub), e merge idempotente de um bloco gerenciado em `.gitignore` entre marcadores `AHRENA-GITIGNORE`. Defaults por perfil: Full traz os quatro; Standard traz três (sem auto-CODEOWNERS); Minimal não traz nenhum.
 
 ### Instalação offline
 

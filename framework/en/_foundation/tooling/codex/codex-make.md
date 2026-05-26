@@ -83,9 +83,17 @@ python scripts/install.py --self --target . --platform claude-code --non-interac
 
 # Full minus selected MCPs
 python scripts/install.py --self --target . --platform claude-code --non-interactive --profile=full --without-mcp=notion,figma
+
+# Standard profile plus the default CODEOWNERS bootstrap (resolves org from `git remote get-url origin`)
+python scripts/install.py --self --target . --platform claude-code --non-interactive --profile=standard --with-setup=github-codeowners
+
+# Full minus the .gitignore merge (project already manages its own .gitignore)
+python scripts/install.py --self --target . --platform claude-code --non-interactive --profile=full --without-setup=gitignore-merge
 ```
 
 Resolution order: explicit `--with-*` / `--without-*` overrides `--profile`, which overrides Full default. The `ahrena` MCP is always kept (framework's own server). Existing `.directives` files are preserved on re-install.
+
+The project setup dimension (`--with-setup` / `--without-setup`) materializes `.github/ISSUE_TEMPLATE/*.yml`, `.github/pull_request_template.md`, `.github/CODEOWNERS` (skipped when the file already exists), and merges a managed block into `.gitignore` between `AHRENA-GITIGNORE` markers (idempotent). Profile defaults: Full ships all four; Standard ships three (no auto-CODEOWNERS, since the org guess from `git remote` is fragile in solo or fork repos); Minimal ships none.
 
 ### Equivalence without Make (Windows)
 

@@ -227,6 +227,19 @@ session_tracking:
   # Gate 2 rejects PR without "Session Trace" when true
   pr_trace_required: true
 
+# ─── Project Setup ──────────────────────────────────────────────
+# Project setup files materialized by `scripts/install.py` at
+# bootstrap time. Each item is gated by the resolved Selection
+# during install (--profile / --with-setup / --without-setup).
+# Re-running install honors the current run's resolved selection;
+# this list is informational and documents which items are
+# currently expected to be present in the project tree.
+project_setup:
+  - github-issue-templates
+  - github-pr-template
+  - github-codeowners
+  - gitignore-merge
+
 # ─── Naming ─────────────────────────────────────────────────────
 # Canonical naming conventions for files, directories, and
 # framework artifacts.
