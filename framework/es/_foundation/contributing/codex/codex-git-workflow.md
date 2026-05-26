@@ -194,13 +194,27 @@ Un commit escrito directamente por el ser humano (sin participación de warrior)
 
 ### Almacenamiento de credenciales
 
-Las credenciales del GitHub App siguen la misma convención de almacenamiento que `scripts/argos/auth.sh`:
+Las credenciales del GitHub App siguen la misma convención de almacenamiento que `scripts/argos/auth.sh`. El resolver de auth consulta cada fuente en orden y acepta cualquier subconjunto de valores por fuente — el APP_ID puede provenir del entorno mientras que la clave privada proviene del Keychain, y así sucesivamente.
 
 | Fuente | Usado cuando |
 |--------|--------------|
 | Variables de entorno (`AHRENA_WARRIORS_DEFAULT_GH_APP_ID`, `AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID`, `AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH`) | Entornos de CI / no interactivos |
-| Keychain de macOS (entrada `security` `ahrena.bot.github-app`) | Desarrollo local en macOS |
 | `.env.local` en la raíz del repositorio | Desarrollo local en Linux/Windows |
+| Keychain de macOS (tres entradas `security` listadas abajo) | Desarrollo local en macOS — la clave privada nunca queda en disco |
+
+#### Configuración del Keychain en macOS
+
+En macOS, almacene cada credencial como una entrada `security` separada. El resolver de auth completa cualquier variable que aún falte después de cargar `.env.local` + entorno:
+
+```bash
+security add-generic-password -s ahrena-warriors-default-gh-app-id -a "$USER" -w "<APP_ID>"
+security add-generic-password -s ahrena-warriors-default-gh-installation-id -a "$USER" -w "<INSTALLATION_ID>"
+security add-generic-password -s ahrena-warriors-default-gh-private-key -a "$USER" -w "$(cat /ruta/a/key.pem)"
+```
+
+La entrada `ahrena-warriors-default-gh-private-key` almacena el contenido PEM literal — el resolver de auth lo materializa en un archivo temporal con permiso 600 al momento de firmar y elimina el archivo temporal mediante el trap `_ahrena_auth_cleanup` en cada camino de salida. La clave privada nunca persiste en disco bajo el `$HOME` del operador.
+
+En Linux / Windows / hosts no macOS, la CLI `security` está ausente; el bloque del Keychain se omite mediante `command -v security` y el resolver recurre a env / `.env.local` sin error.
 
 Las credenciales NUNCA se envían al repositorio en un commit; el resolver de auth materializa las credenciales sólo en el entorno del shell invocante, nunca en stdout ni en logs.
 

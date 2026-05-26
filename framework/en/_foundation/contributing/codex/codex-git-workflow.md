@@ -194,13 +194,27 @@ A direct human-typed commit (no warrior involvement) keeps the developer's ident
 
 ### Credential storage
 
-The GitHub App credentials follow the same storage convention as `scripts/argos/auth.sh`:
+The GitHub App credentials follow the same storage convention as `scripts/argos/auth.sh`. The auth resolver consults each source in order and accepts any subset of values per source — APP_ID can come from env while the private key comes from the Keychain, etc.
 
 | Source | Used when |
 |--------|-----------|
 | Environment variables (`AHRENA_WARRIORS_DEFAULT_GH_APP_ID`, `AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID`, `AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH`) | CI / non-interactive environments |
-| macOS Keychain (`security` entry `ahrena.bot.github-app`) | Local development on macOS |
 | `.env.local` at the repository root | Local development on Linux/Windows |
+| macOS Keychain (three `security` entries listed below) | Local development on macOS — keys never live on disk |
+
+#### macOS Keychain setup
+
+On macOS, store each credential as a separate `security` entry. The auth resolver fills any variable still missing after `.env.local` + env have been loaded:
+
+```bash
+security add-generic-password -s ahrena-warriors-default-gh-app-id -a "$USER" -w "<APP_ID>"
+security add-generic-password -s ahrena-warriors-default-gh-installation-id -a "$USER" -w "<INSTALLATION_ID>"
+security add-generic-password -s ahrena-warriors-default-gh-private-key -a "$USER" -w "$(cat /path/to/key.pem)"
+```
+
+The `ahrena-warriors-default-gh-private-key` entry stores the PEM content verbatim — the auth resolver materializes it into a chmod-600 tempfile at signing time and removes the tempfile via the `_ahrena_auth_cleanup` trap on every exit path. The private key never persists on disk under the operator's `$HOME`.
+
+On Linux / Windows / non-macOS hosts, the `security` CLI is absent; the Keychain block short-circuits via `command -v security` and the resolver falls back to env / `.env.local` without error.
 
 Credentials are NEVER committed to the repository; the auth resolver materializes them only into the calling shell's environment, never to stdout or to logs.
 
