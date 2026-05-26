@@ -324,7 +324,11 @@ _AHRENA_PRIVATE_KEY_PATH=""
 if command -v security >/dev/null 2>&1 && [[ "$(uname -s)" == "Darwin" ]]; then
   if security find-generic-password \
        -s ahrena-warriors-default-gh-private-key -a "${USER}" -w >/dev/null 2>&1; then
-    _AHRENA_KEYCHAIN_TMP_KEY="$(mktemp -t "ahrena-warriors-default-key.XXXXXXXX")"
+    _AHRENA_KEYCHAIN_TMP_KEY="$(mktemp -t "ahrena-warriors-default-key.XXXXXXXX")" || {
+      echo "ERROR (ahrena-auth.sh): failed to create temporary file for private key." >&2
+      _ahrena_auth_exit 1
+      return 1 2>/dev/null
+    }
     chmod 600 "${_AHRENA_KEYCHAIN_TMP_KEY}"
     _AHRENA_PEM_RAW="$(security find-generic-password \
       -s ahrena-warriors-default-gh-private-key -a "${USER}" -w 2>/dev/null)" || {
