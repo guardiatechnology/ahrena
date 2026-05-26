@@ -6,6 +6,55 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 per `lex-semantic-version`.
 
+## [0.16.0] - 2026-05-26
+
+11 PRs merged since v0.15.1 (#265, #272, #273, #277, #279, #281, #286, #287, #289, #291, #294) — closes the **warriors-default-author + preference-driven install** capability (parent #271, Plans A → P5) plus 2 tangential follow-ups.
+
+### Features
+
+- **install:** preference-driven install with interactive prompts + CLI flags for hooks, MCPs, and feature gates (Plan A) (#265, 397af90)
+- **install:** bootstrap project setup files — `.github/CODEOWNERS`, PR template, `.gitignore` entries — during `install.py` (Plan C) (#272, 29d2262)
+- **install:** `GH_TOKEN` canonical environment variable + GitHub MCP scope check (Plan D) (#273, 4e8d5bd)
+- **install:** `bot_author` (later renamed `warriors_default_author`) opt-in directive block + `scripts/ahrena-auth.sh` credential resolver (Plan P1) (#277, 12dd8ad)
+- **install:** wire warrior commit/PR creation via GitHub Data API — server-signed `Verified` badge on bot-authored commits (Plan P2) (#279, 1ca76bf)
+- **scripts:** macOS Keychain credential resolver for `ahrena-auth.sh` — keeps GitHub App private key out of `.env.local` on developer machines (Plan B) (#289, 1216605)
+- **install:** emit `pr_cost_tracking.known_ai_authors` in rendered `.directives` so AI-author recognition extends beyond built-ins (Plan P3) (#287, 8c0209c)
+
+### Fixes
+
+- **install:** address Gemini review on PR #265 — preference parsing edge cases (#265, c63ea84)
+- **codex:** address Gemini review on PR #277 — `lex-language` anglicisms in pt-BR/es (#277, 9bdccb2)
+- **install:** address Gemini review on PR #279 — Plan P2 hardening (input validation + error paths) (#279, caa4f61)
+- **scripts:** protect `ahrena-auth.sh` against xtrace token leak (`set +x` around credential block) (Plan P4) (#286, 2a6b391)
+- **scripts:** handle `mktemp` failure in Keychain PEM-to-tempfile path (#289, de524b0)
+- **scripts:** repair `test_ahrena_api_commit.py` regression introduced by caa4f61 (#294, 1923394)
+
+### Docs
+
+- **lex:** clarify signing modalities in `lex-signed-commits` — GPG (local), SSH (local), GitHub App server-signed (API path) (Plan P3) (#287, a3e7255)
+- **kata:** add Author identity recognition section to `kata-pr-cost-stamp` covering `known_ai_authors` (Plan P3) (#287, af01548)
+- **lex:** document `pr_cost_tracking.known_ai_authors` directive in `lex-directives` (Plan P3) (#287, 31bbfa7)
+- **codex:** document Keychain setup for `warriors_default` identity in `codex-warriors-default-identity` (Plan B) (#289, 7e91191)
+- **lex:** fix Spanish false friend in `lex-signed-commits.md` (es) — translation hygiene (#287, 27c4aca)
+
+### Tests
+
+- **scripts:** add xtrace-defense regression tests for `ahrena-auth.sh` (Plan P4) (#286, 5fd099c)
+- **scripts:** address Gemini review on PR #286 — strengthen xtrace tests (#286, 4e8e152)
+- **install:** cover `pr_cost_tracking.known_ai_authors` parsing and rendering (Plan P3) (#287, 452f2d5)
+- **scripts:** cover Keychain resolution + fallback path in `ahrena-auth.sh` (Plan B) (#289, e568f6f)
+
+### Chore
+
+- **install:** full rename of "bot" terminology to "warriors_default" across `install.py`, directive keys, and rendered output (Plan P5) (#281, cd1ceb0)
+- **scripts:** `mktemp` exit-status guard in shell auth/API scripts — defensive hardening (#291, fc83e3f)
+
+### Known Limitations
+
+**AI review on bot-authored PRs:** When `warriors_default_author.enabled: true`, commits and PRs are authored by `ahrena-bot[bot]` and receive the GitHub `Verified` badge via server-side signing. However, **Gemini Code Assist ignores bot-authored PRs by default** — automated AI code review is silently skipped for warriors covered by `warriors_default_author.apply_to`. For flows requiring Gemini review, either (a) keep `warriors_default_author.enabled: false` for those warriors, or (b) configure your Gemini integration to include bot reviewers. Empirically observed on PRs #291 and #294.
+
+[0.16.0]: https://github.com/guardiatechnology/ahrena/compare/v0.15.1...v0.16.0
+
 ## [0.15.1] - 2026-05-25
 
 3 PRs merged since v0.15.0 (#254, #257, #260) plus one maintenance commit.
