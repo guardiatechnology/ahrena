@@ -181,7 +181,7 @@ Commits produzidos sob esta identidade são assinados no servidor pelo token de 
 
 ### Trade-offs
 
-- **Autor bot** — separação mais clara entre contribuições conduzidas por humanos e por agentes, trilha de auditoria mais simples na camada de identidade, sem GPG na máquina do desenvolvedor para os commits do bot e sinal limpo para ferramentas de cost tracking e PR review que já reconhecem identidades de bot. Requer registrar o GitHub App `ahrena-bot` e provisionar as credenciais.
+- **Autor bot** — separação mais clara entre contribuições conduzidas por humanos e por agentes, trilha de auditoria mais simples na camada de identidade, sem GPG na máquina do desenvolvedor para os commits do bot e sinal limpo para ferramentas de cost tracking e revisão de PR que já reconhecem identidades de bot. Requer registrar o GitHub App `ahrena-bot` e provisionar as credenciais.
 - **Autor humano** — preserva o reconhecimento por contribuinte no `git log`, mantém o fluxo GPG existente e remove uma peça móvel para desenvolvedores solo ou projetos em que o ser humano é o único remetente. Não requer registro adicional de GitHub App.
 
 ### Opt-out por warrior
@@ -202,7 +202,7 @@ As credenciais do GitHub App seguem a mesma convenção de armazenamento de `scr
 | Keychain do macOS (entrada `security` `ahrena.bot.github-app`) | Desenvolvimento local em macOS |
 | `.env.local` na raiz do repositório | Desenvolvimento local em Linux/Windows |
 
-Credenciais NUNCA são commitadas no repositório; o resolver de auth materializa as credenciais apenas no ambiente do shell que invocou, nunca no stdout ou em logs.
+Credenciais NUNCA são enviadas ao repositório em um commit; o resolver de auth materializa as credenciais apenas no ambiente do shell que invocou, nunca no stdout ou em logs.
 
 ## Releases (`lex-semantic-version`)
 
