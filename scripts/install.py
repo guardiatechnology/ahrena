@@ -1079,18 +1079,18 @@ def install_ahrena_auth_script(
     selection: Selection,
 ) -> None:
     """Copy `scripts/ahrena-auth.sh` into the target's `scripts/` when the
-    `bot-author` optional feature is selected. Skip silently otherwise so
-    projects that did not opt in stay clean.
+    `warriors-default-author` optional feature is selected. Skip silently
+    otherwise so projects that did not opt in stay clean.
 
-    The script is the auth resolver for the Ahrena bot GitHub App
+    The script is the auth resolver for the warriors-default GitHub App
     identity. P1 ships only the resolver itself (no warrior wiring) —
-    when `bot_author.enabled=false` (the default) the script is a strict
-    no-op, so even a future-enabled project that copies the script keeps
-    today's human-author behavior bit-for-bit until the directive is
-    flipped. Mirrors install_github_pr_template() for the
+    when `warriors_default_author.enabled=false` (the default) the script
+    is a strict no-op, so even a future-enabled project that copies the
+    script keeps today's human-author behavior bit-for-bit until the
+    directive is flipped. Mirrors install_github_pr_template() for the
     src→dst copy + chmod 0755 pattern.
     """
-    if "bot-author" not in selection.optional_features:
+    if "warriors-default-author" not in selection.optional_features:
         return
 
     src = source_dir / "scripts" / "ahrena-auth.sh"
@@ -1104,7 +1104,7 @@ def install_ahrena_auth_script(
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
     dst.chmod(0o755)
-    print("  Installed scripts/ahrena-auth.sh (bot-author feature)")
+    print("  Installed scripts/ahrena-auth.sh (warriors-default-author feature)")
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1196,19 +1196,20 @@ HOOK_CATALOG: dict[str, tuple[str, list[str]]] = {
 # Optional `.directives` feature sections. Keys MUST match the YAML
 # section name produced by render_directives().
 #
-# `bot-author` uses a hyphen because it surfaces in the install catalog
-# under the CLI flag `--with-features=bot-author`; the rendered YAML
-# section key is `bot_author` (snake_case for YAML consistency). The
-# OPTIONAL_FEATURES key (`bot-author`) and the directive section key
-# (`bot_author`) are intentionally distinct — render_directives()
-# bridges the two by mapping `"bot-author" in selection.optional_features`
-# to the `bot_author:` block emission.
+# `warriors-default-author` uses a hyphen because it surfaces in the
+# install catalog under the CLI flag `--with-features=warriors-default-author`;
+# the rendered YAML section key is `warriors_default_author` (snake_case
+# for YAML consistency). The OPTIONAL_FEATURES key (`warriors-default-author`)
+# and the directive section key (`warriors_default_author`) are intentionally
+# distinct — render_directives() bridges the two by mapping
+# `"warriors-default-author" in selection.optional_features` to the
+# `warriors_default_author:` block emission.
 OPTIONAL_FEATURES: dict[str, str] = {
     "pr_cost_tracking": "Stamp tokens/USD/time on PR bodies (requires pr-cost-attribution hook)",
     "session_tracking": "Per-session heartbeat for Eunomia digest + PR Session Trace",
     "notifications":    "Provider-agnostic notifications (Athena timeout, Janus release, Eunomia digest)",
     "pm":               "Eunomia PM loop (plans status digest cadence + thresholds)",
-    "bot-author":       "Ahrena bot as commit/PR author (requires GitHub App credentials)",
+    "warriors-default-author": "Warriors default GitHub App identity for commits/PRs (requires GitHub App credentials)",
 }
 
 # Catalog of project setup files installed at bootstrap. Tuple = (description, env vars).
@@ -1245,11 +1246,11 @@ class Selection:
 
 
 # Features that MUST stay opt-in across every profile (Full, Standard,
-# Minimal). The Ahrena bot author flips a security-sensitive identity for
-# git commits and PRs, so the install never enables it by default — users
-# must add it explicitly via `--with-features=bot-author` (or the
-# interactive prompt).
-_PROFILE_DEFAULT_OFF: frozenset[str] = frozenset({"bot-author"})
+# Minimal). The warriors-default author flips a security-sensitive identity
+# for git commits and PRs, so the install never enables it by default —
+# users must add it explicitly via `--with-features=warriors-default-author`
+# (or the interactive prompt).
+_PROFILE_DEFAULT_OFF: frozenset[str] = frozenset({"warriors-default-author"})
 
 PROFILE_FULL = Selection(
     mcps=frozenset(MCP_CATALOG.keys()),
@@ -1769,32 +1770,33 @@ pr_cost_tracking:
     return "\n" + header + (body_selected if selected else body_commented)
 
 
-def _render_bot_author_section(selected: bool) -> str:
-    """bot_author section. When selected, emit defaults uncommented with
-    enabled=true; otherwise emit the commented skeleton so the schema is
-    visible and projects can opt in later by uncommenting + flipping
-    enabled. The Ahrena bot author swaps the git commit/PR author from the
-    human contributor to the `ahrena-bot[bot]` GitHub App identity when
-    warriors execute work. See codex-git-workflow ("Author identity") and
-    scripts/ahrena-auth.sh.
+def _render_warriors_default_author_section(selected: bool) -> str:
+    """warriors_default_author section. When selected, emit defaults
+    uncommented with enabled=true; otherwise emit the commented skeleton so
+    the schema is visible and projects can opt in later by uncommenting +
+    flipping enabled. The warriors-default author swaps the git commit/PR
+    author from the human contributor to the fleet-default GitHub App `[bot]`
+    identity when warriors execute work. See codex-git-workflow
+    ("Author identity") and scripts/ahrena-auth.sh.
     """
     header = """\
-# ─── Bot Author ─────────────────────────────────────────────────
-# Ahrena bot as commit/PR author. When enabled, warriors listed in
-# apply_to call scripts/ahrena-auth.sh before `git commit` /
-# `gh pr create` so the resulting commits/PRs are attributed to the
-# `ahrena-bot[bot]` GitHub App identity (server-signed via the App's
-# installation token) and the human driver appears as
+# ─── Warriors Default Author ────────────────────────────────────
+# Warriors default GitHub App identity for commits/PRs. When
+# enabled, warriors listed in apply_to call scripts/ahrena-auth.sh
+# before `git commit` / `gh pr create` so the resulting commits/PRs
+# are attributed to the App's `[bot]` identity (server-signed via
+# the App's installation token) and the human driver appears as
 # `Co-authored-by:` (when commit_co_author=human). Disabled by
 # default — existing human-author behavior is preserved bit-for-bit
 # until a project explicitly opts in. Requires the GitHub App
-# credentials (AHRENA_BOT_APP_ID, AHRENA_BOT_INSTALLATION_ID,
-# AHRENA_BOT_PRIVATE_KEY_PATH or macOS Keychain entry
+# credentials (AHRENA_WARRIORS_DEFAULT_GH_APP_ID,
+# AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID,
+# AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH or macOS Keychain entry
 # `ahrena.bot.github-app`) in .env.local or the environment.
 # See codex-git-workflow ("Author identity").
 """
     body_selected = """\
-bot_author:
+warriors_default_author:
   # master switch (true | false); when false the auth script is a no-op
   enabled: true
   # GitHub App slug (override only if a fork/clone uses a different slug)
@@ -1812,7 +1814,7 @@ bot_author:
     - claudionor
 """
     body_commented = """\
-# bot_author:
+# warriors_default_author:
 #   enabled: false                 # true | false (master switch; false = no-op)
 #   identity: ahrena-bot           # GitHub App slug
 #   commit_mode: api               # api | local (reserved)
@@ -1979,18 +1981,19 @@ def render_directives(selection: Selection) -> str:
 
     Sections always present (schema is stable): paths, references, mcp,
     quality (commented), knowledge (commented), language, terminal (commented),
-    stacked_prs (commented), pr_cost_tracking, bot_author, rtk, notifications,
-    pm, session_tracking, project_setup, naming. Selection drives whether
-    optional-feature sections (pr_cost_tracking, bot_author, session_tracking,
-    notifications, pm) and the RTK section are uncommented with Full defaults
-    or kept as schema-only skeletons, and which project setup items appear
-    uncommented vs. as commented placeholders.
+    stacked_prs (commented), pr_cost_tracking, warriors_default_author, rtk,
+    notifications, pm, session_tracking, project_setup, naming. Selection
+    drives whether optional-feature sections (pr_cost_tracking,
+    warriors_default_author, session_tracking, notifications, pm) and the
+    RTK section are uncommented with Full defaults or kept as schema-only
+    skeletons, and which project setup items appear uncommented vs. as
+    commented placeholders.
     """
     parts: list[str] = [_DIRECTIVES_HEADER, _render_mcp_section(selection)]
     parts.append(_DIRECTIVES_QUALITY_AND_KNOWLEDGE)
     parts.append(_DIRECTIVES_LANGUAGE_AND_TERMINAL)
     parts.append(_render_pr_cost_tracking_section("pr_cost_tracking" in selection.optional_features))
-    parts.append(_render_bot_author_section("bot-author" in selection.optional_features))
+    parts.append(_render_warriors_default_author_section("warriors-default-author" in selection.optional_features))
     parts.append(_render_rtk_section("rtk" in selection.hooks))
     parts.append(_render_notifications_section("notifications" in selection.optional_features))
     parts.append(_render_pm_section("pm" in selection.optional_features))
@@ -2687,9 +2690,10 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     if "gitignore-merge" in selection.project_setup:
         install_gitignore_merge(source_dir, target_dir)
 
-    # Bot-author resolver script (gated by selection.optional_features).
-    # Copy is unconditional once the feature is opted in; activation is
-    # governed by bot_author.enabled in the rendered .directives. The
+    # Warriors-default-author resolver script (gated by
+    # selection.optional_features). Copy is unconditional once the feature
+    # is opted in; activation is governed by
+    # warriors_default_author.enabled in the rendered .directives. The
     # script itself no-ops when the directive is false.
     install_ahrena_auth_script(source_dir, target_dir, selection)
 

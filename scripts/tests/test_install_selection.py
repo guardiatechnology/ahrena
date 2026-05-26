@@ -274,20 +274,26 @@ def test_render_full_has_notifications_provider_slack() -> None:
 
 def test_render_includes_every_optional_feature_key_when_full() -> None:
     content = render_directives(PROFILE_FULL)
-    # WHY: bot-author is explicitly default-OFF in every profile (Full
-    # included) for security reasons — see _PROFILE_DEFAULT_OFF and
-    # AC-P1-4 in the bot_author capability. The render section uses the
-    # snake_case key `bot_author:` (not the hyphenated catalog key) and
-    # appears commented out. Verified by the dedicated bot-author tests
-    # in test_install_bot_author.py — skip here to keep this assertion
-    # focused on features that are uncommented at Full.
-    skip_uncommented = {"bot-author"}
+    # WHY: warriors-default-author is explicitly default-OFF in every
+    # profile (Full included) for security reasons — see
+    # _PROFILE_DEFAULT_OFF and AC-P1-4 in the warriors_default_author
+    # capability. The render section uses the snake_case key
+    # `warriors_default_author:` (not the hyphenated catalog key) and
+    # appears commented out. Verified by the dedicated tests in
+    # test_install_warriors_default_author.py — skip here to keep this
+    # assertion focused on features that are uncommented at Full.
+    skip_uncommented = {"warriors-default-author"}
     for key in OPTIONAL_FEATURES:
         if key in skip_uncommented:
             continue
         # Each feature key should appear as a top-level section header
         # somewhere in the rendered file (uncommented when selected).
-        assert f"\n{key}:" in content, f"feature {key!r} missing from full render"
+        # Catalog keys use hyphens (catalog flag form); section keys use
+        # snake_case. Compare via the snake_case form.
+        section_key = key.replace("-", "_")
+        assert f"\n{section_key}:" in content, (
+            f"feature {key!r} missing from full render (section {section_key!r})"
+        )
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

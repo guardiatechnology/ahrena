@@ -2,13 +2,14 @@
 # ahrena-api-commit.sh — create a commit via the GitHub Git Data API.
 #
 # Builds a server-signed commit using the App installation token exported by
-# scripts/ahrena-auth.sh (GH_TOKEN_AHRENA_BOT) and updates the branch ref to
-# the new commit SHA. Designed to be invoked by `kata-commit` when the
-# directive `bot_author.enabled=true` AND the calling warrior is in
-# `bot_author.apply_to`. Soft-fails (returns non-zero) on any API/network
-# error so the kata can fall back to local `git commit`.
+# scripts/ahrena-auth.sh (GH_TOKEN_AHRENA_WARRIORS_DEFAULT) and updates the
+# branch ref to the new commit SHA. Designed to be invoked by `kata-commit`
+# when the directive `warriors_default_author.enabled=true` AND the calling
+# warrior is in `warriors_default_author.apply_to`. Soft-fails (returns
+# non-zero) on any API/network error so the kata can fall back to local
+# `git commit`.
 #
-# Sequence (each step uses curl + jq, auth via $GH_TOKEN_AHRENA_BOT):
+# Sequence (each step uses curl + jq, auth via $GH_TOKEN_AHRENA_WARRIORS_DEFAULT):
 #   1. Resolve repo + parent commit SHA (HEAD of the current branch on origin).
 #   2. For each staged file (`git diff --cached --name-only`):
 #      - For modifications/additions: read the staged content from the index
@@ -28,7 +29,7 @@
 #   --co-author "Name <email>"  optional Co-authored-by trailer
 #
 # Token handling:
-#   - GH_TOKEN_AHRENA_BOT is consumed from the environment (exported by
+#   - GH_TOKEN_AHRENA_WARRIORS_DEFAULT is consumed from the environment (exported by
 #     ahrena-auth.sh). NEVER logged, NEVER printed to stdout/stderr, NEVER
 #     interpolated into error messages.
 #   - When the script is invoked with `set -x` (debug), the curl invocations
@@ -117,15 +118,16 @@ if [[ -z "${MESSAGE}" ]]; then
 fi
 
 # ─── Activation gate ───────────────────────────────────────────────────────
-# The kata only invokes this script when bot_author.enabled=true AND the
-# calling warrior is in bot_author.apply_to. As a defensive second check,
-# verify GH_TOKEN_AHRENA_BOT is exported (set by ahrena-auth.sh). When the
-# directive is disabled, ahrena-auth.sh is a no-op and the var is absent —
-# in that case this script exits 0 without acting (the kata then proceeds
-# with the local `git commit` path).
-if [[ -z "${GH_TOKEN_AHRENA_BOT:-}" ]]; then
-  # Strict no-op: bot mode is off. Exit 0 so the kata's success-path branch
-  # falls through to local commit without treating the absence as failure.
+# The kata only invokes this script when warriors_default_author.enabled=true
+# AND the calling warrior is in warriors_default_author.apply_to. As a
+# defensive second check, verify GH_TOKEN_AHRENA_WARRIORS_DEFAULT is exported
+# (set by ahrena-auth.sh). When the directive is disabled, ahrena-auth.sh is
+# a no-op and the var is absent — in that case this script exits 0 without
+# acting (the kata then proceeds with the local `git commit` path).
+if [[ -z "${GH_TOKEN_AHRENA_WARRIORS_DEFAULT:-}" ]]; then
+  # Strict no-op: warriors-default mode is off. Exit 0 so the kata's
+  # success-path branch falls through to local commit without treating the
+  # absence as failure.
   exit 0
 fi
 
@@ -184,7 +186,7 @@ _api_call() {
   # Re-source ahrena-auth.sh so a token refresh performed in a previous
   # _api_call (which runs in a command substitution / subshell) propagates
   # into this parent-shell invocation. Without this, the parent's
-  # GH_TOKEN_AHRENA_BOT stays stale and every subsequent call would have
+  # GH_TOKEN_AHRENA_WARRIORS_DEFAULT stays stale and every subsequent call would have
   # to absorb its own 401-then-retry. ahrena-auth.sh caches the
   # installation token, so this is a cheap near-no-op when the cached
   # token is still fresh.
@@ -199,7 +201,7 @@ _api_call() {
     -sS
     -X "${method}"
     -H "Accept: application/vnd.github+json"
-    -H "Authorization: Bearer ${GH_TOKEN_AHRENA_BOT}"
+    -H "Authorization: Bearer ${GH_TOKEN_AHRENA_WARRIORS_DEFAULT}"
     -H "X-GitHub-Api-Version: 2022-11-28"
     -o "${out_file}"
     -w '%{http_code}'
@@ -231,7 +233,7 @@ _api_call() {
         -sS
         -X "${method}"
         -H "Accept: application/vnd.github+json"
-        -H "Authorization: Bearer ${GH_TOKEN_AHRENA_BOT}"
+        -H "Authorization: Bearer ${GH_TOKEN_AHRENA_WARRIORS_DEFAULT}"
         -H "X-GitHub-Api-Version: 2022-11-28"
         -o "${out_file}"
         -w '%{http_code}'

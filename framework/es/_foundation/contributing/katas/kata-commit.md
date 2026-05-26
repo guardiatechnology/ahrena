@@ -21,7 +21,7 @@ Este Kata define el procedimiento estandarizado para crear un commit que respete
 | Tipo | No | Tipo Conventional Commits (feat, fix, docs, etc.). Si se omite, el agente lo infiere del diff |
 | Alcance | No | Módulo o dominio afectado. Si se omite, el agente lo infiere del diff |
 | Descripción | No | Texto del subject. Si se omite, el agente lo compone a partir del diff |
-| `--warrior <nombre>` | No | Nombre del warrior que invoca el kata (ej.: `apollo`, `athena`, `hephaestus`). Habilita el ruteo bot-author cuando `bot_author.enabled=true` y el nombre está en `bot_author.apply_to`. Cuando se omite, el flujo es siempre commit local (humano). |
+| `--warrior <nombre>` | No | Nombre del warrior que invoca el kata (ej.: `apollo`, `athena`, `hephaestus`). Habilita el ruteo default-warrior cuando `warriors_default_author.enabled=true` y el nombre está en `warriors_default_author.apply_to`. Cuando se omite, el flujo es siempre commit local (humano). |
 
 ## Workflow
 
@@ -74,23 +74,23 @@ Se debe verificar la conformidad con cada Lexis antes de ejecutar:
 
 Si alguna validación falla, se debe corregir antes de continuar.
 
-### Paso 4: Resolución del Autor (humano o ahrena-bot)
+### Paso 4: Resolución del Autor (humano o identidad predeterminada de los warriors)
 
 Antes de invocar `git commit`, el kata decide entre dos caminos de autoría:
 
-1. **Cargar `scripts/ahrena-auth.sh`** (siempre — es no-op cuando `bot_author.enabled=false`):
+1. **Cargar `scripts/ahrena-auth.sh`** (siempre — es no-op cuando `warriors_default_author.enabled=false`):
    ```bash
    source scripts/ahrena-auth.sh
    ```
-   Cuando la directiva está desactivada, el script retorna inmediatamente sin exportar nada. Cuando está activa, exporta `GH_TOKEN_AHRENA_BOT` (token de instalación del GitHub App) y las variables `GIT_AUTHOR_*` / `GIT_COMMITTER_*` apuntando a la identidad `ahrena-bot[bot]`.
+   Cuando la directiva está desactivada, el script retorna inmediatamente sin exportar nada. Cuando está activa, exporta `GH_TOKEN_AHRENA_WARRIORS_DEFAULT` (token de instalación del GitHub App) y las variables `GIT_AUTHOR_*` / `GIT_COMMITTER_*` apuntando a la identidad predeterminada de la flota (`ahrena-bot[bot]`).
 
-2. **Leer `bot_author.enabled` y `bot_author.apply_to`** en `.ahrena/.directives`.
+2. **Leer `warriors_default_author.enabled` y `warriors_default_author.apply_to`** en `.ahrena/.directives`.
 
 3. **Decisión de ruteo:**
-   - Si `bot_author.enabled == true` Y el input `--warrior <nombre>` fue proporcionado Y `<nombre>` está en `bot_author.apply_to`: usar el **camino bot-author** (Paso 5a abajo).
+   - Si `warriors_default_author.enabled == true` Y el input `--warrior <nombre>` fue proporcionado Y `<nombre>` está en `warriors_default_author.apply_to`: usar el **camino default-warrior** (Paso 5a abajo).
    - En caso contrario (ausencia de `--warrior`, master switch desactivado o warrior fuera de `apply_to`): usar el **camino humano** (Paso 5b).
 
-4. **Camino bot-author** — componer el `Co-authored-by` del humano que dirige la sesión:
+4. **Camino default-warrior** — componer el `Co-authored-by` del humano que dirige la sesión:
    ```bash
    HUMAN_CO_AUTHOR="$(git config user.name) <$(git config user.email)>"
    ```
@@ -98,9 +98,9 @@ Antes de invocar `git commit`, el kata decide entre dos caminos de autoría:
 
 ### Paso 5: Ejecución del Commit
 
-#### Paso 5a: Camino bot-author (servidor)
+#### Paso 5a: Camino default-warrior (servidor)
 
-Cuando el ruteo del Paso 4 seleccionó el camino bot-author:
+Cuando el ruteo del Paso 4 seleccionó el camino default-warrior:
 
 1. Invocar `scripts/ahrena-api-commit.sh` para crear el commit vía GitHub Git Data API:
    ```bash
@@ -158,8 +158,8 @@ Cuando el ruteo del Paso 4 seleccionó el camino humano (o en el fallback del 5a
 
 - [ ] `git log -1 --format='%s'` muestra el subject correcto
 - [ ] **Camino humano (5b):** `git log -1 --show-signature` muestra firma GPG válida
-- [ ] **Camino bot-author (5a):** `git log -1 --format='%an <%ae>'` muestra `ahrena-bot[bot]` y el commit aparece con el badge **Verified** en GitHub
-- [ ] **Camino bot-author (5a):** el body del commit contiene el trailer `Co-authored-by: <humano>` cuando `bot_author.commit_co_author=human`
+- [ ] **Camino default-warrior (5a):** `git log -1 --format='%an <%ae>'` muestra `ahrena-bot[bot]` y el commit aparece con el badge **Verified** en GitHub
+- [ ] **Camino default-warrior (5a):** el body del commit contiene el trailer `Co-authored-by: <humano>` cuando `warriors_default_author.commit_co_author=human`
 - [ ] El commit contiene solo los cambios previstos
 - [ ] El subject está en inglés y sigue Conventional Commits
 - [ ] El commit es atómico (un cambio lógico)
@@ -175,17 +175,17 @@ Cuando el ruteo del Paso 4 seleccionó el camino humano (o en el fallback del 5a
 - Nunca realizar un commit sin verificar la conformidad con las 4 Lexis
 - Nunca mezclar cambios no relacionados en un único commit
 - En el camino humano (Paso 5b), nunca realizar un commit sin firma GPG configurada — si GPG no está configurado, alertar al usuario y orientar la configuración
-- En el camino bot-author (Paso 5a), la firma es provista por el token de instalación del GitHub App; no es necesario GPG local
+- En el camino default-warrior (Paso 5a), la firma es provista por el token de instalación del GitHub App; no es necesario GPG local
 - Nunca silenciar una falla del `ahrena-api-commit.sh` — siempre informar al usuario cuando hay fallback al camino humano
 
 ## Referencias
 
 - `lex-conventional-commits` — Formato obligatorio
-- `lex-signed-commits` — Firma GPG obligatoria (camino humano) o firma vía App (camino bot)
+- `lex-signed-commits` — Firma GPG obligatoria (camino humano) o firma vía App (camino default-warrior)
 - `lex-small-commits` — Atomicidad obligatoria
 - `lex-commit-language` — Idioma obligatorio
 - `codex-commit-standards` — Guía completa de estándares
-- `codex-git-workflow` — Sección "Author identity" describe el ruteo humano vs bot
-- `scripts/ahrena-auth.sh` — Gate `bot_author.enabled` + resolución de credenciales del GitHub App
-- `scripts/ahrena-api-commit.sh` — Commit vía Git Data API (camino bot-author)
+- `codex-git-workflow` — Sección "Identidad de autor" describe el ruteo humano vs identidad predeterminada de los warriors
+- `scripts/ahrena-auth.sh` — Gate `warriors_default_author.enabled` + resolución de credenciales del GitHub App
+- `scripts/ahrena-api-commit.sh` — Commit vía Git Data API (camino default-warrior)
 - `cry-commit` — Atajo que invoca este Kata

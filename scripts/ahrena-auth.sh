@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# ahrena-auth.sh — Ahrena bot GitHub App authentication helper.
+# ahrena-auth.sh — Warriors default GitHub App authentication helper.
 #
-# Generates an installation access token for the `ahrena-bot` GitHub App so
-# warrior-driven commits and PRs are attributed to the `ahrena-bot[bot]`
-# identity instead of the human contributor's PAT/GPG key. Designed to be
-# `source`'d, not executed: the script EXPORTS environment variables for
-# downstream `git`/`gh` invocations in the same shell.
+# Generates an installation access token for the fleet-default warrior
+# GitHub App so warrior-driven commits and PRs are attributed to the App's
+# `[bot]` identity instead of the human contributor's PAT/GPG key. Designed
+# to be `source`'d, not executed: the script EXPORTS environment variables
+# for downstream `git`/`gh` invocations in the same shell.
 #
 # Activation gate:
-#   bot_author.enabled in .ahrena/.directives is the master switch. When
-#   false (or the directive is absent), this script is a strict no-op:
-#   it returns 0 immediately, exports nothing, prints nothing. Existing
-#   human-author behavior is preserved bit-for-bit.
+#   warriors_default_author.enabled in .ahrena/.directives is the master
+#   switch. When false (or the directive is absent), this script is a
+#   strict no-op: it returns 0 immediately, exports nothing, prints
+#   nothing. Existing human-author behavior is preserved bit-for-bit.
 #
 # When enabled, the resolution flow mirrors scripts/argos/auth.sh:
-#   1. Load AHRENA_BOT_* credentials from .env.local (project root) OR
-#      the current environment (env wins over .env.local for CI).
+#   1. Load AHRENA_WARRIORS_DEFAULT_GH_* credentials from .env.local
+#      (project root) OR the current environment (env wins for CI).
 #   2. If cached installation token at .ahrena/bot/installation-token.json
 #      is still fresh (>= 5 min before expiry), reuse it.
 #   3. Otherwise:
@@ -24,17 +24,19 @@
 #      b. Exchange the JWT for an installation token via
 #         POST /app/installations/{id}/access_tokens.
 #      c. Cache the token + expiry timestamp (chmod 0600).
-#   4. Resolve the bot's numeric user id via GET /users/{slug}[bot] to
-#      build the noreply GitHub email.
-#   5. Export GH_TOKEN_AHRENA_BOT, GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL,
-#      GIT_COMMITTER_NAME, GIT_COMMITTER_EMAIL for the calling shell.
+#   4. Resolve the App's numeric `[bot]` user id via
+#      GET /users/{slug}[bot] to build the noreply GitHub email.
+#   5. Export GH_TOKEN_AHRENA_WARRIORS_DEFAULT, GIT_AUTHOR_NAME,
+#      GIT_AUTHOR_EMAIL, GIT_COMMITTER_NAME, GIT_COMMITTER_EMAIL for the
+#      calling shell.
 #
 # Typical usage (P2 wiring; P1 only ships the script + no-op behavior):
 #   source scripts/ahrena-auth.sh
-#   GH_TOKEN="${GH_TOKEN_AHRENA_BOT:-${GH_TOKEN}}" git commit -m "..."
+#   GH_TOKEN="${GH_TOKEN_AHRENA_WARRIORS_DEFAULT:-${GH_TOKEN}}" git commit -m "..."
 #
-# Requires (only when bot_author.enabled=true): bash 3.2+, openssl, jq,
-# curl, base64. None are required when disabled — the no-op exits first.
+# Requires (only when warriors_default_author.enabled=true): bash 3.2+,
+# openssl, jq, curl, base64. None are required when disabled — the no-op
+# exits first.
 #
 # IMPORTANT — designed to be sourced:
 #   This script does NOT use `set -euo pipefail` at the top because a
@@ -79,21 +81,21 @@ _AHRENA_ENV_FILE="${_AHRENA_MAIN_REPO_ROOT}/.env.local"
 _AHRENA_CACHE_DIR="${_AHRENA_MAIN_REPO_ROOT}/.ahrena/bot"
 _AHRENA_CACHE_FILE="${_AHRENA_CACHE_DIR}/installation-token.json"
 
-# ─── Gate: bot_author.enabled in .directives ───────────────────────────────
+# ─── Gate: warriors_default_author.enabled in .directives ──────────────────
 # Strict no-op when the directive is absent OR `enabled` is anything other
 # than `true`. Parses the minimal YAML shape:
-#   bot_author:
+#   warriors_default_author:
 #     enabled: true|false
 # Uses awk (no Python dependency, portable across macOS BSD + GNU). The
-# parser scans for the `bot_author:` block start, then reads `enabled: VAL`
-# at the first indent level beneath it. Anything else (comments, missing
-# section, malformed value) defaults to disabled.
+# parser scans for the `warriors_default_author:` block start, then reads
+# `enabled: VAL` at the first indent level beneath it. Anything else
+# (comments, missing section, malformed value) defaults to disabled.
 _ahrena_auth_is_enabled() {
   local file="$1"
   [[ -f "${file}" ]] || return 1
   local value
   value="$(awk '
-    /^bot_author:[[:space:]]*$/ { in_section = 1; next }
+    /^warriors_default_author:[[:space:]]*$/ { in_section = 1; next }
     in_section && /^[^[:space:]#]/ { in_section = 0 }
     in_section && /^[[:space:]]+enabled:/ {
       sub(/^[[:space:]]+enabled:[[:space:]]*/, "")
@@ -165,11 +167,11 @@ _ahrena_auth_require() {
   return 0
 }
 
-_ahrena_auth_require "AHRENA_BOT_APP_ID" || return 1 2>/dev/null || exit 1
-_ahrena_auth_require "AHRENA_BOT_INSTALLATION_ID" || return 1 2>/dev/null || exit 1
+_ahrena_auth_require "AHRENA_WARRIORS_DEFAULT_GH_APP_ID" || return 1 2>/dev/null || exit 1
+_ahrena_auth_require "AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID" || return 1 2>/dev/null || exit 1
 
 # Resolve the GitHub App slug (defaults to ahrena-bot; overridable via env)
-_AHRENA_BOT_SLUG="${AHRENA_BOT_SLUG:-ahrena-bot}"
+_AHRENA_APP_SLUG="${AHRENA_WARRIORS_DEFAULT_GH_SLUG:-ahrena-bot}"
 
 # Resolve private key source (Keychain preferred on macOS, else file path).
 _AHRENA_KEYCHAIN_SERVICE="ahrena.bot.github-app"
@@ -191,13 +193,13 @@ if [[ "$(uname -s)" == "Darwin" ]] && \
   fi
   unset _AHRENA_PEM_RAW
   _AHRENA_PRIVATE_KEY_PATH="${_AHRENA_KEYCHAIN_TMP_KEY}"
-elif [[ -n "${AHRENA_BOT_PRIVATE_KEY_PATH:-}" ]]; then
-  _AHRENA_PRIVATE_KEY_PATH="${AHRENA_BOT_PRIVATE_KEY_PATH/#\~/$HOME}"
+elif [[ -n "${AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH:-}" ]]; then
+  _AHRENA_PRIVATE_KEY_PATH="${AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH/#\~/$HOME}"
 else
   echo "ERROR (ahrena-auth.sh): no private key source available." >&2
   echo "  Either populate the Keychain (macOS):" >&2
   echo "    security add-generic-password -a ahrena-bot -s ${_AHRENA_KEYCHAIN_SERVICE} -w \"\$(cat /path/to/key.pem)\"" >&2
-  echo "  Or set AHRENA_BOT_PRIVATE_KEY_PATH in .env.local / env." >&2
+  echo "  Or set AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH in .env.local / env." >&2
   _ahrena_auth_exit 1
   return 1 2>/dev/null
 fi
@@ -213,7 +215,7 @@ fi
 _AHRENA_NOW_EPOCH="$(date -u +%s)"
 _AHRENA_REFRESH_THRESHOLD=$((5 * 60))
 _AHRENA_TOKEN=""
-_AHRENA_BOT_USER_ID=""
+_AHRENA_APP_USER_ID=""
 
 if [[ -f "${_AHRENA_CACHE_FILE}" ]]; then
   _AHRENA_CACHED_TOKEN="$(jq -r '.token // empty' "${_AHRENA_CACHE_FILE}" 2>/dev/null || true)"
@@ -223,11 +225,11 @@ if [[ -f "${_AHRENA_CACHE_FILE}" ]]; then
   _AHRENA_CACHED_BOT_USER_ID="$(jq -r '.bot_user_id // empty' "${_AHRENA_CACHE_FILE}" 2>/dev/null || true)"
 
   if [[ -n "${_AHRENA_CACHED_TOKEN}" && \
-        "${_AHRENA_CACHED_APP_ID}" == "${AHRENA_BOT_APP_ID}" && \
-        "${_AHRENA_CACHED_INSTALLATION_ID}" == "${AHRENA_BOT_INSTALLATION_ID}" && \
+        "${_AHRENA_CACHED_APP_ID}" == "${AHRENA_WARRIORS_DEFAULT_GH_APP_ID}" && \
+        "${_AHRENA_CACHED_INSTALLATION_ID}" == "${AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID}" && \
         $((_AHRENA_CACHED_EXPIRES_AT - _AHRENA_NOW_EPOCH)) -gt "${_AHRENA_REFRESH_THRESHOLD}" ]]; then
     _AHRENA_TOKEN="${_AHRENA_CACHED_TOKEN}"
-    _AHRENA_BOT_USER_ID="${_AHRENA_CACHED_BOT_USER_ID}"
+    _AHRENA_APP_USER_ID="${_AHRENA_CACHED_BOT_USER_ID}"
   fi
 fi
 
@@ -241,7 +243,7 @@ if [[ -z "${_AHRENA_TOKEN}" ]]; then
   _AHRENA_EXP=$((_AHRENA_NOW_EPOCH + 600))
   _AHRENA_HEADER="$(printf '{"alg":"RS256","typ":"JWT"}' | _ahrena_b64url)"
   _AHRENA_PAYLOAD="$(printf '{"iat":%d,"exp":%d,"iss":"%s"}' \
-    "${_AHRENA_IAT}" "${_AHRENA_EXP}" "${AHRENA_BOT_APP_ID}" | _ahrena_b64url)"
+    "${_AHRENA_IAT}" "${_AHRENA_EXP}" "${AHRENA_WARRIORS_DEFAULT_GH_APP_ID}" | _ahrena_b64url)"
   _AHRENA_SIGNATURE="$(printf '%s.%s' "${_AHRENA_HEADER}" "${_AHRENA_PAYLOAD}" | \
     openssl dgst -sha256 -sign "${_AHRENA_PRIVATE_KEY_PATH}" | _ahrena_b64url)"
 
@@ -259,7 +261,7 @@ if [[ -z "${_AHRENA_TOKEN}" ]]; then
     -H "Authorization: Bearer ${_AHRENA_JWT}" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
     -w '\n%{http_code}' \
-    "https://api.github.com/app/installations/${AHRENA_BOT_INSTALLATION_ID}/access_tokens")"
+    "https://api.github.com/app/installations/${AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID}/access_tokens")"
 
   _AHRENA_HTTP_CODE="$(printf '%s' "${_AHRENA_HTTP_RESPONSE}" | tail -n1)"
   _AHRENA_RESPONSE="$(printf '%s' "${_AHRENA_HTTP_RESPONSE}" | sed '$d')"
@@ -290,20 +292,20 @@ if [[ -z "${_AHRENA_TOKEN}" ]]; then
 
   # Resolve the bot's numeric user id once (immutable per App identity);
   # cache alongside the token to avoid repeating the lookup on every call.
-  _AHRENA_BOT_USER_RESPONSE="$(curl -sS \
+  _AHRENA_APP_USER_RESPONSE="$(curl -sS \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer ${_AHRENA_TOKEN}" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
     -w '\n%{http_code}' \
-    "https://api.github.com/users/${_AHRENA_BOT_SLUG}%5Bbot%5D")"
-  _AHRENA_BOT_USER_CODE="$(printf '%s' "${_AHRENA_BOT_USER_RESPONSE}" | tail -n1)"
-  _AHRENA_BOT_USER_BODY="$(printf '%s' "${_AHRENA_BOT_USER_RESPONSE}" | sed '$d')"
-  if [[ "${_AHRENA_BOT_USER_CODE}" == "200" ]]; then
-    _AHRENA_BOT_USER_ID="$(echo "${_AHRENA_BOT_USER_BODY}" | jq -r '.id // empty')"
+    "https://api.github.com/users/${_AHRENA_APP_SLUG}%5Bbot%5D")"
+  _AHRENA_APP_USER_CODE="$(printf '%s' "${_AHRENA_APP_USER_RESPONSE}" | tail -n1)"
+  _AHRENA_APP_USER_BODY="$(printf '%s' "${_AHRENA_APP_USER_RESPONSE}" | sed '$d')"
+  if [[ "${_AHRENA_APP_USER_CODE}" == "200" ]]; then
+    _AHRENA_APP_USER_ID="$(echo "${_AHRENA_APP_USER_BODY}" | jq -r '.id // empty')"
   else
     # Non-fatal: the email becomes slightly less canonical but the
     # author identity still resolves via slug. P2 may tighten this.
-    _AHRENA_BOT_USER_ID=""
+    _AHRENA_APP_USER_ID=""
   fi
 
   # Cache atomically (tempfile + rename)
@@ -315,9 +317,9 @@ if [[ -z "${_AHRENA_TOKEN}" ]]; then
     --arg token "${_AHRENA_TOKEN}" \
     --arg expires_at "${_AHRENA_EXPIRES_AT}" \
     --argjson expires_at_epoch "${_AHRENA_EXPIRES_AT_EPOCH}" \
-    --arg app_id "${AHRENA_BOT_APP_ID}" \
-    --arg installation_id "${AHRENA_BOT_INSTALLATION_ID}" \
-    --arg bot_user_id "${_AHRENA_BOT_USER_ID}" \
+    --arg app_id "${AHRENA_WARRIORS_DEFAULT_GH_APP_ID}" \
+    --arg installation_id "${AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID}" \
+    --arg bot_user_id "${_AHRENA_APP_USER_ID}" \
     --argjson minted_at_epoch "${_AHRENA_NOW_EPOCH}" \
     '{token: $token, expires_at: $expires_at, expires_at_epoch: $expires_at_epoch,
       app_id: $app_id, installation_id: $installation_id,
@@ -333,17 +335,17 @@ fi
 #   <numeric_user_id>+<slug>[bot]@users.noreply.github.com
 # When the user-id lookup failed (rare), fall back to the slug-only form;
 # GitHub still recognizes it for attribution, just without the canonical id.
-if [[ -n "${_AHRENA_BOT_USER_ID}" ]]; then
-  _AHRENA_BOT_EMAIL="${_AHRENA_BOT_USER_ID}+${_AHRENA_BOT_SLUG}[bot]@users.noreply.github.com"
+if [[ -n "${_AHRENA_APP_USER_ID}" ]]; then
+  _AHRENA_APP_EMAIL="${_AHRENA_APP_USER_ID}+${_AHRENA_APP_SLUG}[bot]@users.noreply.github.com"
 else
-  _AHRENA_BOT_EMAIL="${_AHRENA_BOT_SLUG}[bot]@users.noreply.github.com"
+  _AHRENA_APP_EMAIL="${_AHRENA_APP_SLUG}[bot]@users.noreply.github.com"
 fi
 
-export GH_TOKEN_AHRENA_BOT="${_AHRENA_TOKEN}"
-export GIT_AUTHOR_NAME="${_AHRENA_BOT_SLUG}[bot]"
-export GIT_AUTHOR_EMAIL="${_AHRENA_BOT_EMAIL}"
-export GIT_COMMITTER_NAME="${_AHRENA_BOT_SLUG}[bot]"
-export GIT_COMMITTER_EMAIL="${_AHRENA_BOT_EMAIL}"
+export GH_TOKEN_AHRENA_WARRIORS_DEFAULT="${_AHRENA_TOKEN}"
+export GIT_AUTHOR_NAME="${_AHRENA_APP_SLUG}[bot]"
+export GIT_AUTHOR_EMAIL="${_AHRENA_APP_EMAIL}"
+export GIT_COMMITTER_NAME="${_AHRENA_APP_SLUG}[bot]"
+export GIT_COMMITTER_EMAIL="${_AHRENA_APP_EMAIL}"
 
 # Clean up internal state without affecting the exports above.
 _ahrena_auth_cleanup

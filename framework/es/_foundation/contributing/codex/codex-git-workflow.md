@@ -140,13 +140,13 @@ Requisitos para el merge:
 
 Tras el merge: `main` se actualiza; la rama se elimina.
 
-## Identidad de autor: humano vs bot
+## Identidad de autor: humano vs identidad predeterminada de los warriors
 
-Los proyectos Ahrena eligen cómo se atribuyen los commits y PRs conducidos por warriors: como el ser humano contribuyente (predeterminado) o como la identidad del GitHub App `ahrena-bot[bot]` (opt-in).
+Los proyectos Ahrena eligen cómo se atribuyen los commits y PRs conducidos por warriors: como el ser humano contribuyente (predeterminado) o como la identidad predeterminada de la flota — el GitHub App `[bot]` (opt-in).
 
 ### Modo predeterminado — autor humano
 
-Cuando `bot_author.enabled` es `false` (o la sección está ausente de `.ahrena/.directives`), los warriors hacen commit utilizando la identidad git y la llave GPG del desarrollador, exactamente como si un ser humano hubiera escrito los comandos. `git log --pretty='%an <%ae>'` muestra al desarrollador; los PRs aparecen bajo el login GitHub del desarrollador. Este es el comportamiento histórico; actualizar el framework no lo cambia.
+Cuando `warriors_default_author.enabled` es `false` (o la sección está ausente de `.ahrena/.directives`), los warriors hacen commit utilizando la identidad git y la llave GPG del desarrollador, exactamente como si un ser humano hubiera escrito los comandos. `git log --pretty='%an <%ae>'` muestra al desarrollador; los PRs aparecen bajo el login GitHub del desarrollador. Este es el comportamiento histórico; actualizar el framework no lo cambia.
 
 | Aspecto | Predeterminado (autor humano) |
 |---------|-------------------------------|
@@ -156,41 +156,41 @@ Cuando `bot_author.enabled` es `false` (o la sección está ausente de `.ahrena/
 | `gh pr view` | `Author: <login-del-desarrollador>` |
 | Pista de auditoría | Cada contribuyente aparece individualmente en los commits y PRs |
 
-### Modo opt-in — autor bot
+### Modo opt-in — identidad predeterminada de los warriors
 
-Cuando `bot_author.enabled` es `true`, los warriors listados en `bot_author.apply_to` invocan `scripts/ahrena-auth.sh` antes de cada `git commit` / `gh pr create`. El script intercambia las credenciales del GitHub App Ahrena por un token de instalación de corta duración y exporta la identidad del bot al shell invocante:
+Cuando `warriors_default_author.enabled` es `true`, los warriors listados en `warriors_default_author.apply_to` invocan `scripts/ahrena-auth.sh` antes de cada `git commit` / `gh pr create`. El script intercambia las credenciales del GitHub App Ahrena por un token de instalación de corta duración y exporta la identidad del App `[bot]` al shell invocante:
 
 ```
-GH_TOKEN_AHRENA_BOT=<installation-token>
+GH_TOKEN_AHRENA_WARRIORS_DEFAULT=<installation-token>
 GIT_AUTHOR_NAME=ahrena-bot[bot]
 GIT_AUTHOR_EMAIL=<numeric-user-id>+ahrena-bot[bot]@users.noreply.github.com
 GIT_COMMITTER_NAME=ahrena-bot[bot]
 GIT_COMMITTER_EMAIL=<igual que el autor>
 ```
 
-Los commits producidos bajo esta identidad se firman en el servidor mediante el token de instalación del App (no se requiere llave GPG en la máquina del desarrollador para la identidad del bot). Cuando `bot_author.commit_co_author` es `human`, el body del commit lleva `Co-authored-by: <nombre humano> <email humano>` para que la persona que condujo el trabajo permanezca rastreable.
+Los commits producidos bajo esta identidad se firman en el servidor mediante el token de instalación del App (no se requiere llave GPG en la máquina del desarrollador para la identidad predeterminada de los warriors). Cuando `warriors_default_author.commit_co_author` es `human`, el body del commit lleva `Co-authored-by: <nombre humano> <email humano>` para que la persona que condujo el trabajo permanezca rastreable.
 
-| Aspecto | Opt-in (autor bot) |
-|---------|--------------------|
+| Aspecto | Opt-in (identidad predeterminada de los warriors) |
+|---------|---------------------------------------------------|
 | Autor del commit | `ahrena-bot[bot]` |
 | Firma del commit | Firmada en el servidor por el token de instalación del GitHub App |
 | Autor del PR en GitHub | `ahrena-bot[bot]` |
 | `gh pr view` | `Author: ahrena-bot[bot]` |
 | Trailer de coautor | `Co-authored-by: <humano>` (cuando `commit_co_author=human`) |
-| Pista de auditoría | Bot vs humano se responde desde la UI de GitHub sin necesidad de parsear trailers |
+| Pista de auditoría | Agente vs humano se responde desde la UI de GitHub sin necesidad de parsear trailers |
 
 ### Trade-offs
 
-- **Autor bot** — separación más clara entre contribuciones conducidas por humanos y por agentes, pista de auditoría más simple en la capa de identidad, sin GPG en la máquina del desarrollador para los commits del bot y señal limpia para herramientas de cost tracking y revisión de PR que ya reconocen identidades de bot. Requiere registrar el GitHub App `ahrena-bot` y aprovisionar las credenciales.
+- **Identidad predeterminada de los warriors** — separación más clara entre contribuciones conducidas por humanos y por agentes, pista de auditoría más simple en la capa de identidad, sin GPG en la máquina del desarrollador para los commits de agentes y señal limpia para herramientas de cost tracking y revisión de PR que ya reconocen identidades `[bot]`. Requiere registrar el GitHub App predeterminado y aprovisionar las credenciales.
 - **Autor humano** — preserva el reconocimiento por contribuyente en `git log`, mantiene el flujo GPG existente y elimina una pieza móvil para desarrolladores solitarios o proyectos en los que el ser humano es el único remitente. No requiere registro adicional de GitHub App.
 
 ### Opt-out por warrior
 
-`bot_author.apply_to` es una lista de nombres de warriors. Sólo los warriors en esa lista invocan el resolver de auth; los warriors omitidos de la lista mantienen el comportamiento de autor humano aunque la llave maestra esté activada. Esto permite adopción parcial (por ejemplo, autor bot para `apollo` y `hephaestus` mientras `iris` mantiene la identidad del desarrollador).
+`warriors_default_author.apply_to` es una lista de nombres de warriors. Sólo los warriors en esa lista invocan el resolver de auth; los warriors omitidos de la lista mantienen el comportamiento de autor humano aunque la llave maestra esté activada. Esto permite adopción parcial (por ejemplo, identidad predeterminada para `apollo` y `hephaestus` mientras `iris` mantiene la identidad del desarrollador).
 
 ### Commits fuera de banda
 
-Un commit escrito directamente por el ser humano (sin participación de warrior) mantiene la identidad del desarrollador independientemente de la directiva — el resolver de auth sólo se dispara cuando un warrior envuelve el commit. La directiva gobierna la atribución vía warrior, no las invocaciones directas de `git commit`.
+Un commit escrito directamente por el ser humano (sin participación de warrior) mantiene la identidad del desarrollador independientemente de la directiva — el resolver de auth sólo se dispara cuando un warrior envuelve el commit. La directiva gobierna la atribución vía warrior, no las invocaciones directas de `git commit`. Los warriors que poseen su propio GitHub App (por ejemplo, Argos consume `AHRENA_WARRIOR_ARGOS_GH_*`) no dependen de esta identidad predeterminada — atienden a su App específico.
 
 ### Almacenamiento de credenciales
 
@@ -198,7 +198,7 @@ Las credenciales del GitHub App siguen la misma convención de almacenamiento qu
 
 | Fuente | Usado cuando |
 |--------|--------------|
-| Variables de entorno (`AHRENA_BOT_APP_ID`, `AHRENA_BOT_INSTALLATION_ID`, `AHRENA_BOT_PRIVATE_KEY_PATH`) | Entornos de CI / no interactivos |
+| Variables de entorno (`AHRENA_WARRIORS_DEFAULT_GH_APP_ID`, `AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID`, `AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH`) | Entornos de CI / no interactivos |
 | Keychain de macOS (entrada `security` `ahrena.bot.github-app`) | Desarrollo local en macOS |
 | `.env.local` en la raíz del repositorio | Desarrollo local en Linux/Windows |
 

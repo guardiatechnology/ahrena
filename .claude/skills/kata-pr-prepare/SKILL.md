@@ -27,8 +27,8 @@ Progress:
 2. Confirm `GH_TOKEN` is defined.
 3. Read `.ahrena/issues/{n}/06-quality-report.md` and confirm the result is `go`. If `no-go`, refuse to create the PR and return to the orchestrator.
 4. Consult `codex-mcp-github` to identify the correct tools (`create_branch`, `push_files`, `create_pull_request`).
-5. **Resolve PR author identity** — source `scripts/ahrena-auth.sh` (no-op when `bot_author.enabled=false`) and decide routing:
-   - If `bot_author.enabled == true` AND `--warrior <name>` was provided AND `<name>` is in `bot_author.apply_to`: the PR will be opened as `ahrena-bot[bot]` using `GH_TOKEN_AHRENA_BOT` (Step 6 details).
+5. **Resolve PR author identity** — source `scripts/ahrena-auth.sh` (no-op when `warriors_default_author.enabled=false`) and decide routing:
+   - If `warriors_default_author.enabled == true` AND `--warrior <name>` was provided AND `<name>` is in `warriors_default_author.apply_to`: the PR will be opened as `ahrena-bot[bot]` using `GH_TOKEN_AHRENA_WARRIORS_DEFAULT` (Step 6 details).
    - Otherwise: the PR will be opened with the caller's default `gh` token (human author).
 
 ### Step 2: Determine branch name and PR title
@@ -175,9 +175,9 @@ This step replaces the old mechanic of "update `status:` in the plan front-matte
 ### Step 6: Create PR linked to the issue
 
 1. Resolve the PR-author token based on the Step 1 routing decision:
-   - **Bot-author path** (selected in Step 1): invoke the PR-creation command in a subshell with `GH_TOKEN=$GH_TOKEN_AHRENA_BOT` so the PR author resolves to `ahrena-bot[bot]`. Example for the CLI fallback path:
+   - **Warriors-default-author path** (selected in Step 1): invoke the PR-creation command in a subshell with `GH_TOKEN=$GH_TOKEN_AHRENA_WARRIORS_DEFAULT` so the PR author resolves to `ahrena-bot[bot]`. Example for the CLI fallback path:
      ```bash
-     GH_TOKEN="${GH_TOKEN_AHRENA_BOT}" gh pr create \
+     GH_TOKEN="${GH_TOKEN_AHRENA_WARRIORS_DEFAULT}" gh pr create \
        --title "<title>" --body "<body>" \
        --head "<branch>" --base "<base>"
      ```
@@ -192,7 +192,7 @@ This step replaces the old mechanic of "update `status:` in the plan front-matte
    - `draft` — per input (default `false`)
 3. Capture the `html_url` of the created PR.
 4. If `Resolves #{n}` is in the body, GitHub will automatically link the issue.
-5. **Soft-fail to human token** — if the bot-author path returns a non-zero status (e.g., the App lacks `pull_requests:write` on this repo), emit a visible warning and retry once with the caller's default token. Never silence the degradation.
+5. **Soft-fail to human token** — if the warriors-default-author path returns a non-zero status (e.g., the App lacks `pull_requests:write` on this repo), emit a visible warning and retry once with the caller's default token. Never silence the degradation.
 
 ### Step 6b: Apply `status: to review` (transition `development → to review`)
 
