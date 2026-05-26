@@ -1,0 +1,9 @@
+# CODEOWNERS — Default reviewers for every Pull Request in this repository
+# Reference: https://docs.github.com/en/repositories/managing-your-repositories-settings-and-features/customizing-your-repository/about-code-owners
+#
+# This file is installed by Ahrena's `scripts/install.py` when the project
+# selects the `github-codeowners` setup item. The installer resolves
+# `{org}` from `git remote get-url origin`. Edit the team handle below if
+# your repository's default code-owner is not `{org}/maintainers`.
+
+* @{org}/maintainers

@@ -917,6 +917,163 @@ def install_rtk_bundle(
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Project setup installers (CODEOWNERS, PR template, .gitignore merge)
+#
+# Each helper is idempotent and safe to re-run. Gated by the resolved
+# Selection.project_setup at install time.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Markers used by install_gitignore_merge() to delimit the Ahrena-managed
+# block inside the target's .gitignore. Edits between the markers are
+# overwritten on next install; edits outside the markers are preserved.
+_GITIGNORE_BEGIN = "# >>> AHRENA-GITIGNORE >>>"
+_GITIGNORE_END = "# <<< AHRENA-GITIGNORE <<<"
+
+# Regex pattern that extracts the org from a GitHub remote URL. Handles
+# both SSH (git@github.com:org/repo.git) and HTTPS (https://github.com/org/repo[.git])
+# shapes. Anything that does not match falls back to the commented
+# CODEOWNERS placeholder.
+_GITHUB_ORG_RE = re.compile(r"github\.com[:/](?P<org>[^/]+)/")
+
+
+def _resolve_github_org(target_dir: Path) -> str | None:
+    """Return the GitHub org parsed from `git remote get-url origin`, or None
+    when no remote is configured or the URL does not point at github.com."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(target_dir), "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+    except (FileNotFoundError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    url = (result.stdout or "").strip()
+    if not url:
+        return None
+    match = _GITHUB_ORG_RE.search(url)
+    if not match:
+        return None
+    return match.group("org")
+
+
+def install_github_codeowners(source_dir: Path, target_dir: Path) -> None:
+    """Materialize <target>/.github/CODEOWNERS from the framework sample.
+
+    Preserves an existing CODEOWNERS at the target. When the GitHub org can
+    be resolved from `git remote get-url origin`, fills `{org}` in the
+    sample; otherwise emits a commented placeholder with an explanatory
+    note so the file does not request a non-existent team.
+    """
+    dst = target_dir / ".github" / "CODEOWNERS"
+    if dst.exists():
+        print("  Preserved existing CODEOWNERS at .github/CODEOWNERS")
+        return
+
+    sample_path = source_dir / "framework" / "templates" / "CODEOWNERS.sample"
+    if not sample_path.exists():
+        print(f"  WARNING: CODEOWNERS sample not found at {sample_path}; skipping")
+        return
+
+    sample = sample_path.read_text(encoding="utf-8")
+    org = _resolve_github_org(target_dir)
+    if org:
+        rendered = sample.replace("{org}", org)
+        label = f"@{org}/maintainers"
+    else:
+        # Comment out the default-team line and prepend an explanatory note.
+        commented_lines: list[str] = []
+        for line in sample.splitlines():
+            if line.startswith("* @"):
+                commented_lines.append(
+                    "# Ahrena could not resolve the GitHub org from "
+                    "`git remote get-url origin`."
+                )
+                commented_lines.append(
+                    "# Replace the placeholder below with your team handle and uncomment."
+                )
+                commented_lines.append(f"# {line}")
+            else:
+                commented_lines.append(line)
+        rendered = "\n".join(commented_lines)
+        if not rendered.endswith("\n"):
+            rendered += "\n"
+        label = "commented placeholder (no GitHub remote)"
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_text(rendered, encoding="utf-8")
+    print(f"  Installed .github/CODEOWNERS ({label})")
+
+
+def install_github_pr_template(source_dir: Path, target_dir: Path) -> None:
+    """Sync <target>/.github/pull_request_template.md from the framework
+    template. Overwrites on every run so updates land; mirrors the existing
+    ISSUE_TEMPLATE sync pattern."""
+    src = source_dir / "framework" / "templates" / "contributing_templates" / "pull_request_template.md"
+    dst = target_dir / ".github" / "pull_request_template.md"
+    if not src.exists():
+        print(f"  WARNING: PR template not found at {src}; skipping")
+        return
+    if src.resolve() == dst.resolve():
+        # Self-install (ahrena dev-install with target = repo root) — nothing to do.
+        return
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+    print("  Synced .github/pull_request_template.md from framework template")
+
+
+def install_gitignore_merge(source_dir: Path, target_dir: Path) -> None:
+    """Merge the Ahrena-managed `.gitignore` block into <target>/.gitignore
+    between the AHRENA-GITIGNORE markers. Idempotent: replaces the block
+    in place when markers exist; appends with a leading blank line on first
+    install. Lines outside the markers are never touched."""
+    sample_path = source_dir / "framework" / ".gitignore.sample"
+    if not sample_path.exists():
+        print(f"  WARNING: .gitignore sample not found at {sample_path}; skipping")
+        return
+
+    sample_body = sample_path.read_text(encoding="utf-8").rstrip("\n")
+    block_lines = [
+        _GITIGNORE_BEGIN,
+        "# Managed by Ahrena. Edits inside this block are overwritten on next install.",
+        "# Source: framework/.gitignore.sample",
+        sample_body,
+        _GITIGNORE_END,
+    ]
+    new_block = "\n".join(block_lines) + "\n"
+
+    gitignore_path = target_dir / ".gitignore"
+    if gitignore_path.exists():
+        current = gitignore_path.read_text(encoding="utf-8")
+    else:
+        current = ""
+
+    if _GITIGNORE_BEGIN in current and _GITIGNORE_END in current:
+        # Replace the existing block in place; preserve everything outside.
+        pattern = re.compile(
+            re.escape(_GITIGNORE_BEGIN) + r".*?" + re.escape(_GITIGNORE_END) + r"\n?",
+            re.DOTALL,
+        )
+        merged = pattern.sub(new_block, current, count=1)
+        action = "Replaced Ahrena-managed block in .gitignore"
+    else:
+        # First install: append with a single leading blank line separator
+        # when current content does not already end with a blank line.
+        if current and not current.endswith("\n"):
+            current += "\n"
+        separator = "\n" if current and not current.endswith("\n\n") else ""
+        merged = current + separator + new_block
+        action = "Appended Ahrena-managed block to .gitignore" if current \
+            else "Created .gitignore with Ahrena-managed block"
+
+    gitignore_path.write_text(merged, encoding="utf-8")
+    print(f"  {action}")
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Preference-driven install selection (MCPs, hooks, optional features)
 #
 # The installer materializes `.directives` from a `Selection` resolved
@@ -956,6 +1113,28 @@ OPTIONAL_FEATURES: dict[str, str] = {
     "pm":               "Eunomia PM loop (plans status digest cadence + thresholds)",
 }
 
+# Catalog of project setup files installed at bootstrap. Tuple = (description, env vars).
+# Each item is gated by the resolved Selection.project_setup and materialized by
+# a dedicated installer helper inside install_ahrena().
+PROJECT_SETUP_CATALOG: dict[str, tuple[str, list[str]]] = {
+    "github-issue-templates": (
+        "Sync .github/ISSUE_TEMPLATE/*.yml from framework templates",
+        [],
+    ),
+    "github-pr-template": (
+        "Sync .github/pull_request_template.md from framework template",
+        [],
+    ),
+    "github-codeowners": (
+        "Install .github/CODEOWNERS with default-team block (skipped when CODEOWNERS exists)",
+        [],
+    ),
+    "gitignore-merge": (
+        "Merge Ahrena-managed .gitignore block between AHRENA markers (idempotent)",
+        [],
+    ),
+}
+
 
 @dataclass(frozen=True, kw_only=True)
 class Selection:
@@ -964,24 +1143,30 @@ class Selection:
     mcps: frozenset[str] = field(default_factory=frozenset)
     hooks: frozenset[str] = field(default_factory=frozenset)
     optional_features: frozenset[str] = field(default_factory=frozenset)
+    project_setup: frozenset[str] = field(default_factory=frozenset)
 
 
 PROFILE_FULL = Selection(
     mcps=frozenset(MCP_CATALOG.keys()),
     hooks=frozenset(HOOK_CATALOG.keys()),
     optional_features=frozenset(OPTIONAL_FEATURES.keys()),
+    project_setup=frozenset(PROJECT_SETUP_CATALOG.keys()),
 )
 
 PROFILE_STANDARD = Selection(
     mcps=frozenset({"ahrena"}),
     hooks=frozenset({"rtk", "pr-cost-attribution"}),
     optional_features=frozenset({"pr_cost_tracking", "session_tracking"}),
+    # Standard skips github-codeowners — the org guess from `git remote` is
+    # fragile in solo or fork repos and the placeholder is a poor default.
+    project_setup=frozenset({"github-issue-templates", "github-pr-template", "gitignore-merge"}),
 )
 
 PROFILE_MINIMAL = Selection(
     mcps=frozenset({"ahrena"}),
     hooks=frozenset({"rtk"}),
     optional_features=frozenset(),
+    project_setup=frozenset(),
 )
 
 _PROFILES: dict[str, Selection] = {
@@ -1039,6 +1224,8 @@ def resolve_selection(args: argparse.Namespace, interactive: bool) -> Selection:
     without_hooks = parse_csv_set(getattr(args, "without_hooks", None))
     with_features = parse_csv_set(getattr(args, "with_features", None))
     without_features = parse_csv_set(getattr(args, "without_features", None))
+    with_setup = parse_csv_set(getattr(args, "with_setup", None))
+    without_setup = parse_csv_set(getattr(args, "without_setup", None))
 
     _validate_names("MCP", with_mcp, MCP_CATALOG)
     _validate_names("MCP", without_mcp, MCP_CATALOG)
@@ -1046,19 +1233,24 @@ def resolve_selection(args: argparse.Namespace, interactive: bool) -> Selection:
     _validate_names("hook", without_hooks, HOOK_CATALOG)
     _validate_names("feature", with_features, OPTIONAL_FEATURES)
     _validate_names("feature", without_features, OPTIONAL_FEATURES)
+    _validate_names("setup", with_setup, PROJECT_SETUP_CATALOG)
+    _validate_names("setup", without_setup, PROJECT_SETUP_CATALOG)
 
     mcps = (base.mcps | with_mcp) - without_mcp
     hooks = (base.hooks | with_hooks) - without_hooks
     features = (base.optional_features | with_features) - without_features
+    setup = (base.project_setup | with_setup) - without_setup
 
     resolved = Selection(
         mcps=frozenset(mcps),
         hooks=frozenset(hooks),
         optional_features=frozenset(features),
+        project_setup=frozenset(setup),
     )
 
     any_override = bool(
-        with_mcp | without_mcp | with_hooks | without_hooks | with_features | without_features
+        with_mcp | without_mcp | with_hooks | without_hooks
+        | with_features | without_features | with_setup | without_setup
     )
 
     if (
@@ -1080,6 +1272,7 @@ def resolve_selection(args: argparse.Namespace, interactive: bool) -> Selection:
             mcps=resolved.mcps | frozenset({"ahrena"}),
             hooks=resolved.hooks,
             optional_features=resolved.optional_features,
+            project_setup=resolved.project_setup,
         )
     return resolved
 
@@ -1149,13 +1342,24 @@ def interactive_select(initial: Selection) -> Selection:
         {k: (v, []) for k, v in OPTIONAL_FEATURES.items()},
         initial.optional_features,
     )
+    setup, _ = _render_section(
+        "Project setup files (.github/, .gitignore):",
+        PROJECT_SETUP_CATALOG,
+        initial.project_setup,
+    )
 
-    candidate = Selection(mcps=mcps, hooks=hooks, optional_features=feats)
+    candidate = Selection(
+        mcps=mcps,
+        hooks=hooks,
+        optional_features=feats,
+        project_setup=setup,
+    )
 
     print("\nFinal selection:")
     print(f"  MCPs:     {', '.join(sorted(candidate.mcps)) or '(none)'}")
     print(f"  Hooks:    {', '.join(sorted(candidate.hooks)) or '(none)'}")
     print(f"  Features: {', '.join(sorted(candidate.optional_features)) or '(none)'}")
+    print(f"  Setup:    {', '.join(sorted(candidate.project_setup)) or '(none)'}")
     try:
         confirm = input("Proceed? [Y/n] ").strip().lower()
     except EOFError:
@@ -1560,16 +1764,41 @@ session_tracking:
     return "\n" + header + (body_selected if selected else body_commented)
 
 
+def _render_project_setup_section(selection: Selection) -> str:
+    """Render the project_setup: list. Selected items are uncommented;
+    unselected items appear as commented placeholders so the file documents
+    every available bootstrap target. Re-running install honors the items
+    currently materialized; this section is informational (the live source of
+    truth for what runs on the next install is the resolved Selection)."""
+    header = """\
+# ─── Project Setup ──────────────────────────────────────────────
+# Project setup files materialized by `scripts/install.py` at
+# bootstrap time. Each item is gated by the resolved Selection
+# during install (--profile / --with-setup / --without-setup).
+# Re-running install honors the current run's resolved selection;
+# this list is informational and documents which items are
+# currently expected to be present in the project tree.
+"""
+    lines: list[str] = ["project_setup:"]
+    for name in PROJECT_SETUP_CATALOG:
+        if name in selection.project_setup:
+            lines.append(f"  - {name}")
+        else:
+            lines.append(f"  # - {name}")
+    return "\n" + header + "\n".join(lines) + "\n"
+
+
 def render_directives(selection: Selection) -> str:
     """Render a complete `.directives` file for the given selection.
 
     Sections always present (schema is stable): paths, references, mcp,
     quality (commented), knowledge (commented), language, terminal (commented),
     stacked_prs (commented), pr_cost_tracking, rtk, notifications, pm,
-    session_tracking, naming. Selection drives whether optional-feature
-    sections (pr_cost_tracking, session_tracking, notifications, pm) and the
-    RTK section are uncommented with Full defaults or kept as schema-only
-    skeletons.
+    session_tracking, project_setup, naming. Selection drives whether
+    optional-feature sections (pr_cost_tracking, session_tracking,
+    notifications, pm) and the RTK section are uncommented with Full defaults
+    or kept as schema-only skeletons, and which project setup items appear
+    uncommented vs. as commented placeholders.
     """
     parts: list[str] = [_DIRECTIVES_HEADER, _render_mcp_section(selection)]
     parts.append(_DIRECTIVES_QUALITY_AND_KNOWLEDGE)
@@ -1579,6 +1808,7 @@ def render_directives(selection: Selection) -> str:
     parts.append(_render_notifications_section("notifications" in selection.optional_features))
     parts.append(_render_pm_section("pm" in selection.optional_features))
     parts.append(_render_session_tracking_section("session_tracking" in selection.optional_features))
+    parts.append(_render_project_setup_section(selection))
     parts.append(_DIRECTIVES_NAMING)
     return "".join(parts)
 
@@ -1588,9 +1818,9 @@ def print_catalog() -> None:
     print("Ahrena install catalog")
     print("=" * 60)
     print("\nProfiles:")
-    print(f"  full     — every MCP, every hook, every optional feature (default)")
-    print(f"  standard — ahrena MCP + both hooks + pr_cost_tracking + session_tracking")
-    print(f"  minimal  — ahrena MCP + rtk hook only")
+    print(f"  full     — every MCP, every hook, every feature, every setup item (default)")
+    print(f"  standard — ahrena MCP + both hooks + pr_cost_tracking + session_tracking + 3 setup items (no auto-codeowners)")
+    print(f"  minimal  — ahrena MCP + rtk hook only (no setup items)")
     print("\nMCP servers (--with-mcp / --without-mcp):")
     for name, (desc, envs) in MCP_CATALOG.items():
         env_note = f"  [env: {', '.join(envs)}]" if envs else ""
@@ -1601,6 +1831,9 @@ def print_catalog() -> None:
     print("\nOptional .directives features (--with-features / --without-features):")
     for name, desc in OPTIONAL_FEATURES.items():
         print(f"  {name:18s} {desc}")
+    print("\nProject setup files (--with-setup / --without-setup):")
+    for name, (desc, _envs) in PROJECT_SETUP_CATALOG.items():
+        print(f"  {name:25s} {desc}")
     print("\nResolution order: explicit --with-*/--without-* > --profile > full")
 
 
@@ -2158,6 +2391,7 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     directives_path = ahrena_dir / ".directives"
     directives_content: str | None = None
     should_write = False
+    selection: Selection | None = None
 
     if args.directives:
         if args.directives.startswith("http://") or args.directives.startswith("https://"):
@@ -2183,7 +2417,8 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
         print(
             f"  Selection: MCPs={sorted(selection.mcps) or '[]'}, "
             f"hooks={sorted(selection.hooks) or '[]'}, "
-            f"features={sorted(selection.optional_features) or '[]'}",
+            f"features={sorted(selection.optional_features) or '[]'}, "
+            f"setup={sorted(selection.project_setup) or '[]'}",
         )
         for warning in check_env_vars(selection):
             print(f"  {warning}", file=sys.stderr)
@@ -2204,6 +2439,21 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
     else:
         print(f"  .directives already exists — preserved")
 
+    # Resolve the project setup selection for the current run.
+    #
+    # Project setup helpers (CODEOWNERS, PR template, .gitignore merge,
+    # ISSUE_TEMPLATE sync) always honor the *current run's* resolved
+    # Selection — not the previously-rendered .directives. This matches
+    # Plan A's existing flow: the installer respects the live CLI flags /
+    # profile on every run and never re-parses .directives. When no CLI
+    # flags and no profile are given, the resolved selection defaults to
+    # Full, so re-runs preserve the user-facing default behavior.
+    if selection is None:
+        # Always non-interactive here: the live install_ahrena call has
+        # already produced any prompt (above). On re-runs there is no
+        # opportunity for a fresh prompt — fall back to flags + profile.
+        selection = resolve_selection(args, interactive=False)
+
     # 2.5. Sync contributing_templates to .ahrena/contributing_templates/
     # (framework-managed: always refresh on install/update so new templates land
     # and existing ones track the framework version)
@@ -2215,26 +2465,40 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
         shutil.copytree(ct_src, ct_dst)
         print(f"  Synced contributing_templates to .ahrena/contributing_templates/")
 
-    # 2.5b. Sync GitHub Issue Templates to target/.github/ISSUE_TEMPLATE/
-    # The .yml forms under source_dir/.github/ISSUE_TEMPLATE/ are the canonical
-    # GitHub-rendered counterparts of the .md sources in contributing_templates.
-    # Copy each file individually so user-authored templates (file names not in
-    # the framework set) are preserved in the consumer repo.
-    gh_tpl_src = source_dir / ".github" / "ISSUE_TEMPLATE"
-    gh_tpl_dst = target_dir / ".github" / "ISSUE_TEMPLATE"
-    if gh_tpl_src.exists():
-        gh_tpl_dst.mkdir(parents=True, exist_ok=True)
-        synced = 0
-        for yml in sorted(gh_tpl_src.glob("*.yml")):
-            dst = gh_tpl_dst / yml.name
-            # Skip self-copy when source and target are the same path
-            # (ahrena dev-install with target = repo root).
-            if yml.resolve() == dst.resolve():
-                continue
-            shutil.copy2(yml, dst)
-            synced += 1
-        if synced:
-            print(f"  Synced {synced} GitHub Issue Template(s) to .github/ISSUE_TEMPLATE/")
+    # 2.5b. Project setup files (gated by selection.project_setup).
+    # Each item is installed only when present in the resolved selection.
+    # Minimal profile materializes none; Standard skips github-codeowners;
+    # Full materializes all four. See PROJECT_SETUP_CATALOG for details.
+    if "github-issue-templates" in selection.project_setup:
+        # Sync GitHub Issue Templates to target/.github/ISSUE_TEMPLATE/.
+        # The .yml forms under source_dir/.github/ISSUE_TEMPLATE/ are the canonical
+        # GitHub-rendered counterparts of the .md sources in contributing_templates.
+        # Copy each file individually so user-authored templates (file names not in
+        # the framework set) are preserved in the consumer repo.
+        gh_tpl_src = source_dir / ".github" / "ISSUE_TEMPLATE"
+        gh_tpl_dst = target_dir / ".github" / "ISSUE_TEMPLATE"
+        if gh_tpl_src.exists():
+            gh_tpl_dst.mkdir(parents=True, exist_ok=True)
+            synced = 0
+            for yml in sorted(gh_tpl_src.glob("*.yml")):
+                dst = gh_tpl_dst / yml.name
+                # Skip self-copy when source and target are the same path
+                # (ahrena dev-install with target = repo root).
+                if yml.resolve() == dst.resolve():
+                    continue
+                shutil.copy2(yml, dst)
+                synced += 1
+            if synced:
+                print(f"  Synced {synced} GitHub Issue Template(s) to .github/ISSUE_TEMPLATE/")
+
+    if "github-pr-template" in selection.project_setup:
+        install_github_pr_template(source_dir, target_dir)
+
+    if "github-codeowners" in selection.project_setup:
+        install_github_codeowners(source_dir, target_dir)
+
+    if "gitignore-merge" in selection.project_setup:
+        install_gitignore_merge(source_dir, target_dir)
 
     # 2.6. Copy mcp/ templates to .ahrena/mcp/ (never overwrite user overrides)
     mcp_src = ahrena_framework / "mcp"
@@ -2923,8 +3187,17 @@ offline (run this script directly from a cloned Ahrena repo):
         help="comma-separated optional .directives features to exclude",
     )
     parser.add_argument(
+        "--with-setup", metavar="LIST", default="",
+        help="comma-separated project setup items to include "
+             "(e.g., github-codeowners,github-pr-template,gitignore-merge)",
+    )
+    parser.add_argument(
+        "--without-setup", metavar="LIST", default="",
+        help="comma-separated project setup items to exclude",
+    )
+    parser.add_argument(
         "--list-catalog", action="store_true",
-        help="print the install catalog (MCPs, hooks, optional features) and exit",
+        help="print the install catalog (MCPs, hooks, features, project setup) and exit",
     )
     return parser
 
