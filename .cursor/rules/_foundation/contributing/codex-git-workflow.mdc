@@ -212,9 +212,9 @@ The GitHub App credentials follow the same storage convention as `scripts/argos/
 On macOS, store each credential as a separate `security` entry. The auth resolver fills any variable still missing after `.env.local` + env have been loaded:
 
 ```bash
-security add-generic-password -s ahrena-warriors-default-gh-app-id -a "$USER" -w "<APP_ID>"
-security add-generic-password -s ahrena-warriors-default-gh-installation-id -a "$USER" -w "<INSTALLATION_ID>"
-security add-generic-password -s ahrena-warriors-default-gh-private-key -a "$USER" -w "$(cat /path/to/key.pem)"
+security add-generic-password -U -s ahrena-warriors-default-gh-app-id -a "$USER" -w "<APP_ID>"
+security add-generic-password -U -s ahrena-warriors-default-gh-installation-id -a "$USER" -w "<INSTALLATION_ID>"
+security add-generic-password -U -s ahrena-warriors-default-gh-private-key -a "$USER" -w "$(cat /path/to/key.pem)"
 ```
 
 The `ahrena-warriors-default-gh-private-key` entry stores the PEM content verbatim — the auth resolver materializes it into a chmod-600 tempfile at signing time and removes the tempfile via the `_ahrena_auth_cleanup` trap on every exit path. The private key never persists on disk under the operator's `$HOME`.
