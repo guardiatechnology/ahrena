@@ -20,6 +20,7 @@ After Gate 2 results in `go`, create the branch, push the modified files, and op
 | Base branch | No | Target branch of the PR; default: `main` |
 | Flow artifacts | Yes | `.ahrena/issues/{n}/*` and `docs/adr/ADR-*` created in previous phases |
 | PR strategy | No | `draft` (default: `false`) |
+| `--warrior <name>` | No | Name of the warrior invoking the kata (e.g., `athena`). Enables the bot-author route in Step 6 when `bot_author.enabled=true` AND the name is in `bot_author.apply_to`. When omitted, the PR is created with the caller's default `gh` token (human author). |
 
 ## Workflow
 
@@ -41,6 +42,9 @@ Progress:
 2. Confirm `GH_TOKEN` is defined.
 3. Read `.ahrena/issues/{n}/06-quality-report.md` and confirm the result is `go`. If `no-go`, refuse to create the PR and return to the orchestrator.
 4. Consult `codex-mcp-github` to identify the correct tools (`create_branch`, `push_files`, `create_pull_request`).
+5. **Resolve PR author identity** — source `scripts/ahrena-auth.sh` (no-op when `bot_author.enabled=false`) and decide routing:
+   - If `bot_author.enabled == true` AND `--warrior <name>` was provided AND `<name>` is in `bot_author.apply_to`: the PR will be opened as `ahrena-bot[bot]` using `GH_TOKEN_AHRENA_BOT` (Step 6 details).
+   - Otherwise: the PR will be opened with the caller's default `gh` token (human author).
 
 ### Step 2: Determine branch name and PR title
 
@@ -185,15 +189,25 @@ This step replaces the old mechanic of "update `status:` in the plan front-matte
 
 ### Step 6: Create PR linked to the issue
 
-1. Invoke `create_pull_request` with:
+1. Resolve the PR-author token based on the Step 1 routing decision:
+   - **Bot-author path** (selected in Step 1): invoke the PR-creation command in a subshell with `GH_TOKEN=$GH_TOKEN_AHRENA_BOT` so the PR author resolves to `ahrena-bot[bot]`. Example for the CLI fallback path:
+     ```bash
+     GH_TOKEN="${GH_TOKEN_AHRENA_BOT}" gh pr create \
+       --title "<title>" --body "<body>" \
+       --head "<branch>" --base "<base>"
+     ```
+     When the MCP path is active, pass the equivalent token override through the MCP server configuration (per `codex-mcp-github`).
+   - **Human path:** use the caller's default `gh auth` token (no override).
+2. Invoke `create_pull_request` with:
    - `owner`, `repo`
    - `title` — from Step 2
    - `head` — branch name
    - `base` — target branch
    - `body` — from Step 5
    - `draft` — per input (default `false`)
-2. Capture the `html_url` of the created PR.
-3. If `Resolves #{n}` is in the body, GitHub will automatically link the issue.
+3. Capture the `html_url` of the created PR.
+4. If `Resolves #{n}` is in the body, GitHub will automatically link the issue.
+5. **Soft-fail to human token** — if the bot-author path returns a non-zero status (e.g., the App lacks `pull_requests:write` on this repo), emit a visible warning and retry once with the caller's default token. Never silence the degradation.
 
 ### Step 6b: Apply `status: to review` (transition `development → to review`)
 
