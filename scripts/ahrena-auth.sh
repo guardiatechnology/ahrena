@@ -15,12 +15,21 @@
 #
 # When enabled, the resolution flow mirrors scripts/argos/auth.sh:
 #   1. Load AHRENA_WARRIORS_DEFAULT_GH_* credentials from .env.local
-#      (project root) OR the current environment (env wins for CI).
+#      (project root) OR the current environment (env wins for CI). When
+#      a variable is still missing AND the host is macOS with the
+#      `security` CLI on PATH, fill it from the Keychain entry of the
+#      same name family:
+#        ahrena-warriors-default-gh-app-id
+#        ahrena-warriors-default-gh-installation-id
+#        ahrena-warriors-default-gh-private-key  (PEM content)
+#      Missing on Linux / Windows → the require checks below surface the
+#      specific variable that needs to be set.
 #   2. If cached installation token at .ahrena/bot/installation-token.json
 #      is still fresh (>= 5 min before expiry), reuse it.
 #   3. Otherwise:
-#      a. Sign a JWT (RS256, 10-min expiry) with the App private key
-#         (sourced from macOS Keychain when available, else file path).
+#      a. Sign a JWT (RS256, 10-min expiry) with the App private key.
+#         When the PEM came from the Keychain, it is materialized into a
+#         chmod-600 tempfile that the cleanup trap removes on exit.
 #      b. Exchange the JWT for an installation token via
 #         POST /app/installations/{id}/access_tokens.
 #      c. Cache the token + expiry timestamp (chmod 0600).
@@ -233,11 +242,57 @@ if [[ -f "${_AHRENA_ENV_FILE}" ]]; then
   set +a
 fi
 
+# ─── macOS Keychain resolution (Plan P8 — Issue #284) ──────────────────────
+# After .env.local + inherited env, fill missing values from the macOS
+# Keychain. The activated path is already running with xtrace OFF (see the
+# master guard at the top of this section), so the `security` invocations
+# below do NOT leak under `bash -x`. Each lookup is independent:
+# the operator can store any subset in Keychain and the rest in env / .env.local.
+#
+# Cross-platform contract:
+#   - On Linux / Windows (no `security` on PATH) the entire block is
+#     skipped via the `command -v security` guard. Missing variables
+#     then surface through `_ahrena_auth_require` with the established
+#     env-only error message. AC-P8-3.
+#   - On macOS, an empty Keychain falls through cleanly: each `security
+#     find-generic-password` call ends with `|| true` so the script
+#     never trips on a missing entry; the assignment guard
+#     (`[[ -n ... ]]`) skips when the lookup returned nothing.
+#
+# Service-name convention (Plan P8 scope item 4):
+#   ahrena-warriors-default-gh-app-id          → APP_ID (plain value)
+#   ahrena-warriors-default-gh-installation-id → INSTALLATION_ID (plain value)
+#   ahrena-warriors-default-gh-private-key     → PEM content (multiline)
+#
+# The private-key Keychain entry stores the PEM CONTENT verbatim
+# (option (b) of the scope: tempfile materialized at runtime; the key
+# never lives on disk under the operator's $HOME). The existing
+# `_ahrena_auth_cleanup` trap removes the tempfile on every exit path.
+if command -v security >/dev/null 2>&1 && [[ "$(uname -s)" == "Darwin" ]]; then
+  if [[ -z "${AHRENA_WARRIORS_DEFAULT_GH_APP_ID:-}" ]]; then
+    _AHRENA_KEYCHAIN_APP_ID="$(security find-generic-password \
+      -s ahrena-warriors-default-gh-app-id -a "${USER}" -w 2>/dev/null || true)"
+    if [[ -n "${_AHRENA_KEYCHAIN_APP_ID}" ]]; then
+      AHRENA_WARRIORS_DEFAULT_GH_APP_ID="${_AHRENA_KEYCHAIN_APP_ID}"
+    fi
+    unset _AHRENA_KEYCHAIN_APP_ID
+  fi
+
+  if [[ -z "${AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID:-}" ]]; then
+    _AHRENA_KEYCHAIN_INSTALLATION_ID="$(security find-generic-password \
+      -s ahrena-warriors-default-gh-installation-id -a "${USER}" -w 2>/dev/null || true)"
+    if [[ -n "${_AHRENA_KEYCHAIN_INSTALLATION_ID}" ]]; then
+      AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID="${_AHRENA_KEYCHAIN_INSTALLATION_ID}"
+    fi
+    unset _AHRENA_KEYCHAIN_INSTALLATION_ID
+  fi
+fi
+
 # Validate required credentials (defensive: emit error + return non-zero)
 _ahrena_auth_require() {
   local name="$1"
   if [[ -z "${!name:-}" ]]; then
-    echo "ERROR (ahrena-auth.sh): missing ${name} (set in .env.local or env)." >&2
+    echo "ERROR (ahrena-auth.sh): missing ${name} (set in .env.local, env, or macOS Keychain)." >&2
     _ahrena_auth_cleanup
     _ahrena_auth_exit 1
     return 1
@@ -251,35 +306,56 @@ _ahrena_auth_require "AHRENA_WARRIORS_DEFAULT_GH_INSTALLATION_ID" || return 1 2>
 # Resolve the GitHub App slug (defaults to ahrena-bot; overridable via env)
 _AHRENA_APP_SLUG="${AHRENA_WARRIORS_DEFAULT_GH_SLUG:-ahrena-bot}"
 
-# Resolve private key source (Keychain preferred on macOS, else file path).
-_AHRENA_KEYCHAIN_SERVICE="ahrena.bot.github-app"
+# Resolve private key source.
+#
+# Resolution order:
+#   1. macOS Keychain entry `ahrena-warriors-default-gh-private-key`
+#      (PEM content stored verbatim) — materialized to a chmod-600 tempfile
+#      and removed by the cleanup trap (AC-P8-4).
+#   2. Env / .env.local `AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH` —
+#      file path to an existing PEM on disk.
+#
+# The Keychain branch only fires when `security` exists AND the entry is
+# present. Empty entries fall through to the file-path branch. This
+# preserves the established behavior for operators on Linux/Windows and
+# for macOS operators who prefer the env-vars-only setup.
 _AHRENA_PRIVATE_KEY_PATH=""
 
-if [[ "$(uname -s)" == "Darwin" ]] && \
-   security find-generic-password -s "${_AHRENA_KEYCHAIN_SERVICE}" -w >/dev/null 2>&1; then
-  _AHRENA_KEYCHAIN_TMP_KEY="$(mktemp -t "ahrena-bot-key.XXXXXXXX")"
-  _AHRENA_PEM_RAW="$(security find-generic-password -s "${_AHRENA_KEYCHAIN_SERVICE}" -w 2>/dev/null)" || {
-    rm -f "${_AHRENA_KEYCHAIN_TMP_KEY}"
-    echo "ERROR (ahrena-auth.sh): Keychain entry '${_AHRENA_KEYCHAIN_SERVICE}' present but read failed." >&2
+if command -v security >/dev/null 2>&1 && [[ "$(uname -s)" == "Darwin" ]]; then
+  if security find-generic-password \
+       -s ahrena-warriors-default-gh-private-key -a "${USER}" -w >/dev/null 2>&1; then
+    _AHRENA_KEYCHAIN_TMP_KEY="$(mktemp -t "ahrena-warriors-default-key.XXXXXXXX")"
+    chmod 600 "${_AHRENA_KEYCHAIN_TMP_KEY}"
+    _AHRENA_PEM_RAW="$(security find-generic-password \
+      -s ahrena-warriors-default-gh-private-key -a "${USER}" -w 2>/dev/null)" || {
+      rm -f "${_AHRENA_KEYCHAIN_TMP_KEY}"
+      _AHRENA_KEYCHAIN_TMP_KEY=""
+      echo "ERROR (ahrena-auth.sh): Keychain entry 'ahrena-warriors-default-gh-private-key' present but read failed." >&2
+      _ahrena_auth_exit 1
+      return 1 2>/dev/null
+    }
+    if [[ "${_AHRENA_PEM_RAW}" == "-----BEGIN"* ]]; then
+      printf '%s' "${_AHRENA_PEM_RAW}" > "${_AHRENA_KEYCHAIN_TMP_KEY}"
+    else
+      # Legacy fallback: some operators stored the PEM hex-encoded.
+      printf '%s' "${_AHRENA_PEM_RAW}" | xxd -r -p > "${_AHRENA_KEYCHAIN_TMP_KEY}"
+    fi
+    unset _AHRENA_PEM_RAW
+    _AHRENA_PRIVATE_KEY_PATH="${_AHRENA_KEYCHAIN_TMP_KEY}"
+  fi
+fi
+
+if [[ -z "${_AHRENA_PRIVATE_KEY_PATH}" ]]; then
+  if [[ -n "${AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH:-}" ]]; then
+    _AHRENA_PRIVATE_KEY_PATH="${AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH/#\~/$HOME}"
+  else
+    echo "ERROR (ahrena-auth.sh): no private key source available." >&2
+    echo "  Either populate the Keychain (macOS):" >&2
+    echo "    security add-generic-password -s ahrena-warriors-default-gh-private-key -a \"\$USER\" -w \"\$(cat /path/to/key.pem)\"" >&2
+    echo "  Or set AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH in .env.local / env." >&2
     _ahrena_auth_exit 1
     return 1 2>/dev/null
-  }
-  if [[ "${_AHRENA_PEM_RAW}" == "-----BEGIN"* ]]; then
-    printf '%s' "${_AHRENA_PEM_RAW}" > "${_AHRENA_KEYCHAIN_TMP_KEY}"
-  else
-    printf '%s' "${_AHRENA_PEM_RAW}" | xxd -r -p > "${_AHRENA_KEYCHAIN_TMP_KEY}"
   fi
-  unset _AHRENA_PEM_RAW
-  _AHRENA_PRIVATE_KEY_PATH="${_AHRENA_KEYCHAIN_TMP_KEY}"
-elif [[ -n "${AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH:-}" ]]; then
-  _AHRENA_PRIVATE_KEY_PATH="${AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH/#\~/$HOME}"
-else
-  echo "ERROR (ahrena-auth.sh): no private key source available." >&2
-  echo "  Either populate the Keychain (macOS):" >&2
-  echo "    security add-generic-password -a ahrena-bot -s ${_AHRENA_KEYCHAIN_SERVICE} -w \"\$(cat /path/to/key.pem)\"" >&2
-  echo "  Or set AHRENA_WARRIORS_DEFAULT_GH_PRIVATE_KEY_PATH in .env.local / env." >&2
-  _ahrena_auth_exit 1
-  return 1 2>/dev/null
 fi
 
 if [[ ! -r "${_AHRENA_PRIVATE_KEY_PATH}" ]]; then
