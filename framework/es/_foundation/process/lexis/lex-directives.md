@@ -83,6 +83,11 @@ El agente **DEBE** aplicar cada sección de la directiva al comportamiento corre
 | `session_tracking.heartbeat_dir` | Directorio donde se escriben los archivos de heartbeat `.json` por sesión. Default `.ahrena/workflow/sessions` (gitignored). |
 | `session_tracking.stale_threshold_minutes` | Intervalo (minutos) sin heartbeat tras el cual Eunomia considera la sesión offline. Default `30`. |
 | `session_tracking.pr_trace_required` | Cuando `true`, Gate 2 (`kata-quality-gate`) rechaza PRs sin la sección "Session Trace" en el body. Default `true`. |
+| `bot_author.enabled` | Llave maestra para la identidad de autor de commit/PR del bot Ahrena. Cuando `true`, los warriors listados en `bot_author.apply_to` invocan `scripts/ahrena-auth.sh` antes de `git commit` / `gh pr create`, de modo que los commits y PRs se atribuyen a la identidad del GitHub App `ahrena-bot[bot]` (firmada en el servidor mediante el token de instalación del App) y el ser humano que condujo el trabajo se registra como `Co-authored-by:`. Default `false` — el comportamiento actual de autoría humana se preserva bit a bit hasta que el proyecto opte explícitamente. Ver `codex-git-workflow` ("Author identity"). |
+| `bot_author.identity` | Slug del GitHub App usado para derivar la identidad del bot (default `ahrena-bot`). Sobreescriba sólo cuando un fork o clon utilice otro slug. |
+| `bot_author.commit_mode` | `api` (firmado en el servidor vía token de instalación del App) — único modo disponible hoy. El valor `local` está reservado para una iteración futura. |
+| `bot_author.commit_co_author` | `human` (inyecta `Co-authored-by: <nombre humano> <email humano>` para que la persona que condujo el trabajo permanezca rastreable) o `none`. |
+| `bot_author.apply_to` | Lista de nombres de warriors que respetan el override. Los warriors omitidos de la lista mantienen el autor humano aunque la llave maestra esté activada (opt-out por warrior). |
 
 Manuales complementarios para interpretación de las secciones: `codex-directives` (visión general del archivo), `codex-paths` (rutas canónicas), `codex-naming` (convenciones de nomenclatura), `codex-notifications` (mapeo provider → MCP tool), `codex-session-tracking` (schema del heartbeat y Session Trace).
 
