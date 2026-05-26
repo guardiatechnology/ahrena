@@ -2,8 +2,8 @@
 
 The shell script under test:
 
-- Exits 0 (no-op) when `GH_TOKEN_AHRENA_BOT` is absent (AC-P2-1, AC-P2-4
-  branch when bot mode is off).
+- Exits 0 (no-op) when `GH_TOKEN_AHRENA_WARRIORS_DEFAULT` is absent
+  (AC-P2-1, AC-P2-4 branch when warriors-default mode is off).
 - Drives a 4-step GitHub Git Data API flow (blob → tree → commit → ref)
   using `curl` + `jq`, returning the new commit SHA on stdout (AC-P2-2/3).
 - Soft-fails (exit 2) on any API/network error so the calling kata can
@@ -106,7 +106,7 @@ def _env_with_fake_curl(state_dir: Path, plan_dir: Path, token: str | None) -> d
         "FAKE_CURL_TOKEN_REDACT_GUARD": token or "",
     }
     if token is not None:
-        env["GH_TOKEN_AHRENA_BOT"] = token
+        env["GH_TOKEN_AHRENA_WARRIORS_DEFAULT"] = token
     # Carry GIT_* config-free environment.
     for k in ("LANG", "LC_ALL", "TERM"):
         if k in os.environ:
@@ -182,14 +182,14 @@ def _read_request_body(state_dir: Path, call_index: int) -> dict | None:
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# AC-P2-1: no-op when GH_TOKEN_AHRENA_BOT is absent
+# AC-P2-1: no-op when GH_TOKEN_AHRENA_WARRIORS_DEFAULT is absent
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
 def test_no_op_when_token_absent(tmp_path: Path) -> None:
-    """bot_author.enabled=false → ahrena-auth.sh exports nothing →
-    GH_TOKEN_AHRENA_BOT absent → this script MUST exit 0 silently
-    without invoking curl."""
+    """warriors_default_author.enabled=false → ahrena-auth.sh exports
+    nothing → GH_TOKEN_AHRENA_WARRIORS_DEFAULT absent → this script MUST
+    exit 0 silently without invoking curl."""
     repo = tmp_path / "repo"
     _init_repo(repo)
     _stage_file(repo, "foo.txt", "hello\n")
@@ -438,9 +438,9 @@ def test_token_never_in_stderr_on_missing_args(tmp_path: Path) -> None:
 
 def test_401_retries_once_after_re_sourcing_auth(tmp_path: Path) -> None:
     """First blob upload returns 401; the script MUST re-source
-    ahrena-auth.sh (no-op when bot_author.enabled is missing, but still
-    invoked) and retry the call once with the refreshed token. The second
-    call returns 201 and the flow proceeds normally."""
+    ahrena-auth.sh (no-op when warriors_default_author.enabled is missing,
+    but still invoked) and retry the call once with the refreshed token.
+    The second call returns 201 and the flow proceeds normally."""
     repo = tmp_path / "repo"
     _init_repo(repo)
     _stage_file(repo, "foo.txt", "bar\n")
@@ -609,7 +609,7 @@ def test_patch_404_falls_back_to_post_create_ref(tmp_path: Path) -> None:
     """First commit on a brand-new feature branch: `PATCH /git/refs/heads/<branch>`
     returns 404 (the ref does not exist yet). The script MUST fall back
     to `POST /git/refs` with `{ref, sha}` so the branch is created and
-    the bot-author commit lands.
+    the warriors-default-author commit lands.
 
     Addresses gemini-code-assist comment #3301245348 on PR #279:
     without the fallback, AC-P2-2 was silently broken on the first

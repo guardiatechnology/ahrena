@@ -20,7 +20,7 @@ Tras el Gate 2 resultar en `go`, crear la branch, hacer push de los archivos mod
 | Base branch | No | Branch objetivo del PR; default: `main` |
 | Artefactos del flujo | Sí | `.ahrena/issues/{n}/*` y `docs/adr/ADR-*` creados en las fases anteriores |
 | Estrategia del PR | No | `draft` (default: `false`) |
-| `--warrior <nombre>` | No | Nombre del warrior que invoca el kata (ej.: `athena`). Habilita la ruta bot-author en el Paso 6 cuando `bot_author.enabled=true` Y el nombre está en `bot_author.apply_to`. Cuando se omite, el PR se crea con el token `gh` default del invocador (autor humano). |
+| `--warrior <nombre>` | No | Nombre del warrior que invoca el kata (ej.: `athena`). Habilita la ruta default-warrior en el Paso 6 cuando `warriors_default_author.enabled=true` Y el nombre está en `warriors_default_author.apply_to`. Cuando se omite, el PR se crea con el token `gh` default del invocador (autor humano). |
 
 ## Workflow
 
@@ -42,8 +42,8 @@ Progreso:
 2. Confirmar `GH_TOKEN` definida.
 3. Leer `.ahrena/issues/{n}/06-quality-report.md` y confirmar resultado `go`. Si `no-go`, rechazar crear PR y retornar al orquestador.
 4. Consultar `codex-mcp-github` para identificar herramientas correctas (`create_branch`, `push_files`, `create_pull_request`).
-5. **Resolver identidad de autor del PR** — cargar `scripts/ahrena-auth.sh` (no-op cuando `bot_author.enabled=false`) y decidir el ruteo:
-   - Si `bot_author.enabled == true` Y el input `--warrior <nombre>` fue proporcionado Y `<nombre>` está en `bot_author.apply_to`: el PR se abrirá como `ahrena-bot[bot]` usando `GH_TOKEN_AHRENA_BOT` (detalles en el Paso 6).
+5. **Resolver identidad de autor del PR** — cargar `scripts/ahrena-auth.sh` (no-op cuando `warriors_default_author.enabled=false`) y decidir el ruteo:
+   - Si `warriors_default_author.enabled == true` Y el input `--warrior <nombre>` fue proporcionado Y `<nombre>` está en `warriors_default_author.apply_to`: el PR se abrirá como `ahrena-bot[bot]` usando `GH_TOKEN_AHRENA_WARRIORS_DEFAULT` (detalles en el Paso 6).
    - En caso contrario: el PR se abrirá con el token `gh` default del invocador (autor humano).
 
 ### Paso 2: Determinar nombre de la branch y título del PR
@@ -189,9 +189,9 @@ Ese paso sustituye la mecánica antigua de "actualizar `status:` en el front-mat
 ### Paso 6: Crear PR vinculado a la issue
 
 1. Resolver el token de autor del PR según el ruteo decidido en el Paso 1:
-   - **Ruta bot-author** (seleccionada en el Paso 1): invocar el comando de creación del PR en un subshell con `GH_TOKEN=$GH_TOKEN_AHRENA_BOT` para que el autor del PR se resuelva como `ahrena-bot[bot]`. Ejemplo para el fallback CLI:
+   - **Ruta default-warrior** (seleccionada en el Paso 1): invocar el comando de creación del PR en un subshell con `GH_TOKEN=$GH_TOKEN_AHRENA_WARRIORS_DEFAULT` para que el autor del PR se resuelva como `ahrena-bot[bot]`. Ejemplo para el fallback CLI:
      ```bash
-     GH_TOKEN="${GH_TOKEN_AHRENA_BOT}" gh pr create \
+     GH_TOKEN="${GH_TOKEN_AHRENA_WARRIORS_DEFAULT}" gh pr create \
        --title "<title>" --body "<body>" \
        --head "<branch>" --base "<base>"
      ```
@@ -206,7 +206,7 @@ Ese paso sustituye la mecánica antigua de "actualizar `status:` en el front-mat
    - `draft` — conforme al input (default `false`)
 3. Capturar `html_url` del PR creado.
 4. Si `Resolves #{n}` está en el body, GitHub vinculará automáticamente la issue.
-5. **Soft-fail al token humano** — si la ruta bot-author retorna status no-cero (ej.: el App no tiene `pull_requests:write` en este repo), emitir aviso visible y reintentar una vez con el token default del invocador. Nunca silenciar la degradación.
+5. **Soft-fail al token humano** — si la ruta default-warrior retorna status no-cero (ej.: el App no tiene `pull_requests:write` en este repo), emitir aviso visible y reintentar una vez con el token default del invocador. Nunca silenciar la degradación.
 
 ### Paso 6b: Aplicar `status: to review` (transición `development → to review`)
 

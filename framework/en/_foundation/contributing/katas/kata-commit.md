@@ -21,7 +21,7 @@ This Kata defines the standardized procedure for creating a commit that respects
 | Type | No | Conventional Commits type (feat, fix, docs, etc.). If omitted, the agent infers from the diff |
 | Scope | No | Affected module or domain. If omitted, the agent infers from the diff |
 | Description | No | Subject text. If omitted, the agent composes it from the diff |
-| `--warrior <name>` | No | Name of the warrior invoking the kata (e.g., `apollo`, `athena`, `hephaestus`). Enables the bot-author route when `bot_author.enabled=true` AND the name is in `bot_author.apply_to`. When omitted, the flow always uses the local (human) commit path. |
+| `--warrior <name>` | No | Name of the warrior invoking the kata (e.g., `apollo`, `athena`, `hephaestus`). Enables the warriors-default-author route when `warriors_default_author.enabled=true` AND the name is in `warriors_default_author.apply_to`. When omitted, the flow always uses the local (human) commit path. |
 
 ## Workflow
 
@@ -30,7 +30,7 @@ Progress:
 - [ ] 1. Analyze changes
 - [ ] 2. Classify and compose message
 - [ ] 3. Validate against Lexis
-- [ ] 4. Resolve author (human or ahrena-bot)
+- [ ] 4. Resolve author (human or warriors-default)
 - [ ] 5. Execute commit
 - [ ] 6. Final verification
 ```
@@ -74,23 +74,23 @@ Verify compliance with each Lexis before executing:
 
 If any validation fails, fix it before proceeding.
 
-### Step 4: Resolve Author (human or ahrena-bot)
+### Step 4: Resolve Author (human or warriors-default)
 
 Before invoking `git commit`, the kata decides between two authorship paths:
 
-1. **Source `scripts/ahrena-auth.sh`** (always — it is a no-op when `bot_author.enabled=false`):
+1. **Source `scripts/ahrena-auth.sh`** (always — it is a no-op when `warriors_default_author.enabled=false`):
    ```bash
    source scripts/ahrena-auth.sh
    ```
-   When the directive is off, the script returns immediately without exporting anything. When on, it exports `GH_TOKEN_AHRENA_BOT` (the GitHub App installation token) and the `GIT_AUTHOR_*` / `GIT_COMMITTER_*` variables pointing at the `ahrena-bot[bot]` identity.
+   When the directive is off, the script returns immediately without exporting anything. When on, it exports `GH_TOKEN_AHRENA_WARRIORS_DEFAULT` (the GitHub App installation token) and the `GIT_AUTHOR_*` / `GIT_COMMITTER_*` variables pointing at the fleet-default `[bot]` identity (`ahrena-bot[bot]`).
 
-2. **Read `bot_author.enabled` and `bot_author.apply_to`** from `.ahrena/.directives`.
+2. **Read `warriors_default_author.enabled` and `warriors_default_author.apply_to`** from `.ahrena/.directives`.
 
 3. **Routing decision:**
-   - If `bot_author.enabled == true` AND the `--warrior <name>` input was provided AND `<name>` is in `bot_author.apply_to`: take the **bot-author path** (Step 5a below).
+   - If `warriors_default_author.enabled == true` AND the `--warrior <name>` input was provided AND `<name>` is in `warriors_default_author.apply_to`: take the **warriors-default-author path** (Step 5a below).
    - Otherwise (no `--warrior`, master switch off, or warrior not in `apply_to`): take the **human path** (Step 5b).
 
-4. **Bot-author path** — assemble the `Co-authored-by` from the human driving the session:
+4. **Warriors-default-author path** — assemble the `Co-authored-by` from the human driving the session:
    ```bash
    HUMAN_CO_AUTHOR="$(git config user.name) <$(git config user.email)>"
    ```
@@ -98,9 +98,9 @@ Before invoking `git commit`, the kata decides between two authorship paths:
 
 ### Step 5: Execute Commit
 
-#### Step 5a: Bot-author path (server-side)
+#### Step 5a: Warriors-default-author path (server-side)
 
-When Step 4 routed to the bot-author path:
+When Step 4 routed to the warriors-default-author path:
 
 1. Invoke `scripts/ahrena-api-commit.sh` to create the commit via the GitHub Git Data API:
    ```bash
@@ -158,8 +158,8 @@ When Step 4 routed to the human path (or as the fallback from 5a):
 
 - [ ] `git log -1 --format='%s'` shows the correct subject
 - [ ] **Human path (5b):** `git log -1 --show-signature` shows a valid GPG signature
-- [ ] **Bot-author path (5a):** `git log -1 --format='%an <%ae>'` shows `ahrena-bot[bot]` and the commit displays the **Verified** badge on GitHub
-- [ ] **Bot-author path (5a):** the commit body contains the `Co-authored-by: <human>` trailer when `bot_author.commit_co_author=human`
+- [ ] **Warriors-default-author path (5a):** `git log -1 --format='%an <%ae>'` shows `ahrena-bot[bot]` and the commit displays the **Verified** badge on GitHub
+- [ ] **Warriors-default-author path (5a):** the commit body contains the `Co-authored-by: <human>` trailer when `warriors_default_author.commit_co_author=human`
 - [ ] The commit contains only the intended changes
 - [ ] The subject is in English and follows Conventional Commits
 - [ ] The commit is atomic (single logical change)
@@ -175,17 +175,17 @@ When Step 4 routed to the human path (or as the fallback from 5a):
 - Never commit without verifying compliance with all 4 Lexis
 - Never mix unrelated changes in a single commit
 - On the human path (Step 5b), never commit without a configured GPG signature — if GPG is not configured, alert the user and guide the setup
-- On the bot-author path (Step 5a), the signature is served by the GitHub App installation token; no local GPG is required
+- On the warriors-default-author path (Step 5a), the signature is served by the GitHub App installation token; no local GPG is required
 - Never silence a failure of `ahrena-api-commit.sh` — always inform the user when there is a fallback to the human path
 
 ## References
 
 - `lex-conventional-commits` — Mandatory format
-- `lex-signed-commits` — Mandatory GPG signature (human path) or App-signed (bot path)
+- `lex-signed-commits` — Mandatory GPG signature (human path) or App-signed (warriors-default path)
 - `lex-small-commits` — Mandatory atomicity
 - `lex-commit-language` — Mandatory language
 - `codex-commit-standards` — Complete standards guide
-- `codex-git-workflow` — "Author identity" section describes the human vs bot routing
-- `scripts/ahrena-auth.sh` — `bot_author.enabled` gate + GitHub App credentials resolver
-- `scripts/ahrena-api-commit.sh` — Commit via Git Data API (bot-author path)
+- `codex-git-workflow` — "Author identity" section describes the human vs warriors-default routing
+- `scripts/ahrena-auth.sh` — `warriors_default_author.enabled` gate + GitHub App credentials resolver
+- `scripts/ahrena-api-commit.sh` — Commit via Git Data API (warriors-default-author path)
 - `cry-commit` — Shortcut that invokes this Kata

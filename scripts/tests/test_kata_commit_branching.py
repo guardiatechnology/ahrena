@@ -1,14 +1,14 @@
-"""Documentation-contract tests for the bot-author routing logic that
-`kata-commit` and `kata-pr-prepare` instruct an agent to apply.
+"""Documentation-contract tests for the warriors-default-author routing
+logic that `kata-commit` and `kata-pr-prepare` instruct an agent to apply.
 
 The katas are markdown (not executable code), so the "branching logic"
 lives in the agent's interpretation of the instructions. These tests
 verify two complementary surfaces:
 
 1. The decision matrix the kata documents matches the directive shape
-   that `scripts/install.py` renders (`bot_author.enabled` +
-   `bot_author.apply_to`). If the rendered shape ever drifts from what
-   the kata reads, these tests catch the mismatch.
+   that `scripts/install.py` renders (`warriors_default_author.enabled` +
+   `warriors_default_author.apply_to`). If the rendered shape ever
+   drifts from what the kata reads, these tests catch the mismatch.
 
 2. The kata files (pt-BR / es / en) all reference the canonical
    `--warrior` arg, the `scripts/ahrena-auth.sh` source step, and the
@@ -56,52 +56,56 @@ KATA_PR_PREPARE_PATHS = [
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-def _rendered_directives(*, with_bot_author: bool) -> dict:
+def _rendered_directives(*, with_warriors_default_author: bool) -> dict:
     """Render .directives via install.py and parse the result back."""
-    if with_bot_author:
-        sel = Selection(optional_features=frozenset({"bot-author"}))
+    if with_warriors_default_author:
+        sel = Selection(optional_features=frozenset({"warriors-default-author"}))
     else:
         sel = Selection()
     return parse_directives(render_directives(sel))
 
 
-def test_bot_author_disabled_means_local_path_for_any_warrior() -> None:
-    """AC-P2-1 / AC-P2-4 negative branch: when `bot_author.enabled=false`
-    the kata MUST always take the local-commit path, regardless of
-    `--warrior` or `apply_to`."""
-    directives = _rendered_directives(with_bot_author=False)
-    # When bot-author is not selected, render_directives emits the commented
-    # skeleton — parse_directives sees no live `bot_author:` block.
-    assert "bot_author" not in directives or not directives.get("bot_author", {}).get(
+def test_warriors_default_author_disabled_means_local_path_for_any_warrior() -> None:
+    """AC-P2-1 / AC-P2-4 negative branch: when
+    `warriors_default_author.enabled=false` the kata MUST always take the
+    local-commit path, regardless of `--warrior` or `apply_to`."""
+    directives = _rendered_directives(with_warriors_default_author=False)
+    # When warriors-default-author is not selected, render_directives
+    # emits the commented skeleton — parse_directives sees no live
+    # `warriors_default_author:` block.
+    assert "warriors_default_author" not in directives or not directives.get(
+        "warriors_default_author", {}
+    ).get(
         "enabled"
-    ), "with bot-author not selected, parsed enabled flag must be falsy"
+    ), "with warriors-default-author not selected, parsed enabled flag must be falsy"
 
 
-def test_bot_author_enabled_and_warrior_in_apply_to_means_api_path() -> None:
-    """AC-P2-2 / AC-P2-3: bot mode active + warrior listed → bot-author
-    path (ahrena-api-commit.sh / GH_TOKEN_AHRENA_BOT)."""
-    directives = _rendered_directives(with_bot_author=True)
-    bot = directives.get("bot_author", {})
-    assert bot.get("enabled") == "true"
-    apply_to = bot.get("apply_to")
+def test_warriors_default_author_enabled_and_warrior_in_apply_to_means_api_path() -> None:
+    """AC-P2-2 / AC-P2-3: warriors-default mode active + warrior listed →
+    warriors-default-author path (ahrena-api-commit.sh /
+    GH_TOKEN_AHRENA_WARRIORS_DEFAULT)."""
+    directives = _rendered_directives(with_warriors_default_author=True)
+    section = directives.get("warriors_default_author", {})
+    assert section.get("enabled") == "true"
+    apply_to = section.get("apply_to")
     assert isinstance(apply_to, list)
     # The 5 canonical warriors are listed (mirrors Plan #271 AC-6).
     for name in ("athena", "apollo", "hephaestus", "iris", "claudionor"):
         assert name in apply_to, f"warrior {name!r} missing from apply_to"
 
 
-def test_bot_author_apply_to_is_authoritative_for_per_warrior_optout() -> None:
+def test_warriors_default_author_apply_to_is_authoritative_for_per_warrior_optout() -> None:
     """AC-P2-4: warriors NOT in `apply_to` keep the local-commit path
     even when the master switch is on. The list-membership check is the
     sole opt-out mechanism — there is no implicit per-warrior override."""
-    directives = _rendered_directives(with_bot_author=True)
-    apply_to = directives["bot_author"]["apply_to"]
+    directives = _rendered_directives(with_warriors_default_author=True)
+    apply_to = directives["warriors_default_author"]["apply_to"]
     # Sanity: any warrior name NOT in the canonical list resolves to
     # human-author. This pins the contract; the kata documents it.
     assert "some-unlisted-warrior" not in apply_to
     assert "argos" not in apply_to, (
         "argos is a reviewer (not a committer) — must NOT appear in apply_to "
-        "or `kata-commit` would route review comments through the bot identity."
+        "or `kata-commit` would route review comments through the warriors-default identity."
     )
 
 
@@ -128,7 +132,7 @@ def test_kata_commit_sources_ahrena_auth_in_all_languages() -> None:
 
 def test_kata_commit_invokes_api_commit_script_in_all_languages() -> None:
     """All 3 kata-commit translations point to ahrena-api-commit.sh as
-    the bot-author commit path."""
+    the warriors-default-author commit path."""
     for path in KATA_COMMIT_PATHS:
         content = path.read_text(encoding="utf-8")
         assert "scripts/ahrena-api-commit.sh" in content, (
@@ -149,7 +153,7 @@ def test_kata_commit_declares_fallback_on_api_failure_in_all_languages() -> None
 
 def test_kata_commit_references_co_authored_by_human_in_all_languages() -> None:
     """The `Co-authored-by: <human>` trailer is the auditability anchor
-    on the bot-author path."""
+    on the warriors-default-author path."""
     for path in KATA_COMMIT_PATHS:
         content = path.read_text(encoding="utf-8")
         assert "Co-authored-by" in content, (
@@ -171,13 +175,13 @@ def test_kata_pr_prepare_sources_ahrena_auth_in_all_languages() -> None:
         )
 
 
-def test_kata_pr_prepare_uses_gh_token_ahrena_bot_in_all_languages() -> None:
-    """The PR-author path threads `GH_TOKEN_AHRENA_BOT` into the
-    gh-create invocation."""
+def test_kata_pr_prepare_uses_gh_token_ahrena_warriors_default_in_all_languages() -> None:
+    """The PR-author path threads `GH_TOKEN_AHRENA_WARRIORS_DEFAULT` into
+    the gh-create invocation."""
     for path in KATA_PR_PREPARE_PATHS:
         content = path.read_text(encoding="utf-8")
-        assert "GH_TOKEN_AHRENA_BOT" in content, (
-            f"GH_TOKEN_AHRENA_BOT env override missing in {path}"
+        assert "GH_TOKEN_AHRENA_WARRIORS_DEFAULT" in content, (
+            f"GH_TOKEN_AHRENA_WARRIORS_DEFAULT env override missing in {path}"
         )
 
 
@@ -200,7 +204,7 @@ def test_kata_pr_prepare_documents_soft_fail_in_all_languages() -> None:
 def test_warrior_athena_passes_warrior_arg_to_kata_pr_prepare() -> None:
     """The lone warrior that drives `kata-pr-prepare` is athena. Its doc
     MUST mention `--warrior athena` so the routing decision matches the
-    `bot_author.apply_to` membership pinned above."""
+    `warriors_default_author.apply_to` membership pinned above."""
     athena_paths = [
         FRAMEWORK / "pt-BR" / "engineering" / "workflow" / "warriors" / "warrior-athena.md",
         FRAMEWORK / "es" / "engineering" / "workflow" / "warriors" / "warrior-athena.md",
