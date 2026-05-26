@@ -166,7 +166,10 @@ _ahrena_api_commit_cleanup() {
 }
 trap _ahrena_api_commit_cleanup EXIT
 
-_AHRENA_API_COMMIT_TMPDIR="$(mktemp -d -t ahrena-api-commit.XXXXXXXX)"
+_AHRENA_API_COMMIT_TMPDIR="$(mktemp -d -t ahrena-api-commit.XXXXXXXX)" || {
+  echo "ERROR (ahrena-api-commit.sh): failed to create temporary directory." >&2
+  exit 1
+}
 
 # ─── API helpers ───────────────────────────────────────────────────────────
 # _api_call <method> <path> [<body_file>]
@@ -181,7 +184,10 @@ _api_call() {
   local path="$2"
   local body_file="${3:-}"
   local out_file
-  out_file="$(mktemp "${_AHRENA_API_COMMIT_TMPDIR}/resp.XXXXXX")"
+  out_file="$(mktemp "${_AHRENA_API_COMMIT_TMPDIR}/resp.XXXXXX")" || {
+    echo "ERROR (ahrena-api-commit.sh): failed to create temporary file for API response." >&2
+    return 1
+  }
 
   # Re-source ahrena-auth.sh so a token refresh performed in a previous
   # _api_call (which runs in a command substitution / subshell) propagates
@@ -308,7 +314,10 @@ _append_tree_entry() {
   local mode="$2"
   local sha_or_null="$3"  # blob SHA string, or "null" literal for deletion
   local tmp
-  tmp="$(mktemp "${_AHRENA_API_COMMIT_TMPDIR}/tree-acc.XXXXXX")"
+  tmp="$(mktemp "${_AHRENA_API_COMMIT_TMPDIR}/tree-acc.XXXXXX")" || {
+    echo "ERROR (ahrena-api-commit.sh): failed to create temporary file for tree accumulator." >&2
+    return 1
+  }
   if [[ "${sha_or_null}" == "null" ]]; then
     jq --arg p "${path}" --arg m "${mode}" \
       '. + [{path: $p, mode: $m, type: "blob", sha: null}]' \
