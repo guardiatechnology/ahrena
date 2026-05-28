@@ -22,6 +22,7 @@ Escrever ou atualizar o arquivo de heartbeat `.ahrena/workflow/sessions/<session
 | `last_activity` | Sim | Identificador do passo/kata/cry corrente (ex.: `kata-pr-prepare:step3`, `cry-review-pr`) |
 | `role` | Sim | `creator`, `executor`, `reviewer`, `releaser` |
 | `previous_session` | Não | UUID da sessão anterior em caso de handoff |
+| `tags` | Não | Objeto de tags da sessão `{kind, topics: [...]}` para fundir no heartbeat. Quando omitido, as tags existentes são preservadas. Veja "Suporte a tags" abaixo e `lex-session-tags`. |
 
 Variáveis de ambiente lidas automaticamente:
 
@@ -116,10 +117,53 @@ Sem stdout obrigatório. Kata é silencioso em sucesso. Em falha (erro de I/O), 
 - **Idempotente.** Múltiplas chamadas rápidas sucessivas produzem o mesmo arquivo final.
 - **No-op fora do Claude Code.** Sem `CLAUDE_CODE_SESSION_ID`, kata sai com código 0 sem erro.
 
+## Suporte a tags
+
+A kata aceita uma entrada opcional `tags` (ou a forma equivalente de CLI `--set-tags <kind> [topic1] [topic2]`) regida por `lex-session-tags`.
+
+**Formas de invocação:**
+
+```bash
+# Posicional (ergonomia de CLI): kind primeiro, depois 0-2 topics
+kata-session-heartbeat --set-tags tech-task reconciliation api
+
+# Programática (invocação por outra kata ou warrior):
+kata-session-heartbeat tags='{"kind":"tech-task","topics":["reconciliation","api"]}'
+```
+
+**Semântica de merge:**
+
+- Quando `tags` é fornecido: valida contra `session_tracking.tags.*` em `.directives` (kind está em `kinds`; topics ≤ 2; total de slots ≤ 3); substitui o objeto `tags` do heartbeat atomicamente.
+- Quando `tags` é omitido: preserva o objeto `tags` existente no heartbeat em disco (junto com `started_at`).
+- Para limpar as tags: passe um objeto vazio explícito `tags={}` (renderizado no JSON como `"tags": {}` — ou remova a chave com `tags=null`).
+
+**Merge atômico:**
+
+A escrita atômica das Etapas 6+7 (`mktemp` → `mv`) já preserva o restante do JSON. O ramo de tags segue o mesmo caminho:
+
+```bash
+EXISTING=$(cat ".ahrena/workflow/sessions/${SESSION_ID}.json" 2>/dev/null || echo '{}')
+NEW=$(echo "$EXISTING" | jq --argjson tags "$TAGS_JSON" '.tags = $tags')
+TMP=$(mktemp)
+echo "$NEW" > "$TMP"
+mv "$TMP" ".ahrena/workflow/sessions/${SESSION_ID}.json"
+```
+
+**Erros de validação:**
+
+Quando a validação em `lex-session-tags` falha (kind fora do vocabulário, > 2 topics, formato malformado), a kata sai com código 2 e imprime no stderr um erro de uma linha listando o vocabulário configurado. O arquivo de heartbeat fica intacto.
+
+**Interação com auto-sugestão:**
+
+`kata-session-tag-suggest` é a kata upstream que produz um objeto `tags` válido a partir do primeiro prompt do usuário. Esta kata NÃO a invoca — apenas escreve o que recebe. A orquestração (chamar-sugestão-depois-chamar-heartbeat) vive no hook do Plan B ou no `cry-tags --auto-suggest` invocado pelo usuário.
+
 ## Referências
 
-- `codex-session-tracking` — manual de referência (schema, cadência, limpeza, handoff)
+- `codex-session-tracking` — manual de referência (schema, cadência, limpeza, handoff, §9 tags)
 - `lex-agent-planning` — front-matter do plano referencia `claude_session` + `session_entrypoint`
 - `lex-pr-quality` — exige "Session Trace" no body do PR
+- `lex-session-tags` — lei que rege o objeto `tags`
+- `kata-session-tag-suggest` — kata upstream que produz sugestões de tags
 - `kata-pr-prepare` — consome os heartbeat files na construção do "Session Trace"
+- `cry-tags` — override pelo usuário (`set`, `show`, `clear`, `--auto-suggest`)
 - `warrior-eunomia`, `warrior-athena`, `warrior-argos`, `warrior-janus` — invocadores
