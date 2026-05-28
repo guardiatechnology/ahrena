@@ -117,6 +117,46 @@ _(human-driven; no session trace)_
 
 Accepted at Gate 2.
 
+### 9. Session tags
+
+Sessions MAY carry up to 3 short tags written in the heartbeat under the `tags` object. Tags surface the session intent (kind + free-form topics) to humans through the Claude Code statusline, the ahrena-vscode extension sidebar, and the Eunomia plans digest.
+
+**Heartbeat shape:**
+
+```json
+"tags": {
+  "kind": "tech-task",
+  "topics": ["session-tracking", "framework"]
+}
+```
+
+**Schema:**
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `tags.kind` | string | When `tags` is present | One value from `session_tracking.tags.kinds` in `.directives` |
+| `tags.topics` | array of 0–2 strings | No | Free-form, lowercase kebab-case recommended, ≤ 20 chars each |
+
+The maximum is **3 total slots** (1 `kind` + up to 2 `topics`). The shape is fixed: the object form `{kind, topics: [...]}`. Flat arrays or extra keys are rejected.
+
+**Write contract:**
+
+- Tags are merged into the heartbeat via `kata-session-heartbeat --set-tags`.
+- Atomic write (temp file + `mv`) preserves the rest of the JSON (`session_id`, `started_at`, `last_activity`, …).
+- Backward-compatible: heartbeats written before tags existed have no `tags` key and every reader treats the field as optional.
+
+**Read contract:**
+
+- Statusline script reads `tags.kind` and `tags.topics[]` and prints chips after the branch (e.g. `main ahrena · [tech-task] [reconciliation]`).
+- ahrena-vscode extension watches `.ahrena/workflow/sessions/<id>.json` and renders chips on the session row.
+- Eunomia plans digest aggregates tags per active session for the periodic status report.
+
+**Auto-suggestion:**
+
+When `session_tracking.tags.auto_suggest: true` and the heartbeat has no `tags` object, the agent invokes `kata-session-tag-suggest` on the first user turn of the session, then writes the result via `kata-session-heartbeat`. A one-line visibility note in the same response shows the chosen tags so the user can correct via `/cry-tags set` if the inference was off. Re-running auto-suggest when `tags` is already present is rejected — tags are session-scoped; only the user clears them.
+
+The contract is governed by `lex-session-tags`.
+
 ## Restrictions
 
 - **Do not persist credentials or sensitive data** in the heartbeat file — `cwd`, `branch`, `plan_id`, IDs, and timestamps are the boundary.
