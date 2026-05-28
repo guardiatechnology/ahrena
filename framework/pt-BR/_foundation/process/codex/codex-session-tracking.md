@@ -129,6 +129,46 @@ _(human-driven; no session trace)_
 
 Aceito em Gate 2.
 
+### 9. Tags de sessão
+
+Sessões PODEM carregar até 3 tags curtas escritas no heartbeat sob o objeto `tags`. As tags expõem a intenção da sessão (kind + topics livres) ao humano através do statusline do Claude Code, do sidebar da extensão ahrena-vscode e do digest de planos do Eunomia.
+
+**Formato no heartbeat:**
+
+```json
+"tags": {
+  "kind": "tech-task",
+  "topics": ["session-tracking", "framework"]
+}
+```
+
+**Schema:**
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|:---:|---|
+| `tags.kind` | string | Quando `tags` está presente | Um valor de `session_tracking.tags.kinds` em `.directives` |
+| `tags.topics` | array de 0–2 strings | Não | Livres, recomendado em letra minúscula kebab-case, ≤ 20 caracteres cada |
+
+O máximo é **3 slots no total** (1 `kind` + até 2 `topics`). O formato é fixo: o objeto `{kind, topics: [...]}`. Arrays planos ou chaves extras são rejeitados.
+
+**Contrato de escrita:**
+
+- As tags são fundidas no heartbeat via `kata-session-heartbeat --set-tags`.
+- Escrita atômica (arquivo temporário + `mv`) preserva o restante do JSON (`session_id`, `started_at`, `last_activity`, …).
+- Compatível com versões anteriores: heartbeats escritos antes das tags existirem não têm a chave `tags` e cada leitor trata o campo como opcional.
+
+**Contrato de leitura:**
+
+- O script do statusline lê `tags.kind` e `tags.topics[]` e exibe chips após a branch (ex.: `main ahrena · [tech-task] [reconciliation]`).
+- A extensão ahrena-vscode observa `.ahrena/workflow/sessions/<id>.json` e renderiza chips na linha da sessão.
+- O digest de planos do Eunomia agrega as tags por sessão ativa no relatório periódico de status.
+
+**Sugestão automática:**
+
+Quando `session_tracking.tags.auto_suggest: true` e o heartbeat não tem objeto `tags`, o agente invoca `kata-session-tag-suggest` no primeiro turno do usuário da sessão e escreve o resultado via `kata-session-heartbeat`. Uma nota de visibilidade de uma linha na mesma resposta mostra as tags escolhidas para o usuário corrigir via `/cry-tags set` caso a inferência tenha errado. Re-executar a auto-sugestão quando `tags` já está presente é rejeitado — as tags têm escopo de sessão; apenas o usuário as limpa.
+
+O contrato é regido por `lex-session-tags`.
+
 ## Restrições
 
 - **Não persistir credenciais ou dados sensíveis** no heartbeat file — `cwd`, `branch`, `plan_id`, IDs e timestamps são o limite.
