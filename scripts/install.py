@@ -707,6 +707,144 @@ def install_pr_cost_attribution_hook(
     print("  Wired PR cost attribution hook (UserPromptSubmit, SessionStart) into .claude/settings.json")
 
 
+def install_session_tags_auto_suggest_hook(
+    ahrena_dir: Path,
+    target_dir: Path,
+    directives: dict,
+    dry_run: bool = False,
+) -> None:
+    """Wire session-tags-auto-suggest.sh into project .claude/settings.json hooks.
+
+    Activated when:
+      session_tracking.enabled == true (default true when section exists)
+      AND session_tracking.tags.enabled == true (default true)
+      AND session_tracking.tags.auto_suggest == true (default true)
+
+    Side effects:
+      1. Copies framework/templates/claude-code-hooks/session-tags-auto-suggest.sh
+         to <target>/.claude/hooks/session-tags-auto-suggest.sh (chmod +x).
+      2. Adds a hook entry to <target>/.claude/settings.json under
+         hooks.UserPromptSubmit. Idempotent — re-runs replace the existing
+         canonical entry instead of duplicating it. Other hooks (pr-cost,
+         RTK, etc.) are preserved.
+
+    Per Plan B Q1: dedicated hook script (not extension of pr-cost-attribution).
+    Per Plan B Q2: only UserPromptSubmit, no SessionStart — first-turn detection
+    is heartbeat-based (.tags missing), not session-start based.
+    """
+    import json
+
+    # parse_directives returns string values (e.g. "true"/"false"), not Python
+    # bool — coerce explicitly with a default-true semantics so a missing key
+    # behaves like an opt-out switch in the off position only when the user
+    # writes the literal "false".
+    def _is_true(value: object, default: bool = True) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.strip().lower() == "true"
+        return default
+
+    st = directives.get("session_tracking") if isinstance(directives, dict) else None
+    if not isinstance(st, dict):
+        st = {}
+    if not _is_true(st.get("enabled"), default=True):
+        return
+    tags = st.get("tags") if isinstance(st.get("tags"), dict) else {}
+    if not _is_true(tags.get("enabled"), default=True):
+        return
+    if not _is_true(tags.get("auto_suggest"), default=True):
+        return
+
+    src_hook = (
+        ahrena_dir
+        / "framework"
+        / "templates"
+        / "claude-code-hooks"
+        / "session-tags-auto-suggest.sh"
+    )
+    if not src_hook.exists():
+        print(
+            f"  WARNING: session-tags-auto-suggest.sh not found at {src_hook} — skipping hook install",
+            file=sys.stderr,
+        )
+        return
+
+    claude_dir = target_dir / ".claude"
+    hooks_dir = claude_dir / "hooks"
+    hook_dst = hooks_dir / "session-tags-auto-suggest.sh"
+    settings_path = claude_dir / "settings.json"
+
+    hook_cmd = "$CLAUDE_PROJECT_DIR/.claude/hooks/session-tags-auto-suggest.sh"
+
+    if dry_run:
+        print(
+            "    [DRY-RUN] .claude/hooks/session-tags-auto-suggest.sh (copy from framework template)"
+        )
+        print("    [DRY-RUN] .claude/settings.json (wire UserPromptSubmit)")
+        return
+
+    # ── 1. Copy hook script ──
+    hooks_dir.mkdir(parents=True, exist_ok=True)
+    hook_dst.write_text(src_hook.read_text(encoding="utf-8"), encoding="utf-8")
+    hook_dst.chmod(0o755)
+
+    # ── 2. Merge hook entry into settings.json (UserPromptSubmit only) ──
+    existing: dict = {}
+    if settings_path.exists():
+        try:
+            existing = json.loads(settings_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            existing = {}
+
+    hooks_block = existing.get("hooks")
+    if not isinstance(hooks_block, dict):
+        hooks_block = {}
+
+    groups = hooks_block.get("UserPromptSubmit")
+    if not isinstance(groups, list):
+        groups = []
+
+    # Idempotency: drop any group whose hooks include our command, then append
+    # the canonical entry. Other UserPromptSubmit hooks (pr-cost-attribution)
+    # are preserved.
+    cleaned: list = []
+    for g in groups:
+        if not isinstance(g, dict):
+            cleaned.append(g)
+            continue
+        inner = g.get("hooks")
+        if not isinstance(inner, list):
+            cleaned.append(g)
+            continue
+        ours = any(
+            isinstance(h, dict)
+            and h.get("type") == "command"
+            and isinstance(h.get("command"), str)
+            and "session-tags-auto-suggest.sh" in h["command"]
+            for h in inner
+        )
+        if not ours:
+            cleaned.append(g)
+    cleaned.append(
+        {
+            "matcher": "",
+            "hooks": [{"type": "command", "command": hook_cmd}],
+        }
+    )
+    hooks_block["UserPromptSubmit"] = cleaned
+    existing["hooks"] = hooks_block
+
+    claude_dir.mkdir(parents=True, exist_ok=True)
+    settings_path.write_text(
+        json.dumps(existing, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    print(
+        "  Wired session tags auto-suggest hook (UserPromptSubmit) into .claude/settings.json"
+    )
+
+
 # Canonical RTK PreToolUse command per Decision 4 of Plan #214.
 # Strict fallback semantics: when `rtk` is absent from PATH the hook exits 0
 # with empty stdout so Claude Code proceeds with the original tool input;
@@ -3051,6 +3189,11 @@ def install_claude_code(ahrena_dir: Path, target_dir: Path, dry_run: bool = Fals
     # PR cost attribution hook: opt-in via pr_cost_tracking.enabled in .directives.
     # Keeps the hook script under .claude/hooks/ and wires it into settings.json.
     install_pr_cost_attribution_hook(ahrena_dir, target_dir, directives, dry_run=dry_run)
+
+    # Session tags auto-suggest hook: opt-out via session_tracking.tags.auto_suggest=false
+    # in .directives. On the first user turn of a session with no tags yet, the hook
+    # injects a one-shot system-reminder so Claude derives + writes tags per lex-session-tags.
+    install_session_tags_auto_suggest_hook(ahrena_dir, target_dir, directives, dry_run=dry_run)
 
     # RTK (Rust Token Killer) bundle: opt-out via rtk.enabled=false in .directives.
     # Ensures the binary is installed, wires the per-project PreToolUse hook with
