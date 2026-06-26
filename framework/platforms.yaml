@@ -464,6 +464,9 @@ cursor:
     engineering/quality/lexis/lex-dry:
       alwaysApply: false
       description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
+    engineering/quality/lexis/lex-input-dto:
+      alwaysApply: false
+      description: "Python construction surfaces (≥5 params, or a parameter group repeated across ≥2 sibling signatures, or use-case command / entity birth-factory inputs) must group parameters into a dedicated frozen input type, bound to the hexagon layer (api Pydantic request / app Command / domain construction VO) with no cross-layer reuse. Count trigger via ruff PLR0913 (max-args=4)."
     engineering/quality/lexis/lex-no-silent-tech-debt:
       alwaysApply: false
       description: "During an active Plan (status: development), forbid committing code or docs with silent TODO/FIXME/XXX/follow-up markers without a trackable Issue/Plan reference. Tangential findings must be surfaced to the human with 3 explicit options (expand Plan, new Plan, new Issue). Applies prospectively to diffs."
@@ -633,6 +636,9 @@ claude-code:
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
     engineering/quality/lexis/lex-dry:
       description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
+    engineering/quality/lexis/lex-input-dto:
+      paths: ["**/*.py"]
+      description: "Python construction surfaces (≥5 params, or a parameter group repeated across ≥2 sibling signatures, or use-case command / entity birth-factory inputs) must group parameters into a dedicated frozen input type, bound to the hexagon layer (api Pydantic request / app Command / domain construction VO) with no cross-layer reuse. Count trigger via ruff PLR0913 (max-args=4)."
     engineering/quality/lexis/lex-no-silent-tech-debt:
       description: "During an active Plan (status: development), forbid committing code or docs with silent TODO/FIXME/XXX/follow-up markers without a trackable Issue/Plan reference. Tangential findings must be surfaced to the human with 3 explicit options (expand Plan, new Plan, new Issue). Applies prospectively to diffs."
     engineering/sre/lexis/lex-slo-required:
