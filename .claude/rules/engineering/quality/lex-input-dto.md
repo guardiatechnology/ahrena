@@ -11,6 +11,7 @@ paths:
 
 > **Every function, method, or factory that (1) takes ≥ 5 domain parameters, (2) shares the same parameter group with ≥ 2 sibling signatures (rule of three for parameter shape), or (3) represents a use-case command or an entity birth/factory input MUST group those parameters into a dedicated, immutable (frozen) input type. The type MUST respect the hexagon layer it lives in — Pydantic request model in `adapters/api`, a frozen `Command` in `application`, a frozen construction Value Object in `domain` — without reusing one layer's type in another. A mutable, anemic (mirrors every argument without cohesion), or cross-layer-reused (boundary leak) input-DTO is FORBIDDEN. Methods with 1–3 parameters and single-arg transitions (e.g., `settle(on: datetime)`) do NOT require grouping.**
 
+```
 <HARD-GATE>
 warrior-apollo, warrior-athena (Gate 2), and any agent implementing or
 reviewing Python code MUST NOT approve a construction signature that
@@ -32,6 +33,7 @@ Single declared exception: methods with 1–3 parameters and single-arg
 transitions (e.g., `settle(on: datetime)`) fall outside the trigger scope
 and do not require grouping.
 </HARD-GATE>
+```
 
 ## Coverage
 

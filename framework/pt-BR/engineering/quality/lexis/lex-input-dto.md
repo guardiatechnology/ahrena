@@ -10,6 +10,7 @@ Superfícies de construção grandes — uma factory de domínio com 19 kwargs, 
 
 > **Toda função, método ou factory que (1) recebe ≥ 5 parâmetros de domínio, (2) compartilha o mesmo grupo de parâmetros com ≥ 2 assinaturas irmãs (regra dos três do shape de parâmetro), ou (3) representa um command de use-case ou input de birth/factory de entidade DEVE agrupar esses parâmetros em um tipo de input dedicado e imutável (frozen). O tipo DEVE respeitar a camada do hexágono em que vive — Pydantic request model em `adapters/api`, `Command` frozen em `application`, Value Object de construção frozen em `domain` — sem reutilizar o tipo de uma camada em outra. Input-DTO mutável, anêmico (espelha todo argumento sem coesão) ou reusado entre camadas (boundary leak) é PROIBIDO. Métodos de 1–3 parâmetros e transições single-arg (ex.: `settle(on: datetime)`) NÃO exigem agrupamento.**
 
+```
 <HARD-GATE>
 warrior-apollo, warrior-athena (Gate 2) e qualquer agente que implemente
 ou revise código Python NÃO PODEM aprovar assinatura de construção que
@@ -31,6 +32,7 @@ Exceção única declarada: métodos de 1–3 parâmetros e transições single-
 (ex.: `settle(on: datetime)`) estão fora do escopo do gatilho e não exigem
 agrupamento.
 </HARD-GATE>
+```
 
 ## Abrangência
 
