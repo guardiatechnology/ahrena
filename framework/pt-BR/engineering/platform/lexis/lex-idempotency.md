@@ -14,7 +14,7 @@ Garantir que operações que modificam estado (APIs e eventos) na plataforma Gua
 
 A idempotência DEVE ser aplicada no **edge interceptor** de cada borda de entrada que modifica estado — nunca por-handler nem por-service. Cada interceptor resolve a chave de idempotência a partir do próprio adapter e delega ao núcleo de idempotência compartilhado. Três bordas de entrada, três interceptors:
 
-1. **Borda REST** — um interceptor de rota/request nos endpoints HTTP que modificam estado (POST, PATCH, PUT); resolve a chave a partir do header `Idempotency-Key`.
+1. **Borda REST** — um interceptor de rota/request nos endpoints HTTP que modificam estado (POST, PATCH); resolve a chave a partir do header `Idempotency-Key`.
 2. **Borda de agente** — um interceptor de tool-dispatch que envolve cada tool call de agente que modifica estado; resolve a chave de forma determinística a partir do input canônico resolvido (SHA-256 do content).
 3. **Borda de worker/evento** — um interceptor de message-dispatch nos consumidores de eventos; resolve a chave a partir do `idempotencykey` da mensagem.
 
@@ -22,7 +22,7 @@ Qualquer outra borda de entrada que modifique estado DEVE passar pelo seu própr
 
 ## Abrangência
 
-- **Aplica-se a:** endpoints HTTP de mutação (POST, PATCH, PUT) e publicação/consumo de eventos na plataforma Guardia.
+- **Aplica-se a:** endpoints HTTP de mutação (POST, PATCH) e publicação/consumo de eventos na plataforma Guardia.
 - **Agentes vinculados:** todos os implementadores de APIs e processadores de eventos.
 - **Exceções:** Nenhuma para operações que modificam estado; operações puramente de leitura (GET, eventos de consulta) não são abrangidas.
 

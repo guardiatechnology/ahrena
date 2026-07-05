@@ -28,7 +28,7 @@ Idempotency is enforced at the **edge interceptor** of each inbound mutation edg
 
 | Edge | Interceptor | Key resolution | Replay representation |
 |------|-------------|----------------|-----------------------|
-| REST | route/request interceptor on POST/PATCH/PUT | client `Idempotency-Key` header (passthrough) | stored HTTP response snapshot |
+| REST | route/request interceptor on POST/PATCH | client `Idempotency-Key` header (passthrough) | stored HTTP response snapshot |
 | Agent | tool-dispatch interceptor on state-modifying tools | deterministic — SHA-256 of the canonical resolved input (content) | stored result model |
 | Worker/event | message-dispatch interceptor on consumers | message `idempotencykey` | stored result model / ACK |
 
