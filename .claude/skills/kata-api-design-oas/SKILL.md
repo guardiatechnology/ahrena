@@ -42,7 +42,7 @@ Progress:
 
 1. Extract **resources** (nouns) from the feature description — e.g., transaction, user, contract
 2. For each resource, list **operations** needed: create, read, update, delete (soft delete when applicable), list (with pagination)
-3. Identify operations that **modify state** (POST, PATCH, PUT) and mark Idempotency-Key as required
+3. Identify operations that **modify state** (POST, PATCH) and mark Idempotency-Key as required
 4. Identify listings that require **pagination** (page_size, page_token) and **sorting** (order_by, sort)
 5. Map persistent entities that must follow the base structure (entity_id, entity_type, version, timestamps)
 
