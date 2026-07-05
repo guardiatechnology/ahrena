@@ -12,6 +12,20 @@
 4. **Storage:** idempotency state MUST be stored in distributed, resilient cache; retention minimum 2 hours, maximum 24 hours.
 5. **Security and audit:** state stored securely, access auditable; malicious replay attempts monitored and mitigated; logs with traceable identifiers.
 
+### Enforcement points (edge interceptors)
+
+Idempotency is enforced at the **edge interceptor** of each inbound mutation edge — a single boundary interceptor per edge, not per-handler or per-service wiring. Each interceptor resolves the key from its own adapter and delegates to the shared idempotency core; the replay representation is chosen per edge.
+
+| Edge | Interceptor | Key resolution | Replay representation |
+|------|-------------|----------------|-----------------------|
+| REST | route/request interceptor on POST/PATCH/PUT | client `Idempotency-Key` header (passthrough) | stored HTTP response snapshot |
+| Agent | tool-dispatch interceptor on state-modifying tools | deterministic — SHA-256 of the canonical resolved input (content) | stored result model |
+| Worker/event | message-dispatch interceptor on consumers | message `idempotencykey` | stored result model / ACK |
+
+The interceptor is the sole enforcement point: any state-modifying edge without one is a gap. Any new inbound mutation edge MUST route through its own edge interceptor or be documented as exempt.
+
+The agent edge intentionally derives its key deterministically instead of requiring a client-provided UUID (principle 3): the caller is an LLM, not a client with a retry token. This deviation MUST be recorded in an ADR by the consuming project.
+
 ### Implementation in APIs
 
 - Endpoints that modify state (POST, PATCH) MUST be idempotent.

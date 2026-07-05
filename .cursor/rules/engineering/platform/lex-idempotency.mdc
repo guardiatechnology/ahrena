@@ -11,6 +11,16 @@ alwaysApply: false
 
 > **Operations that modify state (APIs and events) on the Guardia platform MUST be idempotent per the Hub Idempotency specification; endpoints that modify state (POST, PATCH, etc.) MUST require and validate the Idempotency-Key header; published events MUST include idempotencykey and consumers MUST register and deduplicate by key and hash.**
 
+## Enforcement Points (Edge Interceptors)
+
+Idempotency MUST be enforced at the **edge interceptor** of each inbound mutation edge — never per-handler or per-service. Each interceptor resolves the idempotency key from its own adapter and delegates to the shared idempotency core. Three inbound edges, three interceptors:
+
+1. **REST edge** — a route/request interceptor on state-modifying HTTP endpoints (POST, PATCH, PUT); resolves the key from the `Idempotency-Key` header.
+2. **Agent edge** — a tool-dispatch interceptor wrapping each state-modifying agent tool call; resolves the key deterministically from the resolved input (SHA-256 of the canonical content).
+3. **Worker/event edge** — a message-dispatch interceptor on event consumers; resolves the key from the message `idempotencykey`.
+
+Any additional inbound mutation edge MUST route through its own edge interceptor or be documented as exempt. Per-handler or per-service idempotency wiring is FORBIDDEN.
+
 ## Examples
 
 ### Correct
