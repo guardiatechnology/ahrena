@@ -14,7 +14,7 @@ Ensure that operations that modify state (APIs and events) on the Guardia platfo
 
 Idempotency MUST be enforced at the **edge interceptor** of each inbound mutation edge — never per-handler or per-service. Each interceptor resolves the idempotency key from its own adapter and delegates to the shared idempotency core. Three inbound edges, three interceptors:
 
-1. **REST edge** — a route/request interceptor on state-modifying HTTP endpoints (POST, PATCH, PUT); resolves the key from the `Idempotency-Key` header.
+1. **REST edge** — a route/request interceptor on state-modifying HTTP endpoints (POST, PATCH); resolves the key from the `Idempotency-Key` header.
 2. **Agent edge** — a tool-dispatch interceptor wrapping each state-modifying agent tool call; resolves the key deterministically from the resolved input (SHA-256 of the canonical content).
 3. **Worker/event edge** — a message-dispatch interceptor on event consumers; resolves the key from the message `idempotencykey`.
 
@@ -22,7 +22,7 @@ Any additional inbound mutation edge MUST route through its own edge interceptor
 
 ## Scope
 
-- **Applies to:** HTTP mutation endpoints (POST, PATCH, PUT) and event publication/consumption on the Guardia platform.
+- **Applies to:** HTTP mutation endpoints (POST, PATCH) and event publication/consumption on the Guardia platform.
 - **Bound agents:** all API implementers and event processors.
 - **Exceptions:** None for state-modifying operations; purely read-only operations (GET, query events) are not in scope.
 

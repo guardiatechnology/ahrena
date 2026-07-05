@@ -28,7 +28,7 @@ A idempotência é aplicada no **edge interceptor** de cada borda de entrada que
 
 | Borda | Interceptor | Resolução da chave | Representação de replay |
 |-------|-------------|--------------------|-------------------------|
-| REST | interceptor de rota/request em POST/PATCH/PUT | header `Idempotency-Key` do cliente (passthrough) | snapshot da resposta HTTP armazenado |
+| REST | interceptor de rota/request em POST/PATCH | header `Idempotency-Key` do cliente (passthrough) | snapshot da resposta HTTP armazenado |
 | Agente | interceptor de tool-dispatch em tools que modificam estado | determinística — SHA-256 do input canônico resolvido (content) | modelo de resultado armazenado |
 | Worker/evento | interceptor de message-dispatch nos consumidores | `idempotencykey` da mensagem | modelo de resultado armazenado / ACK |
 
