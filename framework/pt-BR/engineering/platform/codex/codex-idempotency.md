@@ -22,6 +22,20 @@ Este Codex descreve as regras de idempotência para operações que modificam es
 4. **Armazenamento:** estado de idempotência DEVE ser armazenado em cache distribuído e resiliente; retenção mínima 2 horas, máxima 24 horas.
 5. **Segurança e auditoria:** estado armazenado de forma segura, acesso auditável; tentativas maliciosas de repetição monitoradas e mitigadas; logs com identificadores rastreáveis.
 
+### Pontos de enforcement (edge interceptors)
+
+A idempotência é aplicada no **edge interceptor** de cada borda de entrada que modifica estado — um único interceptor de fronteira por borda, não wiring por-handler nem por-service. Cada interceptor resolve a chave a partir do próprio adapter e delega ao núcleo de idempotência compartilhado; a representação de replay é escolhida por borda.
+
+| Borda | Interceptor | Resolução da chave | Representação de replay |
+|-------|-------------|--------------------|-------------------------|
+| REST | interceptor de rota/request em POST/PATCH/PUT | header `Idempotency-Key` do cliente (passthrough) | snapshot da resposta HTTP armazenado |
+| Agente | interceptor de tool-dispatch em tools que modificam estado | determinística — SHA-256 do input canônico resolvido (content) | modelo de resultado armazenado |
+| Worker/evento | interceptor de message-dispatch nos consumidores | `idempotencykey` da mensagem | modelo de resultado armazenado / ACK |
+
+O interceptor é o único ponto de enforcement: qualquer borda que modifique estado sem um é uma lacuna. Qualquer nova borda de entrada que modifique estado DEVE passar pelo seu próprio edge interceptor ou ser documentada como exceção.
+
+A borda de agente deriva a chave de forma determinística em vez de exigir um UUID fornecido pelo cliente (princípio 3): o chamador é um LLM, não um cliente com token de retry. Esse desvio DEVE ser registrado em um ADR pelo projeto consumidor.
+
 ### Implementação em APIs
 
 - Endpoints que modificam estado (POST, PATCH) DEVEM ser idempotentes.
