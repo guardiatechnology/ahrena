@@ -76,7 +76,7 @@ Para cada payload de respuesta que representa una entidad persistente:
 
 ### Paso 5: Validar Idempotencia
 
-Para cada operación que modifica estado (POST, PATCH, PUT):
+Para cada operación que modifica estado (POST, PATCH):
 
 1. **Header Idempotency-Key** — declarado como obligatorio en la definición del endpoint
 2. **Respuesta 400** — documentada para Idempotency-Key ausente (`ERR400_MISSING_IDEMPOTENCY_KEY`)

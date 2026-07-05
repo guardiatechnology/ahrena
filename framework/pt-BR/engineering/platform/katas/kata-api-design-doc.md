@@ -57,7 +57,7 @@ Progresso:
 
 1. Extrair **recursos** (substantivos) da descrição da feature — ex.: transação, usuário, contrato
 2. Para cada recurso, listar **operações** necessárias: criar, ler, atualizar, excluir (soft delete quando aplicável), listar (com paginação)
-3. Identificar operações que **modificam estado** (POST, PATCH, PUT) e marcar como obrigatório Idempotency-Key
+3. Identificar operações que **modificam estado** (POST, PATCH) e marcar como obrigatório Idempotency-Key
 4. Identificar listagens que exigem **paginação** (page_size, page_token) e **ordenação** (order_by, sort)
 5. Mapear entidades persistentes que devem seguir a estrutura base (entity_id, entity_type, version, timestamps)
 
