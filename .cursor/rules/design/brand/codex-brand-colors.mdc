@@ -30,9 +30,9 @@ globs:
 | Color | HEX | Meaning |
 |-------|-----|---------|
 | Bright Yellow | `#FFC30A` | Trust and Transparency — optimism and clarity |
-| Warm Orange | `#E07400` | Efficiency and Agility — energy and dynamism |
+| Warm Orange | `#F47720` | Efficiency and Agility — energy and dynamism |
 | Soft Pink | `#DB6286` | Welcoming and Inclusion — empathy, respect |
-| Deep Violet | `#4F186D` | Depth and Excellence — safety, compliance |
+| Deep Violet | `#552973` | Depth and Excellence — safety, compliance |
 | Baltic Gray | `#3A3A44` | Stability and Integrity — professionalism |
 
 ### Scales (100, 200, 500 base, 700, 900)
@@ -40,9 +40,9 @@ globs:
 | Color | 100 | 200 | 500 (base) | 700 | 900 |
 |-------|-----|-----|------------|-----|-----|
 | Bright Yellow | `#FFF3CE` | `#FFE490` | `#FFC30A` | `#B28807` | `#664E04` |
-| Warm Orange | `#F8E3CC` | `#F1C08C` | `#E07400` | `#9C5100` | `#592E00` |
+| Warm Orange | `#FDE3D1` | `#FAC29B` | `#F47720` | `#AB5316` | `#612F0D` |
 | Soft Pink | `#F7DFE6` | `#EEB8C8` | `#DB6286` | `#99445D` | `#572735` |
-| Deep Violet | `#DBD0E1` | `#AF97BD` | `#4F186D` | `#37104C` | `#1F092B` |
+| Deep Violet | `#DCD3E2` | `#B29FC0` | `#552973` | `#3B1D50` | `#22102E` |
 | Baltic Gray | `#D7D7D9` | `#A6A6AA` | `#3A3A44` | `#28282F` | `#17171B` |
 
 ### Mono tones (technical)
@@ -71,7 +71,7 @@ Universal convention (green = positive, yellow = attention, red = negative, blue
 |------------|------|----------|------|
 | Yellow 500 (`#FFC30A`) | Black | 13.06:1 | AAA at any size |
 | Gray 500 (`#3A3A44`) | White | 11.24:1 | AAA at any size |
-| Violet 500 (`#4F186D`) | Pink 200 (`#EEB8C8`) | 7.32:1 | AAA at any size |
+| Violet 500 (`#552973`) | Pink 200 (`#EEB8C8`) | 6.32:1 | AA at any size |
 | Pink 500 (`#DB6286`) | Black | 6.10:1 | AA at any size, AAA on large text |
 | Gray 500 (`#3A3A44`) | Gray 200 (`#A6A6AA`) | 4.63:1 | AA on normal text (avoid in long bodies) |
 
@@ -81,19 +81,19 @@ Meet WCAG minimum only for large text (18pt regular or 14pt bold and up):
 
 | Background | Text | Contrast |
 |------------|------|----------|
-| Orange 500 (`#E07400`) | Violet 500 (`#4F186D`) | 3.96:1 |
-| Violet 500 (`#4F186D`) | Orange 500 (`#E07400`) | 3.96:1 |
+| Orange 500 (`#F47720`) | Violet 500 (`#552973`) | 3.85:1 |
+| Violet 500 (`#552973`) | Orange 500 (`#F47720`) | 3.85:1 |
 | Pink 500 (`#DB6286`) | White | 3.44:1 |
-| Orange 500 (`#E07400`) | White | 3.15:1 |
 
-### Forbidden combination
+### Forbidden combinations
 
 | Background | Text | Contrast | Action |
 |------------|------|----------|--------|
 | Yellow 500 (`#FFC30A`) | White | 1.61:1 | Remove; illegible at any size |
+| Orange 500 (`#F47720`) | White | 2.80:1 | Below the 3:1 floor; deepen to Orange 700 (`#AB5316`, 5.28:1) for text/UI on light |
 
 ### Adjustments to free up body text
 
-- White text on saturated backgrounds (orange/pink): deepen to the 700 scale (Orange 700 + White = 7.5:1, AAA; Pink 700 + White = 6.9:1, full AA).
-- Light text on Yellow: replace white with Violet 500 or Gray 500 (>7:1).
+- White text on saturated backgrounds (orange/pink): deepen to the 700 scale (Orange 700 + White = 5.28:1, AA; Pink 700 + White = 6.9:1, full AA).
+- Light text on Yellow: replace white with Violet 500 (6.70:1) or Gray 500 (>8:1).
 - For chromatic identity with light text on orange/pink: use Pink 100 or Yellow 100 instead of white.

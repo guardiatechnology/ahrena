@@ -25,7 +25,7 @@ globs:
 
 ## Law
 
-> **Every Guardia piece (interface, material, document, post, slide, email) MUST use exclusively the official palette — Bright Yellow #FFC30A, Warm Orange #E07400, Soft Pink #DB6286, Deep Violet #4F186D, Baltic Gray #3A3A44, Mono White #FDFDFD, and Mono Black #0E1016, with the 100/200/500/700/900 scales — and MUST meet WCAG 2.1 AA (4.5:1 normal text, 3:1 large text/UI). The combination Yellow 500 over White (1.61:1) is FORBIDDEN. Combinations in the 3:1–4.5:1 range are restricted to titles, buttons, and badges. Signal colors (Green #00BF63, Yellow #FFDE59, Red #FF3131, Blue #004AAD) are reserved for data viz and critical system states.**
+> **Every Guardia piece (interface, material, document, post, slide, email) MUST use exclusively the official palette — Bright Yellow #FFC30A, Warm Orange #F47720, Soft Pink #DB6286, Deep Violet #552973, Baltic Gray #3A3A44, Mono White #FDFDFD, and Mono Black #0E1016, with the 100/200/500/700/900 scales — and MUST meet WCAG 2.1 AA (4.5:1 normal text, 3:1 large text/UI). The combinations White over Yellow 500 (1.61:1) and White over Orange 500 (2.80:1) are FORBIDDEN — for text/UI on Orange, deepen to Orange 700 (#AB5316, 5.28:1). Combinations in the 3:1–4.5:1 range are restricted to titles, buttons, and badges. Signal colors (Green #00BF63, Yellow #FFDE59, Red #FF3131, Blue #004AAD) are reserved for data viz and critical system states.**
 
 ## Coverage
 
@@ -37,11 +37,11 @@ globs:
 
 ### Correct
 
-Black text over Yellow 500 (13.06:1, AAA); White over Gray 500 (11.24:1, AAA); Violet 500 button with White label (>7:1); Orange 500 badge with Violet 500 text reserved for buttons/titles (3.96:1, AA large); financial chart using Signal Green/Signal Red only on the data axis.
+Black text over Yellow 500 (13.06:1, AAA); White over Gray 500 (11.24:1, AAA); Violet 500 button with White label (10.76:1, AAA); Orange 500 badge with Violet 500 text reserved for buttons/titles (3.85:1, AA large); financial chart using Signal Green/Signal Red only on the data axis.
 
 ### Incorrect
 
-White text over Yellow 500 (1.61:1, illegible); a "purple-ish" color invented to complement the brand; institutional green used as brand color in a hero; `#4F186D` used outside the tokenized palette (hardcoded next to non-approved colors).
+White text over Yellow 500 (1.61:1, illegible); a "purple-ish" color invented to complement the brand; institutional green used as brand color in a hero; `#552973` used outside the tokenized palette (hardcoded next to non-approved colors).
 
 ## Automated Validation
 

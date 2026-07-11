@@ -8,7 +8,7 @@ Garantizar reconocimiento y accesibilidad. La paleta de Guardia carga significad
 
 ## Ley
 
-> **Toda pieza de Guardia (interfaz, material, documento, post, slide, correo) DEBE usar exclusivamente la paleta oficial — Amarillo Brillante #FFC30A, Naranja Cálido #E07400, Rosa Suave #DB6286, Violeta Profundo #4F186D, Gris Báltico #3A3A44, Mono Blanco #FDFDFD y Mono Negro #0E1016, con las escalas 100/200/500/700/900 — y DEBE alcanzar WCAG 2.1 AA (4.5:1 para texto normal, 3:1 para texto grande/UI). La combinación Amarillo 500 sobre Blanco (1.61:1) está PROHIBIDA. Las combinaciones en el rango 3:1–4.5:1 quedan restringidas a títulos, botones y badges. Los colores de señal (Verde #00BF63, Amarillo #FFDE59, Rojo #FF3131, Azul #004AAD) están reservados para data viz y estados críticos del sistema.**
+> **Toda pieza de Guardia (interfaz, material, documento, post, slide, correo) DEBE usar exclusivamente la paleta oficial — Amarillo Brillante #FFC30A, Naranja Cálido #F47720, Rosa Suave #DB6286, Violeta Profundo #552973, Gris Báltico #3A3A44, Mono Blanco #FDFDFD y Mono Negro #0E1016, con las escalas 100/200/500/700/900 — y DEBE alcanzar WCAG 2.1 AA (4.5:1 para texto normal, 3:1 para texto grande/UI). Las combinaciones Blanco sobre Amarillo 500 (1.61:1) y Blanco sobre Naranja 500 (2.80:1) están PROHIBIDAS — para texto/UI sobre Naranja, profundizar a Naranja 700 (#AB5316, 5.28:1). Las combinaciones en el rango 3:1–4.5:1 quedan restringidas a títulos, botones y badges. Los colores de señal (Verde #00BF63, Amarillo #FFDE59, Rojo #FF3131, Azul #004AAD) están reservados para data viz y estados críticos del sistema.**
 
 ## Alcance
 
@@ -26,11 +26,11 @@ Garantizar reconocimiento y accesibilidad. La paleta de Guardia carga significad
 
 ### Correcto
 
-Texto negro sobre Amarillo 500 (13.06:1, AAA); texto Blanco sobre Gris 500 (11.24:1, AAA); botón Violeta 500 con label Blanco (>7:1); badge Naranja 500 con texto Violeta 500 reservado a botones/títulos (3.96:1, AA grande); gráfico de variación financiera usando Verde Señal/Rojo Señal solo en el eje de datos.
+Texto negro sobre Amarillo 500 (13.06:1, AAA); texto Blanco sobre Gris 500 (11.24:1, AAA); botón Violeta 500 con label Blanco (10.76:1, AAA); badge Naranja 500 con texto Violeta 500 reservado a botones/títulos (3.85:1, AA grande); gráfico de variación financiera usando Verde Señal/Rojo Señal solo en el eje de datos.
 
 ### Incorrecto
 
-Texto blanco sobre Amarillo 500 (1.61:1, ilegible); un color "morado aproximado" inventado para complementar la marca; verde institucional usado como color de marca en un hero; uso de #4F186D fuera de la paleta tokenizada (hardcodeado al lado de colores no aprobados).
+Texto blanco sobre Amarillo 500 (1.61:1, ilegible); un color "morado aproximado" inventado para complementar la marca; verde institucional usado como color de marca en un hero; uso de #552973 fuera de la paleta tokenizada (hardcodeado al lado de colores no aprobados).
 
 ## Validación Automatizada
 

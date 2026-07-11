@@ -19,9 +19,9 @@ Referencia única de la paleta de Guardia: colores base con significado de marca
 | Color | HEX | Significado |
 |-------|-----|-------------|
 | Amarillo Brillante | `#FFC30A` | Confianza y Transparencia — optimismo y claridad |
-| Naranja Cálido | `#E07400` | Eficiencia y Agilidad — energía y dinamismo |
+| Naranja Cálido | `#F47720` | Eficiencia y Agilidad — energía y dinamismo |
 | Rosa Suave | `#DB6286` | Acogida e Inclusión — empatía, respeto |
-| Violeta Profundo | `#4F186D` | Profundidad y Excelencia — seguridad, cumplimiento |
+| Violeta Profundo | `#552973` | Profundidad y Excelencia — seguridad, cumplimiento |
 | Gris Báltico | `#3A3A44` | Estabilidad e Integridad — profesionalismo |
 
 ### Escalas (100, 200, 500 base, 700, 900)
@@ -29,9 +29,9 @@ Referencia única de la paleta de Guardia: colores base con significado de marca
 | Color | 100 | 200 | 500 (base) | 700 | 900 |
 |-------|-----|-----|------------|-----|-----|
 | Amarillo Brillante | `#FFF3CE` | `#FFE490` | `#FFC30A` | `#B28807` | `#664E04` |
-| Naranja Cálido | `#F8E3CC` | `#F1C08C` | `#E07400` | `#9C5100` | `#592E00` |
+| Naranja Cálido | `#FDE3D1` | `#FAC29B` | `#F47720` | `#AB5316` | `#612F0D` |
 | Rosa Suave | `#F7DFE6` | `#EEB8C8` | `#DB6286` | `#99445D` | `#572735` |
-| Violeta Profundo | `#DBD0E1` | `#AF97BD` | `#4F186D` | `#37104C` | `#1F092B` |
+| Violeta Profundo | `#DCD3E2` | `#B29FC0` | `#552973` | `#3B1D50` | `#22102E` |
 | Gris Báltico | `#D7D7D9` | `#A6A6AA` | `#3A3A44` | `#28282F` | `#17171B` |
 
 ### Tonos mono (técnicos)
@@ -60,7 +60,7 @@ Convención universal (verde = positivo, amarillo = atención, rojo = negativo, 
 |-------|-------|-----------|------|
 | Amarillo 500 (`#FFC30A`) | Negro | 13.06:1 | AAA en cualquier tamaño |
 | Gris 500 (`#3A3A44`) | Blanco | 11.24:1 | AAA en cualquier tamaño |
-| Violeta 500 (`#4F186D`) | Rosa 200 (`#EEB8C8`) | 7.32:1 | AAA en cualquier tamaño |
+| Violeta 500 (`#552973`) | Rosa 200 (`#EEB8C8`) | 6.32:1 | AA en cualquier tamaño |
 | Rosa 500 (`#DB6286`) | Negro | 6.10:1 | AA cualquier tamaño, AAA texto grande |
 | Gris 500 (`#3A3A44`) | Gris 200 (`#A6A6AA`) | 4.63:1 | AA texto normal (evitar en cuerpos largos) |
 
@@ -70,21 +70,21 @@ Cumplen WCAG mínimo solo para texto grande (18pt regular o 14pt bold en adelant
 
 | Fondo | Texto | Contraste |
 |-------|-------|-----------|
-| Naranja 500 (`#E07400`) | Violeta 500 (`#4F186D`) | 3.96:1 |
-| Violeta 500 (`#4F186D`) | Naranja 500 (`#E07400`) | 3.96:1 |
+| Naranja 500 (`#F47720`) | Violeta 500 (`#552973`) | 3.85:1 |
+| Violeta 500 (`#552973`) | Naranja 500 (`#F47720`) | 3.85:1 |
 | Rosa 500 (`#DB6286`) | Blanco | 3.44:1 |
-| Naranja 500 (`#E07400`) | Blanco | 3.15:1 |
 
-### Combinación prohibida
+### Combinaciones prohibidas
 
 | Fondo | Texto | Contraste | Acción |
 |-------|-------|-----------|--------|
 | Amarillo 500 (`#FFC30A`) | Blanco | 1.61:1 | Eliminar; ilegible en cualquier tamaño |
+| Naranja 500 (`#F47720`) | Blanco | 2.80:1 | Por debajo del piso de 3:1; profundizar a Naranja 700 (`#AB5316`, 5.28:1) para texto/UI sobre claro |
 
 ### Ajustes para liberar texto de cuerpo
 
-- Texto blanco sobre fondos saturados (naranja/rosa): profundizar al tono 700 (Naranja 700 + Blanco = 7.5:1, AAA; Rosa 700 + Blanco = 6.9:1, AA completo).
-- Texto claro sobre Amarillo: sustituir blanco por Violeta 500 o Gris 500 (>7:1).
+- Texto blanco sobre fondos saturados (naranja/rosa): profundizar al tono 700 (Naranja 700 + Blanco = 5.28:1, AA; Rosa 700 + Blanco = 6.9:1, AA completo).
+- Texto claro sobre Amarillo: sustituir blanco por Violeta 500 (6.70:1) o Gris 500 (>8:1).
 - Para identidad cromática con texto claro sobre naranja/rosa: usar Rosa 100 o Amarillo 100 en lugar del blanco.
 
 ## Referencias
