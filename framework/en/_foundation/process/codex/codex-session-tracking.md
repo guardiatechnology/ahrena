@@ -169,6 +169,10 @@ When `session_tracking.tags.auto_suggest: true` and the heartbeat has no `tags` 
 
 The contract is governed by `lex-session-tags`.
 
+**Hook (UserPromptSubmit):**
+
+Auto-suggest is wired by a project-level Claude Code hook at `.claude/hooks/session-tags-auto-suggest.sh`, installed by `scripts/install.py`. The hook runs on every `UserPromptSubmit`, applies cheap gates (jq + python3 + PyYAML present, `.directives` readable, `session_tracking.{enabled, tags.enabled, tags.auto_suggest}` all `true`, session_id resolvable, heartbeat file present, `.tags` null/missing), and on success emits a one-shot `<system-reminder>` block on stdout. The block tells Claude to derive tags from the current prompt + active plan + branch name, write them via `kata-session-heartbeat --set-tags`, and append the `tagged: [...]` visibility note. Once the heartbeat carries `tags`, the hook is a no-op for the rest of the session. The hook does NOT bootstrap heartbeats — heartbeat creation remains the responsibility of `kata-session-heartbeat` invoked by Eunomia/Athena at plan transitions. Disable by setting `session_tracking.tags.auto_suggest: false` in `.ahrena/.directives`.
+
 ## Restrictions
 
 - **Do not persist credentials or sensitive data** in the heartbeat file — `cwd`, `branch`, `plan_id`, IDs, and timestamps are the boundary.

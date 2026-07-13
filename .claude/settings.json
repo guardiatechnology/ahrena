@@ -30,6 +30,15 @@
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pr-cost-attribution.sh"
           }
         ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-tags-auto-suggest.sh"
+          }
+        ]
       }
     ],
     "SessionStart": [
