@@ -34,7 +34,7 @@ La configuración canónica está en `framework/mcp/ahrena.json`. `install.py` l
 }
 ```
 
-> El comando `ahrena-mcp` es el console script declarado en `tools/ahrena-mcp/pyproject.toml` (`[project.scripts]`). Queda disponible en `PATH` después de que `install.py` ejecute `pipx install -e .ahrena/tools/ahrena-mcp` (ver §Instalación). No existe dependencia de PyPI ni de `uv`/`uvx` para que el camino default-on funcione.
+> El comando `ahrena-mcp` es el console script declarado en `tools/ahrena-mcp/pyproject.toml` (`[project.scripts]`). Queda disponible en `PATH` después de que `install.py` ejecute `pipx install --force .ahrena/tools/ahrena-mcp` (ver §Instalación). pipx copia el paquete a su entorno gestionado; por eso, el comando sigue disponible si se elimina el directorio `.ahrena/` local del proyecto. No existe dependencia de PyPI ni de `uv`/`uvx` para que el camino default-on funcione.
 
 ### Herramientas disponibles
 
@@ -114,7 +114,7 @@ Sin parámetros. Devuelve el YAML parseado de `.ahrena/.directives`.
 Toda adopción del framework Ahrena activa `ahrena` automáticamente. `scripts/install.py` hace todo:
 
 1. **Copia el source del paquete** — `tools/ahrena-mcp/` (del source repo Ahrena) se copia a `.ahrena/tools/ahrena-mcp/` en el proyecto adopter, sin `.venv` ni caches.
-2. **Instala vía `pipx`** — `pipx install -e .ahrena/tools/ahrena-mcp`. El console script `ahrena-mcp` (declarado en `pyproject.toml`) queda disponible en `PATH`.
+2. **Instala vía `pipx`** — `pipx install --force .ahrena/tools/ahrena-mcp`. pipx crea una copia autocontenida y el console script `ahrena-mcp` (declarado en `pyproject.toml`) queda disponible en `PATH` sin conservar una dependencia del directorio source copiado.
 3. **Mergea configs MCP** — `framework/mcp/ahrena.json` se mergea en `.cursor/mcp.json` (Cursor) y `.mcp.json` en el root + `enabledMcpjsonServers: ["ahrena"]` en `.claude/settings.json` (Claude Code).
 4. **Prerrequisito activador** — `framework/.directives.sample` lista `mcp.servers: [ahrena]` descomentado por defecto; cuando `ahrena` está en `mcp.servers`, los pasos anteriores se ejecutan.
 
@@ -122,6 +122,7 @@ El adopter ejecuta `make install` (o el equivalente `python3 .ahrena/install.py`
 
 **Comportamiento en re-install / update:**
 - Primera vez (no instalado): `pipx install` silencioso.
+- Instalación editable heredada, o modo de instalación no verificable: reparación automática no editable sin prompt.
 - Paquete ya instalado + sesión interactiva: prompt `[y/N]` para reinstalar (default-no, preserva).
 - Paquete ya instalado + no-TTY (CI): preserva sin prompt.
 
