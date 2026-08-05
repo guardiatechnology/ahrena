@@ -42,6 +42,13 @@
 # Build intermediates (gitignored); `.dist` is committed.
 .build/
 
+# ─── Graphify codebase knowledge graph (opt-in) ────────────────
+# Generated graph artifacts. Never committed: a versioned graph.json is a
+# second representation of code structure that drifts from the code itself
+# (lex-dry). Staleness is detected via the native `built_at_commit` field
+# and `graphify check-update`. See codex-graphify.
+graphify-out/
+
 # ─── Local environment files (recommended) ─────────────────────
 # Credentials & secrets — NEVER commit. `.env.*` covers `.env.local`,
 # `.env.*.local`, `.env.development.local`, etc. Use `.env.sample`
