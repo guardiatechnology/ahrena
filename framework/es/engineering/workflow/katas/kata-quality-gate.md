@@ -95,15 +95,29 @@ Resultado del Check 1: ✅ si ambas direcciones están completas; ❌ caso contr
 
 ### Paso 3: Check 2 — Scope creep
 
-1. Comparar lista de archivos modificados (Paso 1) con tabla de componentes de la Fase 3.
+1. Comparar lista de archivos modificados (Paso 1) con tabla de componentes de la Fase 3. La frontera incluye las filas cuya columna `Origen` es `grafo (inverso)` — forman parte del alcance declarado como cualquier otra.
 2. Archivos fuera de la tabla → candidatos a scope creep.
 3. **Excepciones legítimas** (no flagear):
    - Archivos de prueba correspondientes a componentes declarados (ej.: si `service.py` está en la tabla, `test_service.py` es implícito).
    - Archivos de configuración automática (ej.: `requirements.lock`, `yarn.lock`).
    - Documentación generada por el propio flujo (ej.: `.ahrena/issues/{n}/*`).
-4. Funciones/clases públicas nuevas en archivos tocados que no mapean a ningún AC → flagear.
+4. **Calificar los candidatos con el grafo**, cuando `graphify.enabled` sea `true`. Se DEBE invocar `kata-codebase-graph` y verificar si cada archivo fuera de la tabla es consumidor inverso de algún componente declarado:
+   - **Es consumidor inverso** → probable consecuencia legítima del cambio, no scope creep. Se registra como `ripple` con el origen `archivo:línea` y se pide confirmación humana en lugar de bloquear.
+   - **No tiene relación en el grafo con ningún componente declarado** → señal de scope creep más fuerte que la simple ausencia en la tabla.
+5. Funciones/clases públicas nuevas en archivos tocados que no mapean a ningún AC → flagear.
 
-Resultado del Check 2: ✅ si solo archivos declarados + excepciones fueron modificados; ❌ si hay scope creep no justificado.
+Resultado del Check 2: ✅ si solo archivos declarados + excepciones fueron modificados; ❌ si hay scope creep no justificado. Los candidatos calificados como `ripple` por el grafo no reprueban el check por sí solos — se convierten en pregunta al humano.
+
+#### Uso del grafo en este check
+
+- El grafo **califica** candidatos; no los crea ni los absuelve automáticamente. Quien decide es el humano.
+- No se consulta el grafo para todo archivo del diff. Se consultan solo los candidatos del ítem 2, que son pocos por construcción.
+- Se ignoran los hallazgos que sean solo barriles de reexportación (`__init__.py`) — 47% de los hallazgos brutos en la medición de referencia eran de ese tipo.
+- Una fila sustentada solo por una arista `INFERRED` nunca basta para clasificar algo como `ripple`.
+
+#### Degradación
+
+Cuando el binario está ausente, `graphify.enabled` es `false`, o `built_at_commit` divergió del `HEAD`, el check continúa exactamente con el comportamiento anterior (ítems 1 a 3 y 5) y **declara** que el grafo estaba indisponible. Ningún gate de CI depende del grafo.
 
 Si ❌: **opciones presentadas al usuario**:
 - (a) Ampliar ACs (regresar a Fase 2/3 y reejecutar Gate 1).
@@ -243,6 +257,8 @@ Estructura:
 
 - `lex-issue-driven` — leyes del flujo, en particular las reglas de trazabilidad, scope creep y la Regla 11 (Gate 2 por capa cuando hay stack aprobada)
 - `codex-issue-workflow` — detallado completo de los 7 checks
+- `kata-codebase-graph` — calificación de candidatos a scope creep en el Check 2
+- `codex-graphify` — límites del grafo y comportamiento de degradación
 - `codex-stacked-prs` — modelo conceptual y Decision Checklist para stacked PRs
 - `kata-stacked-pr-create` — invocado por la Fase 7 cuando hay stack aprobada
 - `lex-python-typing`, `lex-python-testing`, `lex-python-security`, `lex-python-immutability`, `lex-python-error-handling`, `lex-conventional-commits` — Lexis verificadas en el Check 3

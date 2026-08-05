@@ -46,16 +46,32 @@ Para cada AC:
 1. Identificar arquivos/módulos existentes que serão modificados.
 2. Identificar novos arquivos/módulos que serão criados.
 3. Identificar contratos externos afetados (APIs, eventos, bancos de dados, filas).
-4. Consolidar em uma tabela:
+4. **Consultar o grafo de código para impacto reverso**, quando `graphify.enabled` for `true` em `.ahrena/.directives`. Invoque `kata-codebase-graph`; não chame o binário diretamente, pois o procedimento já existe (`lex-pilars`). A leitura ad hoc encontra dependências diretas; a travessia reversa encontra quem consome o que será alterado.
+5. Consolidar em uma tabela:
 
-| Componente | Tipo | Ação | ACs cobertos |
-|---|---|---|---|
-| `src/refunds/service.py` | módulo | criar | AC-1, AC-2 |
-| `src/payments/repository.py` | módulo | modificar (adicionar método) | AC-3 |
-| `openapi/refunds.yaml` | spec | modificar | AC-1 |
-| `events/refund.created` | evento | criar | AC-2 |
+| Componente | Tipo | Ação | ACs cobertos | Origem |
+|---|---|---|---|---|
+| `src/refunds/service.py` | módulo | criar | AC-1, AC-2 | leitura |
+| `src/payments/repository.py` | módulo | modificar (adicionar método) | AC-3 | leitura |
+| `openapi/refunds.yaml` | spec | modificar | AC-1 | leitura |
+| `events/refund.created` | evento | criar | AC-2 | leitura |
+| `scripts/anonymity_guard.py` | módulo | avaliar | AC-3 | grafo (reverso) |
 
 Esta tabela é a **fronteira de escopo** usada pelo `kata-quality-gate` no check de scope creep.
+
+#### Consulta ao grafo — limites aferidos
+
+Medição em `financial-context` (20.882 nós, 49.563 arestas, 31 MB) sobre 3 PRs reais, com 10 achados substantivos que a leitura direta não encontraria:
+
+- **Limite de sementes.** Cada invocação de `graphify affected` recarrega o grafo inteiro e custa cerca de 2,5 s. Consultar todos os nós alterados de um PR grande (377 sementes na medição) levaria minutos. Consulte apenas os nós que os ACs realmente tocam.
+- **Profundidade 2.** É o valor aferido. Não exceda sem nova medição.
+- **Barris de reexportação.** 47% dos achados brutos foram arquivos `__init__.py` que apenas reexportam o símbolo alterado. São consumidores reais, porém de baixa informação: marque como estruturais ou omita da tabela.
+- **Coluna `Origem`.** Linhas vindas de travessia reversa DEVEM ser identificadas como `grafo (reverso)` — são justamente as que a leitura ad hoc não encontraria.
+- **Arestas `INFERRED`.** Linhas sustentadas apenas por aresta `INFERRED` exigem confirmação humana antes de virar fronteira de escopo. Na medição não ocorreram (0 de 19), mas isso foi um repositório em uma única profundidade.
+
+#### Degradação
+
+Quando o binário está ausente, `graphify.enabled` é `false`, ou `built_at_commit` divergiu do `HEAD`, este passo segue com o comportamento anterior (apenas leitura) e **declara** que o grafo estava indisponível. O grafo é insumo consultivo: nunca bloqueia esta fase.
 
 ### Passo 3: Propor abordagem técnica
 
@@ -117,12 +133,15 @@ Estrutura:
 
 ## Componentes Afetados
 
-| Componente | Tipo | Ação | ACs cobertos |
-|---|---|---|---|
-| ... | ... | ... | ... |
+| Componente | Tipo | Ação | ACs cobertos | Origem |
+|---|---|---|---|---|
+| ... | ... | ... | ... | leitura \| grafo (reverso) |
 
 > Esta tabela define o escopo exato de arquivos a modificar.
 > Modificações fora desta tabela são bloqueadas pelo Gate 2 como scope creep.
+> A coluna `Origem` distingue o que veio da leitura direta do que veio da
+> travessia reversa do grafo. Quando o grafo estava indisponível, declare-o
+> aqui em vez de omitir a coluna.
 
 ## Abordagem Técnica
 
@@ -206,3 +225,5 @@ Gate 1 — Aprovação de Escopo (aguarda aprovação humana).
 - `warrior-daedalus`, `kata-api-design-oas` — delegação para API
 - `warrior-kronos`, `kata-events-doc` — delegação para eventos
 - `codex-codex`, `codex-lexis` — convenções de artefato
+- `kata-codebase-graph` — travessia reversa do grafo consultada no Passo 2
+- `codex-graphify` — modelo de custo aferido, semântica `EXTRACTED`/`INFERRED` e limites
