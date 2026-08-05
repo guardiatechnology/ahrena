@@ -201,6 +201,9 @@ cursor:
     _foundation/tooling/codex/codex-git-spice:
       alwaysApply: false
       description: "When operating Stacked PRs and stacked_prs.tool=gs, consult this codex for git-spice install, setup, command catalog, vanilla→gs mapping, and force-push semantics."
+    _foundation/tooling/codex/codex-graphify:
+      alwaysApply: false
+      description: "When building or querying a codebase knowledge graph with Graphify, consult this codex for the command catalog, EXTRACTED vs INFERRED edge semantics, the measured cost model for code-only and semantic modes, staleness via built_at_commit, the graphify-mcp surface, and known limits."
     _foundation/tooling/codex/codex-pr-cost-tracking:
       alwaysApply: false
       description: "When pr_cost_tracking.enabled is true and a PR is created or updated, consult this codex for data source (Claude Code JSONL logs), ccusage invocation, fallback path, output format, idempotency markers, privacy notes, and known limitations."
@@ -802,6 +805,8 @@ claude-code:
       description: "When scaffolding or editing skills/{slug}/, follow the Ahrena project layout and reuse codex-frontend-architecture / codex-python-architecture for widgets and scripts/tools."
     _foundation/tooling/codex/codex-git-spice:
       description: "When operating Stacked PRs and stacked_prs.tool=gs, consult this codex for git-spice install, setup, command catalog, vanilla→gs mapping, and force-push semantics."
+    _foundation/tooling/codex/codex-graphify:
+      description: "When building or querying a codebase knowledge graph with Graphify, consult this codex for the command catalog, EXTRACTED vs INFERRED edge semantics, the measured cost model for code-only and semantic modes, staleness via built_at_commit, the graphify-mcp surface, and known limits."
     engineering/skills/codex/codex-skill-tools-and-widgets:
       description: "When defining tools/ (MCP) or widgets/ (React) inside a skill project, follow the Ahrena convention for mcp.config.json, manifest.json, and widget↔script bindings."
     engineering/agents/codex/codex-agent-construction-directives:
