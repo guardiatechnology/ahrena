@@ -990,6 +990,126 @@ def install_rtk_bundle(
         )
 
 
+# PyPI distribution name includes a double "y". The MCP extra is deliberate:
+# recent Graphify releases keep the MCP runtime optional even though they expose
+# the `graphify-mcp` entry point.
+GRAPHIFY_PACKAGE = "graphifyy[mcp]"
+GRAPHIFY_REPO_URL = "https://github.com/Graphify-Labs/graphify"
+
+
+def _install_graphify_binary(dry_run: bool = False) -> bool:
+    """Detect or install the graphify binary; return True if available afterward.
+
+    Graphify is a Python 3.10+ tool published on PyPI as ``graphifyy``. It is
+    installed with ``uv tool install`` when uv is on PATH, falling back to pipx.
+    Both isolate the tool in its own environment, so neither pollutes the
+    project venv — which matters here because Graphify pulls ~36 tree-sitter
+    grammar packages.
+
+    Idempotent: returns immediately when `graphify` is already on PATH.
+    Failures are non-fatal by design — the graph is advisory input, so a
+    missing binary must never break an install.
+    """
+    if shutil.which("graphify") and shutil.which("graphify-mcp"):
+        print("  Graphify CLI and MCP server already installed.")
+        return True
+
+    if shutil.which("uv"):
+        tool, cmd = "uv", ["uv", "tool", "install", GRAPHIFY_PACKAGE]
+    elif shutil.which("pipx"):
+        tool, cmd = "pipx", ["pipx", "install", GRAPHIFY_PACKAGE]
+    else:
+        print(
+            "  graphify: neither uv nor pipx on PATH; skipping automatic install. "
+            f"Install manually with `uv tool install {GRAPHIFY_PACKAGE}` or "
+            f"`pipx install {GRAPHIFY_PACKAGE}` ({GRAPHIFY_REPO_URL})."
+        )
+        return False
+
+    if dry_run:
+        print(f"  [DRY-RUN] Would install graphify via {tool}: {' '.join(cmd)}")
+        return False
+
+    print(f"  Installing graphify via {tool}...")
+    try:
+        result = subprocess.run(cmd, check=False)
+    except (OSError, FileNotFoundError) as exc:
+        print(f"  WARNING: graphify install failed ({exc}). Graph features stay inert.")
+        return False
+    if result.returncode != 0:
+        print(
+            f"  WARNING: Graphify installer exited with {result.returncode}; "
+            "graph features remain inert."
+        )
+        return False
+    return shutil.which("graphify") is not None and shutil.which("graphify-mcp") is not None
+
+
+def install_graphify_bundle(
+    ahrena_dir: Path,
+    target_dir: Path,
+    directives: dict,
+    dry_run: bool = False,
+) -> None:
+    """Bundle Graphify (codebase knowledge graph) into the target project.
+
+    Activated when:
+      graphify.enabled is true. Unlike RTK, the default when the section is
+      omitted is FALSE: Graphify is an opt-in optional feature that pulls a
+      large dependency tree, so an install that never asked for it stays clean.
+
+    Side effects (when enabled):
+      1. Detects or installs the graphify binary (uv > pipx), best-effort.
+      2. Reports whether `graphify-mcp` landed alongside the CLI, since the MCP
+         server ships in the same package and is declared separately per lex-mcp.
+
+    Graphify wires no hook. It is invoked on demand by kata-codebase-graph,
+    never on every Bash call, so nothing is written to .claude/settings.json.
+
+    Idempotent on every install/update run; no-op when graphify.enabled is false.
+    """
+    # parse_directives is stdlib-only and returns scalars as strings (e.g. "false"),
+    # so `bool("false")` would incorrectly be truthy. Coerce before gating.
+    raw_enabled = get_directive(directives, "graphify", "enabled", default=False)
+    if isinstance(raw_enabled, str):
+        enabled = raw_enabled.strip().lower() not in ("false", "no", "0", "off")
+    else:
+        enabled = bool(raw_enabled)
+    if not enabled:
+        return
+
+    raw_auto_install = get_directive(directives, "graphify", "auto_install_binary", default=True)
+    if isinstance(raw_auto_install, str):
+        auto_install = raw_auto_install.strip().lower() not in ("false", "no", "0", "off")
+    else:
+        auto_install = bool(raw_auto_install)
+
+    if dry_run:
+        if auto_install:
+            print("    [DRY-RUN] graphify binary (install via uv or pipx when absent)")
+        else:
+            print("    [DRY-RUN] graphify enabled; binary install skipped by directive")
+        return
+
+    if auto_install:
+        _install_graphify_binary(dry_run=dry_run)
+
+    if shutil.which("graphify") is None:
+        print(
+            "  WARNING: graphify binary not on PATH. kata-codebase-graph degrades "
+            "cleanly (records the unavailability and returns control), so nothing "
+            f"breaks. Install manually to enable graph features: {GRAPHIFY_REPO_URL}"
+        )
+        return
+
+    print("  Graphify enabled (graph is advisory input; no hook wired).")
+    if shutil.which("graphify-mcp") is None:
+        print(
+            "  NOTE: graphify-mcp not found next to the CLI. The MCP server ships "
+            "in the same package; reinstall if MCP-based graph queries are wanted."
+        )
+
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Project setup installers (CODEOWNERS, PR template, .gitignore merge)
 #
@@ -1198,6 +1318,7 @@ MCP_CATALOG: dict[str, tuple[str, list[str]]] = {
     "notion":  ("Notion MCP — pages, databases (OAuth on first call)", []),
     "figma":   ("Figma MCP — design tokens, file inspect", ["FIGMA_API_KEY"]),
     "slack":   ("Slack MCP — channels, messages, notifications provider (OAuth)", []),
+    "graphify": ("Graphify MCP — local codebase knowledge-graph queries", []),
 }
 
 # Baseline OAuth scopes required by the GitHub MCP server's tool surface
@@ -1284,6 +1405,7 @@ OPTIONAL_FEATURES: dict[str, str] = {
     "notifications":    "Provider-agnostic notifications (Athena timeout, Janus release, Eunomia digest)",
     "pm":               "Eunomia PM loop (plans status digest cadence + thresholds)",
     "warriors-default-author": "Warriors default GitHub App identity for commits/PRs (requires GitHub App credentials)",
+    "graphify":         "Codebase knowledge graph for reverse-dependency mapping (installs CLI + MCP runtime)",
 }
 
 # Catalog of project setup files installed at bootstrap. Tuple = (description, env vars).
@@ -1324,10 +1446,11 @@ class Selection:
 # for git commits and PRs, so the install never enables it by default —
 # users must add it explicitly via `--with-features=warriors-default-author`
 # (or the interactive prompt).
-_PROFILE_DEFAULT_OFF: frozenset[str] = frozenset({"warriors-default-author"})
+_PROFILE_DEFAULT_OFF: frozenset[str] = frozenset({"warriors-default-author", "graphify"})
+_MCP_PROFILE_DEFAULT_OFF: frozenset[str] = frozenset({"graphify"})
 
 PROFILE_FULL = Selection(
-    mcps=frozenset(MCP_CATALOG.keys()),
+    mcps=frozenset(MCP_CATALOG.keys()) - _MCP_PROFILE_DEFAULT_OFF,
     hooks=frozenset(HOOK_CATALOG.keys()),
     optional_features=frozenset(OPTIONAL_FEATURES.keys()) - _PROFILE_DEFAULT_OFF,
     project_setup=frozenset(PROJECT_SETUP_CATALOG.keys()),
@@ -1948,6 +2071,40 @@ rtk:
     return "\n" + header + (body_selected if selected else body_disabled)
 
 
+def _render_graphify_section(selected: bool) -> str:
+    """Graphify section. When selected, emit enabled=true; otherwise explicit
+    enabled=false so install_graphify_bundle is a true no-op."""
+    header = """\
+# ─── Graphify (codebase knowledge graph) ───────────────────────
+# Turns a repository into a queryable knowledge graph so agents can
+# answer reverse-dependency questions ("who breaks if I change this")
+# that grep cannot. Consumed by kata-codebase-graph and, downstream,
+# by the affected-components table in kata-architecture-brief.
+# Code extraction is local AST via tree-sitter: deterministic, no API
+# key, no network. The optional semantic pass (documents, PDFs, images)
+# uses a language model; prefer `--backend claude-cli`, which bills the
+# existing Pro/Max subscription instead of a separate API key.
+# The graph is ADVISORY input, never a CI gate. See codex-graphify.
+"""
+    body_selected = """\
+graphify:
+  # master switch (set false to skip every Graphify action; install/update do not touch Graphify artifacts)
+  enabled: true
+  # set false to skip the automatic binary install while keeping the directive contract
+  auto_install_binary: true
+  # code-only (deterministic, free) | semantic (optional LLM pass over docs/PDFs/images)
+  mode: code-only
+"""
+    body_disabled = """\
+graphify:
+  # opted out at install time; install/update do not touch any Graphify artifact
+  enabled: false
+  auto_install_binary: false
+  mode: code-only
+"""
+    return "\n" + header + (body_selected if selected else body_disabled)
+
+
 def _render_notifications_section(selected: bool) -> str:
     header = """\
 # ─── Notifications ──────────────────────────────────────────────
@@ -2082,6 +2239,7 @@ def render_directives(selection: Selection) -> str:
     parts.append(_render_pr_cost_tracking_section("pr_cost_tracking" in selection.optional_features))
     parts.append(_render_warriors_default_author_section("warriors-default-author" in selection.optional_features))
     parts.append(_render_rtk_section("rtk" in selection.hooks))
+    parts.append(_render_graphify_section("graphify" in selection.optional_features))
     parts.append(_render_notifications_section("notifications" in selection.optional_features))
     parts.append(_render_pm_section("pm" in selection.optional_features))
     parts.append(_render_session_tracking_section("session_tracking" in selection.optional_features))
@@ -3347,6 +3505,7 @@ def install_claude_code(ahrena_dir: Path, target_dir: Path, dry_run: bool = Fals
     # strict fallback, and copies the filters template. Runs on every install/update
     # so the canonical shape is reconciled idempotently.
     install_rtk_bundle(ahrena_dir, target_dir, directives, dry_run=dry_run)
+    install_graphify_bundle(ahrena_dir, target_dir, directives, dry_run=dry_run)
 
 
 def install_cursor(ahrena_dir: Path, target_dir: Path, dry_run: bool = False) -> None:

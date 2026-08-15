@@ -216,12 +216,13 @@ def test_check_env_vars_minimal_emits_no_warnings(
 # render_directives — content shape
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def test_render_full_parses_and_lists_every_mcp() -> None:
+def test_render_full_parses_and_lists_every_default_mcp() -> None:
     content = render_directives(PROFILE_FULL)
     parsed = parse_directives(content)
     servers = get_directive(parsed, "mcp", "servers")
     assert isinstance(servers, list)
-    assert set(servers) == set(MCP_CATALOG.keys())
+    assert set(servers) == set(MCP_CATALOG.keys()) - {"graphify"}
+    assert "graphify" in MCP_CATALOG
 
 
 def test_render_full_has_pr_cost_tracking_enabled_true() -> None:
@@ -282,7 +283,7 @@ def test_render_includes_every_optional_feature_key_when_full() -> None:
     # appears commented out. Verified by the dedicated tests in
     # test_install_warriors_default_author.py — skip here to keep this
     # assertion focused on features that are uncommented at Full.
-    skip_uncommented = {"warriors-default-author"}
+    skip_uncommented = {"warriors-default-author", "graphify"}
     for key in OPTIONAL_FEATURES:
         if key in skip_uncommented:
             continue

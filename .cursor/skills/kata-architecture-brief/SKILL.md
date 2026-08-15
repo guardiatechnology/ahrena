@@ -34,16 +34,32 @@ For each AC:
 1. Identify existing files/modules that will be modified.
 2. Identify new files/modules to be created.
 3. Identify affected external contracts (APIs, events, databases, queues).
-4. Consolidate in a table:
+4. **Consult the code graph for reverse impact** when `graphify.enabled` is `true` in `.ahrena/.directives`. Invoke `kata-codebase-graph`; do not call the binary directly, because the procedure already exists (`lex-pilars`). The ad hoc read finds direct dependencies; reverse traversal finds who consumes what changes.
+5. Consolidate in a table:
 
-| Component | Type | Action | ACs covered |
-|---|---|---|---|
-| `src/refunds/service.py` | module | create | AC-1, AC-2 |
-| `src/payments/repository.py` | module | modify (add method) | AC-3 |
-| `openapi/refunds.yaml` | spec | modify | AC-1 |
-| `events/refund.created` | event | create | AC-2 |
+| Component | Type | Action | ACs covered | Source |
+|---|---|---|---|---|
+| `src/refunds/service.py` | module | create | AC-1, AC-2 | read |
+| `src/payments/repository.py` | module | modify (add method) | AC-3 | read |
+| `openapi/refunds.yaml` | spec | modify | AC-1 | read |
+| `events/refund.created` | event | create | AC-2 | read |
+| `scripts/anonymity_guard.py` | module | assess | AC-3 | graph (reverse) |
 
 This table is the **scope boundary** used by `kata-quality-gate` in the scope creep check.
+
+#### Graph consultation — measured limits
+
+Measured on `financial-context` (20,882 nodes, 49,563 edges, 31 MB) across 3 real PRs, yielding 10 substantive findings the direct read would not surface:
+
+- **Seed limit.** Each `graphify affected` invocation reloads the entire graph and costs roughly 2.5 s. Querying every changed node of a large PR (377 seeds in the measurement) takes minutes. Query only the nodes the ACs actually touch.
+- **Depth 2.** That is the measured setting. Do not exceed it without new measurement.
+- **Re-export barrels.** 47% of raw findings were `__init__.py` files that only re-export the changed symbol. They are real consumers but carry low information: mark them structural or omit them from the table.
+- **`Source` column.** Rows coming from reverse traversal MUST be identified as `graph (reverse)` — they are precisely the ones the ad hoc read misses.
+- **`INFERRED` edges.** Rows sustained only by an `INFERRED` edge require human confirmation before becoming a scope boundary. None occurred in the measurement (0 of 19), but that was one repository at a single depth.
+
+#### Degradation
+
+When the binary is absent, `graphify.enabled` is `false`, or `built_at_commit` diverges from `HEAD`, this step proceeds with the prior behavior (read only) and **declares** that the graph was unavailable. The graph is advisory input: it never blocks this phase.
 
 ### Step 3: Propose the technical approach
 
@@ -105,12 +121,15 @@ Structure:
 
 ## Affected Components
 
-| Component | Type | Action | ACs covered |
-|---|---|---|---|
-| ... | ... | ... | ... |
+| Component | Type | Action | ACs covered | Source |
+|---|---|---|---|---|
+| ... | ... | ... | ... | read \| graph (reverse) |
 
 > This table defines the exact scope of files to modify.
 > Modifications outside this table are blocked by Gate 2 as scope creep.
+> The `Source` column distinguishes what came from the direct read from what came
+> from reverse graph traversal. When the graph was unavailable, declare it here
+> instead of omitting the column.
 
 ## Technical Approach
 

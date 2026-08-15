@@ -46,16 +46,32 @@ Para cada AC:
 1. Identificar archivos/módulos existentes que serán modificados.
 2. Identificar nuevos archivos/módulos que serán creados.
 3. Identificar contratos externos afectados (APIs, eventos, bases de datos, colas).
-4. Consolidar en una tabla:
+4. **Consultar el grafo de código para impacto inverso**, cuando `graphify.enabled` sea `true` en `.ahrena/.directives`. Se DEBE invocar `kata-codebase-graph`; no se llama al binario directamente, porque el procedimiento ya existe (`lex-pilars`). La lectura ad hoc encuentra dependencias directas; el recorrido inverso encuentra quién consume lo que se va a modificar.
+5. Consolidar en una tabla:
 
-| Componente | Tipo | Acción | ACs cubiertos |
-|---|---|---|---|
-| `src/refunds/service.py` | módulo | crear | AC-1, AC-2 |
-| `src/payments/repository.py` | módulo | modificar (agregar método) | AC-3 |
-| `openapi/refunds.yaml` | spec | modificar | AC-1 |
-| `events/refund.created` | evento | crear | AC-2 |
+| Componente | Tipo | Acción | ACs cubiertos | Origen |
+|---|---|---|---|---|
+| `src/refunds/service.py` | módulo | crear | AC-1, AC-2 | lectura |
+| `src/payments/repository.py` | módulo | modificar (agregar método) | AC-3 | lectura |
+| `openapi/refunds.yaml` | spec | modificar | AC-1 | lectura |
+| `events/refund.created` | evento | crear | AC-2 | lectura |
+| `scripts/anonymity_guard.py` | módulo | evaluar | AC-3 | grafo (inverso) |
 
 Esta tabla es la **frontera de alcance** usada por `kata-quality-gate` en el check de scope creep.
+
+#### Consulta al grafo — límites medidos
+
+Medición en `financial-context` (20.882 nodos, 49.563 aristas, 31 MB) sobre 3 PR reales, con 10 hallazgos sustantivos que la lectura directa no encontraría:
+
+- **Límite de semillas.** Cada invocación de `graphify affected` recarga el grafo completo y cuesta cerca de 2,5 s. Consultar todos los nodos modificados de un PR grande (377 semillas en la medición) lleva minutos. Se consultan solo los nodos que los AC realmente tocan.
+- **Profundidad 2.** Es el valor medido. NO SE DEBE exceder sin nueva medición.
+- **Barriles de reexportación.** 47% de los hallazgos brutos fueron archivos `__init__.py` que solo reexportan el símbolo modificado. Son consumidores reales, pero de baja información: se marcan como estructurales o se omiten de la tabla.
+- **Columna `Origen`.** Las filas provenientes de recorrido inverso DEBEN identificarse como `grafo (inverso)` — son justamente las que la lectura ad hoc no encuentra.
+- **Aristas `INFERRED`.** Las filas sustentadas solo por una arista `INFERRED` exigen confirmación humana antes de convertirse en frontera de alcance. En la medición no ocurrieron (0 de 19), pero fue un repositorio en una sola profundidad.
+
+#### Degradación
+
+Cuando el binario está ausente, `graphify.enabled` es `false`, o `built_at_commit` divergió del `HEAD`, este paso continúa con el comportamiento anterior (solo lectura) y **declara** que el grafo estaba indisponible. El grafo es insumo consultivo: nunca bloquea esta fase.
 
 ### Paso 3: Proponer el enfoque técnico
 
@@ -117,12 +133,15 @@ Estructura:
 
 ## Componentes Afectados
 
-| Componente | Tipo | Acción | ACs cubiertos |
-|---|---|---|---|
-| ... | ... | ... | ... |
+| Componente | Tipo | Acción | ACs cubiertos | Origen |
+|---|---|---|---|---|
+| ... | ... | ... | ... | lectura \| grafo (inverso) |
 
 > Esta tabla define el alcance exacto de archivos a modificar.
 > Modificaciones fuera de esta tabla son bloqueadas por el Gate 2 como scope creep.
+> La columna `Origen` distingue lo que vino de la lectura directa de lo que vino
+> del recorrido inverso del grafo. Cuando el grafo estaba indisponible, se declara
+> aquí en lugar de omitir la columna.
 
 ## Enfoque Técnico
 
@@ -206,3 +225,5 @@ Gate 1 — Aprobación de Alcance (espera aprobación humana).
 - `warrior-daedalus`, `kata-api-design-oas` — delegación para API
 - `warrior-kronos`, `kata-events-doc` — delegación para eventos
 - `codex-codex`, `codex-lexis` — convenciones de artefacto
+- `kata-codebase-graph` — recorrido inverso del grafo consultado en el Paso 2
+- `codex-graphify` — modelo de costo medido, semántica `EXTRACTED`/`INFERRED` y límites

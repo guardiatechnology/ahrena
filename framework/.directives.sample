@@ -76,6 +76,7 @@ mcp:
     - notion
     - figma
     - slack
+    # - graphify
 
 # ─── Quality (Issue-Driven Workflow) ────────────────────────────
 # Settings used by kata-quality-gate (Gate 2 of the Issue-Driven
@@ -213,6 +214,22 @@ rtk:
   enabled: true
   # set false to skip the automatic binary install while still wiring the hook
   auto_install_binary: true
+
+# ─── Graphify (codebase knowledge graph) ───────────────────────
+# Turns a repository into a queryable knowledge graph so agents can
+# answer reverse-dependency questions ("who breaks if I change this")
+# that grep cannot. Consumed by kata-codebase-graph and, downstream,
+# by the affected-components table in kata-architecture-brief.
+# Code extraction is local AST via tree-sitter: deterministic, no API
+# key, no network. The optional semantic pass (documents, PDFs, images)
+# uses a language model; prefer `--backend claude-cli`, which bills the
+# existing Pro/Max subscription instead of a separate API key.
+# The graph is ADVISORY input, never a CI gate. See codex-graphify.
+graphify:
+  # opted out at install time; install/update do not touch any Graphify artifact
+  enabled: false
+  auto_install_binary: false
+  mode: code-only
 
 # ─── Notifications ──────────────────────────────────────────────
 # Provider-agnostic notification configuration consumed by Athena
