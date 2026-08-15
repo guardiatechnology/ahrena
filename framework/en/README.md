@@ -41,18 +41,21 @@ The default language (`pt-BR`) is the **source of truth**. Changes start there a
 
 ### Taxonomy
 
-Knowledge is organized as **Clade** (discipline) → **Subclade** (area) → **Pilar** (capability type). The canonical artifact address is:
+Knowledge is organized as **Clade** (discipline) → **Subclade** (area) → **Optional stack** → **Pilar** (capability type). Use the stack level only when an artifact depends on a specific technology; cross-cutting capabilities stay directly under the subclade. The canonical artifact addresses are:
 
-`{lang}/{clade}/{subclade}/{pilar}/{prefix}-{name}.{ext}` — e.g. `pt-BR/engineering/platform/lexis/lex-restful-apis.md`.
+`{lang}/{clade}/{subclade}/{pilar}/{prefix}-{name}.{ext}` or `{lang}/{clade}/{subclade}/{stack}/{pilar}/{prefix}-{name}.{ext}` — e.g. `en/engineering/backend/dotnet/lexis/lex-dotnet-testing.md`.
 
 ```mermaid
 flowchart LR
   subgraph Taxonomia
     A[Clade] --> B[Subclade]
-    B --> C[Pilar]
-    C --> D[Artefato]
+    B --> C{Stack-dependent?}
+    C -->|No| D[Pilar]
+    C -->|Yes| S[Stack]
+    S --> D
+    D --> E[Artifact]
   end
-  D --> E["lex-*, codex-*, kata-*, warrior-*, cry-*"]
+  E --> F["lex-*, codex-*, kata-*, warrior-*, cry-*"]
 ```
 
 ### Overview
@@ -82,7 +85,7 @@ flowchart TB
 
 ### Canonical paths in `framework/`
 
-**Language is the first level** of navigation. Each language folder contains the full Clade → Subclade → Pilar tree.
+**Language is the first level** of navigation. Each language folder contains the Clade → Subclade → Optional stack → Pilar tree.
 
 ```mermaid
 flowchart LR
@@ -91,7 +94,10 @@ flowchart LR
     lang --> clade["{clade}/"]
     clade --> sub["{subclade}/"]
     sub --> pilar["{pilar}/"]
+    sub --> stack["{stack}/ (optional)"]
+    stack --> stackPilar["{pilar}/"]
     pilar --> artefato["{prefix}-{name}.md"]
+    stackPilar --> artefato
   end
   templates["templates/"]
   templates --> artefato

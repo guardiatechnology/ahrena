@@ -108,12 +108,12 @@ Todos os **55** manuais de referência do framework Ahrena.
 
 | Artefato | Descrição | Framework |
 |---|---|---|
-| `codex-python-architecture` | Python architecture patterns — Clean Architecture, DDD layering, module boundaries, dependency injection | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/codex/codex-python-architecture.md) |
-| `codex-python-fastapi` | FastAPI patterns — router organization, dependency injection, middleware, lifespan, request validation | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/codex/codex-python-fastapi.md) |
-| `codex-python-observability` | Observability patterns — OpenTelemetry setup, structured logging with structlog, metrics with OTLP | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/codex/codex-python-observability.md) |
-| `codex-python-sqlalchemy` | SQLAlchemy patterns — async session, Unit of Work, repository pattern, Alembic migrations | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/codex/codex-python-sqlalchemy.md) |
-| `codex-python-testing` | Python testing guide — pytest, asyncio, factory_boy fixtures, coverage targets, test levels | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/codex/codex-python-testing.md) |
-| `codex-python-tooling` | Python tooling reference — uv, ruff, mypy, pre-commit, pyproject.toml configuration | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/codex/codex-python-tooling.md) |
+| `codex-python-architecture` | Python architecture patterns — Clean Architecture, DDD layering, module boundaries, dependency injection | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/codex/codex-python-architecture.md) |
+| `codex-python-fastapi` | FastAPI patterns — router organization, dependency injection, middleware, lifespan, request validation | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/codex/codex-python-fastapi.md) |
+| `codex-python-observability` | Observability patterns — OpenTelemetry setup, structured logging with structlog, metrics with OTLP | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/codex/codex-python-observability.md) |
+| `codex-python-sqlalchemy` | SQLAlchemy patterns — async session, Unit of Work, repository pattern, Alembic migrations | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/codex/codex-python-sqlalchemy.md) |
+| `codex-python-testing` | Python testing guide — pytest, asyncio, factory_boy fixtures, coverage targets, test levels | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/codex/codex-python-testing.md) |
+| `codex-python-tooling` | Python tooling reference — uv, ruff, mypy, pre-commit, pyproject.toml configuration | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/codex/codex-python-tooling.md) |
 
 ---
 

@@ -259,7 +259,7 @@ Clades e Subclades são **extensíveis**: cada organização define os que fizer
 | `warrior-translator` | Hermes | documentation/i18n | Tradução de documentação; [detalhes](framework/pt-BR/documentation/i18n/README.md) |
 | `warrior-daedalus` | Daedalus | engineering/platform | Design de API RESTful (OAS); `/cry-api-design`, `/cry-full-design` |
 | `warrior-kronos` | Kronos | engineering/platform | Event Storm e CloudEvents; `/cry-event-storm`, `/cry-full-design` |
-| `warrior-apollo` | Apollo | engineering/backend | Implementação Python com Clean Architecture; `/cry-python-implement` |
+| `warrior-apollo` | Apollo | engineering/backend | Router Python/.NET; Apollo-.NET prioriza corretude, memory safety e baixa pressão de GC; `/cry-python-implement`, `/cry-dotnet` |
 | `warrior-hephaestus` | Hephaestus | engineering/frontend | Implementação Frontend (React/TS) com a11y e testes comportamentais |
 | `warrior-atlas` | Atlas | engineering/devops | Arquitetura de soluções AWS; Well-Architected; IaC e custo |
 | `warrior-hera` | Hera | engineering/quality | Estratégia de testes, plano de cobertura, auditoria de suite |

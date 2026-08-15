@@ -114,7 +114,7 @@ Mandatorio en todos los `entry_mode`. Falla sin excepción declarada.
 
 Criterio:
 
-1. `warrior-apollo-agents` está disponible (plan-013 mergeado — chequea vía existencia del archivo `framework/{lang}/engineering/backend/warriors/warrior-apollo-agents.md`) → ✅
+1. `warrior-apollo-agents` está disponible (plan-013 mergeado — chequea vía existencia del archivo `framework/{lang}/engineering/backend/python/warriors/warrior-apollo-agents.md`) → ✅
 2. O camino alternativo declarado en ADR (`docs/adr/ADR-{N}-{slug}.md`)
 
 Sin ninguno de los dos, falla.

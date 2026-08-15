@@ -64,10 +64,10 @@ All **53** executable skills in the Ahrena framework (including the sample templ
 
 | Artifact | Description | Framework |
 |---|---|---|
-| `kata-python-debug` | Systematically investigate and resolve a Python bug with root-cause analysis | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/katas/kata-python-debug.md) |
-| `kata-python-implement` | Implement a Python feature following platform standards (typing, error handling, testing, observability) | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/katas/kata-python-implement.md) |
-| `kata-python-refactor` | Refactor Python code for clarity, maintainability, and standard compliance without changing behavior | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/katas/kata-python-refactor.md) |
-| `kata-python-review` | Review Python code for quality, security, typing, testing, and compliance with platform Lexis | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/katas/kata-python-review.md) |
+| `kata-python-debug` | Systematically investigate and resolve a Python bug with root-cause analysis | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/katas/kata-python-debug.md) |
+| `kata-python-implement` | Implement a Python feature following platform standards (typing, error handling, testing, observability) | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/katas/kata-python-implement.md) |
+| `kata-python-refactor` | Refactor Python code for clarity, maintainability, and standard compliance without changing behavior | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/katas/kata-python-refactor.md) |
+| `kata-python-review` | Review Python code for quality, security, typing, testing, and compliance with platform Lexis | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/katas/kata-python-review.md) |
 
 ---
 

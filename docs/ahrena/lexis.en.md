@@ -102,11 +102,11 @@ All **39** unbreakable laws in the Ahrena framework.
 
 | Artifact | Description | Framework |
 |---|---|---|
-| `lex-python-error-handling` | No bare `except`; exceptions must be specific; no sensitive data in error messages | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-error-handling.md) |
-| `lex-python-immutability` | Dataclasses use `frozen=True` by default; no mutable default function arguments | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-immutability.md) |
-| `lex-python-security` | No hardcoded secrets; SQL must be parameterized; all input validated via Pydantic at system boundaries | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-security.md) |
-| `lex-python-testing` | Every behavior change has tests; mocks only at system boundaries (HTTP, DB, filesystem) | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-testing.md) |
-| `lex-python-typing` | Complete type hints everywhere; mypy strict passes with zero errors; no `Any` without a justifying comment | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-typing.md) |
+| `lex-python-error-handling` | No bare `except`; exceptions must be specific; no sensitive data in error messages | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-error-handling.md) |
+| `lex-python-immutability` | Dataclasses use `frozen=True` by default; no mutable default function arguments | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-immutability.md) |
+| `lex-python-security` | No hardcoded secrets; SQL must be parameterized; all input validated via Pydantic at system boundaries | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-security.md) |
+| `lex-python-testing` | Every behavior change has tests; mocks only at system boundaries (HTTP, DB, filesystem) | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-testing.md) |
+| `lex-python-typing` | Complete type hints everywhere; mypy strict passes with zero errors; no `Any` without a justifying comment | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-typing.md) |
 
 ---
 
@@ -136,7 +136,7 @@ All **39** unbreakable laws in the Ahrena framework.
 | `lex-frontend-accessibility` | WCAG 2.1 AA minimum; keyboard navigation; ARIA states; accessible contrast; no color as sole state indicator | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/lexis/lex-frontend-accessibility.md) |
 | `lex-frontend-security` | No unsanitized `innerHTML`; no secrets in client bundle; CSP configured; `rel="noopener"` on external links | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/lexis/lex-frontend-security.md) |
 | `lex-frontend-testing` | Behavioral tests from user POV; accessible queries preferred (`getByRole`); mocks only at boundaries | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/lexis/lex-frontend-testing.md) |
-| `lex-frontend-typing` | TypeScript `strict: true`; no implicit or unjustified `any`; API contracts typed from OAS or Zod schemas | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/lexis/lex-frontend-typing.md) |
+| `lex-frontend-typing` | TypeScript `strict: true`; no implicit or unjustified `any`; API contracts typed from OAS or Zod schemas | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/typescript/lexis/lex-frontend-typing.md) |
 
 ---
 

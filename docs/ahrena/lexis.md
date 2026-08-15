@@ -102,11 +102,11 @@ Todas as **39** leis invioláveis do framework Ahrena.
 
 | Artefato | Descrição | Framework |
 |---|---|---|
-| `lex-python-error-handling` | Sem `except` genérico; exceções devem ser específicas; sem dados sensíveis em mensagens de erro | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-error-handling.md) |
-| `lex-python-immutability` | Dataclasses usam `frozen=True` por padrão; sem argumentos padrão mutáveis em funções | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-immutability.md) |
-| `lex-python-security` | Sem segredos no código; SQL deve ser parametrizado; toda entrada validada via Pydantic nas fronteiras do sistema | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-security.md) |
-| `lex-python-testing` | Toda mudança de comportamento tem testes; mocks apenas nas fronteiras do sistema (HTTP, DB, filesystem) | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-testing.md) |
-| `lex-python-typing` | Type hints completos em todo lugar; mypy strict passa com zero erros; sem `Any` sem comentário justificativo | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/lexis/lex-python-typing.md) |
+| `lex-python-error-handling` | Sem `except` genérico; exceções devem ser específicas; sem dados sensíveis em mensagens de erro | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-error-handling.md) |
+| `lex-python-immutability` | Dataclasses usam `frozen=True` por padrão; sem argumentos padrão mutáveis em funções | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-immutability.md) |
+| `lex-python-security` | Sem segredos no código; SQL deve ser parametrizado; toda entrada validada via Pydantic nas fronteiras do sistema | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-security.md) |
+| `lex-python-testing` | Toda mudança de comportamento tem testes; mocks apenas nas fronteiras do sistema (HTTP, DB, filesystem) | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-testing.md) |
+| `lex-python-typing` | Type hints completos em todo lugar; mypy strict passa com zero erros; sem `Any` sem comentário justificativo | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/lexis/lex-python-typing.md) |
 
 ---
 
@@ -136,7 +136,7 @@ Todas as **39** leis invioláveis do framework Ahrena.
 | `lex-frontend-accessibility` | WCAG 2.1 AA mínimo; navegação por teclado; estados ARIA; contraste acessível; cor não é o único indicador de estado | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/lexis/lex-frontend-accessibility.md) |
 | `lex-frontend-security` | Sem `innerHTML` não sanitizado; sem segredos no bundle client; CSP configurado; `rel="noopener"` em links externos | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/lexis/lex-frontend-security.md) |
 | `lex-frontend-testing` | Testes comportamentais do ponto de vista do usuário; queries acessíveis preferidas (`getByRole`); mocks apenas nas fronteiras | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/lexis/lex-frontend-testing.md) |
-| `lex-frontend-typing` | TypeScript `strict: true`; sem `any` implícito ou injustificado; contratos de API tipados por OAS ou schemas Zod | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/lexis/lex-frontend-typing.md) |
+| `lex-frontend-typing` | TypeScript `strict: true`; sem `any` implícito ou injustificado; contratos de API tipados por OAS ou schemas Zod | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/frontend/typescript/lexis/lex-frontend-typing.md) |
 
 ---
 

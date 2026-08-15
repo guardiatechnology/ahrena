@@ -1,0 +1,58 @@
+# Lexis: .NET Change Testing
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Behavior changes and fixes in .NET projects
+
+## Purpose
+
+Ensure changed behavior is protected at the level that detects its real risk, including relational semantics and boundary contracts.
+
+## Law
+
+> **Every .NET behavior change MUST include a deterministic test that fails without the change and uses real infrastructure when the risk depends on provider semantics.**
+
+## Scope
+
+- **Applies to:** features, fixes, migrations, contracts, and refactorings with new behavior
+- **Bound agents:** Apollo-.NET and every agent producing .NET code
+- **Exceptions:** None. Lexis admit no exceptions.
+
+## Verifiable Rules
+
+1. Domain rules use unit tests; HTTP/event boundaries use contract or integration tests; relational persistence uses the real provider in a container or isolated environment.
+2. EF Core InMemory does not validate SQL translation, constraints, transactions, or relational concurrency.
+3. Tests do not depend on uncontrolled clocks, randomness, networks, or global order.
+4. Mocks represent controlled boundaries; they do not reimplement EF Core, ASP.NET Core, or an external provider.
+5. A flaky test is a defect: fix it, quarantine it with owner and deadline, or block delivery.
+
+## Violation Consequences
+
+1. **Block:** an unprotected behavior change fails the quality gate.
+2. **Diagnosis:** identify the uncovered risk or unsuitable test double.
+3. **Remediation:** add a test at the correct level and evidence that it failed before the fix when reproducible.
+
+## Examples
+
+### Correct
+
+```csharp
+[Fact]
+public async Task Rejects_second_authorization_with_same_idempotency_key() { /* real database */ }
+```
+
+### Incorrect
+
+```csharp
+[Fact]
+public void Always_passes() => Assert.True(true);
+```
+
+## Automated Validation
+
+- **Tool:** `dotnet test`, the repository test runner, Coverlet when configured, and Testcontainers for external semantics
+- **Moment:** pull request CI
+- **Metric:** 0 untested behavior changes; 0 silently tolerated flaky tests; 0 EF InMemory use to assert relational behavior
+
+## References
+
+- `lex-test-pyramid`, `lex-test-isolation`, `codex-test-strategy`
+- `.references/topicos/05-testes-e-qualidade.md`

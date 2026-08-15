@@ -9,6 +9,20 @@ description: "Domain Modeling (DDD). Guardia platform — domain discovery and m
 
 ## Workflow
 
+### Decision Gates Before the Workflow
+
+Apply these gates before creating tactical artifacts:
+
+| Gate | Question | Decision |
+|---|---|---|
+| Complexity | Are there rules, disputed language, or invariants beyond CRUD? | If not, document the simple model and do not invent Aggregates/Repositories |
+| Strategy | Are language, ownership, bounded contexts, and relationships clear? | If not, remain in discovery; do not advance to tactical modeling |
+| Consistency | Which invariants must be atomic? | The Aggregate boundary comes from this answer, not the tables |
+| Event | Is the fact internal to the domain or a contract among contexts? | Separate Domain Events from Integration Events and their guarantees |
+| Operations | How do timeout, concurrency, reprocessing, and uncertain commits behave? | Record mechanism, indicator, owner, and reconciliation |
+
+Classify each result as **confirmed**, **decision**, **proposal**, or **hotspot**. Consult `codex-domain-driven-design`; tactical patterns also record when **not** to use them.
+
 ```
 Progress:
 - [ ] 1. Read directives and scope
