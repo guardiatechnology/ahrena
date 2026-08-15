@@ -61,9 +61,9 @@ references:
 # ─── MCP Servers ────────────────────────────────────────────────
 # List of MCP servers to activate. The installer merges each
 # server config from framework/mcp/<name>.json (or
-# .ahrena/mcp/<name>.json if overridden) into .cursor/mcp.json
-# and the project-level .mcp.json + enabledMcpjsonServers in
-# .claude/settings.json. Override individual server configs in
+# .ahrena/mcp/<name>.json if overridden) into .cursor/mcp.json,
+# Claude Code project MCP files, or the managed MCP section in
+# .codex/config.toml. Override individual server configs in
 # .ahrena/mcp/<name>.json.
 #
 # `ahrena` is the framework's own internal server (see
@@ -107,7 +107,7 @@ mcp:
 
 # ─── Language ────────────────────────────────────────────────────
 # Defines the default language, the mandatory languages for the
-# framework, and the language used in Cursor artifacts.
+# framework, and the language used in generated platform artifacts.
 # Language is the first navigation level inside framework/.
 
 language:
@@ -118,6 +118,7 @@ language:
     - en
   cursor: en
   claude-code: en
+  codex: en
 
 # ─── Terminal ───────────────────────────────────────────────────
 # Shell used for commands. Values: bash | powershell
@@ -259,37 +260,6 @@ session_tracking:
   stale_threshold_minutes: 30
   # Gate 2 rejects PR without "Session Trace" when true
   pr_trace_required: true
-  # Up to 3 short tags per session, surfaced in the statusline, the
-  # VSCode extension sidebar, and the Eunomia digest. Tag 1 (`kind`)
-  # comes from the controlled vocabulary in `kinds` below; tags 2 and
-  # 3 (`topics`) are free-form, lowercase, kebab-case recommended.
-  # Stored under `tags: {kind, topics: [...]}` in the heartbeat JSON.
-  # See lex-session-tags.
-  tags:
-    enabled: true
-    # Hard ceiling on slots per session (1 kind + 2 topics).
-    max_per_session: 3
-    # Controlled vocabulary for the 1st slot (`kind`). Default set
-    # covers the most frequent session intents in the Issue-Driven
-    # flow. Add project-specific values here — additions are PR-gated
-    # so the vocabulary stays small and aggregatable in the digest.
-    kinds:
-      - tech-task
-      - bug
-      - spike
-      - user-story
-      - epic
-      - chore
-      - design
-      - review
-      - exploration
-      - release
-    # When true, the agent invokes `kata-session-tag-suggest` silently
-    # on the first turn of a new session if `tags` is empty in the
-    # heartbeat. The chosen tags are written via `kata-session-heartbeat`
-    # and surfaced once in a one-line system-reminder so the user can
-    # correct via `/cry-tags set` if the inference was off.
-    auto_suggest: true
 
 # ─── Project Setup ──────────────────────────────────────────────
 # Project setup files materialized by `scripts/install.py` at
@@ -323,6 +293,7 @@ naming:
     framework: ".md"
     cursor: ".mdc"
     claude-code: ".md"
+    codex: ".md"
 
   # Casing conventions
   casing:

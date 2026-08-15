@@ -27,6 +27,8 @@ CLAUDE_CODE_DIRS = ("docs", "commands")
 
 def detect_platform(target: Path) -> str | None:
     """Detect which platform was previously installed."""
+    if (target / ".codex" / ".ahrena-platform").exists():
+        return "codex"
     cursor_dir = target / ".cursor"
     if any((cursor_dir / d).exists() for d in CURSOR_DIRS):
         return "cursor"
@@ -66,6 +68,8 @@ examples:
   %(prog)s --sync-cursor --dry-run          Preview .cursor sync without writing
   %(prog)s --sync-claude-code               Only regenerate .claude/ + CLAUDE.md from .ahrena/framework/ and .ahrena/artifacts/
   %(prog)s --sync-claude-code --dry-run     Preview .claude sync without writing
+  %(prog)s --sync-codex                     Only regenerate native OpenAI Codex resources
+  %(prog)s --sync-codex --dry-run           Preview Codex sync without writing
         """,
     )
     parser.add_argument(
@@ -104,6 +108,10 @@ examples:
         "--sync-claude-code", action="store_true",
         help="only regenerate .claude/ + CLAUDE.md from .ahrena/framework/ and .ahrena/artifacts/ (no download)",
     )
+    parser.add_argument(
+        "--sync-codex", action="store_true",
+        help="only regenerate AGENTS.md, .agents/, and .codex/ (no download)",
+    )
     args = parser.parse_args()
 
     target = Path(args.target).resolve()
@@ -126,14 +134,21 @@ examples:
         print("Re-run the original installer to restore it.")
         sys.exit(1)
 
-    if args.sync_cursor or args.sync_claude_code:
+    sync_flags = [args.sync_cursor, args.sync_claude_code, args.sync_codex]
+    if sum(bool(flag) for flag in sync_flags) > 1:
+        parser.error("choose only one --sync-* option")
+    if any(sync_flags):
         if not directives_path.exists():
             print("Ahrena: AI-First Capability Framework — Updater")
             print("=" * 52)
             print("\nERROR: .ahrena/.directives not found.")
             print("Re-run the installer or restore .directives.")
             sys.exit(1)
-        sync_target = ".cursor" if args.sync_cursor else ".claude/ + CLAUDE.md"
+        sync_target = (
+            ".cursor" if args.sync_cursor else
+            ".claude/ + CLAUDE.md" if args.sync_claude_code else
+            "AGENTS.md + .agents/ + .codex/"
+        )
         print("Ahrena: AI-First Capability Framework — Updater")
         print("=" * 52)
         print(f"\n  Target:       {target}")
@@ -145,8 +160,10 @@ examples:
         import install as install_mod
         if args.sync_cursor:
             install_mod.install_cursor(ahrena_dir, target, dry_run=args.dry_run)
-        else:
+        elif args.sync_claude_code:
             install_mod.install_claude_code(ahrena_dir, target, dry_run=args.dry_run)
+        else:
+            install_mod.install_codex(ahrena_dir, target, dry_run=args.dry_run)
         sys.exit(0)
 
     platform = detect_platform(target)

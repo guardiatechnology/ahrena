@@ -858,3 +858,11 @@ claude-code:
       description: "Reference for mobile app structure, state, offline sync, testing."
     product/discovery/codex/codex-discovery-artifacts:
       description: "Reference for Product Discovery artifacts: insight and Idea front-matter schemas, 9-status state machine, canonical addressing under docs/discovery/{topic}/."
+
+codex:
+  transposition:
+    lex: docs
+    codex: docs
+    kata: skills
+    warrior: agents
+    cry: skills

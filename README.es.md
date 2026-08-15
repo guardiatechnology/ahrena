@@ -35,6 +35,7 @@ Ahrena verifica el host en tres niveles durante `make bootstrap` / `make install
 |--------|-------------|
 | **Cursor** | IDE con soporte integrado: el instalador genera `.cursor/` (rules, skills, commands, agents) a partir del framework. [Soporte para Cursor](#soporte-para-cursor) |
 | **Claude Code** | Soporte para Claude Code: el instalador genera `.claude/` (docs, skills, commands, agents) y `CLAUDE.md` a partir del framework. [Soporte para Claude Code](#soporte-para-claude-code) |
+| **OpenAI Codex** | Soporte nativo para Codex: genera `AGENTS.md`, skills de repositorio, agentes TOML y referencias progresivas. [Soporte para OpenAI Codex](#soporte-para-openai-codex) |
 
 ### Primera instalación
 
@@ -65,6 +66,9 @@ Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/do
 
 # Windows — framework + Claude Code
 Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform claude-code; Remove-Item install.py
+
+# Windows — framework + OpenAI Codex
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform codex; Remove-Item install.py
 ```
 
 ```bash
@@ -73,6 +77,9 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 
 # macOS / Linux — framework + Claude Code
 curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform claude-code
+
+# macOS / Linux — framework + OpenAI Codex
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform codex
 ```
 
 **Opciones del instalador:**
@@ -81,6 +88,7 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 |------|-------------|
 | `--platform cursor` | Generar `.cursor/` (rules, skills, commands, agents) |
 | `--platform claude-code` | Generar `.claude/` (docs, skills, commands, agents) y `CLAUDE.md` |
+| `--platform codex` | Generar `AGENTS.md`, `.agents/skills/`, `.codex/agents/` y `.codex/docs/` |
 | `--profile {full\|standard\|minimal}` | Perfil base de preferencias; sobrescrito por `--with-*` / `--without-*`. Default: `full` |
 | `--with-mcp / --without-mcp LISTA` | Incluir/excluir MCPs (csv); el servidor `ahrena` siempre se mantiene |
 | `--with-hooks / --without-hooks LISTA` | Incluir/excluir hooks (csv): `rtk`, `pr-cost-attribution` |
@@ -131,6 +139,7 @@ make install-to TARGET=/ruta/al/proyecto PLATFORM=claude-code LANGUAGE=en
 | **Actualizar (local)** | `make update LOCAL=1` o `make update SOURCE=../ahrena` | `python .ahrena/update.py --local` o `--source /ruta/a/ahrena` |
 | **Re-sincronizar Cursor** | `make sync-cursor` | `python .ahrena/update.py --sync-cursor` |
 | **Re-sincronizar Claude Code** | `make sync-claude-code` | `python .ahrena/update.py --sync-claude-code` |
+| **Re-sincronizar OpenAI Codex** | `make sync-codex` | `python .ahrena/update.py --sync-codex` |
 | **Desinstalar** | `make uninstall` | `python .ahrena/uninstall.py` (u `--force` sin confirmación) |
 
 **Por defecto:** la instalación y actualización vienen del **remoto** (GitHub). Para fuente local use `--local` / `--source` o en el Makefile `LOCAL=1` / `SOURCE=...`.
@@ -139,11 +148,12 @@ make install-to TARGET=/ruta/al/proyecto PLATFORM=claude-code LANGUAGE=en
 
 ### Qué se instala
 
-| Comando | `.ahrena/` | `.cursor/` | `.claude/` + `CLAUDE.md` |
-|---------|------------|------------|--------------------------|
-| Sin `--platform` | framework, directives, scripts, Makefile | — | — |
-| `--platform cursor` | idem | rules, skills, commands, agents | — |
-| `--platform claude-code` | idem | — | docs, skills, commands, agents + CLAUDE.md + RTK hook |
+| Comando | `.ahrena/` | `.cursor/` | `.claude/` + `CLAUDE.md` | OpenAI Codex |
+|---------|------------|------------|--------------------------|--------------|
+| Sin `--platform` | framework, directives, scripts, Makefile | — | — | — |
+| `--platform cursor` | idem | rules, skills, commands, agents | — | — |
+| `--platform claude-code` | idem | — | docs, skills, commands, agents + CLAUDE.md + RTK hook | — |
+| `--platform codex` | idem | — | — | `AGENTS.md`, `.agents/skills/`, `.codex/agents/`, `.codex/docs/`, `.codex/config.toml` |
 
 ### RTK (Rust Token Killer)
 
@@ -162,7 +172,7 @@ Binario y documentación: <https://github.com/rtk-ai/rtk>.
 
 ## MCP (Model Context Protocol)
 
-Ahrena admite servidores MCP para GitHub, Notion y Figma. Cuando se activan, el instalador genera automáticamente las entradas correspondientes en `.cursor/mcp.json` y `.claude/settings.json`.
+Ahrena admite servidores MCP para GitHub, Notion y Figma. Cuando se activan, el instalador genera entradas para Cursor, Claude Code o para la sección administrada de `.codex/config.toml` en OpenAI Codex.
 
 ### Activar servidores MCP
 
@@ -335,6 +345,20 @@ Ahrena ofrece **soporte integrado para Claude Code**. Con `--platform claude-cod
 | **CLAUDE.md** | Lexis esenciales inyectadas directamente en el contexto de sesión |
 
 La configuración `claude-code.docs` en `platforms.yaml` controla qué artefactos se inyectan directamente en `CLAUDE.md` (`essential: true`) frente a los que se listan como referencias (`essential: false`).
+
+## Soporte para OpenAI Codex
+
+Con `--platform codex`, Ahrena genera recursos nativos de OpenAI Codex sin depender de la estructura de Claude Code:
+
+| Recurso Codex | Origen en Ahrena |
+|---|---|
+| Sección administrada en `AGENTS.md` | Contrato operativo esencial y routing del framework |
+| `.codex/docs/lex/` | Lexis completas para consulta bajo demanda |
+| `.codex/docs/codex/` | Manuales de referencia del pilar Ahrena Codex |
+| `.agents/skills/<nombre>/SKILL.md` | Katas y Cries como skills del repositorio |
+| `.codex/agents/<nombre>.toml` | Warriors como agentes especializados |
+
+El instalador preserva todo el contenido del proyecto fuera de los marcadores administrados en `AGENTS.md` y `.codex/config.toml`. La desinstalación elimina solo los recursos identificables de Ahrena. Los Cries se proyectan como skills porque los prompts personalizados son personales y las skills son el mecanismo reutilizable y compartible recomendado.
 
 ---
 

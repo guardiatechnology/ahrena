@@ -5,8 +5,8 @@ project override at `.ahrena/mcp/<name>.json`), resolves their
 `requires` array for the chosen platform, runs preflight at the `mcp`
 tier to install any missing local dependency (e.g. Node for npx-tier
 servers), updates `.ahrena/.directives` and re-runs the merger from
-`install.install_mcp()` so platform configs (`.mcp.json`, `.cursor/mcp.json`)
-stay in sync.
+the platform-specific installer merger so `.mcp.json`, `.cursor/mcp.json`, or
+the managed MCP section in `.codex/config.toml` stays in sync.
 
 Sub-commands:
   list                                  — show known servers and their state
@@ -180,6 +180,8 @@ def cmd_enable(
         print(f"  ERROR: no MCP config for server '{server}' in framework/mcp/ or .ahrena/mcp/")
         return 2
     block = raw.get(platform)
+    if platform == "codex" and not isinstance(block, dict):
+        block = raw.get("claude-code")
     if not isinstance(block, dict):
         print(f"  ERROR: '{server}' has no '{platform}' block (server JSON missing platform key)")
         return 2
@@ -239,14 +241,17 @@ def cmd_enable(
     # Re-run the install.py merger so platform configs reflect the new state
     directives = install.parse_directives(new_text)
     ahrena_dir = target_dir / ".ahrena"
-    install.install_mcp(ahrena_dir, target_dir, directives, dry_run=False)
+    if platform == "codex":
+        install.install_codex_mcp(ahrena_dir, target_dir, directives, dry_run=False)
+    else:
+        install.install_mcp(ahrena_dir, target_dir, directives, dry_run=False)
     return 0
 
 
 def cmd_disable(target_dir: Path, server: str, platform: str) -> int:
     # NOTE: `platform` is accepted for symmetry with `enable` but is not
-    # required to disable — we strip the entry from both .mcp.json and
-    # .cursor/mcp.json whenever they exist.
+    # required to disable — JSON platform files are cleaned when present and
+    # the managed Codex TOML section is rebuilt from the updated directives.
     text = _read_directives(target_dir)
     new_text = _remove_server_from_directives(text, server)
     if new_text != text:
@@ -258,6 +263,9 @@ def cmd_disable(target_dir: Path, server: str, platform: str) -> int:
     cleaned = _remove_from_platform_config(target_dir, server)
     for label in cleaned:
         print(f"  Removed '{server}' from {label}")
+    if platform == "codex":
+        directives = install.parse_directives(new_text)
+        install.install_codex_mcp(target_dir / ".ahrena", target_dir, directives, dry_run=False)
     return 0
 
 
@@ -300,7 +308,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--target", default=".", help="project root (default: cwd)")
     p.add_argument(
         "--platform",
-        choices=["cursor", "claude-code"],
+        choices=["cursor", "claude-code", "codex"],
         help="target platform (required for enable/disable)",
     )
     p.add_argument(
