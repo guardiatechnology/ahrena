@@ -76,6 +76,7 @@ mcp:
     - notion
     - figma
     - slack
+    # - graphify
 
 # ─── Quality (Issue-Driven Workflow) ────────────────────────────
 # Settings used by kata-quality-gate (Gate 2 of the Issue-Driven
@@ -213,6 +214,22 @@ rtk:
   # set false to skip the automatic binary install while still wiring the hook
   auto_install_binary: true
 
+# ─── Graphify (codebase knowledge graph) ───────────────────────
+# Turns a repository into a queryable knowledge graph so agents can
+# answer reverse-dependency questions ("who breaks if I change this")
+# that grep cannot. Consumed by kata-codebase-graph and, downstream,
+# by the affected-components table in kata-architecture-brief.
+# Code extraction is local AST via tree-sitter: deterministic, no API
+# key, no network. The optional semantic pass (documents, PDFs, images)
+# uses a language model; prefer `--backend claude-cli`, which bills the
+# existing Pro/Max subscription instead of a separate API key.
+# The graph is ADVISORY input, never a CI gate. See codex-graphify.
+graphify:
+  # opted out at install time; install/update do not touch any Graphify artifact
+  enabled: false
+  auto_install_binary: false
+  mode: code-only
+
 # ─── Notifications ──────────────────────────────────────────────
 # Provider-agnostic notification configuration consumed by Athena
 # (PR review timeout), Janus (release published), and Eunomia
@@ -259,37 +276,6 @@ session_tracking:
   stale_threshold_minutes: 30
   # Gate 2 rejects PR without "Session Trace" when true
   pr_trace_required: true
-  # Up to 3 short tags per session, surfaced in the statusline, the
-  # VSCode extension sidebar, and the Eunomia digest. Tag 1 (`kind`)
-  # comes from the controlled vocabulary in `kinds` below; tags 2 and
-  # 3 (`topics`) are free-form, lowercase, kebab-case recommended.
-  # Stored under `tags: {kind, topics: [...]}` in the heartbeat JSON.
-  # See lex-session-tags.
-  tags:
-    enabled: true
-    # Hard ceiling on slots per session (1 kind + 2 topics).
-    max_per_session: 3
-    # Controlled vocabulary for the 1st slot (`kind`). Default set
-    # covers the most frequent session intents in the Issue-Driven
-    # flow. Add project-specific values here — additions are PR-gated
-    # so the vocabulary stays small and aggregatable in the digest.
-    kinds:
-      - tech-task
-      - bug
-      - spike
-      - user-story
-      - epic
-      - chore
-      - design
-      - review
-      - exploration
-      - release
-    # When true, the agent invokes `kata-session-tag-suggest` silently
-    # on the first turn of a new session if `tags` is empty in the
-    # heartbeat. The chosen tags are written via `kata-session-heartbeat`
-    # and surfaced once in a one-line system-reminder so the user can
-    # correct via `/cry-tags set` if the inference was off.
-    auto_suggest: true
 
 # ─── Project Setup ──────────────────────────────────────────────
 # Project setup files materialized by `scripts/install.py` at

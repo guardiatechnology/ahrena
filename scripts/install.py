@@ -916,9 +916,10 @@ def install_rtk_bundle(
         )
 
 
-# PyPI distribution name for the Graphify CLI. Note the double "y": the
-# import package is `graphify`, the published distribution is `graphifyy`.
-GRAPHIFY_PACKAGE = "graphifyy"
+# PyPI distribution name includes a double "y". The MCP extra is deliberate:
+# recent Graphify releases keep the MCP runtime optional even though they expose
+# the `graphify-mcp` entry point.
+GRAPHIFY_PACKAGE = "graphifyy[mcp]"
 GRAPHIFY_REPO_URL = "https://github.com/Graphify-Labs/graphify"
 
 
@@ -935,8 +936,8 @@ def _install_graphify_binary(dry_run: bool = False) -> bool:
     Failures are non-fatal by design — the graph is advisory input, so a
     missing binary must never break an install.
     """
-    if shutil.which("graphify"):
-        print("  Graphify binary already installed.")
+    if shutil.which("graphify") and shutil.which("graphify-mcp"):
+        print("  Graphify CLI and MCP server already installed.")
         return True
 
     if shutil.which("uv"):
@@ -957,12 +958,17 @@ def _install_graphify_binary(dry_run: bool = False) -> bool:
 
     print(f"  Installing graphify via {tool}...")
     try:
-        subprocess.run(cmd, check=False)
-    except Exception as exc:
+        result = subprocess.run(cmd, check=False)
+    except (OSError, FileNotFoundError) as exc:
         print(f"  WARNING: graphify install failed ({exc}). Graph features stay inert.")
         return False
-
-    return shutil.which("graphify") is not None
+    if result.returncode != 0:
+        print(
+            f"  WARNING: Graphify installer exited with {result.returncode}; "
+            "graph features remain inert."
+        )
+        return False
+    return shutil.which("graphify") is not None and shutil.which("graphify-mcp") is not None
 
 
 def install_graphify_bundle(
@@ -1238,6 +1244,7 @@ MCP_CATALOG: dict[str, tuple[str, list[str]]] = {
     "notion":  ("Notion MCP — pages, databases (OAuth on first call)", []),
     "figma":   ("Figma MCP — design tokens, file inspect", ["FIGMA_API_KEY"]),
     "slack":   ("Slack MCP — channels, messages, notifications provider (OAuth)", []),
+    "graphify": ("Graphify MCP — local codebase knowledge-graph queries", []),
 }
 
 # Baseline OAuth scopes required by the GitHub MCP server's tool surface
@@ -1324,7 +1331,7 @@ OPTIONAL_FEATURES: dict[str, str] = {
     "notifications":    "Provider-agnostic notifications (Athena timeout, Janus release, Eunomia digest)",
     "pm":               "Eunomia PM loop (plans status digest cadence + thresholds)",
     "warriors-default-author": "Warriors default GitHub App identity for commits/PRs (requires GitHub App credentials)",
-    "graphify":         "Codebase knowledge graph for reverse-dependency mapping (installs the graphify binary)",
+    "graphify":         "Codebase knowledge graph for reverse-dependency mapping (installs CLI + MCP runtime)",
 }
 
 # Catalog of project setup files installed at bootstrap. Tuple = (description, env vars).
@@ -1365,10 +1372,11 @@ class Selection:
 # for git commits and PRs, so the install never enables it by default —
 # users must add it explicitly via `--with-features=warriors-default-author`
 # (or the interactive prompt).
-_PROFILE_DEFAULT_OFF: frozenset[str] = frozenset({"warriors-default-author"})
+_PROFILE_DEFAULT_OFF: frozenset[str] = frozenset({"warriors-default-author", "graphify"})
+_MCP_PROFILE_DEFAULT_OFF: frozenset[str] = frozenset({"graphify"})
 
 PROFILE_FULL = Selection(
-    mcps=frozenset(MCP_CATALOG.keys()),
+    mcps=frozenset(MCP_CATALOG.keys()) - _MCP_PROFILE_DEFAULT_OFF,
     hooks=frozenset(HOOK_CATALOG.keys()),
     optional_features=frozenset(OPTIONAL_FEATURES.keys()) - _PROFILE_DEFAULT_OFF,
     project_setup=frozenset(PROJECT_SETUP_CATALOG.keys()),

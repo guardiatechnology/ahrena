@@ -1,0 +1,15 @@
+{
+  "_comment": "Local Graphify MCP server. Enable together with the graphify optional feature. The graph is generated on demand and remains advisory.",
+  "cursor": {
+    "command": "graphify-mcp",
+    "args": ["--graph", "graphify-out/graph.json"]
+  },
+  "claude-code": {
+    "command": "graphify-mcp",
+    "args": ["--graph", "graphify-out/graph.json"]
+  },
+  "codex": {
+    "command": "graphify-mcp",
+    "args": ["--graph", "graphify-out/graph.json"]
+  }
+}
