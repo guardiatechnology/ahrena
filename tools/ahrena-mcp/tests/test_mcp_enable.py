@@ -144,3 +144,23 @@ def test_remove_from_platform_config_handles_missing_files(tmp_path, mcp_enable)
     # Neither .mcp.json nor .cursor/mcp.json exist — must not raise
     updated = mcp_enable._remove_from_platform_config(tmp_path, "github")
     assert updated == []
+
+
+def test_codex_enable_and_disable_use_native_config(tmp_path, mcp_enable):
+    mcp_dir = tmp_path / ".ahrena" / "framework" / "mcp"
+    mcp_dir.mkdir(parents=True)
+    (mcp_dir / "notion.json").write_text(json.dumps({
+        "claude-code": {"type": "http", "url": "https://mcp.notion.com/mcp"},
+    }))
+    directives = tmp_path / ".ahrena" / ".directives"
+    directives.write_text("language:\n  default: en\n")
+
+    assert mcp_enable.cmd_enable(
+        tmp_path, "notion", "codex", non_interactive=True,
+    ) == 0
+    config = (tmp_path / ".codex" / "config.toml").read_text()
+    assert "[mcp_servers.notion]" in config
+
+    assert mcp_enable.cmd_disable(tmp_path, "notion", "codex") == 0
+    config_path = tmp_path / ".codex" / "config.toml"
+    assert not config_path.exists() or "[mcp_servers.notion]" not in config_path.read_text()

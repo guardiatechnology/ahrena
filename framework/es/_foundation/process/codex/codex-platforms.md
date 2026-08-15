@@ -80,6 +80,22 @@ Al ejecutar `python .ahrena/update.py --sync-cursor` (o `make sync-cursor`):
 2. Usa `cursor.transposition` para decidir el destino de cada Pilar (ruta y formato).
 3. Usa `cursor.rules` para construir el frontmatter de los `.mdc` (alwaysApply, globs, description). Las rules no listadas reciben el default: alwaysApply false, description derivada del cuerpo.
 
+### OpenAI Codex
+
+Con `--platform codex`, Ahrena transpone sus pilares a recursos nativos de OpenAI Codex:
+
+| Pilar Ahrena | Recurso OpenAI Codex |
+|---|---|
+| Lexis | `.codex/docs/lex/` y contrato operativo administrado en `AGENTS.md` |
+| Codex | `.codex/docs/codex/` para consulta progresiva |
+| Katas | `.agents/skills/<nombre>/SKILL.md` |
+| Warriors | `.codex/agents/<nombre>.toml` |
+| Cries | `.agents/skills/<nombre>/SKILL.md` |
+
+En este contexto, **Codex Ahrena** significa manual de referencia, mientras **OpenAI Codex** significa la plataforma de agentes. Los Cries se convierten en skills porque los prompts personalizados son personales y las skills son el mecanismo compartible recomendado. El instalador preserva el contenido del proyecto fuera de los marcadores administrados en `AGENTS.md` y `.codex/config.toml`. Los gates humanos siguen siendo obligatorios, mientras las acciones externas (Issues, PRs, mensajes y recursos cloud) respetan los límites de autorización de OpenAI Codex.
+
+La proyección se regenera con `python .ahrena/update.py --sync-codex` o `make sync-codex`.
+
 ## Referencias
 
 - **`lex-platforms-rules`** — todo Lexis y Codex debe tener entrada en `cursor.rules` en `platforms.yaml` (al menos `description`); consultar al crear o publicar lex/codex

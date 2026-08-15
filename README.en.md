@@ -35,6 +35,7 @@ Ahrena verifies the host in three tiers during `make bootstrap` / `make install`
 |------|-------------|
 | **Cursor** | IDE with integrated support: the installer generates `.cursor/` (rules, skills, commands, agents) from the framework. [Cursor support](#cursor-support) |
 | **Claude Code** | Claude Code support: the installer generates `.claude/` (docs, skills, commands, agents) and `CLAUDE.md` from the framework. [Claude Code support](#claude-code-support) |
+| **OpenAI Codex** | Native Codex support: generates `AGENTS.md`, repository skills, TOML agents, and progressive references. [OpenAI Codex support](#openai-codex-support) |
 
 ### First-time installation
 
@@ -65,6 +66,9 @@ Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/do
 
 # Windows — framework + Claude Code
 Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform claude-code; Remove-Item install.py
+
+# Windows — framework + OpenAI Codex
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform codex; Remove-Item install.py
 ```
 
 ```bash
@@ -73,6 +77,9 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 
 # macOS / Linux — framework + Claude Code
 curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform claude-code
+
+# macOS / Linux — framework + OpenAI Codex
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform codex
 ```
 
 **Installer options:**
@@ -81,6 +88,7 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 |------|-------------|
 | `--platform cursor` | Generate `.cursor/` (rules, skills, commands, agents) |
 | `--platform claude-code` | Generate `.claude/` (docs, skills, commands, agents) and `CLAUDE.md` |
+| `--platform codex` | Generate `AGENTS.md`, `.agents/skills/`, `.codex/agents/`, and `.codex/docs/` |
 | `--profile {full\|standard\|minimal}` | Preference base profile; overridden by `--with-*` / `--without-*`. Default: `full` |
 | `--with-mcp / --without-mcp LIST` | Include/exclude MCPs (csv); the `ahrena` server is always kept |
 | `--with-hooks / --without-hooks LIST` | Include/exclude hooks (csv): `rtk`, `pr-cost-attribution` |
@@ -131,6 +139,7 @@ make install-to TARGET=/path/to/project PLATFORM=claude-code LANGUAGE=en
 | **Update (local)** | `make update LOCAL=1` or `make update SOURCE=../ahrena` | `python .ahrena/update.py --local` or `--source /path/to/ahrena` |
 | **Re-sync Cursor** | `make sync-cursor` | `python .ahrena/update.py --sync-cursor` |
 | **Re-sync Claude Code** | `make sync-claude-code` | `python .ahrena/update.py --sync-claude-code` |
+| **Re-sync OpenAI Codex** | `make sync-codex` | `python .ahrena/update.py --sync-codex` |
 | **Uninstall** | `make uninstall` | `python .ahrena/uninstall.py` (or `--force` to skip confirmation) |
 
 **Default:** install and update come from **remote** (GitHub). For local source use `--local` / `--source` or in the Makefile `LOCAL=1` / `SOURCE=...`.
@@ -139,11 +148,12 @@ make install-to TARGET=/path/to/project PLATFORM=claude-code LANGUAGE=en
 
 ### What gets installed
 
-| Command | `.ahrena/` | `.cursor/` | `.claude/` + `CLAUDE.md` |
-|---------|------------|------------|--------------------------|
-| Without `--platform` | framework, directives, scripts, Makefile | — | — |
-| `--platform cursor` | same | rules, skills, commands, agents | — |
-| `--platform claude-code` | same | — | docs, skills, commands, agents + CLAUDE.md + RTK hook |
+| Command | `.ahrena/` | `.cursor/` | `.claude/` + `CLAUDE.md` | OpenAI Codex |
+|---------|------------|------------|--------------------------|--------------|
+| Without `--platform` | framework, directives, scripts, Makefile | — | — | — |
+| `--platform cursor` | same | rules, skills, commands, agents | — | — |
+| `--platform claude-code` | same | — | docs, skills, commands, agents + CLAUDE.md + RTK hook | — |
+| `--platform codex` | same | — | — | `AGENTS.md`, `.agents/skills/`, `.codex/agents/`, `.codex/docs/`, `.codex/config.toml` |
 
 ### RTK (Rust Token Killer)
 
@@ -162,7 +172,7 @@ Binary and documentation: <https://github.com/rtk-ai/rtk>.
 
 ## MCP (Model Context Protocol)
 
-Ahrena supports MCP servers for GitHub, Notion, and Figma. When enabled, the installer automatically generates the corresponding entries in `.cursor/mcp.json` and `.claude/settings.json`.
+Ahrena supports MCP servers for GitHub, Notion, and Figma. When enabled, the installer generates entries for Cursor, Claude Code, or the managed section in `.codex/config.toml` for OpenAI Codex.
 
 ### Enabling MCP servers
 
@@ -335,6 +345,20 @@ Ahrena provides **integrated support for Claude Code**. With `--platform claude-
 | **CLAUDE.md** | Essential Lexis injected directly into session context |
 
 The `claude-code.docs` configuration in `platforms.yaml` controls which artifacts are injected directly into `CLAUDE.md` (`essential: true`) versus listed as references (`essential: false`).
+
+## OpenAI Codex support
+
+With `--platform codex`, Ahrena generates native OpenAI Codex resources without depending on Claude Code structures:
+
+| Codex resource | Ahrena origin |
+|---|---|
+| Managed section in `AGENTS.md` | Essential operating contract and framework routing |
+| `.codex/docs/lex/` | Complete Lexis loaded on demand |
+| `.codex/docs/codex/` | Ahrena Codex reference manuals |
+| `.agents/skills/<name>/SKILL.md` | Katas and Cries as repository skills |
+| `.codex/agents/<name>.toml` | Warriors as specialized agents |
+
+The installer preserves all project content outside managed markers in `AGENTS.md` and `.codex/config.toml`. Uninstall removes only identifiable Ahrena resources. Cries map to skills because custom prompts are personal, while skills are the recommended reusable and shareable mechanism.
 
 ---
 

@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 per `lex-semantic-version`.
 
+## [Unreleased]
+
+### Features
+
+- **codex:** add native OpenAI Codex platform projection with managed `AGENTS.md` guidance, repository skills, TOML custom agents, progressive reference docs, and project MCP configuration
+- **install:** add `--platform codex`, `--sync-codex`, platform detection, idempotent regeneration, and ownership-safe cleanup
+
+### Tests
+
+- **codex:** cover TOML agent validity, skill discovery metadata, guidance preservation, resource projection, and MCP config merging
+
 ## [0.16.0] - 2026-05-26
 
 11 PRs merged since v0.15.1 (#265, #272, #273, #277, #279, #281, #286, #287, #289, #291, #294) — closes the **warriors-default-author + preference-driven install** capability (parent #271, Plans A → P5) plus 2 tangential follow-ups.

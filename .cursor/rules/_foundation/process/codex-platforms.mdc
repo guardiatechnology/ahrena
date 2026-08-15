@@ -74,3 +74,19 @@ When running `python .ahrena/update.py --sync-cursor` (or `make sync-cursor`):
 1. The script loads `platforms.yaml` (default + override).
 2. Uses `cursor.transposition` to decide the destination of each Pilar (path and format).
 3. Uses `cursor.rules` to build the frontmatter of `.mdc` files (alwaysApply, globs, description). Rules not listed get the default: alwaysApply false, description derived from the body.
+
+### OpenAI Codex
+
+With `--platform codex`, Ahrena maps its pillars to native OpenAI Codex resources:
+
+| Ahrena pillar | OpenAI Codex resource |
+|---|---|
+| Lexis | `.codex/docs/lex/` plus a managed operating contract in `AGENTS.md` |
+| Codex | `.codex/docs/codex/` for progressive reference loading |
+| Katas | `.agents/skills/<name>/SKILL.md` |
+| Warriors | `.codex/agents/<name>.toml` |
+| Cries | `.agents/skills/<name>/SKILL.md` |
+
+Here, **Ahrena Codex** means a reference manual, while **OpenAI Codex** means the agent platform. Cries become skills because custom prompts are personal and skills are the recommended shareable mechanism. The installer preserves project content outside managed markers in `AGENTS.md` and `.codex/config.toml`. Human gates remain mandatory, while external actions (Issues, PRs, messages, and cloud resources) respect OpenAI Codex authorization boundaries.
+
+Run `python .ahrena/update.py --sync-codex` or `make sync-codex` to regenerate the projection.

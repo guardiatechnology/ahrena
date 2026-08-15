@@ -35,6 +35,7 @@ O Ahrena verifica o ambiente em três camadas durante `make bootstrap` / `make i
 |------|------------|
 | **Cursor** | IDE com suporte integrado: o instalador gera `.cursor/` (rules, skills, commands, agents) a partir do framework. [Suporte ao Cursor](#suporte-ao-cursor) |
 | **Claude Code** | Suporte ao Claude Code: o instalador gera `.claude/` (docs, skills, commands, agents) e `CLAUDE.md` a partir do framework. [Suporte ao Claude Code](#suporte-ao-claude-code) |
+| **OpenAI Codex** | Suporte nativo ao Codex: gera `AGENTS.md`, skills de repositório, agentes TOML e referências progressivas. [Suporte ao OpenAI Codex](#suporte-ao-openai-codex) |
 
 ### Primeira instalação
 
@@ -65,6 +66,9 @@ Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/do
 
 # Windows — framework + Claude Code
 Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform claude-code; Remove-Item install.py
+
+# Windows — framework + OpenAI Codex
+Invoke-WebRequest https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py -OutFile install.py; python install.py --platform codex; Remove-Item install.py
 ```
 
 ```bash
@@ -73,6 +77,9 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 
 # macOS / Linux — framework + Claude Code
 curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform claude-code
+
+# macOS / Linux — framework + OpenAI Codex
+curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/install.py | python3 - --platform codex
 ```
 
 **Opções do instalador:**
@@ -81,6 +88,7 @@ curl -sSL https://github.com/guardiatechnology/ahrena/releases/latest/download/i
 |------|------------|
 | `--platform cursor` | Gerar `.cursor/` (rules, skills, commands, agents) |
 | `--platform claude-code` | Gerar `.claude/` (docs, skills, commands, agents) e `CLAUDE.md` |
+| `--platform codex` | Gerar `AGENTS.md`, `.agents/skills/`, `.codex/agents/` e `.codex/docs/` |
 | `--profile {full\|standard\|minimal}` | Perfil base de preferências; sobrescrito por `--with-*` / `--without-*`. Default: `full` |
 | `--with-mcp / --without-mcp LISTA` | Incluir/excluir MCPs (csv); o servidor `ahrena` é sempre mantido |
 | `--with-hooks / --without-hooks LISTA` | Incluir/excluir hooks (csv): `rtk`, `pr-cost-attribution` |
@@ -134,6 +142,7 @@ O `--self` detecta automaticamente a raiz do repo Ahrena a partir do próprio sc
 | **Atualizar (local)** | `make update LOCAL=1` ou `make update SOURCE=../ahrena` | `python .ahrena/update.py --local` ou `--source /path/to/ahrena` |
 | **Re-sincronizar Cursor** | `make sync-cursor` | `python .ahrena/update.py --sync-cursor` |
 | **Re-sincronizar Claude Code** | `make sync-claude-code` | `python .ahrena/update.py --sync-claude-code` |
+| **Re-sincronizar OpenAI Codex** | `make sync-codex` | `python .ahrena/update.py --sync-codex` |
 | **Desinstalar** | `make uninstall` | `python .ahrena/uninstall.py` (ou `--force` sem confirmação) |
 
 **Padrão:** instalação e atualização são do **remoto** (GitHub). Para fonte local use `--local` / `--source` ou no Makefile `LOCAL=1` / `SOURCE=...`.
@@ -156,11 +165,12 @@ Se `make` não estiver disponível, use os scripts em PowerShell:
 
 ### O que é instalado
 
-| Comando | `.ahrena/` | `.cursor/` | `.claude/` + `CLAUDE.md` |
-|---------|------------|------------|--------------------------|
-| Sem `--platform` | framework, directives, scripts, Makefile | — | — |
-| `--platform cursor` | idem | rules, skills, commands, agents | — |
-| `--platform claude-code` | idem | — | docs, skills, commands, agents + CLAUDE.md + RTK hook |
+| Comando | `.ahrena/` | `.cursor/` | `.claude/` + `CLAUDE.md` | OpenAI Codex |
+|---------|------------|------------|--------------------------|--------------|
+| Sem `--platform` | framework, directives, scripts, Makefile | — | — | — |
+| `--platform cursor` | idem | rules, skills, commands, agents | — | — |
+| `--platform claude-code` | idem | — | docs, skills, commands, agents + CLAUDE.md + RTK hook | — |
+| `--platform codex` | idem | — | — | `AGENTS.md`, `.agents/skills/`, `.codex/agents/`, `.codex/docs/`, `.codex/config.toml` |
 
 ### RTK (Rust Token Killer)
 
@@ -179,7 +189,7 @@ Binário e documentação: <https://github.com/rtk-ai/rtk>.
 
 ## MCP (Model Context Protocol)
 
-O Ahrena suporta servidores MCP para GitHub, Notion e Figma. Quando ativados, o instalador gera automaticamente as entradas em `.cursor/mcp.json` e `.claude/settings.json`.
+O Ahrena suporta servidores MCP para GitHub, Notion e Figma. Quando ativados, o instalador gera automaticamente as entradas para Cursor, Claude Code ou para a seção gerenciada de `.codex/config.toml` no OpenAI Codex.
 
 ### Ativando servidores MCP
 
@@ -352,6 +362,20 @@ O Ahrena oferece **suporte integrado ao Claude Code**. Com `--platform claude-co
 | **CLAUDE.md** | Lexis essenciais injetadas diretamente no contexto da sessão |
 
 A configuração `claude-code.docs` no `platforms.yaml` controla quais artefatos são injetados diretamente no `CLAUDE.md` (`essential: true`) versus listados como referência (`essential: false`).
+
+## Suporte ao OpenAI Codex
+
+Com `--platform codex`, o Ahrena produz recursos nativos do OpenAI Codex sem depender da estrutura do Claude Code:
+
+| Recurso Codex | Origem no Ahrena |
+|---|---|
+| Seção gerenciada em `AGENTS.md` | Contrato operacional essencial e roteamento do framework |
+| `.codex/docs/lex/` | Lexis completas para consulta sob demanda |
+| `.codex/docs/codex/` | Manuais de referência do pilar Ahrena Codex |
+| `.agents/skills/<nome>/SKILL.md` | Katas e Cries, descobertos como skills do repositório |
+| `.codex/agents/<nome>.toml` | Warriors como agentes especializados |
+
+O instalador preserva todo conteúdo existente fora dos marcadores em `AGENTS.md`. A desinstalação remove apenas os recursos identificáveis do Ahrena e não apaga configurações Codex pertencentes ao projeto. Cries são projetadas como skills porque custom prompts são pessoais e o Codex recomenda skills para fluxos reutilizáveis e compartilhados.
 
 ---
 

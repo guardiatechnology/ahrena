@@ -96,7 +96,7 @@ endif
 # Used by install-to so --self resolves correctly regardless of CWD.
 MAKEFILE_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
-.PHONY: bootstrap bootstrap-labels install dev-install install-to update sync-cursor sync-claude-code uninstall clean validate help mcp-list mcp-enable mcp-disable preflight
+.PHONY: bootstrap bootstrap-labels install dev-install install-to update sync-cursor sync-claude-code sync-codex uninstall clean validate help mcp-list mcp-enable mcp-disable preflight
 
 help:
 	@echo "Ahrena: AI-First Capability Framework"
@@ -109,9 +109,11 @@ help:
 	@echo "  install-to    Offline install FROM this repo TO any target (no network)"
 	@echo "                  make install-to TARGET=/path/to/project PLATFORM=cursor"
 	@echo "                  make install-to TARGET=. PLATFORM=claude-code LANGUAGES=en  # lean, single language"
+	@echo "                  make install-to TARGET=. PLATFORM=codex LANGUAGES=en"
 	@echo "  update        Update installation (default: remote). After dev-install use update LOCAL=1 or SOURCE=..."
 	@echo "  sync-cursor   Regenerate .cursor/ from .ahrena/framework/ and .ahrena/artifacts/ (no download)"
 	@echo "  sync-claude-code  Regenerate .claude/ + CLAUDE.md from .ahrena/ (no download)"
+	@echo "  sync-codex    Regenerate AGENTS.md + .agents/ + .codex/ from .ahrena/ (no download)"
 	@echo "  uninstall     Remove Ahrena with confirmation"
 	@echo "  clean         Remove installed Ahrena files (no confirmation)"
 	@echo "  preflight     Run host-tooling preflight (hard + soft) without installing"
@@ -122,7 +124,7 @@ help:
 	@echo "                  make mcp-disable SERVER=github PLATFORM=claude-code"
 	@echo ""
 	@echo "Variables:"
-	@echo "  PLATFORM     Target platform (e.g. cursor, claude-code)"
+	@echo "  PLATFORM     Target platform (cursor, claude-code, codex)"
 	@echo "  VERSION      Tag or branch (default: main)"
 	@echo "  TARGET       Target project path (default: .)"
 	@echo "  REPO         GitHub repo URL"
@@ -166,6 +168,9 @@ sync-cursor:
 sync-claude-code:
 	$(PYTHON) .ahrena/update.py --target $(TARGET) --sync-claude-code
 
+sync-codex:
+	$(PYTHON) .ahrena/update.py --target $(TARGET) --sync-codex
+
 uninstall:
 	$(PYTHON) .ahrena/uninstall.py --target $(TARGET)
 
@@ -179,13 +184,13 @@ mcp-list:
 # Usage: make mcp-enable SERVER=github PLATFORM=claude-code
 mcp-enable:
 	@if [ -z "$(SERVER)" ]; then echo "ERROR: SERVER is required (e.g. SERVER=github)"; exit 2; fi
-	@if [ -z "$(PLATFORM)" ]; then echo "ERROR: PLATFORM is required (cursor or claude-code)"; exit 2; fi
+	@if [ -z "$(PLATFORM)" ]; then echo "ERROR: PLATFORM is required (cursor, claude-code, or codex)"; exit 2; fi
 	$(PYTHON) .ahrena/mcp_enable.py --target $(TARGET) --platform $(PLATFORM) enable $(SERVER)
 
 # Usage: make mcp-disable SERVER=github PLATFORM=claude-code
 mcp-disable:
 	@if [ -z "$(SERVER)" ]; then echo "ERROR: SERVER is required (e.g. SERVER=github)"; exit 2; fi
-	@if [ -z "$(PLATFORM)" ]; then echo "ERROR: PLATFORM is required (cursor or claude-code)"; exit 2; fi
+	@if [ -z "$(PLATFORM)" ]; then echo "ERROR: PLATFORM is required (cursor, claude-code, or codex)"; exit 2; fi
 	$(PYTHON) .ahrena/mcp_enable.py --target $(TARGET) --platform $(PLATFORM) disable $(SERVER)
 
 clean:
