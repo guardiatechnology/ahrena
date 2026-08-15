@@ -1,0 +1,287 @@
+# Codex: Documentos de Design de Feature — Estrutura e Templates
+
+> **Prefixo:** `codex-` | **Tipo:** Manual de Referência | **Escopo:** Plataforma Guardia — templates e convenções para os documentos produzidos no ciclo de design de feature
+
+## Estrutura Canônica
+
+```
+docs/
+└── {context}/                  # Bounded Context em kebab-case (Capability)
+    ├── entities/
+    │   └── {entity-name}.md
+    ├── oas/
+    │   └── openapi.yaml
+    ├── events/
+    │   └── events.md
+    ├── features/
+    │   └── {feature-name}.md   # 1 arquivo por feature (ver seção 4)
+    ├── metrics/                # reservado — métricas capability-level (ver seção 5)
+    └── feature-agent-map.md    # correlação m:n feature ↔ agent (ver seção 6)
+```
+
+> **Eixo paralelo — Agent Design.** `agents/{agent}/` (13 arquivos Hub & Spoke) e `dooc/{agent}.md` (snapshot da DoOC) NÃO vivem sob este Codex — eles compõem o eixo Agent Design e são governados por `codex-agent-design-docs` + `lex-agent-design-docs`. Feature e Agent são paralelos sob a Capability (1..n ↔ 1..n), não hierárquicos. A correlação entre os eixos é declarada em `feature-agent-map.md` (seção 6) com cross-refs bidirecionais.
+
+### Convenções
+
+| Item | Regra |
+|------|-------|
+| `{context}` | Bounded Context em kebab-case (Capability). Ex.: `ScheduledPayments` → `scheduled-payments` |
+| Arquivos de `entities/` | kebab-case do PascalCase. Ex.: `ScheduledTransfer` → `scheduled-transfer.md` |
+| Arquivo de `oas/` | `openapi.yaml`; quando múltiplas APIs: `openapi-{slug}.yaml` |
+| Arquivo de `events/` | `events.md` |
+| Arquivos de `features/` | `{feature-name}.md` em kebab-case derivado do nome lógico. Ex.: `ScheduledTransferReview` → `scheduled-transfer-review.md` |
+| `feature-agent-map.md` | Arquivo único no root da capability (não dentro de subpasta) |
+| Idioma | conforme `language.default` em `.ahrena/.directives` |
+
+## Templates
+
+### 1. `entities/{entity-name}.md`
+
+Cada entidade do Bounded Context tem **um arquivo dedicado** em `docs/{context}/entities/`. O template é:
+
+````markdown
+# Entity: {NomeDaEntidade}
+
+> **Classificação DDD:** Entity | Aggregate Root | Value Object
+> **Bounded Context:** {context}
+> **entity_type:** `{UPPER_SNAKE_CASE}`
+
+## Por que existe
+
+{Descrever em 2 a 4 frases o motivo de a entidade existir no domínio. Foque no problema de negócio que ela resolve, não no esquema técnico. Exemplo: "Representa uma transferência bancária ordenada por um contador para execução em data futura. Existe para separar a intenção (agendamento) da execução (processamento) e permitir o ciclo de aprovação obrigatório por supervisor."}
+
+## Campos
+
+| Campo | Tipo | Tamanho | Obrigatório | Descrição |
+|-------|------|---------|:-----------:|-----------|
+| `entity_id` | UUID v7 | 36 | Sim | Identificador único da entidade (lex-entities) |
+| `entity_type` | string | — | Sim | Valor fixo: `{UPPER_SNAKE_CASE}` |
+| `version` | integer | — | Sim | Versão otimista da entidade |
+| `created_at` | datetime (ISO 8601) | — | Sim | Criação |
+| `updated_at` | datetime (ISO 8601) | — | Sim | Última atualização |
+| `discarded_at` | datetime (ISO 8601) | — | Não | Soft delete (lex-entities) |
+| `{campo_negocio}` | {tipo} | {tamanho} | Sim/Não | {Descrição funcional} |
+
+> **Tipo:** use os tipos canônicos: `string`, `integer`, `decimal`, `boolean`, `datetime`, `date`, `enum<...>`, `UUID v7`, `Money`, `array<...>`, `object<...>`, ou referência a outra Entity/VO.
+> **Tamanho:** comprimento máximo (string), precisão (decimal), ou `—` quando não se aplica.
+> **Obrigatório:** Sim quando o campo é exigido para criar a entidade; Não quando opcional.
+
+## Regras de Negócio
+
+Liste numericamente as regras de negócio que governam a entidade em linguagem de domínio (não em SQL/código).
+
+1. **{RN-1 — Nome curto}:** {regra completa em uma frase. Ex.: "Uma transferência só pode ser agendada para datas úteis em até 90 dias no futuro."}
+2. **{RN-2}:** {...}
+3. **{RN-3}:** {...}
+
+## Invariantes
+
+Invariantes são condições que **sempre são verdadeiras** sobre a entidade ou o agregado. Diferem de regras de negócio porque não admitem exceção em nenhum estado.
+
+- **{INV-1}:** {ex.: "`amount` é sempre estritamente positivo."}
+- **{INV-2}:** {ex.: "`status` só transita pelos estados definidos no diagrama."}
+- **{INV-3}:** {ex.: "Uma transferência `executed` nunca pode voltar a `requested`."}
+
+## Relações
+
+| Relação | Cardinalidade | Tipo | Entidade Alvo | Observação |
+|---------|---------------|------|---------------|------------|
+| owns | 1..N | composição | `{OutraEntidade}` | {ex.: "ScheduledTransfer owns 1..N TransferApproval"} |
+| references | N..1 | referência | `{OutraEntidade}` | {ex.: "Referencia Account pelo entity_id; não compõe."} |
+
+> Use `composição` quando a entidade alvo só existe via raiz; `referência` quando alvo tem ciclo independente.
+
+## Erros
+
+Erros emitidos por casos de uso que tocam esta entidade. Cada erro DEVE seguir `lex-error-handling` (code, reason, message).
+
+| Code | Reason | Mensagem | Quando ocorre |
+|------|--------|----------|---------------|
+| `ERR400_INVALID_PARAMETER` | `INVALID_SCHEDULED_DATE` | "scheduled_date must be a future business day" | {RN-1 violada} |
+| `ERR409_CONFLICT` | `INVALID_STATE_TRANSITION` | "transfer cannot move from {from} to {to}" | Tentativa de transição inválida |
+
+## Catálogo
+
+| entity_type | event_name | type completo | Publicador | Consumidores |
+|-------------|------------|--------------|-----------|--------------|
+| `SCHEDULED_TRANSFER` | `requested` | `event.guardia.financial.scheduled_transfer.requested` | ScheduledPayments | Approval, Audit |
+| `SCHEDULED_TRANSFER` | `approved` | `event.guardia.financial.scheduled_transfer.approved` | Approval | ScheduledPayments, Audit |
+| `SCHEDULED_TRANSFER` | `executed` | `event.guardia.financial.scheduled_transfer.executed` | BankingIntegration | ScheduledPayments, Ledger |
+
+---
+
+## {NomeDaEntidadeEmPascalCase}
+
+> `entity_type`: `{UPPER_SNAKE_CASE}`
+
+### Ciclo de Vida
+
+```mermaid
+stateDiagram-v2
+    [*] --> requested
+    requested --> approved: ApproveScheduledTransfer
+    requested --> cancelled: CancelScheduledTransfer
+    approved --> executed: scheduler trigger
+    approved --> failed: execution error
+    approved --> cancelled: CancelScheduledTransfer
+    failed --> [*]
+    executed --> [*]
+    cancelled --> [*]
+```
+
+### Eventos
+
+#### `event.guardia.{module}.{entity_name}.requested`
+
+> Emitido quando o usuário cria a entidade.
+
+```json
+{
+  "specversion": "1.0",
+  "id": "txn:01b1c2d3-e4f5-7a8b-9c0d-1e2f3a4b5c6d",
+  "source": "https://api.guardia.technology/financial/v1/scheduled-transfers/txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
+  "type": "event.guardia.financial.scheduled_transfer.requested",
+  "subject": "SCHEDULED_TRANSFER/txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
+  "time": "2026-04-26T10:00:00Z",
+  "datacontenttype": "application/json",
+  "idempotencykey": "txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
+  "data": {
+    "entity_id": "txn:01957f3e-a1b2-7c8d-9e0f-1a2b3c4d5e6f",
+    "entity_type": "SCHEDULED_TRANSFER",
+    "version": 1,
+    "created_at": "2026-04-26T10:00:00Z",
+    "updated_at": "2026-04-26T10:00:00Z",
+    "scheduled_date": "2026-04-30",
+    "amount": 100000,
+    "currency": "BRL",
+    "source_account_id": "...",
+    "target_account_id": "..."
+  }
+}
+```
+
+| Campo de `data` | Tipo | Obrigatório | Descrição |
+|-----------------|------|:-----------:|-----------|
+| `entity_id` | UUID v7 | Sim | Identificador da entidade |
+| `entity_type` | string | Sim | Sempre `{UPPER_SNAKE_CASE}` |
+| `scheduled_date` | date | Sim | Data agendada para execução |
+| `amount` | integer (centavos) | Sim | Valor em menor unidade da moeda |
+| `currency` | string (ISO 4217) | Sim | Código da moeda |
+
+**Idempotência:** `idempotencykey` igual ao `entity_id` da requisição original.
+**Trigger:** Use Case `RequestScheduledTransfer`.
+
+---
+
+#### `event.guardia.{module}.{entity_name}.approved`
+
+> Emitido quando supervisor aprova.
+
+```json
+{ ... payload completo ... }
+```
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|:-----------:|-----------|
+
+**Trigger:** Use Case `ApproveScheduledTransfer`.
+
+---
+
+(repita para cada evento da entidade)
+
+---
+
+## {OutraEntidade}
+
+(repete a estrutura: ciclo de vida → eventos com payload)
+
+## Purpose
+
+{2-4 sentenças com a intenção de produto/negócio. Foque no problema que a feature resolve e no resultado esperado, não na arquitetura.}
+
+## User Stories
+
+- As {persona}, I want {action}, so that {benefit}
+- ...
+
+## Acceptance Criteria
+
+1. **AC-1:** {testable}
+2. **AC-2:** ...
+3. **AC-3:** ...
+
+## Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> discovery
+    discovery --> design
+    design --> implementation
+    implementation --> live
+    live --> deprecated
+    deprecated --> [*]
+```
+
+## Served by agents
+
+| Agent | Coverage | Notas |
+|-------|----------|-------|
+| `{agent-name}` | default path \| edge case \| exclusive | ... |
+
+> Conforme `feature-agent-map.md` (seção 6), esta lista DEVE ser reflexa em `agents/{agent}/overview.md` campo `serves_features`. Inconsistência bidirecional bloqueia em Gate 2.
+
+## Related artifacts
+
+- `entities/{...}.md` — entidades envolvidas
+- `oas/openapi.yaml` — endpoints REST que expõem a feature
+- `events/events.md` — eventos emitidos/consumidos
+- `metrics/` — KPIs da feature (quando aplicável)
+
+## Mapeamento Feature → Agents
+
+| Feature | Served by Agents | Tier | Notas |
+|---------|------------------|------|-------|
+| `feature-x` | `agent-a`, `agent-b` | tier-1 | agent-a default; agent-b edge cases |
+| `feature-y` | `agent-c` | tier-2 | exclusivo |
+
+## Reverse mapping (per agent)
+
+| Agent | Serves Features | Coverage |
+|-------|-----------------|----------|
+| `agent-a` | `feature-x`, `feature-z` | default em x; primary em z |
+| `agent-b` | `feature-x` | edge cases |
+| `agent-c` | `feature-y` | exclusivo |
+
+## Lifecycle correlation
+
+- Feature deprecada → agents servindo DEVEM ser reassessed (handoff para feature substituta ou sunset)
+- Novo agent → DEVE declarar `serves_features` (forward); cada feature listada DEVE atualizar `served_by_agents` (backward)
+- Consistência bidirecional verificada por `warrior-prometheus` (features) + `warrior-metis` (agents) ao final do ciclo de design
+
+## Relações Cruzadas
+
+Os tipos de documento se referenciam:
+
+| De → Para | Referência |
+|-----------|------------|
+| `entities/{e}.md` → `events/events.md` | Lista os eventos emitidos pela entidade na seção *Referências* |
+| `entities/{e}.md` → `oas/openapi.yaml` | Lista os endpoints REST que expõem a entidade |
+| `events/events.md` → `entities/` | Cada seção da entidade no events.md referencia o arquivo da entidade |
+| `oas/openapi.yaml` → `entities/` | Schemas refletem o catálogo de campos das entidades |
+| `features/{f}.md` → `entities/`, `oas/`, `events/` | Cada feature lista artefatos relacionados (entidades envolvidas, endpoints, eventos) |
+| `features/{f}.md` → `feature-agent-map.md` | Campo `served_by_agents` consistente com o mapa de correlação |
+| `feature-agent-map.md` → `features/{f}.md` | Forward mapping (feature → agents) reflete o campo `served_by_agents` de cada feature |
+| `feature-agent-map.md` → `agents/{agent}/overview.md` (eixo Agent Design) | Reverse mapping (agent → features) reflete o campo `serves_features` de cada agent — declarado em `codex-agent-design-docs` |
+
+A consistência cruzada é verificada pelo `warrior-prometheus` ao final do ciclo (Fase 4 — Verificação de Consistência). Para a correlação bidirecional com agents (`feature-agent-map.md` ↔ `agents/{agent}/overview.md`), Prometheus coordena com `warrior-metis` (autora do eixo Agent Design).
+
+## Restrições
+
+- **Não inverter a hierarquia:** sempre `docs/{context}/{categoria}/`. Categoria como nível superior (`docs/entities/{context}/...`) é PROIBIDO.
+- **Não duplicar campo de entidade no payload de evento:** o payload referencia o catálogo da entidade; só campos relevantes ao evento são reproduzidos.
+- **Não criar arquivo único de "domínio":** o modelo de domínio se distribui entre `entities/` (tabelas e regras), `events/` (ciclo de vida) e `oas/` (contrato exposto). O documento monolítico `domain-model.md` é descontinuado.
+- **Não usar paths configuráveis:** `paths.domain`, `paths.oas`, `paths.events` foram removidos de `.ahrena/.directives`. A estrutura é fixa e codificada nesta Lexis/Codex.
+- **`features/` é collection (1 arquivo por feature):** kebab-case derivado do nome lógico; cada feature é independente. Documento monolítico `features.md` listando várias features é PROIBIDO.
+- **`feature-agent-map.md` é resumo derivado, nunca fonte primária:** em divergência, `features/{f}.md` (campo `served_by_agents`) é fonte para forward mapping; `agents/{agent}/overview.md` (campo `serves_features`, declarado em `codex-agent-design-docs`) é fonte para reverse mapping. Editar o mapa sem atualizar a fonte é PROIBIDO.
+- **Mover `agents/` ou `dooc/` para dentro deste Codex é PROIBIDO:** eles vivem sob `codex-agent-design-docs` + `lex-agent-design-docs`. Feature Design e Agent Design são eixos paralelos, não hierárquicos.

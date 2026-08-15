@@ -1,0 +1,143 @@
+# Lexis: Consulta Obrigatória ao .directives
+
+> **Prefixo:** `lex-` | **Tipo:** Lei Inquebável | **Escopo:** Todas as sessões e atividades de agentes IA
+
+## Lei
+
+> **Todo agente DEVE ler e aplicar as instruções definidas em `.ahrena/.directives` antes de iniciar qualquer atividade que produza artefatos, documentação ou comunicação no contexto do Ahrena.**
+
+## Regras
+
+### 1. Localização canônica
+
+O arquivo de diretivas **SEMPRE** reside em:
+
+```
+.ahrena/.directives
+```
+
+O diretório `.ahrena/` é o ponto de entrada canônico do framework em qualquer projeto que adota o Ahrena. O agente **DEVE** procurar esse diretório na raiz do repositório.
+
+### 2. Leitura obrigatória ao iniciar
+
+Ao iniciar uma sessão ou atividade, o agente **DEVE**:
+
+1. Localizar o diretório `.ahrena/` na raiz do repositório.
+2. Ler o arquivo `.ahrena/.directives` integralmente.
+3. Internalizar as diretivas como restrições ativas para toda a sessão.
+
+Se o diretório `.ahrena/` ou o arquivo `.directives` não existir, o agente **DEVE** alertar o usuário sobre a ausência e sugerir sua criação.
+
+### 3. Diretivas como fonte da verdade
+
+As diretivas definidas em `.ahrena/.directives` têm **precedência** sobre:
+
+- Suposições do agente baseadas em treinamento ou contexto genérico.
+- Preferências implícitas não documentadas.
+
+Quando houver conflito entre uma diretiva e uma instrução do usuário na sessão, o agente **DEVE** seguir a instrução do usuário, mas **alertar** sobre a divergência em relação à diretiva canônica.
+
+### 4. Aplicação por seção
+
+O agente **DEVE** aplicar cada seção da diretiva ao comportamento correspondente:
+
+| Seção | Aplicação |
+|-------|-----------|
+| `paths` | Usar os caminhos canônicos ao referenciar ou criar artefatos do framework |
+| `language` | Produzir documentação e artefatos no idioma padrão (`default`) e garantir que os idiomas obrigatórios (`required`) sejam contemplados quando aplicável |
+| `naming.prefixes` | Aplicar o prefixo correto ao nomear artefatos de cada Pilar |
+| `naming.extensions` | Usar a extensão correta conforme o contexto (`.md` para framework, `.mdc` para Cursor) |
+| `naming.casing` | Seguir a convenção de casing definida para arquivos e diretórios |
+| `naming.addressing` | Seguir o padrão de endereçamento ao posicionar artefatos na taxonomia |
+| `naming.reserved_clades` | Reconhecer Clades especiais e respeitar suas regras de uso |
+| `terminal` | Consultar para comandos de shell; usar o tipo definido (bash ou PowerShell). Ver `lex-terminal-type`. |
+| `naming.tone_and_writing_style` | Aplicar o tom e o estilo ao produzir artefatos e comunicação. Ver `lex-tone`. |
+| `stacked_prs.tool` | Selecionar a ferramenta para operar Stacked Pull Requests quando aplicável: `vanilla` (default — `git` + `gh` puros) ou `gs` (git-spice). Ver `codex-stacked-prs`. |
+| `paths.skills_root` | Diretório raiz dos projetos de skill externos (default `skills`). Ver `lex-skill-project-structure`. |
+| `paths.skills_build` | Diretório de intermediários do build de skills (default `.build`, gitignored). Escrito pelo stack de build do projeto consumidor. |
+| `paths.skills_dist` | Diretório de entrega final de skills empacotados (default `.dist`, committed). Validado por `lex-skill-package-structure`. |
+| `pr_cost_tracking.enabled` | Quando `true`, ativar o stamp de tokens, custo USD e tempo de implementação (ativo + calendário) no body de PRs via `kata-pr-cost-stamp`. Default `false`. Ver `codex-pr-cost-tracking`. |
+| `pr_cost_tracking.idle_gap_minutes` | Gap (em minutos) que separa janelas ativas dentro de uma sessão Claude Code para o cálculo de tempo ativo. Default `10`. Valor menor torna a contagem mais estrita; maior agrega pausas longas. |
+| `pr_cost_tracking.attribution_mode` | `hook` (default) | `project` (legado). Em `hook`, o `pr-cost-attribution.sh` grava `~/.claude/projects/<hash>/branches.jsonl` por turno e o `pr-cost-stamp.sh` filtra por `--branch`/`--purpose`, separando Development e Review. Em `project`, comportamento legado (filtro só por project + since). |
+| `pr_cost_tracking.branches_sidecar_max_mb` | Limite (em MB) acima do qual o stamp emite warning sobre o tamanho do `branches.jsonl`. Default `50`. Iteração futura adiciona rotação automática. |
+| `pr_cost_tracking.known_ai_reviewers` | Lista de logins GitHub adicionais reconhecidos como revisores AI na subseção Review. Built-ins (gemini-code-assist[bot], claude[bot], coderabbitai[bot], qodo-merge-pro[bot], ahrena-warrior-argos[bot]) são sempre reconhecidos; logins aqui estendem o conjunto. Subchaves `currency`, `include_cache_breakdown`, `window_override_days`, `mask_absolute_cost` permanecem declaradas em `.directives.sample` como reservadas para iterações futuras. |
+| `pr_cost_tracking.known_ai_authors` | Lista de logins GitHub adicionais reconhecidos como **autores** AI na subseção Development (simétrico a `known_ai_reviewers`). Built-ins (`ahrena-bot[bot]`, `claude[bot]`, `copilot[bot]`) são sempre reconhecidos; logins aqui estendem o conjunto. Conduz a classificação de autor-bot descrita em `kata-pr-cost-stamp` § "Identidade do autor": quando o login de autor da PR pertence à união de built-ins + lista do projeto, o bloco de custo emite `Bot-authored: yes (<login>)` e reformula a subseção Total. |
+| `rtk.enabled` | Quando `true` (default), `scripts/install.py` instala o hook `PreToolUse` do RTK (Rust Token Killer) no `.claude/settings.json` do projeto-alvo com matcher `"Bash"` e o comando com fallback estrito `if command -v rtk >/dev/null 2>&1; then rtk hook claude; fi` (no-op quando o binário está ausente do PATH). Toda execução de install/update reconcilia o hook de forma idempotente. Quando `false`, install/update NÃO tocam em nenhum artefato relacionado ao RTK (não adiciona, não remove). |
+| `rtk.auto_install_binary` | Quando `true` (default), `scripts/install.py` detecta se o binário `rtk` está no PATH e instala quando ausente. O caminho de instalação é OS-aware: `brew install rtk` (macOS, quando Homebrew disponível), `curl install.sh \| sh` (Linux e fallback no macOS), WSL/cargo (Windows). Falhas de instalação não são fatais — o hook mantém a forma de fallback estrito, então um binário ausente nunca quebra o Claude Code. Defina como `false` para pular a tentativa de instalação do binário mantendo apenas o wire do hook. |
+| `graphify.enabled` | Quando `true`, `scripts/install.py` habilita o Graphify (grafo de conhecimento de código) no projeto alvo: detecta ou instala o binário `graphify` e reporta a disponibilidade de `graphify-mcp`. Diferente do RTK, o default quando a seção é omitida é `false` — o Graphify é feature opcional e traz uma árvore de dependências grande (cerca de 36 gramáticas tree-sitter), então uma instalação que não pediu por ele permanece limpa. Nenhum hook é registrado: o grafo é consultado sob demanda por `kata-codebase-graph`, nunca a cada chamada de Bash. Ver `codex-graphify`. |
+| `graphify.auto_install_binary` | Quando `true` (default), `scripts/install.py` detecta se `graphify` e `graphify-mcp` estão no PATH e instala a distribuição isolada `graphifyy[mcp]` via `uv tool install`, com fallback para `pipx install`. O extra `mcp` é exigido pelas versões atuais do Graphify para o runtime MCP. Falhas de instalação não são fatais — o grafo é insumo consultivo, então `kata-codebase-graph` degrada de forma limpa e nada quebra. Defina como `false` para pular a tentativa de instalação mantendo o contrato da diretriz. |
+| `graphify.mode` | `code-only` (default) executa apenas extração AST local: determinística, sem chave de API e sem rede. `semantic` habilita a passagem opcional com modelo de linguagem sobre documentos, PDFs e imagens. Nenhum gate de CI deve depender do modo `semantic`. Ver o modelo de custo aferido em `codex-graphify`. |
+| `notifications.provider` | Nome do servidor MCP responsável pelo envio de notificações. Valores aceitos: `slack`, `discord`, `teams`, `none`. O servidor MCP correspondente DEVE estar listado em `mcp.servers` e ativo. Consumido por Athena (PR review timeout), Janus (release publicada) e Eunomia (digest de planos). Ver `codex-notifications`. |
+| `notifications.channels.pr_review_timeout` | Canal lógico para alerta do loop de revisão da Athena (per `lex-agent-planning`). Disparado uma vez ao esgotar os 3 ciclos de espera sem aprovação humana. |
+| `notifications.channels.release_notify` | Canal lógico para anúncio de release concluída (Janus). |
+| `notifications.channels.plans_status` | Canal lógico para o digest periódico de planos ativos (Eunomia). |
+| `notifications.working_hours.*` | Janela útil (`start`, `end`, `timezone`) para publicação de digests não-críticos por Eunomia. Stalled crítico (`pm.critical_stalled_hours`) bypassa a janela. |
+| `pm.loop_interval_minutes` | Cadência do loop PM de Eunomia (default 15). Consumido por `kata-plans-status-digest`. |
+| `pm.stalled_threshold_hours` | Threshold em horas após o qual Eunomia marca um plano como `stalled` no digest. |
+| `pm.critical_stalled_hours` | Threshold em horas para `stalled` crítico — bypassa `notifications.working_hours` e alerta imediatamente. |
+| `session_tracking.enabled` | Master switch para tracking de sessão Claude Code per `codex-session-tracking`. Default `true` quando a seção existe. |
+| `session_tracking.heartbeat_dir` | Diretório onde os arquivos de heartbeat `.json` por sessão são escritos. Default `.ahrena/workflow/sessions` (gitignored). |
+| `session_tracking.stale_threshold_minutes` | Intervalo (minutos) sem heartbeat após o qual Eunomia considera a sessão offline. Default `30`. |
+| `session_tracking.pr_trace_required` | Quando `true`, Gate 2 (`kata-quality-gate`) rejeita PRs sem a seção "Session Trace" no body. Default `true`. |
+| `warriors_default_author.enabled` | Chave mestra para a identidade default dos warriors em commits/PRs. Quando `true`, os warriors listados em `warriors_default_author.apply_to` chamam `scripts/ahrena-auth.sh` antes de `git commit` / `gh pr create`, de modo que commits e PRs sejam atribuídos à identidade `[bot]` do GitHub App default (assinada no servidor pelo token de instalação do App) e o ser humano que conduziu o trabalho seja registrado como `Co-authored-by:`. Default `false` — o comportamento atual de autoria humana é preservado bit por bit até que o projeto opte explicitamente. Ver `codex-git-workflow` ("Identidade de autor"). |
+| `warriors_default_author.identity` | Slug do GitHub App usado para derivar a identidade default dos warriors (default `ahrena-bot`). Sobrescreva apenas quando um fork ou clone utilizar outro slug. |
+| `warriors_default_author.commit_mode` | `api` (assinatura no servidor via token de instalação do App) — único modo disponível hoje. O valor `local` está reservado para uma iteração futura. |
+| `warriors_default_author.commit_co_author` | `human` (injeta `Co-authored-by: <nome humano> <email humano>` para que a pessoa que conduziu o trabalho permaneça rastreável) ou `none`. |
+| `warriors_default_author.apply_to` | Lista de nomes de warriors que respeitam o override. Warriors omitidos da lista mantêm o autor humano mesmo quando a chave mestra está ativada (opt-out por warrior). Warriors com seu próprio GitHub App (ex.: Argos consome `AHRENA_WARRIOR_ARGOS_GH_*`) não dependem desta lista. |
+| `references.component_template_repo.url` | URL do repositório de referência canônico do layout de bounded context Guardia (`components/api`, `components/agents`, `components/jobs`, `components/ui`, `deployment`). Consumido por `codex-component-architecture` e seus 5 codex-filhos. Ver `codex-component-architecture`. |
+
+Manuais complementares para interpretação das seções: `codex-directives` (visão geral do arquivo), `codex-paths` (caminhos canônicos), `codex-naming` (convenções de nomenclatura), `codex-notifications` (mapeamento provider → MCP tool), `codex-session-tracking` (schema do heartbeat e Session Trace).
+
+### 5. Extensibilidade
+
+Novas seções podem ser adicionadas ao `.directives` a qualquer momento. O agente **DEVE** interpretar seções desconhecidas com base no nome e estrutura da chave, aplicando a diretiva de forma razoável. Em caso de ambiguidade, o agente **DEVE** perguntar ao usuário.
+
+### 6. Não modificação sem autorização
+
+O agente **NÃO PODE** modificar o arquivo `.directives` sem solicitação explícita do usuário. As diretivas são canônicas e governadas pelo mantenedor do framework.
+
+## Exemplos
+
+### Correto
+
+```
+Agente: [Início de sessão]
+1. Localiza .ahrena/ na raiz do repositório
+2. Lê .ahrena/.directives
+3. Identifica:
+   - Idioma padrão: pt-BR
+   - Idiomas obrigatórios: pt-BR, es, en
+   - Casing: kebab-case
+   - Prefixo para Lexis: lex-
+4. Produz artefato em pt-BR, nomeia como lex-code-review.md,
+   salva em engineering/quality/lexis/
+
+Usuário: Crie a documentação dessa feature.
+
+Agente: Documentação criada em pt-BR (padrão).
+Deseja que eu gere também as versões em espanhol e inglês,
+conforme as diretivas do framework?
+```
+
+### Incorreto
+
+```
+Agente: [Início de sessão — ignora .ahrena/.directives]
+
+Usuário: Crie uma nova Lexis sobre logging.
+
+Agente: Here's your new Lexis:
+# Lexis: Logging
+...
+
+# ❌ O agente não localizou .ahrena/ nem leu o .directives.
+# ❌ Ignorou o idioma padrão (pt-BR) definido nas diretivas.
+# ❌ Não consultou paths.samples para localizar o template correto.
+# ❌ Não ofereceu versões nos idiomas obrigatórios.
+```
+
+## Validação Automatizada
+
+- **Ferramenta:** verificação pelo próprio agente no início de cada sessão
+- **Momento:** antes de qualquer produção de artefato ou comunicação formal
+- **Métrica:** 100% das sessões devem ter o `.ahrena/.directives` consultado e aplicado
