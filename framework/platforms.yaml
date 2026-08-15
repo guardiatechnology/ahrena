@@ -318,55 +318,74 @@ cursor:
       alwaysApply: false
       globs: ["**/deployment/**", "**/infra/**"]
       description: "When working inside deployment/, follow IaC per lex-aws-iac (one tool per bounded context), tagging per lex-aws-cost, security per lex-aws-security, runbooks linked to alarms."
-    engineering/backend/lexis/lex-python-typing:
+    engineering/platform/codex/codex-domain-driven-design:
+      alwaysApply: false
+      description: "When modeling a complex domain, decide ubiquitous language, bounded contexts, ownership, invariants, aggregate boundaries, and domain-vs-integration events before choosing tactical patterns."
+    engineering/backend/dotnet/lexis/lex-dotnet-runtime-safety:
+      alwaysApply: false
+      globs: ["**/*.cs", "**/*.csproj", "**/*.props", "**/*.targets"]
+      description: "When writing .NET code, enforce memory-safe defaults, nullability, cancellation, async/resource ownership, correctness, and measured allocation budgets on hot paths."
+    engineering/backend/dotnet/lexis/lex-dotnet-boundary-security:
+      alwaysApply: false
+      globs: ["**/*.cs", "**/*.csproj", "**/appsettings*.json"]
+      description: "When changing .NET boundaries, enforce server-side authorization, validated input, parameterized data access, secure secrets, SSRF controls, and telemetry redaction."
+    engineering/backend/dotnet/lexis/lex-dotnet-testing:
+      alwaysApply: false
+      globs: ["**/*.cs", "**/*Tests.csproj", "**/tests/**", "**/Tests/**"]
+      description: "When changing .NET behavior, add deterministic risk-level tests and use the real provider when relational or external semantics matter."
+    engineering/backend/dotnet/codex/codex-dotnet-engineering:
+      alwaysApply: false
+      globs: ["**/*.cs", "**/*.csproj", "**/*.sln", "**/*.slnx", "**/global.json", "**/Directory.Build.*", "**/Directory.Packages.props"]
+      description: "When working in .NET, consult the C#/ASP.NET Core/EF Core/testing/operations guide, including Rust-inspired correctness, memory safety, and allocation discipline."
+    engineering/backend/python/lexis/lex-python-typing:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When writing Python code, require strict type annotations (mypy strict) for all functions and variables."
-    engineering/backend/lexis/lex-python-testing:
+    engineering/backend/python/lexis/lex-python-testing:
       alwaysApply: false
       globs: ["**/*.py", "**/test_*.py", "**/*_test.py"]
       description: "When writing Python tests, use pytest with coverage; no untested public functions."
-    engineering/backend/lexis/lex-python-security:
+    engineering/backend/python/lexis/lex-python-security:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When writing Python code, follow security rules: no secrets in code, validate inputs, use parameterized queries."
-    engineering/backend/lexis/lex-python-immutability:
+    engineering/backend/python/lexis/lex-python-immutability:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When writing Python code, prefer immutable data structures; use frozen dataclasses and tuples."
-    engineering/backend/lexis/lex-python-error-handling:
+    engineering/backend/python/lexis/lex-python-error-handling:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When writing Python code, no bare except; specific exceptions only; top-level boundary handlers must log original and translate into an Error."
-    engineering/backend/lexis/lex-python-result-type:
+    engineering/backend/python/lexis/lex-python-result-type:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When writing Python code, expected fallible operations must return Result[T, Error] from the returns package instead of raising exceptions."
-    engineering/backend/lexis/lex-python-error-object:
+    engineering/backend/python/lexis/lex-python-error-object:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When producing Python error values, use a frozen dataclass Error with exactly code, reason, message; subclasses pin code and reason."
-    engineering/backend/codex/codex-python-architecture:
+    engineering/backend/python/codex/codex-python-architecture:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When structuring Python projects, use Clean Architecture layers (domain, application, infrastructure)."
-    engineering/backend/codex/codex-python-fastapi:
+    engineering/backend/python/codex/codex-python-fastapi:
       alwaysApply: false
       globs: ["**/*.py", "**/routers/**", "**/api/**"]
       description: "When building FastAPI endpoints, follow route structure, dependency injection, and response models from this codex."
-    engineering/backend/codex/codex-python-sqlalchemy:
+    engineering/backend/python/codex/codex-python-sqlalchemy:
       alwaysApply: false
       globs: ["**/*.py", "**/models/**", "**/repositories/**"]
       description: "When using SQLAlchemy, use async sessions, mapped columns, and Alembic migrations per this codex."
-    engineering/backend/codex/codex-python-testing:
+    engineering/backend/python/codex/codex-python-testing:
       alwaysApply: false
       globs: ["**/*.py", "**/test_*.py"]
       description: "When writing Python tests, use pytest fixtures, factories, and coverage thresholds from this codex."
-    engineering/backend/codex/codex-python-observability:
+    engineering/backend/python/codex/codex-python-observability:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When adding observability, use OpenTelemetry traces, metrics, and structured logging from this codex."
-    engineering/backend/codex/codex-python-tooling:
+    engineering/backend/python/codex/codex-python-tooling:
       alwaysApply: false
       description: "When setting up Python project tooling, use ruff, mypy, pytest, and uv per this codex."
     engineering/workflow/lexis/lex-issue-driven:
@@ -375,7 +394,7 @@ cursor:
     engineering/workflow/codex/codex-issue-workflow:
       alwaysApply: false
       description: "When orchestrating Issue-Driven flow, follow 7 phases, 2 gates, MADR format, and delegation to Apollo/Daedalus/Kronos/Hephaestus/Atlas from this codex."
-    engineering/frontend/lexis/lex-frontend-typing:
+    engineering/frontend/typescript/lexis/lex-frontend-typing:
       alwaysApply: false
       globs: ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.svelte"]
       description: "When writing frontend code, enforce TypeScript strict mode; no implicit or unjustified any; contracts typed via OAS or Zod."
@@ -415,7 +434,7 @@ cursor:
     _foundation/quality/lexis/lex-logging-decorator:
       alwaysApply: false
       description: "When emitting logs in any language, use centralized bootstrap + decorator/wrapper; inline logger.info/console.log/print/fmt.Println calls in application code are forbidden."
-    engineering/backend/codex/codex-python-logging:
+    engineering/backend/python/codex/codex-python-logging:
       alwaysApply: false
       globs: ["**/*.py"]
       description: "When configuring logging in Python, use loguru with centralized setup, JSON sink with redaction, and the @logged decorator for instrumentation."
@@ -467,6 +486,13 @@ cursor:
     engineering/quality/lexis/lex-no-silent-tech-debt:
       alwaysApply: false
       description: "During an active Plan (status: development), forbid committing code or docs with silent TODO/FIXME/XXX/follow-up markers without a trackable Issue/Plan reference. Tangential findings must be surfaced to the human with 3 explicit options (expand Plan, new Plan, new Issue). Applies prospectively to diffs."
+    engineering/quality/lexis/lex-clean-code:
+      alwaysApply: false
+      globs: ["**/*.cs", "**/*.py", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.go", "**/*.rs"]
+      description: "When implementing or reviewing code, block dead/commented-out code, narrative comments, misleading names, and regressions against configured complexity limits."
+    engineering/quality/codex/codex-code-design:
+      alwaysApply: false
+      description: "When choosing abstractions, applying SOLID, investigating smells, or refactoring, use evidence, trade-offs, when-not-to-use criteria, and behavior protection."
     engineering/quality/codex/codex-test-strategy:
       alwaysApply: false
       description: "When deciding test level/tool/scope, consult decision tree, per-stack tooling, and anti-patterns from this codex."
@@ -610,7 +636,7 @@ claude-code:
     _foundation/contributing/lexis/lex-protected-trunk:
       paths: [".github/CODEOWNERS", ".github/workflows/**.yml", ".github/workflows/**.yaml"]
       description: "Trunk branches (main, master, release/*) are protected; never start dev on trunk — always create a feature branch first and reach trunk only via merged PR."
-    engineering/frontend/lexis/lex-frontend-typing:
+    engineering/frontend/typescript/lexis/lex-frontend-typing:
       paths: ["**/*.ts", "**/*.tsx", "**/*.vue", "**/*.svelte"]
       description: "When writing frontend code, TypeScript strict mode and typed contracts are mandatory."
     engineering/frontend/lexis/lex-frontend-accessibility:
@@ -625,9 +651,21 @@ claude-code:
     _foundation/quality/lexis/lex-logging-decorator:
       paths: ["**/*.py", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.go"]
       description: "Logs come from centralized bootstrap + decorator/wrapper; inline logger.info/console.log/print are forbidden in application code."
-    engineering/backend/codex/codex-python-logging:
+    engineering/backend/python/codex/codex-python-logging:
       paths: ["**/*.py"]
       description: "Python logging uses loguru with centralized setup, JSON sink with redaction, and the @logged decorator."
+    engineering/backend/dotnet/lexis/lex-dotnet-runtime-safety:
+      paths: ["**/*.cs", "**/*.csproj", "**/*.props", "**/*.targets"]
+      description: "C# uses memory-safe defaults, nullability, cancellation, async/resource ownership, correctness checks, and measured allocation budgets on hot paths."
+    engineering/backend/dotnet/lexis/lex-dotnet-boundary-security:
+      paths: ["**/*.cs", "**/*.csproj", "**/appsettings*.json"]
+      description: "At .NET boundaries, enforce server-side authorization, input validation, parameterized access, secure secrets, SSRF controls, and telemetry redaction."
+    engineering/backend/dotnet/lexis/lex-dotnet-testing:
+      paths: ["**/*.cs", "**/*Tests.csproj", "**/tests/**", "**/Tests/**"]
+      description: "Every .NET behavior change has a deterministic risk-level test and uses real infrastructure when provider semantics matter."
+    engineering/backend/dotnet/codex/codex-dotnet-engineering:
+      paths: ["**/*.cs", "**/*.csproj", "**/*.sln", "**/*.slnx", "**/global.json", "**/Directory.Build.*", "**/Directory.Packages.props"]
+      description: "Primary .NET engineering reference for C#, ASP.NET Core, EF Core, testing, operations, Rust-inspired correctness, memory safety, and GC discipline."
     engineering/quality/lexis/lex-test-pyramid:
       paths: ["**/tests/**", "**/test_*.py", "**/*_test.py", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/__tests__/**"]
       description: "Test distribution 70/20/10 (unit/integration/E2E); E2E reserved for critical journeys."
@@ -635,6 +673,14 @@ claude-code:
       description: "Domain knowledge must live in a single canonical locus per bounded context; ≥3 occurrences require extraction, ≥2 bounded contexts require an ADR."
     engineering/quality/lexis/lex-no-silent-tech-debt:
       description: "During an active Plan (status: development), forbid committing code or docs with silent TODO/FIXME/XXX/follow-up markers without a trackable Issue/Plan reference. Tangential findings must be surfaced to the human with 3 explicit options (expand Plan, new Plan, new Issue). Applies prospectively to diffs."
+    engineering/quality/lexis/lex-clean-code:
+      paths: ["**/*.cs", "**/*.py", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.go", "**/*.rs"]
+      description: "Block dead/commented-out code, narrative comments, misleading names, and regressions against configured complexity limits."
+    engineering/quality/codex/codex-code-design:
+      description: "Use evidence, trade-offs, when-not-to-use criteria, and behavior protection when choosing abstractions or refactoring."
+    engineering/platform/codex/codex-domain-driven-design:
+      paths: ["docs/**/entities/**", "docs/**/events/**", "**/domain/**"]
+      description: "Use strategic DDD before tactical patterns: language, bounded contexts, ownership, invariants, Context Map, and event semantics."
     engineering/sre/lexis/lex-slo-required:
       paths: ["docs/slo/**", "**/slo/**", "**/*.slo.yaml"]
       description: "Tier-1/2 services require SLO pre go-live; error budget guides priorization."
@@ -685,25 +731,25 @@ claude-code:
     engineering/frontend/lexis/lex-frontend-testing:
       paths: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "**/__tests__/**"]
       description: "When writing frontend tests, test user behavior with accessible queries; mock only at external boundaries."
-    engineering/backend/lexis/lex-python-typing:
+    engineering/backend/python/lexis/lex-python-typing:
       paths: ["**/*.py"]
       description: "When writing Python code, require strict type annotations (mypy strict) for all functions and variables."
-    engineering/backend/lexis/lex-python-security:
+    engineering/backend/python/lexis/lex-python-security:
       paths: ["**/*.py"]
       description: "When writing Python code, follow security rules: no secrets in code, validate inputs, use parameterized queries."
-    engineering/backend/lexis/lex-python-immutability:
+    engineering/backend/python/lexis/lex-python-immutability:
       paths: ["**/*.py"]
       description: "When writing Python code, prefer immutable data structures; use frozen dataclasses and tuples."
-    engineering/backend/lexis/lex-python-testing:
+    engineering/backend/python/lexis/lex-python-testing:
       paths: ["**/*.py", "**/test_*.py", "**/*_test.py"]
       description: "When writing Python tests, use pytest with coverage; no untested public functions."
-    engineering/backend/lexis/lex-python-error-handling:
+    engineering/backend/python/lexis/lex-python-error-handling:
       paths: ["**/*.py"]
       description: "When writing Python code, no bare except; specific exceptions only; top-level boundary handlers must log original and translate into an Error."
-    engineering/backend/lexis/lex-python-error-object:
+    engineering/backend/python/lexis/lex-python-error-object:
       paths: ["**/*.py"]
       description: "When producing Python error values, use a frozen dataclass Error with exactly code, reason, message; subclasses pin code and reason."
-    engineering/backend/lexis/lex-python-result-type:
+    engineering/backend/python/lexis/lex-python-result-type:
       paths: ["**/*.py"]
       description: "When writing Python code, expected fallible operations must return Result[T, Error] from the returns package instead of raising exceptions."
     engineering/platform/lexis/lex-auth:

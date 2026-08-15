@@ -61,8 +61,8 @@ Todos los **31** comandos de alto nivel del framework Ahrena (incluida la planti
 
 | Artefacto | Invoca | Descripción | Framework |
 |---|---|---|---|
-| `cry-python-implement` | `warrior-apollo` | Implement a Python feature following all platform standards | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/cries/cry-python-implement.md) |
-| `cry-python-review` | `warrior-apollo` | Review Python code for quality, security, typing, and compliance | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/cries/cry-python-review.md) |
+| `cry-python-implement` | `warrior-apollo` | Implement a Python feature following all platform standards | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/cries/cry-python-implement.md) |
+| `cry-python-review` | `warrior-apollo` | Review Python code for quality, security, typing, and compliance | [en](https://github.com/guardiatechnology/ahrena/tree/main/framework/en/engineering/backend/python/cries/cry-python-review.md) |
 
 ---
 

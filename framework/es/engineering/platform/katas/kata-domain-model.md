@@ -24,6 +24,20 @@ Producir un modelo de dominio completo para una feature o módulo mediante diál
 
 ## Flujo de Trabajo
 
+### Gates de Decisión Antes del Flujo
+
+Aplicar estos gates antes de crear artefactos tácticos:
+
+| Gate | Pregunta | Decisión |
+|---|---|---|
+| Complejidad | ¿Existen reglas, lenguaje disputado o invariantes más allá de CRUD? | Si no, documentar el modelo simple y no inventar Aggregates/Repositories |
+| Estrategia | ¿Están claros lenguaje, ownership, bounded contexts y relaciones? | Si no, seguir en descubrimiento; no avanzar al modelo táctico |
+| Consistencia | ¿Qué invariantes deben ser atómicas? | El límite del Aggregate nace de esta respuesta, no de las tablas |
+| Evento | ¿El hecho es interno al dominio o contrato entre contextos? | Separar Domain Event de Integration Event y sus garantías |
+| Operación | ¿Cómo funcionan timeout, concurrencia, reprocesamiento y commit incierto? | Registrar mecanismo, indicador, responsable y reconciliación |
+
+Clasificar cada resultado como **confirmado**, **decisión**, **propuesta** o **hotspot**. Consultar `codex-domain-driven-design`; los patterns tácticos también registran cuándo **no** usarlos.
+
 ```
 Progreso:
 - [ ] 1. Leer directivas y alcance

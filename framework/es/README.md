@@ -41,18 +41,21 @@ Los cambios en el idioma por defecto se traducen al resto de idiomas mediante `/
 
 ### Taxonomía
 
-El conocimiento se organiza en **Clade** (disciplina) → **Subclade** (área) → **Pilar** (tipo de capacidad). La dirección canónica de un artefacto es:
+El conocimiento se organiza en **Clade** (disciplina) → **Subclade** (área) → **Stack opcional** → **Pilar** (tipo de capacidad). Use el nivel de stack solo cuando el artefacto dependa de una tecnología específica; las capacidades transversales permanecen directamente en el subclade. Las direcciones canónicas son:
 
-`{lang}/{clade}/{subclade}/{pilar}/{prefixo}-{nome}.{ext}` — por ejemplo `pt-BR/engineering/platform/lexis/lex-restful-apis.md`.
+`{lang}/{clade}/{subclade}/{pilar}/{prefixo}-{nome}.{ext}` o `{lang}/{clade}/{subclade}/{stack}/{pilar}/{prefixo}-{nome}.{ext}` — por ejemplo `es/engineering/backend/dotnet/lexis/lex-dotnet-testing.md`.
 
 ```mermaid
 flowchart LR
   subgraph Taxonomia
     A[Clade] --> B[Subclade]
-    B --> C[Pilar]
-    C --> D[Artefato]
+    B --> C{¿Depende de una stack?}
+    C -->|No| D[Pilar]
+    C -->|Sí| S[Stack]
+    S --> D
+    D --> E[Artefacto]
   end
-  D --> E["lex-*, codex-*, kata-*, warrior-*, cry-*"]
+  E --> F["lex-*, codex-*, kata-*, warrior-*, cry-*"]
 ```
 
 ### Visión general
@@ -82,7 +85,7 @@ flowchart TB
 
 ### Paths canónicos en `framework/`
 
-El **idioma es el primer nivel** de navegación. Cada carpeta de idioma contiene el árbol completo Clade → Subclade → Pilar.
+El **idioma es el primer nivel** de navegación. Cada carpeta de idioma contiene el árbol Clade → Subclade → Stack opcional → Pilar.
 
 ```mermaid
 flowchart LR
@@ -91,7 +94,10 @@ flowchart LR
     lang --> clade["{clade}/"]
     clade --> sub["{subclade}/"]
     sub --> pilar["{pilar}/"]
+    sub --> stack["{stack}/ (opcional)"]
+    stack --> stackPilar["{pilar}/"]
     pilar --> artefato["{prefix}-{name}.md"]
+    stackPilar --> artefato
   end
   templates["templates/"]
   templates --> artefato

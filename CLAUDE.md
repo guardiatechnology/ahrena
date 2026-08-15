@@ -54,13 +54,14 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/documentation/i18n/codex-language-ptbr.md`
 - `.claude/docs/documentation/i18n/codex-language.md`
 - `.claude/docs/engineering/agents/codex-agent-construction-directives.md`
-- `.claude/docs/engineering/backend/codex-python-architecture.md`
-- `.claude/docs/engineering/backend/codex-python-fastapi.md`
-- `.claude/docs/engineering/backend/codex-python-logging.md`
-- `.claude/docs/engineering/backend/codex-python-observability.md`
-- `.claude/docs/engineering/backend/codex-python-sqlalchemy.md`
-- `.claude/docs/engineering/backend/codex-python-testing.md`
-- `.claude/docs/engineering/backend/codex-python-tooling.md`
+- `.claude/docs/engineering/backend/dotnet/codex-dotnet-engineering.md`
+- `.claude/docs/engineering/backend/python/codex-python-architecture.md`
+- `.claude/docs/engineering/backend/python/codex-python-fastapi.md`
+- `.claude/docs/engineering/backend/python/codex-python-logging.md`
+- `.claude/docs/engineering/backend/python/codex-python-observability.md`
+- `.claude/docs/engineering/backend/python/codex-python-sqlalchemy.md`
+- `.claude/docs/engineering/backend/python/codex-python-testing.md`
+- `.claude/docs/engineering/backend/python/codex-python-tooling.md`
 - `.claude/docs/engineering/data/codex-data-modeling.md`
 - `.claude/docs/engineering/devops/codex-aws-services.md`
 - `.claude/docs/engineering/devops/codex-aws-well-architected.md`
@@ -68,6 +69,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/engineering/mobile/codex-mobile-architecture.md`
 - `.claude/docs/engineering/platform/codex-auth.md`
 - `.claude/docs/engineering/platform/codex-cloudevents.md`
+- `.claude/docs/engineering/platform/codex-domain-driven-design.md`
 - `.claude/docs/engineering/platform/codex-entities.md`
 - `.claude/docs/engineering/platform/codex-error-handling.md`
 - `.claude/docs/engineering/platform/codex-feature-design-docs.md`
@@ -80,6 +82,7 @@ Available in `.claude/docs/` — use `@` to import when needed:
 - `.claude/docs/engineering/platform/codex-restful-payload.md`
 - `.claude/docs/engineering/platform/codex-restful-sorting.md`
 - `.claude/docs/engineering/platform/codex-restful-status-codes.md`
+- `.claude/docs/engineering/quality/codex-code-design.md`
 - `.claude/docs/engineering/quality/codex-test-strategy.md`
 - `.claude/docs/engineering/skills/codex-skill-anthropic-agent-skills.md`
 - `.claude/docs/engineering/skills/codex-skill-project-architecture.md`

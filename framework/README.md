@@ -27,6 +27,8 @@ Cada idioma replica a mesma árvore de clades:
 └── engineering/    ← backend, data, devops, frontend, mobile, platform, quality, sre, workflow
 ```
 
+Dentro de um subclade, artefatos transversais ficam diretamente nos seus pilares. Quando uma capacidade depende de uma tecnologia, a stack entra como subpath antes do pilar — por exemplo, `engineering/backend/dotnet/lexis/` e `engineering/backend/python/codex/`.
+
 ## Navegação
 
 - **[pt-BR](pt-BR/README.md)** — Português (padrão)
