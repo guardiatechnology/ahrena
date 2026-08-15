@@ -1,0 +1,109 @@
+# Codex: Modelo de Entidades da Plataforma Guardia
+
+> **Prefixo:** `codex-` | **Tipo:** Manual de Referência | **Escopo:** Plataforma Guardia — estrutura base de entidades
+
+## Conteúdo
+
+### Estrutura base
+
+A estrutura base de uma entidade na Guardia DEVE conter as seguintes propriedades:
+
+| Propriedade | Tipo | Obrigatório | Descrição |
+|-------------|------|-------------|-----------|
+| entity_id | {entity_id_prefix}:{uuid_v7} | Sim | Identificador único da entidade. O prefixo é uma string alfanumérica minúscula de 2–5 chars definida antes do desenvolvimento; UUID v7 garante ordenação temporal. |
+| entity_type | string (UPPER_SNAKE_CASE) | Sim | Tipo de entidade. Sempre UPPER_SNAKE_CASE (ex.: `TRANSACTION`). |
+| external_entity_id | string | Não | Identificador único da entidade em um sistema externo. |
+| created_at | datetime | Sim | Data e hora de criação da entidade. |
+| updated_at | datetime | Sim | Data e hora da última atualização da entidade. |
+| discarded_at | datetime | Não | Data e hora de descarte da entidade. |
+| metadata | JSON Object | Não | Metadados da entidade. |
+| version | integer | Sim | Versão da entidade. |
+| history | array | Não | Histórico de versões da entidade. |
+
+### Propriedades detalhadas
+
+#### entity_id
+
+- DEVE ser formatado como `{entity_id_prefix}:{uuid_v7}` onde:
+  - `entity_id_prefix` é uma string alfanumérica minúscula de 2–5 caracteres definida antes do início do desenvolvimento (ex.: `txn`, `rec`, `org`, `per`, `doc`).
+  - `uuid_v7` implementa UUID v7 conforme a [RFC 9562](https://datatracker.ietf.org/doc/html/rfc9562#name-uuid-version-7), assegurando ordenação temporal.
+- DEVE ser único, imutável e gerado pelo sistema.
+- O prefixo DEVE ser declarado no documento de design da entidade antes do início da codificação. Alterá-lo é uma mudança breaking que requer ADR.
+
+#### entity_type
+
+- DEVE usar UPPER_SNAKE_CASE (ex.: `TRANSACTION`, `SCHEDULED_TRANSFER`, `LEDGER_ENTRY`).
+- DEVE pertencer a uma lista controlada de entidades conhecidas pelo sistema.
+- A forma minúscula é usada apenas em segmentos `type` do CloudEvents e segmentos de path de URL — ver `lex-entity-naming`.
+
+#### Nomenclatura do campo de identificador
+
+Ao referenciar uma entidade pelo seu identificador no payload JSON de outra entidade:
+- Usar `{entity_name}_id`, onde `{entity_name}` é a forma minúscula de `entity_type`.
+- Exemplo: uma referência a uma entidade `TRANSACTION` usa o campo `transaction_id`.
+- O sufixo `_entity_id` é PROIBIDO: nunca usar `transaction_entity_id`.
+- Exceção: dentro do próprio payload da entidade, o campo de identificador canônico é sempre `entity_id`.
+
+#### external_entity_id
+
+- PODE ser nulo.
+- DEVE ter no máximo 36 caracteres.
+- QUANDO presente, DEVE ser único dentro do `entity_type`.
+- Ideal para referências cruzadas com sistemas legados ou externos.
+
+#### created_at
+
+- DEVE ser um datetime em UTC formatado conforme a [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339).
+- DEVE ser gerado automaticamente na criação.
+- NÃO PODE ser alterado após a criação.
+
+#### updated_at
+
+- DEVE ser um datetime em UTC formatado conforme a [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339).
+- DEVE ser atualizado a cada modificação persistente.
+- Na criação, DEVE assumir o mesmo valor de `created_at`.
+- No descarte, DEVE assumir o mesmo valor de `discarded_at`.
+- Utilizado para controle de concorrência e sincronização.
+
+#### discarded_at
+
+- DEVE ser um datetime em UTC formatado conforme a [RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339).
+- PODE ser nulo.
+- Quando preenchido, indica soft delete. A entidade permanece no sistema para fins de rastreabilidade.
+
+#### metadata
+
+- DEVE ser um JSON Object.
+- Chave e valor DEVEM ser strings.
+- DEVE seguir o tamanho ideal de 4KB sempre que possível e NÃO DEVE ultrapassar 10KB.
+- Atualizações DEVEM ser feitas via JSON Merge Patch [RFC 7386](https://datatracker.ietf.org/doc/html/rfc7386).
+- NÃO DEVE conter dados sensíveis ou pessoais sem previsão legal.
+- Valores PODEM ser armazenados criptografados, com impacto na performance.
+
+#### version
+
+- Inicializa em 1 e é incrementado automaticamente junto com o `updated_at`.
+- NUNCA é reiniciado, mesmo após restauração de entidade descartada.
+- Em caso de conflito de versão, a última versão é preservada, descartando a que conflitou.
+
+#### history
+
+- Armazena snapshots de versões anteriores.
+- Utilizado para auditoria, rollback e investigação.
+- Por padrão, armazena as últimas 10 versões mais recentes por até 365 dias.
+- O histórico DEVE ser omitido das respostas temporais (create, update, delete e get).
+- DEVE ser omitido dos eventos de domínio.
+- O histórico DEVE ser fornecido nas respostas de leitura (get) quando solicitado pelo cliente no endpoint `api/v1/<entity_type>/<entity_id>/history`.
+- O endpoint de histórico retorna uma lista de até 10 registros históricos da mesma entidade.
+- Valores PODEM ser armazenados criptografados, com impacto na performance.
+
+### Quando aplicar
+
+Este modelo DEVE ser adotado sempre que:
+
+- Um novo recurso de domínio for modelado;
+- APIs forem expostas internamente ou externamente;
+- Eventos de domínio forem gerados;
+- Dados precisarem de unicidade, rastreabilidade, reversibilidade ou interoperabilidade.
+
+**IMPORTANTE:** Exceções DEVEM ser justificadas e aprovadas pelo Comitê Diretivo e registradas em um Registro de Decisão de Produto (PDR).
