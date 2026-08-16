@@ -1,0 +1,157 @@
+---
+description: "Python construction surfaces (≥5 params, or a parameter group repeated across ≥2 sibling signatures, or use-case command / entity birth-factory inputs) must group parameters into a dedicated frozen input type, bound to the hexagon layer (api Pydantic request / app Command / domain construction VO) with no cross-layer reuse. Count trigger via ruff PLR0913 (max-args=4)."
+alwaysApply: false
+---
+
+# Lexis: Input-DTO (Parameter Object for Construction Surfaces)
+
+> **Prefix:** `lex-` | **Type:** Unbreakable Law | **Scope:** Engineering — Backend: signatures of functions, methods, factories, use-case commands, and entity construction inputs in Python code
+
+## Law
+
+> **Every function, method, or factory that (1) takes ≥ 5 domain parameters, (2) shares the same parameter group with ≥ 2 sibling signatures (rule of three for parameter shape), or (3) represents a use-case command or an entity birth/factory input MUST group those parameters into a dedicated, immutable (frozen) input type. The type MUST respect the hexagon layer it lives in — Pydantic request model in `adapters/api`, a frozen `Command` in `application`, a frozen construction Value Object in `domain` — without reusing one layer's type in another. A mutable, anemic (mirrors every argument without cohesion), or cross-layer-reused (boundary leak) input-DTO is FORBIDDEN. Methods with 1–3 parameters and single-arg transitions (e.g., `settle(on: datetime)`) do NOT require grouping.**
+
+```
+<HARD-GATE>
+warrior-apollo, warrior-athena (Gate 2), and any agent implementing or
+reviewing Python code MUST NOT approve a construction signature that
+fires an objective surface trigger without its parameters grouped into a
+dedicated input type.
+
+Mandatory preconditions (ANY one firing forces the grouping):
+  (a) the signature takes ≥ 5 domain parameters
+      (count trigger — ruff PLR0913 with max-args=4)
+  (b) the same parameter group repeats across ≥ 2 sibling signatures
+      (rule of three for parameter shape)
+
+This rule applies to EVERY construction signature, regardless of:
+  - perceived size ("it's just one more argument")
+  - future intent ("I'll turn it into a DTO later")
+  - visibility ("the function is internal, no one calls it from outside")
+
+Single declared exception: methods with 1–3 parameters and single-arg
+transitions (e.g., `settle(on: datetime)`) fall outside the trigger scope
+and do not require grouping.
+</HARD-GATE>
+```
+
+## Coverage
+
+- **Applies to:**
+  - Python application code: functions, methods, factories, use-case commands, and entity construction inputs (birth-params)
+  - The three hexagon layers: `adapters/api` (Pydantic request model), `application` (frozen `Command`), `domain` (frozen construction Value Object)
+  - Detection of a repeated parameter shape across sibling signatures (e.g., `provision()`/`adjust()` of the same aggregate)
+- **Out of scope of this Law (reference, do not duplicate):**
+  - Domain-knowledge duplication (rule, formula, mapping) → `lex-dry`
+  - Type immutability (`frozen=True`) → `lex-python-immutability`
+  - Complete type annotations on the DTO → `lex-python-typing`
+  - External input validation at the boundary (Pydantic at the edge) → `lex-python-security`
+  - Comment hygiene and dead code → `lex-clean-code`
+  - Methods with 1–3 parameters and single-arg transitions (not a violation by construction)
+- **Bound agents:** `warrior-apollo` (and the specialists `warrior-apollo-api`, `warrior-apollo-jobs`, `warrior-apollo-agents`), `warrior-athena` (Gate 2 of the Issue-Driven flow), `warrior-argos` (multi-axis review)
+- **Exceptions:** None. Lexis admit no exceptions.
+
+## Violation Consequences
+
+1. **Automatic block:** `ruff PLR0913` rejects, at pre-commit/CI, a signature that exceeds the parameter ceiling; Gate 2 (`kata-quality-gate`) and `warrior-argos` reject the parameter group repeated across ≥ 2 sibling signatures and the layer leak (api Pydantic reused as a domain VO, non-frozen DTO).
+2. **Alert:** notifies the PR author and the owner of the affected bounded context.
+3. **Remediation:** the author extracts the group into the correct layer's input type — Pydantic request model in `adapters/api`, frozen `Command` in `application`, or frozen construction Value Object in `domain` — and adjusts callers to pass the grouped object.
+
+## Examples
+
+### Correct
+
+```python
+# domain — frozen construction Value Object; one signature, one named shape
+from dataclasses import dataclass
+
+@dataclass(frozen=True, kw_only=True)
+class ProvisionInput:
+    holder_id: str
+    currency: str
+    opening_balance: int
+    credit_limit: int
+    risk_tier: str
+
+class Account:
+    @classmethod
+    def provision(cls, params: ProvisionInput) -> "Account":
+        ...
+
+    def adjust(self, params: ProvisionInput) -> "Account":
+        ...  # siblings share the SAME shape via the type, without re-listing 14 args
+```
+
+```python
+# application — frozen Command as the use-case input
+@dataclass(frozen=True, kw_only=True)
+class CreateTransferCommand:
+    source_account_id: str
+    target_account_id: str
+    amount: int
+    currency: str
+    idempotency_key: str
+
+class CreateTransferUseCase:
+    async def execute(self, cmd: CreateTransferCommand) -> TransferId:
+        ...
+```
+
+```python
+# adapters/api — Pydantic request model at the edge (lex-python-security)
+from pydantic import BaseModel, ConfigDict, Field
+
+class CreateTransferRequest(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    source_account_id: str = Field(min_length=1, max_length=36)
+    target_account_id: str = Field(min_length=1, max_length=36)
+    amount: int = Field(gt=0)
+    currency: str = Field(pattern=r"^[A-Z]{3}$")
+
+# single-arg transition — out of scope, does NOT require a DTO
+def settle(self, on: datetime) -> None:
+    ...
+```
+
+### Incorrect
+
+```python
+# domain — wide surface without grouping; 14-arg group re-listed in the siblings
+class Account:
+    @classmethod
+    def provision(                                     # ❌ ≥ 5 params, no input-DTO
+        cls, holder_id, currency, opening_balance, credit_limit,
+        risk_tier, branch_code, manager_id, opened_at, segment,
+        kyc_level, tax_regime, statement_day, overdraft, notes,
+    ): ...
+
+    def adjust(                                        # ❌ same shape duplicated (rule of three)
+        self, holder_id, currency, opening_balance, credit_limit,
+        risk_tier, branch_code, manager_id, opened_at, segment,
+        kyc_level, tax_regime, statement_day, overdraft, notes,
+    ): ...
+```
+
+```python
+# boundary leak — api Pydantic reused as a domain VO
+from app.adapters.api.schemas import CreateTransferRequest
+
+class CreateTransferUseCase:
+    async def execute(self, req: CreateTransferRequest) -> TransferId:  # ❌ api type leaks into application
+        ...
+
+# mutable DTO — violates the contract (must be frozen, lex-python-immutability)
+@dataclass                                             # ❌ missing frozen=True
+class ProvisionInput:
+    holder_id: str
+    currency: str
+```
+
+## Automated Validation
+
+- **Tool:**
+  - **Parameter count:** `ruff` rule `PLR0913` (too-many-arguments) configured with `max-args = 4` in `pyproject.toml` — fires on the 5th domain parameter.
+  - **Repeated group / duplicated shape:** review by `warrior-apollo` and audit by `warrior-argos` detecting the same parameter group across ≥ 2 sibling signatures (not catchable by count alone).
+  - **Layer taxonomy / boundary leak:** `warrior-argos` verifies that the `adapters/api` Pydantic request model is not imported/reused as an input in `application` or `domain`, and that `Command` and the construction VO are `frozen` (composes with `lex-python-immutability`).
+- **When:** pre-commit (`ruff PLR0913` local), CI on every PR, Gate 2 of the Issue-Driven flow.
+- **Metric:** 0 functions/factories above the ceiling without a grouped input; 0 parameter groups repeated across ≥ 2 sibling signatures without extraction; 0 input types reused across layers (boundary leak); 100% of construction commands and VOs `frozen`.
