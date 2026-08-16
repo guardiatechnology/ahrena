@@ -387,15 +387,59 @@ def _is_pipx_ahrena_mcp_installed(pipx_path: str) -> bool:
     return False
 
 
+def _pipx_ahrena_mcp_editable_state(pipx_path: str) -> bool | None:
+    """Return whether pipx manages ahrena-mcp as editable, or None if unknown.
+
+    `pipx runpip ... list --editable --format=json` reads the environment's
+    installed-distribution metadata. That metadata remains available even when
+    the editable source directory has already disappeared, so it can repair the
+    exact stale `.pth` failure without importing the broken package.
+    """
+    import json
+
+    try:
+        proc = subprocess.run(
+            [
+                pipx_path,
+                "runpip",
+                "ahrena-mcp",
+                "list",
+                "--editable",
+                "--format=json",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode != 0:
+        return None
+    try:
+        packages = json.loads(proc.stdout or "")
+    except (json.JSONDecodeError, TypeError):
+        return None
+    if not isinstance(packages, list):
+        return None
+    return any(
+        isinstance(package, dict)
+        and str(package.get("name", "")).lower().replace("_", "-")
+        == "ahrena-mcp"
+        for package in packages
+    )
+
+
 def install_mcp_package(ahrena_dir: Path, dry_run: bool = False) -> None:
     """Install the ahrena-mcp Python package via pipx so `ahrena-mcp` is on PATH.
 
     Reads `mcp.servers` from .ahrena/.directives. Skips silently when
     `ahrena` is not listed. Uses `.ahrena/tools/ahrena-mcp/` as the
-    source for `pipx install -e`. When pipx is missing, prints a
+    source for a self-contained `pipx install`. When pipx is missing, prints a
     WARNING with install instructions and skips (non-fatal). When the
-    package is already installed via pipx, this is a no-op on first
-    install and a prompt on subsequent runs (default-no, preserve).
+    package is already installed via pipx, legacy editable or unreadable
+    installs are repaired automatically. A healthy non-editable install keeps
+    the existing prompt/non-interactive-preserve behavior.
     """
     import subprocess
 
@@ -426,8 +470,17 @@ def install_mcp_package(ahrena_dir: Path, dry_run: bool = False) -> None:
         return
 
     already_installed = _is_pipx_ahrena_mcp_installed(pipx)
+    needs_stable_reinstall = False
 
-    if already_installed and sys.stdin.isatty():
+    if already_installed:
+        editable_state = _pipx_ahrena_mcp_editable_state(pipx)
+        needs_stable_reinstall = editable_state is not False
+        if editable_state is True:
+            print("  Migrating editable ahrena-mcp install to a stable pipx copy ...")
+        elif editable_state is None:
+            print("  Refreshing ahrena-mcp because its pipx install mode is unreadable ...")
+
+    if already_installed and not needs_stable_reinstall and sys.stdin.isatty():
         try:
             ans = input(
                 "  ahrena-mcp already installed via pipx. Reinstall/upgrade? [y/N]: "
@@ -437,16 +490,15 @@ def install_mcp_package(ahrena_dir: Path, dry_run: bool = False) -> None:
         if ans not in ("y", "yes"):
             print("  Skipping reinstall (existing pipx install preserved).")
             return
-    elif already_installed:
+    elif already_installed and not needs_stable_reinstall:
         # Non-interactive: preserve existing install, do nothing.
         return
 
     if dry_run:
-        action = "reinstall" if already_installed else "install"
-        print(f"  [DRY-RUN] pipx {action} -e {pkg_path}")
+        print(f"  [DRY-RUN] pipx install --force {pkg_path}")
         return
 
-    cmd = [pipx, "install", "--force", "-e", str(pkg_path)]
+    cmd = [pipx, "install", "--force", str(pkg_path)]
     print("  Installing ahrena-mcp via pipx ...")
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, check=False, timeout=180)
@@ -3072,7 +3124,7 @@ def install_ahrena(source_dir: Path, target_dir: Path, args: argparse.Namespace)
                 shutil.copy2(json_file, dst_file)
         print(f"  Installed MCP templates to .ahrena/mcp/")
 
-    # 2.7. Copy tools/ahrena-mcp/ source so pipx can install -e from .ahrena/
+    # 2.7. Copy tools/ahrena-mcp/ so pipx can make a self-contained install.
     pkg_src = source_dir / "tools" / "ahrena-mcp"
     pkg_dst = ahrena_dir / "tools" / "ahrena-mcp"
     if pkg_src.is_dir():

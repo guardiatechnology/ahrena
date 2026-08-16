@@ -2,7 +2,7 @@
 
 Local MCP server that exposes the Ahrena framework (Lexis, Codex, Katas, Warriors, Cries) as read-only queryable tools for any MCP client (Claude Code, Cursor, external agents).
 
-**Default-on in every project that adopts Ahrena.** The framework's `scripts/install.py` copies this package source into `.ahrena/tools/ahrena-mcp/` and runs `pipx install -e <path>` so the `ahrena-mcp` console script lands on `PATH`. The companion codex at [`framework/{lang}/_foundation/tooling/codex/codex-ahrena-mcp.md`](../../framework/pt-BR/_foundation/tooling/codex/codex-ahrena-mcp.md) is the canonical user-facing manual; this README is the package's technical entry point.
+**Default-on in every project that adopts Ahrena.** The framework's `scripts/install.py` copies this package source into `.ahrena/tools/ahrena-mcp/` and runs `pipx install --force <path>` so the `ahrena-mcp` console script lands on `PATH` as a self-contained install. The companion codex at [`framework/{lang}/_foundation/tooling/codex/codex-ahrena-mcp.md`](../../framework/pt-BR/_foundation/tooling/codex/codex-ahrena-mcp.md) is the canonical user-facing manual; this README is the package's technical entry point.
 
 ## Tools exposed
 
@@ -30,7 +30,7 @@ python3 scripts/install.py --target <project-dir> --platform claude-code
 make -f .ahrena/Makefile install
 ```
 
-`install.py` copies `tools/ahrena-mcp/` into `.ahrena/tools/ahrena-mcp/`, runs `pipx install -e <path>`, and merges `framework/mcp/ahrena.json` into the platform configs (`.cursor/mcp.json`, root `.mcp.json`, `.claude/settings.json` `enabledMcpjsonServers`). Restart the MCP client; the 7 `ahrena_*` tools appear.
+`install.py` copies `tools/ahrena-mcp/` into `.ahrena/tools/ahrena-mcp/`, runs `pipx install --force <path>`, and merges `framework/mcp/ahrena.json` into the platform configs (`.cursor/mcp.json`, root `.mcp.json`, `.claude/settings.json` `enabledMcpjsonServers`). pipx copies the package into its managed environment, so removing or regenerating the project-local `.ahrena/` directory does not break the machine-wide command. Restart the MCP client; the 7 `ahrena_*` tools appear.
 
 `pipx` is required for the canonical path. When `pipx` is missing, `install.py` prints a `WARNING` to `stderr` and continues — the rest of the framework install completes, and the user gets clear instructions to install pipx and re-run. See the codex for fallback paths (`pip install --user`, manual `PATH` adjustment).
 
@@ -44,7 +44,7 @@ pip install -e tools/ahrena-mcp
 pipx install --force -e tools/ahrena-mcp
 ```
 
-The latter mirrors what `install.py` does in adopter projects — useful for dogfooding the install flow.
+These editable commands are development-only. The adopter installer deliberately uses a non-editable pipx install so its machine-wide command never depends on a project-local source directory.
 
 Optional but recommended: `brew install ripgrep` (or your OS equivalent). Without `rg`, search falls back to a slower Python regex sweep.
 
